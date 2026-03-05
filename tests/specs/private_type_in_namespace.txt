@@ -96,7 +96,7 @@ private namespace Test
               "tsType": {
                 "repr": "Test.Other",
                 "kind": "typeRef",
-                "typeRef": {
+                "value": {
                   "typeParams": null,
                   "typeName": "Test.Other"
                 }

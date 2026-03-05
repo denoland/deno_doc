@@ -74,21 +74,21 @@ interface Generic<T>
           "returnType": {
             "repr": "Generic",
             "kind": "typeRef",
-            "typeRef": {
+            "value": {
               "typeParams": [
                 {
                   "repr": "",
                   "kind": "tuple",
-                  "tuple": [
+                  "value": [
                     {
                       "repr": "string",
                       "kind": "keyword",
-                      "keyword": "string"
+                      "value": "string"
                     },
                     {
                       "repr": "number",
                       "kind": "keyword",
-                      "keyword": "number"
+                      "value": "number"
                     }
                   ]
                 }

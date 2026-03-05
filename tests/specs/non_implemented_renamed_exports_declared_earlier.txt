@@ -34,7 +34,7 @@ function bar(): void
           "returnType": {
             "repr": "void",
             "kind": "keyword",
-            "keyword": "void"
+            "value": "void"
           },
           "isAsync": false,
           "isGenerator": false,

@@ -37,14 +37,14 @@ function foo(bar: any): asserts bar
               "tsType": {
                 "repr": "any",
                 "kind": "keyword",
-                "keyword": "any"
+                "value": "any"
               }
             }
           ],
           "returnType": {
             "repr": "asserts bar",
             "kind": "typePredicate",
-            "typePredicate": {
+            "value": {
               "asserts": true,
               "param": {
                 "type": "identifier",

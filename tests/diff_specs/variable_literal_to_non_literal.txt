@@ -24,7 +24,7 @@ export const config: string = "";
                     "old": {
                       "repr": "",
                       "kind": "typeLiteral",
-                      "typeLiteral": {
+                      "value": {
                         "constructors": [],
                         "methods": [],
                         "properties": [
@@ -42,7 +42,7 @@ export const config: string = "";
                             "tsType": {
                               "repr": "boolean",
                               "kind": "keyword",
-                              "keyword": "boolean"
+                              "value": "boolean"
                             },
                             "typeParams": []
                           },
@@ -60,7 +60,7 @@ export const config: string = "";
                             "tsType": {
                               "repr": "boolean",
                               "kind": "keyword",
-                              "keyword": "boolean"
+                              "value": "boolean"
                             },
                             "typeParams": []
                           }
@@ -72,7 +72,7 @@ export const config: string = "";
                     "new": {
                       "repr": "string",
                       "kind": "keyword",
-                      "keyword": "string"
+                      "value": "string"
                     }
                   }
                 }

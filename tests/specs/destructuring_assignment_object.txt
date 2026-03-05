@@ -52,7 +52,7 @@ private const rest
           "tsType": {
             "repr": "",
             "kind": "typeLiteral",
-            "typeLiteral": {
+            "value": {
               "constructors": [],
               "methods": [],
               "properties": [
@@ -70,7 +70,7 @@ private const rest
                   "tsType": {
                     "repr": "string",
                     "kind": "keyword",
-                    "keyword": "string"
+                    "value": "string"
                   },
                   "typeParams": []
                 },
@@ -88,7 +88,7 @@ private const rest
                   "tsType": {
                     "repr": "string",
                     "kind": "keyword",
-                    "keyword": "string"
+                    "value": "string"
                   },
                   "typeParams": []
                 }

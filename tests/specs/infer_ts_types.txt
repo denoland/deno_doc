@@ -328,7 +328,7 @@ namespace MyNamespace
           "tsType": {
             "repr": "string",
             "kind": "keyword",
-            "keyword": "string"
+            "value": "string"
           },
           "kind": "let"
         }
@@ -351,7 +351,7 @@ namespace MyNamespace
           "tsType": {
             "repr": "number",
             "kind": "keyword",
-            "keyword": "number"
+            "value": "number"
           },
           "kind": "let"
         }
@@ -374,7 +374,7 @@ namespace MyNamespace
           "tsType": {
             "repr": "boolean",
             "kind": "keyword",
-            "keyword": "boolean"
+            "value": "boolean"
           },
           "kind": "let"
         }
@@ -397,7 +397,7 @@ namespace MyNamespace
           "tsType": {
             "repr": "bigint",
             "kind": "keyword",
-            "keyword": "bigint"
+            "value": "bigint"
           },
           "kind": "let"
         }
@@ -420,7 +420,7 @@ namespace MyNamespace
           "tsType": {
             "repr": "hello",
             "kind": "typeRef",
-            "typeRef": {
+            "value": {
               "typeParams": null,
               "typeName": "RegExp"
             }
@@ -446,13 +446,13 @@ namespace MyNamespace
           "tsType": {
             "repr": "foobar",
             "kind": "literal",
-            "literal": {
+            "value": {
               "kind": "template",
               "tsTypes": [
                 {
                   "repr": "foobar",
                   "kind": "literal",
-                  "literal": {
+                  "value": {
                     "kind": "string",
                     "string": "foobar"
                   }
@@ -481,13 +481,13 @@ namespace MyNamespace
           "tsType": {
             "repr": "f${string | number}${string | null}o${string}${number}o",
             "kind": "literal",
-            "literal": {
+            "value": {
               "kind": "template",
               "tsTypes": [
                 {
                   "repr": "f",
                   "kind": "literal",
-                  "literal": {
+                  "value": {
                     "kind": "string",
                     "string": "f"
                   }
@@ -495,23 +495,23 @@ namespace MyNamespace
                 {
                   "repr": "",
                   "kind": "union",
-                  "union": [
+                  "value": [
                     {
                       "repr": "string",
                       "kind": "keyword",
-                      "keyword": "string"
+                      "value": "string"
                     },
                     {
                       "repr": "number",
                       "kind": "keyword",
-                      "keyword": "number"
+                      "value": "number"
                     }
                   ]
                 },
                 {
                   "repr": "",
                   "kind": "literal",
-                  "literal": {
+                  "value": {
                     "kind": "string",
                     "string": ""
                   }
@@ -519,23 +519,23 @@ namespace MyNamespace
                 {
                   "repr": "",
                   "kind": "union",
-                  "union": [
+                  "value": [
                     {
                       "repr": "string",
                       "kind": "keyword",
-                      "keyword": "string"
+                      "value": "string"
                     },
                     {
                       "repr": "null",
                       "kind": "keyword",
-                      "keyword": "null"
+                      "value": "null"
                     }
                   ]
                 },
                 {
                   "repr": "o",
                   "kind": "literal",
-                  "literal": {
+                  "value": {
                     "kind": "string",
                     "string": "o"
                   }
@@ -543,12 +543,12 @@ namespace MyNamespace
                 {
                   "repr": "string",
                   "kind": "keyword",
-                  "keyword": "string"
+                  "value": "string"
                 },
                 {
                   "repr": "",
                   "kind": "literal",
-                  "literal": {
+                  "value": {
                     "kind": "string",
                     "string": ""
                   }
@@ -556,12 +556,12 @@ namespace MyNamespace
                 {
                   "repr": "number",
                   "kind": "keyword",
-                  "keyword": "number"
+                  "value": "number"
                 },
                 {
                   "repr": "o",
                   "kind": "literal",
-                  "literal": {
+                  "value": {
                     "kind": "string",
                     "string": "o"
                   }
@@ -591,7 +591,7 @@ namespace MyNamespace
           "returnType": {
             "repr": "void",
             "kind": "keyword",
-            "keyword": "void"
+            "value": "void"
           },
           "hasBody": true,
           "isAsync": false,
@@ -618,12 +618,12 @@ namespace MyNamespace
           "returnType": {
             "repr": "Promise",
             "kind": "typeRef",
-            "typeRef": {
+            "value": {
               "typeParams": [
                 {
                   "repr": "void",
                   "kind": "keyword",
-                  "keyword": "void"
+                  "value": "void"
                 }
               ],
               "typeName": "Promise"
@@ -736,7 +736,7 @@ namespace MyNamespace
                 "returnType": {
                   "repr": "void",
                   "kind": "keyword",
-                  "keyword": "void"
+                  "value": "void"
                 },
                 "hasBody": true,
                 "isAsync": false,
@@ -762,12 +762,12 @@ namespace MyNamespace
                 "returnType": {
                   "repr": "Promise",
                   "kind": "typeRef",
-                  "typeRef": {
+                  "value": {
                     "typeParams": [
                       {
                         "repr": "void",
                         "kind": "keyword",
-                        "keyword": "void"
+                        "value": "void"
                       }
                     ],
                     "typeName": "Promise"

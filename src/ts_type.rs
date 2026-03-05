@@ -55,9 +55,8 @@ impl TsTypeDef {
     let ts_type_def = TsTypeDef::new(module_info, &other.elem_type);
 
     TsTypeDef {
-      array: Some(Box::new(ts_type_def)),
-      kind: Some(TsTypeDefKind::Array),
-      ..Default::default()
+      kind: TsTypeDefKind::Array(Box::new(ts_type_def)),
+      repr: String::new(),
     }
   }
 
@@ -69,9 +68,8 @@ impl TsTypeDef {
       .collect::<Vec<_>>();
 
     TsTypeDef {
-      tuple: Some(type_defs),
-      kind: Some(TsTypeDefKind::Tuple),
-      ..Default::default()
+      kind: TsTypeDefKind::Tuple(type_defs),
+      repr: String::new(),
     }
   }
 
@@ -90,9 +88,8 @@ impl TsTypeDef {
           .collect::<Vec<_>>();
 
         TsTypeDef {
-          union: Some(types_union),
-          kind: Some(TsTypeDefKind::Union),
-          ..Default::default()
+          kind: TsTypeDefKind::Union(types_union),
+          repr: String::new(),
         }
       }
       TsIntersectionType(intersection_type) => {
@@ -103,9 +100,8 @@ impl TsTypeDef {
           .collect::<Vec<_>>();
 
         TsTypeDef {
-          intersection: Some(types_intersection),
-          kind: Some(TsTypeDefKind::Intersection),
-          ..Default::default()
+          kind: TsTypeDefKind::Intersection(types_intersection),
+          repr: String::new(),
         }
       }
     }
@@ -147,9 +143,8 @@ impl TsTypeDef {
     };
 
     TsTypeDef {
-      type_operator: Some(Box::new(type_operator_def)),
-      kind: Some(TsTypeDefKind::TypeOperator),
-      ..Default::default()
+      kind: TsTypeDefKind::TypeOperator(Box::new(type_operator_def)),
+      repr: String::new(),
     }
   }
 
@@ -160,9 +155,8 @@ impl TsTypeDef {
     let ts_type = TsTypeDef::new(module_info, &other.type_ann);
 
     TsTypeDef {
-      parenthesized: Some(Box::new(ts_type)),
-      kind: Some(TsTypeDefKind::Parenthesized),
-      ..Default::default()
+      kind: TsTypeDefKind::Parenthesized(Box::new(ts_type)),
+      repr: String::new(),
     }
   }
 
@@ -170,9 +164,8 @@ impl TsTypeDef {
     let ts_type = TsTypeDef::new(module_info, &other.type_ann);
 
     TsTypeDef {
-      rest: Some(Box::new(ts_type)),
-      kind: Some(TsTypeDefKind::Rest),
-      ..Default::default()
+      kind: TsTypeDefKind::Rest(Box::new(ts_type)),
+      repr: String::new(),
     }
   }
 
@@ -183,18 +176,15 @@ impl TsTypeDef {
     let ts_type = TsTypeDef::new(module_info, &other.type_ann);
 
     TsTypeDef {
-      optional: Some(Box::new(ts_type)),
-      kind: Some(TsTypeDefKind::Optional),
-      ..Default::default()
+      kind: TsTypeDefKind::Optional(Box::new(ts_type)),
+      repr: String::new(),
     }
   }
 
   fn ts_this_type(_module_info: &EsModuleInfo, _other: &TsThisType) -> Self {
     TsTypeDef {
       repr: "this".to_string(),
-      this: Some(true),
-      kind: Some(TsTypeDefKind::This),
-      ..Default::default()
+      kind: TsTypeDefKind::This,
     }
   }
 
@@ -224,9 +214,7 @@ impl TsTypeDef {
     }
     TsTypeDef {
       repr: repr_parts.join(" "),
-      kind: Some(TsTypeDefKind::TypePredicate),
-      type_predicate: Some(pred),
-      ..Default::default()
+      kind: TsTypeDefKind::TypePredicate(pred),
     }
   }
 
@@ -242,9 +230,7 @@ impl TsTypeDef {
 
     TsTypeDef {
       repr: type_name.to_string(),
-      type_query: Some(type_name),
-      kind: Some(TsTypeDefKind::TypeQuery),
-      ..Default::default()
+      kind: TsTypeDefKind::TypeQuery(type_name),
     }
   }
 
@@ -265,12 +251,10 @@ impl TsTypeDef {
 
     TsTypeDef {
       repr: type_name.clone(),
-      type_ref: Some(TsTypeRefDef {
+      kind: TsTypeDefKind::TypeRef(TsTypeRefDef {
         type_params,
         type_name,
       }),
-      kind: Some(TsTypeDefKind::TypeRef),
-      ..Default::default()
     }
   }
 
@@ -294,12 +278,10 @@ impl TsTypeDef {
 
     TsTypeDef {
       repr: type_name.clone(),
-      type_ref: Some(TsTypeRefDef {
+      kind: TsTypeDefKind::TypeRef(TsTypeRefDef {
         type_params,
         type_name,
       }),
-      kind: Some(TsTypeDefKind::TypeRef),
-      ..Default::default()
     }
   }
 
@@ -315,9 +297,8 @@ impl TsTypeDef {
     };
 
     TsTypeDef {
-      indexed_access: Some(indexed_access_def),
-      kind: Some(TsTypeDefKind::IndexedAccess),
-      ..Default::default()
+      kind: TsTypeDefKind::IndexedAccess(indexed_access_def),
+      repr: String::new(),
     }
   }
 
@@ -337,9 +318,8 @@ impl TsTypeDef {
     };
 
     TsTypeDef {
-      mapped_type: Some(mapped_type_def),
-      kind: Some(TsTypeDefKind::Mapped),
-      ..Default::default()
+      kind: TsTypeDefKind::Mapped(mapped_type_def),
+      repr: String::new(),
     }
   }
 
@@ -560,9 +540,8 @@ impl TsTypeDef {
     };
 
     TsTypeDef {
-      kind: Some(TsTypeDefKind::TypeLiteral),
-      type_literal: Some(type_literal),
-      ..Default::default()
+      kind: TsTypeDefKind::TypeLiteral(type_literal),
+      repr: String::new(),
     }
   }
 
@@ -578,9 +557,8 @@ impl TsTypeDef {
     };
 
     TsTypeDef {
-      kind: Some(TsTypeDefKind::Conditional),
-      conditional_type: Some(conditional_type_def),
-      ..Default::default()
+      kind: TsTypeDefKind::Conditional(conditional_type_def),
+      repr: String::new(),
     }
   }
 
@@ -590,9 +568,8 @@ impl TsTypeDef {
     };
 
     TsTypeDef {
-      kind: Some(TsTypeDefKind::Infer),
-      infer: Some(infer),
-      ..Default::default()
+      kind: TsTypeDefKind::Infer(infer),
+      repr: String::new(),
     }
   }
 
@@ -616,9 +593,8 @@ impl TsTypeDef {
     };
 
     TsTypeDef {
-      kind: Some(TsTypeDefKind::ImportType),
-      import_type: Some(import_type_def),
-      ..Default::default()
+      kind: TsTypeDefKind::ImportType(import_type_def),
+      repr: String::new(),
     }
   }
 
@@ -669,9 +645,8 @@ impl TsTypeDef {
     };
 
     TsTypeDef {
-      kind: Some(TsTypeDefKind::FnOrConstructor),
-      fn_or_constructor: Some(Box::new(fn_def)),
-      ..Default::default()
+      kind: TsTypeDefKind::FnOrConstructor(Box::new(fn_def)),
+      repr: String::new(),
     }
   }
 
@@ -1144,101 +1119,38 @@ pub struct TsTypeLiteralDef {
   pub index_signatures: Vec<IndexSignatureDef>,
 }
 
-#[derive(Debug, PartialEq, Eq, Serialize, Deserialize, Clone)]
-#[serde(rename_all = "camelCase")]
+#[derive(Debug, PartialEq, Serialize, Deserialize, Clone)]
+#[serde(tag = "kind", content = "value", rename_all = "camelCase")]
 pub enum TsTypeDefKind {
-  Keyword,
-  Literal,
-  TypeRef,
-  Union,
-  Intersection,
-  Array,
-  Tuple,
-  TypeOperator,
-  Parenthesized,
-  Rest,
-  Optional,
-  TypeQuery,
+  Keyword(String),
+  Literal(LiteralDef),
+  TypeRef(TsTypeRefDef),
+  Union(Vec<TsTypeDef>),
+  Intersection(Vec<TsTypeDef>),
+  Array(Box<TsTypeDef>),
+  Tuple(Vec<TsTypeDef>),
+  TypeOperator(Box<TsTypeOperatorDef>),
+  Parenthesized(Box<TsTypeDef>),
+  Rest(Box<TsTypeDef>),
+  Optional(Box<TsTypeDef>),
+  TypeQuery(String),
   This,
-  FnOrConstructor,
-  Conditional,
-  Infer,
-  IndexedAccess,
-  Mapped,
-  TypeLiteral,
-  TypePredicate,
-  ImportType,
+  FnOrConstructor(Box<TsFnOrConstructorDef>),
+  Conditional(TsConditionalDef),
+  Infer(TsInferDef),
+  IndexedAccess(TsIndexedAccessDef),
+  Mapped(TsMappedTypeDef),
+  TypeLiteral(TsTypeLiteralDef),
+  TypePredicate(TsTypePredicateDef),
+  ImportType(TsImportTypeDef),
 }
 
-#[derive(Debug, Default, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "camelCase")]
 pub struct TsTypeDef {
   pub repr: String,
-
-  pub kind: Option<TsTypeDefKind>,
-
-  #[serde(skip_serializing_if = "Option::is_none", default)]
-  pub keyword: Option<String>,
-
-  #[serde(skip_serializing_if = "Option::is_none", default)]
-  pub literal: Option<LiteralDef>,
-
-  #[serde(skip_serializing_if = "Option::is_none", default)]
-  pub type_ref: Option<TsTypeRefDef>,
-
-  #[serde(skip_serializing_if = "Option::is_none", default)]
-  pub union: Option<Vec<TsTypeDef>>,
-
-  #[serde(skip_serializing_if = "Option::is_none", default)]
-  pub intersection: Option<Vec<TsTypeDef>>,
-
-  #[serde(skip_serializing_if = "Option::is_none", default)]
-  pub array: Option<Box<TsTypeDef>>,
-
-  #[serde(skip_serializing_if = "Option::is_none", default)]
-  pub tuple: Option<Vec<TsTypeDef>>,
-
-  #[serde(skip_serializing_if = "Option::is_none", default)]
-  pub type_operator: Option<Box<TsTypeOperatorDef>>,
-
-  #[serde(skip_serializing_if = "Option::is_none", default)]
-  pub parenthesized: Option<Box<TsTypeDef>>,
-
-  #[serde(skip_serializing_if = "Option::is_none", default)]
-  pub rest: Option<Box<TsTypeDef>>,
-
-  #[serde(skip_serializing_if = "Option::is_none", default)]
-  pub optional: Option<Box<TsTypeDef>>,
-
-  #[serde(skip_serializing_if = "Option::is_none", default)]
-  pub type_query: Option<String>,
-
-  #[serde(skip_serializing_if = "Option::is_none", default)]
-  pub this: Option<bool>,
-
-  #[serde(skip_serializing_if = "Option::is_none", default)]
-  pub fn_or_constructor: Option<Box<TsFnOrConstructorDef>>,
-
-  #[serde(skip_serializing_if = "Option::is_none", default)]
-  pub conditional_type: Option<TsConditionalDef>,
-
-  #[serde(skip_serializing_if = "Option::is_none", default)]
-  pub infer: Option<TsInferDef>,
-
-  #[serde(skip_serializing_if = "Option::is_none", default)]
-  pub indexed_access: Option<TsIndexedAccessDef>,
-
-  #[serde(skip_serializing_if = "Option::is_none", default)]
-  pub mapped_type: Option<TsMappedTypeDef>,
-
-  #[serde(skip_serializing_if = "Option::is_none", default)]
-  pub type_literal: Option<TsTypeLiteralDef>,
-
-  #[serde(skip_serializing_if = "Option::is_none", default)]
-  pub type_predicate: Option<TsTypePredicateDef>,
-
-  #[serde(skip_serializing_if = "Option::is_none", default)]
-  pub import_type: Option<TsImportTypeDef>,
+  #[serde(flatten)]
+  pub kind: TsTypeDefKind,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq)]
@@ -1406,25 +1318,21 @@ impl TsTypeDef {
   pub fn regexp(repr: String) -> Self {
     Self {
       repr,
-      kind: Some(TsTypeDefKind::TypeRef),
-      type_ref: Some(TsTypeRefDef {
+      kind: TsTypeDefKind::TypeRef(TsTypeRefDef {
         type_params: None,
         type_name: "RegExp".to_string(),
       }),
-      ..Default::default()
     }
   }
 
   pub fn object(methods: Vec<MethodDef>, properties: Vec<PropertyDef>) -> Self {
     Self {
       repr: "".to_string(),
-      kind: Some(TsTypeDefKind::TypeLiteral),
-      type_literal: Some(TsTypeLiteralDef {
+      kind: TsTypeDefKind::TypeLiteral(TsTypeLiteralDef {
         methods,
         properties,
         ..Default::default()
       }),
-      ..Default::default()
     }
   }
 
@@ -1451,18 +1359,14 @@ impl TsTypeDef {
   pub fn keyword_with_repr(keyword_str: &str, repr: &str) -> Self {
     Self {
       repr: repr.to_string(),
-      kind: Some(TsTypeDefKind::Keyword),
-      keyword: Some(keyword_str.to_string()),
-      ..Default::default()
+      kind: TsTypeDefKind::Keyword(keyword_str.to_string()),
     }
   }
 
   fn literal(repr: String, lit: LiteralDef) -> Self {
     Self {
       repr,
-      kind: Some(TsTypeDefKind::Literal),
-      literal: Some(lit),
-      ..Default::default()
+      kind: TsTypeDefKind::Literal(lit),
     }
   }
 }
@@ -1540,9 +1444,8 @@ pub(crate) fn infer_ts_type_from_expr(
       let right = infer_ts_type_from_expr(module_info, &cond.alt, is_const)?;
 
       Some(TsTypeDef {
-        union: Some(vec![left, right]),
-        kind: Some(TsTypeDefKind::Union),
-        ..Default::default()
+        kind: TsTypeDefKind::Union(vec![left, right]),
+        repr: String::new(),
       })
     }
     Expr::TsNonNull(non_null) => {
@@ -1551,11 +1454,11 @@ pub(crate) fn infer_ts_type_from_expr(
       let with_null =
         infer_ts_type_from_expr(module_info, &non_null.expr, is_const)?;
 
-      if let Some(union) = with_null.union {
+      if let TsTypeDefKind::Union(union) = with_null.kind {
         let mut non_null_union = union
           .into_iter()
           .filter(|item| {
-            if let Some(keyword) = &item.keyword {
+            if let TsTypeDefKind::Keyword(keyword) = &item.kind {
               return keyword != "null";
             }
 
@@ -1567,12 +1470,13 @@ pub(crate) fn infer_ts_type_from_expr(
           0 => TsTypeDef::keyword("never"),
           1 => non_null_union.remove(0),
           _ => TsTypeDef {
-            union: Some(non_null_union),
-            kind: Some(TsTypeDefKind::Union),
-            ..Default::default()
+            kind: TsTypeDefKind::Union(non_null_union),
+            repr: String::new(),
           },
         })
-      } else if with_null.keyword.is_some_and(|keyword| keyword == "null") {
+      } else if let TsTypeDefKind::Keyword(keyword) = with_null.kind
+        && keyword == "null"
+      {
         Some(TsTypeDef::keyword("never"))
       } else {
         None
@@ -1663,37 +1567,30 @@ fn infer_ts_type_from_arr_lit(
         // an any array.
         return Some(TsTypeDef {
           repr: "any[]".to_string(),
-          kind: Some(TsTypeDefKind::Array),
-          array: Some(Box::new(TsTypeDef::keyword("any"))),
-          ..Default::default()
+          kind: TsTypeDefKind::Array(Box::new(TsTypeDef::keyword("any"))),
         });
       }
     } else {
       // TODO(@kitsonk) we should recursively unwrap the spread here
       return Some(TsTypeDef {
         repr: "any[]".to_string(),
-        kind: Some(TsTypeDefKind::Array),
-        array: Some(Box::new(TsTypeDef::keyword("any"))),
-        ..Default::default()
+        kind: TsTypeDefKind::Array(Box::new(TsTypeDef::keyword("any"))),
       });
     }
   }
   match defs.len() {
     1 => Some(TsTypeDef {
-      kind: Some(TsTypeDefKind::Array),
-      array: Some(Box::new(defs[0].clone())),
-      ..Default::default()
+      kind: TsTypeDefKind::Array(Box::new(defs[0].clone())),
+      repr: String::new(),
     }),
     2.. => {
       let union = TsTypeDef {
-        kind: Some(TsTypeDefKind::Union),
-        union: Some(defs),
-        ..Default::default()
+        kind: TsTypeDefKind::Union(defs),
+        repr: String::new(),
       };
       Some(TsTypeDef {
-        kind: Some(TsTypeDefKind::Array),
-        array: Some(Box::new(union)),
-        ..Default::default()
+        kind: TsTypeDefKind::Array(Box::new(union)),
+        repr: String::new(),
       })
     }
     _ => None,
@@ -1705,12 +1602,10 @@ fn infer_ts_type_from_arrow_expr(
   expr: &ArrowExpr,
 ) -> Option<TsTypeDef> {
   Some(TsTypeDef {
-    kind: Some(TsTypeDefKind::FnOrConstructor),
-    fn_or_constructor: Some(Box::new(TsFnOrConstructorDef::arrow_expr(
-      module_info,
-      expr,
-    ))),
-    ..Default::default()
+    kind: TsTypeDefKind::FnOrConstructor(Box::new(
+      TsFnOrConstructorDef::arrow_expr(module_info, expr),
+    )),
+    repr: String::new(),
   })
 }
 
@@ -1719,12 +1614,10 @@ fn infer_ts_type_from_fn_expr(
   expr: &FnExpr,
 ) -> Option<TsTypeDef> {
   Some(TsTypeDef {
-    kind: Some(TsTypeDefKind::FnOrConstructor),
-    fn_or_constructor: Some(Box::new(TsFnOrConstructorDef::fn_expr(
-      module_info,
-      expr,
-    ))),
-    ..Default::default()
+    kind: TsTypeDefKind::FnOrConstructor(Box::new(
+      TsFnOrConstructorDef::fn_expr(module_info, expr),
+    )),
+    repr: String::new(),
   })
 }
 
@@ -1784,14 +1677,12 @@ fn infer_ts_type_from_new_expr(
   match new_expr.callee.as_ref() {
     Expr::Ident(ident) => Some(TsTypeDef {
       repr: ident.sym.to_string(),
-      kind: Some(TsTypeDefKind::TypeRef),
-      type_ref: Some(TsTypeRefDef {
+      kind: TsTypeDefKind::TypeRef(TsTypeRefDef {
         type_params: new_expr.type_args.as_ref().map(|init| {
           maybe_type_param_instantiation_to_type_defs(module_info, Some(init))
         }),
         type_name: ident.sym.to_string(),
       }),
-      ..Default::default()
     }),
     _ => None,
   }
@@ -1974,25 +1865,18 @@ fn infer_ts_type_from_tpl(
 
 impl Display for TsTypeDef {
   fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
-    if self.kind.is_none() {
-      return write!(f, "{}", colors::red("[UNSUPPORTED]"));
-    }
-
-    let kind = self.kind.as_ref().unwrap();
-    match kind {
-      TsTypeDefKind::Array => {
-        let array = self.array.as_ref().unwrap();
+    match &self.kind {
+      TsTypeDefKind::Array(array) => {
         if matches!(
           array.kind,
-          Some(TsTypeDefKind::Union) | Some(TsTypeDefKind::Intersection)
+          TsTypeDefKind::Union(_) | TsTypeDefKind::Intersection(_)
         ) {
-          write!(f, "({})[]", self.array.as_ref().unwrap())
+          write!(f, "({})[]", array)
         } else {
-          write!(f, "{}[]", self.array.as_ref().unwrap())
+          write!(f, "{}[]", array)
         }
       }
-      TsTypeDefKind::Conditional => {
-        let conditional = self.conditional_type.as_ref().unwrap();
+      TsTypeDefKind::Conditional(conditional) => {
         write!(
           f,
           "{} {} {} ? {} : {}",
@@ -2003,12 +1887,10 @@ impl Display for TsTypeDef {
           &*conditional.false_type
         )
       }
-      TsTypeDefKind::Infer => {
-        let infer = self.infer.as_ref().unwrap();
+      TsTypeDefKind::Infer(infer) => {
         write!(f, "{} {}", colors::magenta("infer"), infer.type_param)
       }
-      TsTypeDefKind::ImportType => {
-        let import_type = self.import_type.as_ref().unwrap();
+      TsTypeDefKind::ImportType(import_type) => {
         write!(f, "import(\"{}\")", import_type.specifier)?;
         if let Some(qualifier) = &import_type.qualifier {
           write!(f, ".{}", qualifier)?;
@@ -2018,8 +1900,7 @@ impl Display for TsTypeDef {
         }
         Ok(())
       }
-      TsTypeDefKind::FnOrConstructor => {
-        let fn_or_constructor = self.fn_or_constructor.as_ref().unwrap();
+      TsTypeDefKind::FnOrConstructor(fn_or_constructor) => {
         write!(
           f,
           "{}({}) => {}",
@@ -2032,20 +1913,17 @@ impl Display for TsTypeDef {
           &fn_or_constructor.ts_type,
         )
       }
-      TsTypeDefKind::IndexedAccess => {
-        let indexed_access = self.indexed_access.as_ref().unwrap();
+      TsTypeDefKind::IndexedAccess(indexed_access) => {
         write!(
           f,
           "{}[{}]",
           &*indexed_access.obj_type, &*indexed_access.index_type
         )
       }
-      TsTypeDefKind::Intersection => {
-        let intersection = self.intersection.as_ref().unwrap();
+      TsTypeDefKind::Intersection(intersection) => {
         write!(f, "{}", SliceDisplayer::new(intersection, " & ", false))
       }
-      TsTypeDefKind::Mapped => {
-        let mapped_type = self.mapped_type.as_ref().unwrap();
+      TsTypeDefKind::Mapped(mapped_type) => {
         let readonly = match mapped_type.readonly {
           Some(TruePlusMinus::True) => {
             format!("{} ", colors::magenta("readonly"))
@@ -2086,71 +1964,60 @@ impl Display for TsTypeDef {
           readonly, type_param, name_type, optional, ts_type
         )
       }
-      TsTypeDefKind::Keyword => {
-        write!(f, "{}", colors::cyan(self.keyword.as_ref().unwrap()))
+      TsTypeDefKind::Keyword(keyword) => {
+        write!(f, "{}", colors::cyan(keyword))
       }
-      TsTypeDefKind::Literal => {
-        let literal = self.literal.as_ref().unwrap();
-        match literal.kind {
-          LiteralDefKind::Boolean => write!(
-            f,
-            "{}",
-            colors::yellow(&literal.boolean.unwrap().to_string())
-          ),
-          LiteralDefKind::String => write!(
-            f,
-            "{}",
-            colors::green(&format!("\"{}\"", literal.string.as_ref().unwrap()))
-          ),
-          LiteralDefKind::Template => {
-            write!(f, "{}", colors::green("`"))?;
-            for ts_type in literal.ts_types.as_ref().unwrap() {
-              let kind = ts_type.kind.as_ref().unwrap();
-              if *kind == TsTypeDefKind::Literal {
-                let literal = ts_type.literal.as_ref().unwrap();
-                if literal.kind == LiteralDefKind::String {
-                  write!(
-                    f,
-                    "{}",
-                    colors::green(literal.string.as_ref().unwrap())
-                  )?;
-                  continue;
-                }
-              }
-              write!(
-                f,
-                "{}{}{}",
-                colors::magenta("${"),
-                ts_type,
-                colors::magenta("}")
-              )?;
+      TsTypeDefKind::Literal(literal) => match literal.kind {
+        LiteralDefKind::Boolean => write!(
+          f,
+          "{}",
+          colors::yellow(&literal.boolean.unwrap().to_string())
+        ),
+        LiteralDefKind::String => write!(
+          f,
+          "{}",
+          colors::green(&format!("\"{}\"", literal.string.as_ref().unwrap()))
+        ),
+        LiteralDefKind::Template => {
+          write!(f, "{}", colors::green("`"))?;
+          for ts_type in literal.ts_types.as_ref().unwrap() {
+            if let TsTypeDefKind::Literal(literal) = &ts_type.kind
+              && literal.kind == LiteralDefKind::String
+            {
+              write!(f, "{}", colors::green(literal.string.as_ref().unwrap()))?;
+              continue;
             }
-            write!(f, "{}", colors::green("`"))
+            write!(
+              f,
+              "{}{}{}",
+              colors::magenta("${"),
+              ts_type,
+              colors::magenta("}")
+            )?;
           }
-          LiteralDefKind::Number => write!(
-            f,
-            "{}",
-            colors::yellow(&literal.number.unwrap().to_string())
-          ),
-          LiteralDefKind::BigInt => {
-            write!(f, "{}n", colors::yellow(&literal.string.as_ref().unwrap()))
-          }
+          write!(f, "{}", colors::green("`"))
         }
+        LiteralDefKind::Number => write!(
+          f,
+          "{}",
+          colors::yellow(&literal.number.unwrap().to_string())
+        ),
+        LiteralDefKind::BigInt => {
+          write!(f, "{}n", colors::yellow(&literal.string.as_ref().unwrap()))
+        }
+      },
+      TsTypeDefKind::Optional(optional) => {
+        write!(f, "{}?", optional)
       }
-      TsTypeDefKind::Optional => {
-        write!(f, "{}?", self.optional.as_ref().unwrap())
+      TsTypeDefKind::Parenthesized(parenthesized) => {
+        write!(f, "({})", parenthesized)
       }
-      TsTypeDefKind::Parenthesized => {
-        write!(f, "({})", self.parenthesized.as_ref().unwrap())
-      }
-      TsTypeDefKind::Rest => write!(f, "...{}", self.rest.as_ref().unwrap()),
+      TsTypeDefKind::Rest(rest) => write!(f, "...{}", rest),
       TsTypeDefKind::This => write!(f, "this"),
-      TsTypeDefKind::Tuple => {
-        let tuple = self.tuple.as_ref().unwrap();
+      TsTypeDefKind::Tuple(tuple) => {
         write!(f, "[{}]", SliceDisplayer::new(tuple, ", ", false))
       }
-      TsTypeDefKind::TypeLiteral => {
-        let type_literal = self.type_literal.as_ref().unwrap();
+      TsTypeDefKind::TypeLiteral(type_literal) => {
         write!(
           f,
           "{{ {}{}{}{}}}",
@@ -2160,28 +2027,24 @@ impl Display for TsTypeDef {
           SliceDisplayer::new(&type_literal.index_signatures, "; ", true),
         )
       }
-      TsTypeDefKind::TypeOperator => {
-        let operator = self.type_operator.as_ref().unwrap();
-        write!(f, "{} {}", operator.operator, &operator.ts_type)
+      TsTypeDefKind::TypeOperator(type_operator) => {
+        write!(f, "{} {}", type_operator.operator, &type_operator.ts_type)
       }
-      TsTypeDefKind::TypeQuery => {
-        write!(f, "typeof {}", self.type_query.as_ref().unwrap())
+      TsTypeDefKind::TypeQuery(type_query) => {
+        write!(f, "typeof {}", type_query)
       }
-      TsTypeDefKind::TypeRef => {
-        let type_ref = self.type_ref.as_ref().unwrap();
+      TsTypeDefKind::TypeRef(type_ref) => {
         write!(f, "{}", colors::intense_blue(&type_ref.type_name))?;
         if let Some(type_params) = &type_ref.type_params {
           write!(f, "<{}>", SliceDisplayer::new(type_params, ", ", false))?;
         }
         Ok(())
       }
-      TsTypeDefKind::Union => {
-        let union = self.union.as_ref().unwrap();
+      TsTypeDefKind::Union(union) => {
         write!(f, "{}", SliceDisplayer::new(union, " | ", false))
       }
-      TsTypeDefKind::TypePredicate => {
-        let pred = self.type_predicate.as_ref().unwrap();
-        write!(f, "{}", pred)
+      TsTypeDefKind::TypePredicate(type_predicate) => {
+        write!(f, "{}", type_predicate)
       }
     }
   }

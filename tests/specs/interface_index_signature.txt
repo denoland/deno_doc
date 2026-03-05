@@ -56,14 +56,14 @@ interface Interface
                   "tsType": {
                     "repr": "number",
                     "kind": "keyword",
-                    "keyword": "number"
+                    "value": "number"
                   }
                 }
               ],
               "tsType": {
                 "repr": "Interface",
                 "kind": "typeRef",
-                "typeRef": {
+                "value": {
                   "typeParams": null,
                   "typeName": "Interface"
                 }

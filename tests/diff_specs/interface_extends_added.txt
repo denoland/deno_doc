@@ -46,7 +46,7 @@ export interface Foo extends Base {
                     "tsType": {
                       "repr": "number",
                       "kind": "keyword",
-                      "keyword": "number"
+                      "value": "number"
                     },
                     "typeParams": []
                   }
@@ -73,7 +73,7 @@ export interface Foo extends Base {
                       {
                         "repr": "Base",
                         "kind": "typeRef",
-                        "typeRef": {
+                        "value": {
                           "typeParams": null,
                           "typeName": "Base"
                         }

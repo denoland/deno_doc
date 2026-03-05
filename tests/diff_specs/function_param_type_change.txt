@@ -25,12 +25,12 @@ export function foo(str: string) {}
                           "old": {
                             "repr": "number",
                             "kind": "keyword",
-                            "keyword": "number"
+                            "value": "number"
                           },
                           "new": {
                             "repr": "string",
                             "kind": "keyword",
-                            "keyword": "string"
+                            "value": "string"
                           }
                         }
                       }

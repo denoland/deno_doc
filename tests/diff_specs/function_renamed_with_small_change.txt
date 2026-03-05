@@ -26,7 +26,7 @@ export function bar(): string { return ""; }
                 "returnType": {
                   "repr": "string",
                   "kind": "keyword",
-                  "keyword": "string"
+                  "value": "string"
                 },
                 "hasBody": true,
                 "isAsync": false,
@@ -55,7 +55,7 @@ export function bar(): string { return ""; }
                 "returnType": {
                   "repr": "void",
                   "kind": "keyword",
-                  "keyword": "void"
+                  "value": "void"
                 },
                 "hasBody": true,
                 "isAsync": false,

@@ -80,7 +80,7 @@ class Bar extends obj.Foo
           "tsType": {
             "repr": "",
             "kind": "typeLiteral",
-            "typeLiteral": {
+            "value": {
               "constructors": [],
               "methods": [],
               "properties": [

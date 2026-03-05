@@ -57,7 +57,7 @@ const hello: "world"
           "tsType": {
             "repr": "world",
             "kind": "literal",
-            "literal": {
+            "value": {
               "kind": "string",
               "string": "world"
             }
@@ -88,14 +88,14 @@ const hello: "world"
               "tsType": {
                 "repr": "string",
                 "kind": "keyword",
-                "keyword": "string"
+                "value": "string"
               }
             }
           ],
           "returnType": {
             "repr": "void",
             "kind": "keyword",
-            "keyword": "void"
+            "value": "void"
           },
           "hasBody": true,
           "isAsync": false,
@@ -122,7 +122,7 @@ const hello: "world"
           "returnType": {
             "repr": "void",
             "kind": "keyword",
-            "keyword": "void"
+            "value": "void"
           },
           "hasBody": true,
           "isAsync": false,

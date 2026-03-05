@@ -43,7 +43,7 @@ export class Foo implements Runnable {
                     "returnType": {
                       "repr": "void",
                       "kind": "keyword",
-                      "keyword": "void"
+                      "value": "void"
                     },
                     "typeParams": []
                   }
@@ -71,7 +71,7 @@ export class Foo implements Runnable {
                       {
                         "repr": "Runnable",
                         "kind": "typeRef",
-                        "typeRef": {
+                        "value": {
                           "typeParams": null,
                           "typeName": "Runnable"
                         }
@@ -92,7 +92,7 @@ export class Foo implements Runnable {
                           "returnType": {
                             "repr": "void",
                             "kind": "keyword",
-                            "keyword": "void"
+                            "value": "void"
                           },
                           "hasBody": true,
                           "isAsync": false,

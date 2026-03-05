@@ -94,7 +94,7 @@ class Data
               "tsType": {
                 "repr": "PrivateNotExported",
                 "kind": "typeRef",
-                "typeRef": {
+                "value": {
                   "typeParams": null,
                   "typeName": "PrivateNotExported"
                 }
@@ -119,7 +119,7 @@ class Data
               "tsType": {
                 "repr": "PrivateExportedButNotFromModTs",
                 "kind": "typeRef",
-                "typeRef": {
+                "value": {
                   "typeParams": null,
                   "typeName": "PrivateExportedButNotFromModTs"
                 }
@@ -148,7 +148,7 @@ class Data
               "tsType": {
                 "repr": "PrivateReferencedInInternal",
                 "kind": "typeRef",
-                "typeRef": {
+                "value": {
                   "typeParams": null,
                   "typeName": "PrivateReferencedInInternal"
                 }

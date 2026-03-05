@@ -25,12 +25,12 @@ export function create<T = number>(value: T): T { return value; }
                           "old": {
                             "repr": "string",
                             "kind": "keyword",
-                            "keyword": "string"
+                            "value": "string"
                           },
                           "new": {
                             "repr": "number",
                             "kind": "keyword",
-                            "keyword": "number"
+                            "value": "number"
                           }
                         }
                       }

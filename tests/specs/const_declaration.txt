@@ -32,7 +32,7 @@ const Const: 0
           "tsType": {
             "repr": "0",
             "kind": "literal",
-            "literal": {
+            "value": {
               "kind": "number",
               "number": 0.0
             }

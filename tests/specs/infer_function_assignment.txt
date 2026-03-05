@@ -39,7 +39,7 @@ function foo(n: number, b: string): void
                 "tsType": {
                   "repr": "number",
                   "kind": "keyword",
-                  "keyword": "number"
+                  "value": "number"
                 }
               },
               "right": "0",
@@ -54,7 +54,7 @@ function foo(n: number, b: string): void
                 "tsType": {
                   "repr": "string",
                   "kind": "keyword",
-                  "keyword": "string"
+                  "value": "string"
                 }
               },
               "right": "0",
@@ -64,7 +64,7 @@ function foo(n: number, b: string): void
           "returnType": {
             "repr": "void",
             "kind": "keyword",
-            "keyword": "void"
+            "value": "void"
           },
           "hasBody": true,
           "isAsync": false,

@@ -55,7 +55,7 @@ namespace other
                     "returnType": {
                       "repr": "void",
                       "kind": "keyword",
-                      "keyword": "void"
+                      "value": "void"
                     },
                     "hasBody": true,
                     "isAsync": false,

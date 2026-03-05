@@ -32,7 +32,7 @@ type A<T> = T
           "tsType": {
             "repr": "T",
             "kind": "typeRef",
-            "typeRef": {
+            "value": {
               "typeParams": null,
               "typeName": "T"
             }

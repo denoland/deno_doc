@@ -71,14 +71,14 @@ class A
                     "tsType": {
                       "repr": "string",
                       "kind": "keyword",
-                      "keyword": "string"
+                      "value": "string"
                     }
                   }
                 ],
                 "returnType": {
                   "repr": "string",
                   "kind": "keyword",
-                  "keyword": "string"
+                  "value": "string"
                 },
                 "isAsync": false,
                 "isGenerator": false,
@@ -107,14 +107,14 @@ class A
                     "tsType": {
                       "repr": "number",
                       "kind": "keyword",
-                      "keyword": "number"
+                      "value": "number"
                     }
                   }
                 ],
                 "returnType": {
                   "repr": "number",
                   "kind": "keyword",
-                  "keyword": "number"
+                  "value": "number"
                 },
                 "isAsync": false,
                 "isGenerator": false,
@@ -143,16 +143,16 @@ class A
                     "tsType": {
                       "repr": "",
                       "kind": "union",
-                      "union": [
+                      "value": [
                         {
                           "repr": "string",
                           "kind": "keyword",
-                          "keyword": "string"
+                          "value": "string"
                         },
                         {
                           "repr": "number",
                           "kind": "keyword",
-                          "keyword": "number"
+                          "value": "number"
                         }
                       ]
                     }
@@ -161,16 +161,16 @@ class A
                 "returnType": {
                   "repr": "",
                   "kind": "union",
-                  "union": [
+                  "value": [
                     {
                       "repr": "string",
                       "kind": "keyword",
-                      "keyword": "string"
+                      "value": "string"
                     },
                     {
                       "repr": "number",
                       "kind": "keyword",
-                      "keyword": "number"
+                      "value": "number"
                     }
                   ]
                 },

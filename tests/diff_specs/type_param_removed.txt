@@ -25,7 +25,7 @@ export function identity(value: unknown): unknown { return value; }
                           "old": {
                             "repr": "T",
                             "kind": "typeRef",
-                            "typeRef": {
+                            "value": {
                               "typeParams": null,
                               "typeName": "T"
                             }
@@ -33,7 +33,7 @@ export function identity(value: unknown): unknown { return value; }
                           "new": {
                             "repr": "unknown",
                             "kind": "keyword",
-                            "keyword": "unknown"
+                            "value": "unknown"
                           }
                         }
                       }
@@ -43,7 +43,7 @@ export function identity(value: unknown): unknown { return value; }
                     "old": {
                       "repr": "T",
                       "kind": "typeRef",
-                      "typeRef": {
+                      "value": {
                         "typeParams": null,
                         "typeName": "T"
                       }
@@ -51,7 +51,7 @@ export function identity(value: unknown): unknown { return value; }
                     "new": {
                       "repr": "unknown",
                       "kind": "keyword",
-                      "keyword": "unknown"
+                      "value": "unknown"
                     }
                   },
                   "typeParamsChange": {

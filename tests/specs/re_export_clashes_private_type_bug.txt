@@ -164,7 +164,7 @@ class MyClass
               "tsType": {
                 "repr": "Internal1",
                 "kind": "typeRef",
-                "typeRef": {
+                "value": {
                   "typeParams": null,
                   "typeName": "Internal1"
                 }
@@ -189,7 +189,7 @@ class MyClass
               "tsType": {
                 "repr": "Internal2",
                 "kind": "typeRef",
-                "typeRef": {
+                "value": {
                   "typeParams": null,
                   "typeName": "Internal2"
                 }
@@ -237,7 +237,7 @@ class MyClass
           "tsType": {
             "repr": "1",
             "kind": "literal",
-            "literal": {
+            "value": {
               "kind": "number",
               "number": 1.0
             }
@@ -266,7 +266,7 @@ class MyClass
           "tsType": {
             "repr": "1",
             "kind": "literal",
-            "literal": {
+            "value": {
               "kind": "number",
               "number": 1.0
             }
@@ -295,7 +295,7 @@ class MyClass
           "tsType": {
             "repr": "1",
             "kind": "literal",
-            "literal": {
+            "value": {
               "kind": "number",
               "number": 1.0
             }
@@ -324,7 +324,7 @@ class MyClass
           "tsType": {
             "repr": "1",
             "kind": "literal",
-            "literal": {
+            "value": {
               "kind": "number",
               "number": 1.0
             }
@@ -353,7 +353,7 @@ class MyClass
           "tsType": {
             "repr": "1",
             "kind": "literal",
-            "literal": {
+            "value": {
               "kind": "number",
               "number": 1.0
             }
@@ -382,7 +382,7 @@ class MyClass
           "tsType": {
             "repr": "1",
             "kind": "literal",
-            "literal": {
+            "value": {
               "kind": "number",
               "number": 1.0
             }
@@ -411,7 +411,7 @@ class MyClass
           "tsType": {
             "repr": "1",
             "kind": "literal",
-            "literal": {
+            "value": {
               "kind": "number",
               "number": 1.0
             }
@@ -440,7 +440,7 @@ class MyClass
           "tsType": {
             "repr": "1",
             "kind": "literal",
-            "literal": {
+            "value": {
               "kind": "number",
               "number": 1.0
             }
@@ -469,7 +469,7 @@ class MyClass
           "tsType": {
             "repr": "1",
             "kind": "literal",
-            "literal": {
+            "value": {
               "kind": "number",
               "number": 1.0
             }
@@ -498,7 +498,7 @@ class MyClass
           "tsType": {
             "repr": "1",
             "kind": "literal",
-            "literal": {
+            "value": {
               "kind": "number",
               "number": 1.0
             }

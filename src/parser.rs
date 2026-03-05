@@ -1644,14 +1644,11 @@ fn parse_json_module_type(value: &serde_json::Value) -> TsTypeDef {
     },
     serde_json::Value::Array(_) => TsTypeDef {
       repr: "unknown[]".to_string(),
-      kind: Some(TsTypeDefKind::Array),
-      array: Some(Box::new(TsTypeDef::keyword("unknown"))),
-      ..Default::default()
+      kind: TsTypeDefKind::Array(Box::new(TsTypeDef::keyword("unknown"))),
     },
     serde_json::Value::Object(obj) => TsTypeDef {
       repr: "".to_string(),
-      kind: Some(TsTypeDefKind::TypeLiteral),
-      type_literal: Some(TsTypeLiteralDef {
+      kind: TsTypeDefKind::TypeLiteral(TsTypeLiteralDef {
         properties: obj
           .iter()
           .map(|(key, value)| PropertyDef {
@@ -1668,7 +1665,6 @@ fn parse_json_module_type(value: &serde_json::Value) -> TsTypeDef {
           .collect(),
         ..Default::default()
       }),
-      ..Default::default()
     },
   }
 }

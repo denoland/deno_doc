@@ -629,107 +629,106 @@ interface TsTypeDefBase {
 
 export interface TsTypeKeywordDef extends TsTypeDefBase {
   kind: "keyword";
-  keyword: string;
+  value: string;
 }
 
 export interface TsTypeDefLiteral extends TsTypeDefBase {
   kind: "literal";
-  literal: LiteralDef;
+  value: LiteralDef;
 }
 
 export interface TsTypeTypeRefDef extends TsTypeDefBase {
   kind: "typeRef";
-  typeRef: TsTypeRefDef;
+  value: TsTypeRefDef;
 }
 
 export interface TsTypeUnionDef extends TsTypeDefBase {
   kind: "union";
-  union: TsTypeDef[];
+  value: TsTypeDef[];
 }
 
 export interface TsTypeIntersectionDef extends TsTypeDefBase {
   kind: "intersection";
-  intersection: TsTypeDef[];
+  value: TsTypeDef[];
 }
 
 export interface TsTypeArrayDef extends TsTypeDefBase {
   kind: "array";
-  array: TsTypeDef;
+  value: TsTypeDef;
 }
 
 export interface TsTypeTupleDef extends TsTypeDefBase {
   kind: "tuple";
-  tuple: TsTypeDef[];
+  value: TsTypeDef[];
 }
 
 export interface TsTypeTypeOperatorDef extends TsTypeDefBase {
   kind: "typeOperator";
-  typeOperator: TsTypeOperatorDef;
+  value: TsTypeOperatorDef;
 }
 
 export interface TsTypeParenthesizedDef extends TsTypeDefBase {
   kind: "parenthesized";
-  parenthesized: TsTypeDef;
+  value: TsTypeDef;
 }
 
 export interface TsTypeRestDef extends TsTypeDefBase {
   kind: "rest";
-  rest: TsTypeDef;
+  value: TsTypeDef;
 }
 
 export interface TsTypeOptionalDef extends TsTypeDefBase {
   kind: "optional";
-  optional: TsTypeDef;
+  value: TsTypeDef;
 }
 
 export interface TsTypeQueryDef extends TsTypeDefBase {
   kind: "typeQuery";
-  typeQuery: string;
+  value: string;
 }
 
 export interface TsTypeThisDef extends TsTypeDefBase {
   kind: "this";
-  this: boolean;
 }
 
 export interface TsTypeFnOrConstructorDef extends TsTypeDefBase {
   kind: "fnOrConstructor";
-  fnOrConstructor: TsFnOrConstructorDef;
+  value: TsFnOrConstructorDef;
 }
 
 export interface TsTypeConditionalDef extends TsTypeDefBase {
   kind: "conditional";
-  conditionalType: TsConditionalDef;
+  value: TsConditionalDef;
 }
 
 export interface TsTypeInferDef extends TsTypeDefBase {
   kind: "infer";
-  infer: TsInferDef;
+  value: TsInferDef;
 }
 
 export interface TsTypeMappedDef extends TsTypeDefBase {
   kind: "mapped";
-  mappedType: TsMappedTypeDef;
+  value: TsMappedTypeDef;
 }
 
 export interface TsTypeImportTypeDef extends TsTypeDefBase {
   kind: "importType";
-  importType: TsImportTypeDef;
+  value: TsImportTypeDef;
 }
 
 export interface TsTypeIndexedAccessDef extends TsTypeDefBase {
   kind: "indexedAccess";
-  indexedAccess: TsIndexedAccessDef;
+  value: TsIndexedAccessDef;
 }
 
 export interface TsTypeTypeLiteralDef extends TsTypeDefBase {
   kind: "typeLiteral";
-  typeLiteral: TsTypeLiteralDef;
+  value: TsTypeLiteralDef;
 }
 
 export interface TsTypeTypePredicateDef extends TsTypeDefBase {
   kind: "typePredicate";
-  typePredicate: TsTypePredicateDef;
+  value: TsTypePredicateDef;
 }
 
 export type TsTypeDefKind =

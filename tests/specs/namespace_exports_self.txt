@@ -113,7 +113,7 @@ namespace f
                     "tsType": {
                       "repr": "string",
                       "kind": "keyword",
-                      "keyword": "string"
+                      "value": "string"
                     },
                     "kind": "const"
                   }
@@ -293,7 +293,7 @@ namespace f
                               "tsType": {
                                 "repr": "f",
                                 "kind": "typeRef",
-                                "typeRef": {
+                                "value": {
                                   "typeParams": null,
                                   "typeName": "f"
                                 }

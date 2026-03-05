@@ -40,7 +40,7 @@ class Class implements Iterator
             {
               "repr": "Iterator",
               "kind": "typeRef",
-              "typeRef": {
+              "value": {
                 "typeParams": null,
                 "typeName": "Iterator"
               }

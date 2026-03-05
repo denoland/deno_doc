@@ -56,7 +56,7 @@ class Class
               "tsType": {
                 "repr": "bool",
                 "kind": "typeRef",
-                "typeRef": {
+                "value": {
                   "typeParams": null,
                   "typeName": "bool"
                 }
@@ -78,7 +78,7 @@ class Class
               "tsType": {
                 "repr": "bigint",
                 "kind": "keyword",
-                "keyword": "bigint"
+                "value": "bigint"
               },
               "readonly": false,
               "accessibility": null,

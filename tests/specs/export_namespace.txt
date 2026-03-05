@@ -92,7 +92,7 @@ namespace RootNs
                     "tsType": {
                       "repr": "a",
                       "kind": "literal",
-                      "literal": {
+                      "value": {
                         "kind": "string",
                         "string": "a"
                       }
@@ -138,7 +138,7 @@ namespace RootNs
                                   "init": {
                                     "repr": "1",
                                     "kind": "literal",
-                                    "literal": {
+                                    "value": {
                                       "kind": "number",
                                       "number": 1.0
                                     }
@@ -155,7 +155,7 @@ namespace RootNs
                                   "init": {
                                     "repr": "2",
                                     "kind": "literal",
-                                    "literal": {
+                                    "value": {
                                       "kind": "number",
                                       "number": 2.0
                                     }
@@ -172,7 +172,7 @@ namespace RootNs
                                   "init": {
                                     "repr": "3",
                                     "kind": "literal",
-                                    "literal": {
+                                    "value": {
                                       "kind": "number",
                                       "number": 3.0
                                     }

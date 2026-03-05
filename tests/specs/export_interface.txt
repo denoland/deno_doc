@@ -84,7 +84,7 @@ interface Reader extends Foo, Bar
             {
               "repr": "Foo",
               "kind": "typeRef",
-              "typeRef": {
+              "value": {
                 "typeParams": null,
                 "typeName": "Foo"
               }
@@ -92,7 +92,7 @@ interface Reader extends Foo, Bar
             {
               "repr": "Bar",
               "kind": "typeRef",
-              "typeRef": {
+              "value": {
                 "typeParams": null,
                 "typeName": "Bar"
               }
@@ -120,7 +120,7 @@ interface Reader extends Foo, Bar
                   "tsType": {
                     "repr": "Uint8Array",
                     "kind": "typeRef",
-                    "typeRef": {
+                    "value": {
                       "typeParams": null,
                       "typeName": "Uint8Array"
                     }
@@ -133,7 +133,7 @@ interface Reader extends Foo, Bar
                   "tsType": {
                     "repr": "unknown",
                     "kind": "keyword",
-                    "keyword": "unknown"
+                    "value": "unknown"
                   }
                 }
               ],
@@ -141,12 +141,12 @@ interface Reader extends Foo, Bar
               "returnType": {
                 "repr": "Promise",
                 "kind": "typeRef",
-                "typeRef": {
+                "value": {
                   "typeParams": [
                     {
                       "repr": "number",
                       "kind": "keyword",
-                      "keyword": "number"
+                      "value": "number"
                     }
                   ],
                   "typeName": "Promise"
@@ -171,14 +171,14 @@ interface Reader extends Foo, Bar
                   "tsType": {
                     "repr": "string",
                     "kind": "keyword",
-                    "keyword": "string"
+                    "value": "string"
                   }
                 }
               ],
               "tsType": {
                 "repr": "number",
                 "kind": "keyword",
-                "keyword": "number"
+                "value": "number"
               },
               "location": {
                 "filename": "file:///mod.ts",

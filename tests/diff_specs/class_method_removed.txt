@@ -36,7 +36,7 @@ export class Foo {
                           "returnType": {
                             "repr": "void",
                             "kind": "keyword",
-                            "keyword": "void"
+                            "value": "void"
                           },
                           "hasBody": true,
                           "isAsync": false,

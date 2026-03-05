@@ -46,7 +46,7 @@ enum Hello
               "init": {
                 "repr": "world",
                 "kind": "literal",
-                "literal": {
+                "value": {
                   "kind": "string",
                   "string": "world"
                 }
@@ -63,7 +63,7 @@ enum Hello
               "init": {
                 "repr": "fizz",
                 "kind": "literal",
-                "literal": {
+                "value": {
                   "kind": "string",
                   "string": "fizz"
                 }

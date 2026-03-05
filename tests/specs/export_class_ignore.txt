@@ -108,7 +108,7 @@ class Foobar extends Fizz implements Buzz, Aldrin
               "tsType": {
                 "repr": "number",
                 "kind": "keyword",
-                "keyword": "number"
+                "value": "number"
               },
               "readonly": false,
               "accessibility": "protected",
@@ -127,7 +127,7 @@ class Foobar extends Fizz implements Buzz, Aldrin
               "tsType": {
                 "repr": "number",
                 "kind": "keyword",
-                "keyword": "number"
+                "value": "number"
               },
               "readonly": false,
               "accessibility": null,
@@ -146,7 +146,7 @@ class Foobar extends Fizz implements Buzz, Aldrin
               "tsType": {
                 "repr": "string",
                 "kind": "keyword",
-                "keyword": "string"
+                "value": "string"
               },
               "readonly": false,
               "accessibility": null,
@@ -165,19 +165,19 @@ class Foobar extends Fizz implements Buzz, Aldrin
               "tsType": {
                 "repr": "",
                 "kind": "array",
-                "array": {
+                "value": {
                   "repr": "",
                   "kind": "union",
-                  "union": [
+                  "value": [
                     {
                       "repr": "number",
                       "kind": "keyword",
-                      "keyword": "number"
+                      "value": "number"
                     },
                     {
                       "repr": "string",
                       "kind": "keyword",
-                      "keyword": "string"
+                      "value": "string"
                     }
                   ]
                 }
@@ -199,12 +199,12 @@ class Foobar extends Fizz implements Buzz, Aldrin
               "tsType": {
                 "repr": "",
                 "kind": "fnOrConstructor",
-                "fnOrConstructor": {
+                "value": {
                   "constructor": false,
                   "tsType": {
                     "repr": "void",
                     "kind": "keyword",
-                    "keyword": "void"
+                    "value": "void"
                   },
                   "params": [
                     {
@@ -214,7 +214,7 @@ class Foobar extends Fizz implements Buzz, Aldrin
                       "tsType": {
                         "repr": "string",
                         "kind": "keyword",
-                        "keyword": "string"
+                        "value": "string"
                       }
                     }
                   ],
@@ -242,7 +242,7 @@ class Foobar extends Fizz implements Buzz, Aldrin
             {
               "repr": "Buzz",
               "kind": "typeRef",
-              "typeRef": {
+              "value": {
                 "typeParams": null,
                 "typeName": "Buzz"
               }
@@ -250,7 +250,7 @@ class Foobar extends Fizz implements Buzz, Aldrin
             {
               "repr": "Aldrin",
               "kind": "typeRef",
-              "typeRef": {
+              "value": {
                 "typeParams": null,
                 "typeName": "Aldrin"
               }

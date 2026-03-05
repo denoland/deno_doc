@@ -26,7 +26,7 @@ Deno.test({
       tsType: {
         repr: "string",
         kind: "keyword",
-        keyword: "string",
+        value: "string",
       },
     }]);
   },

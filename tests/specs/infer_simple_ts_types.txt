@@ -200,7 +200,7 @@ const tpl: `foobar`
           "tsType": {
             "repr": "hello",
             "kind": "literal",
-            "literal": {
+            "value": {
               "kind": "string",
               "string": "hello"
             }
@@ -226,7 +226,7 @@ const tpl: `foobar`
           "tsType": {
             "repr": "123",
             "kind": "literal",
-            "literal": {
+            "value": {
               "kind": "number",
               "number": 123.0
             }
@@ -252,7 +252,7 @@ const tpl: `foobar`
           "tsType": {
             "repr": "false",
             "kind": "literal",
-            "literal": {
+            "value": {
               "kind": "boolean",
               "boolean": false
             }
@@ -278,7 +278,7 @@ const tpl: `foobar`
           "tsType": {
             "repr": "100",
             "kind": "literal",
-            "literal": {
+            "value": {
               "kind": "bigInt",
               "string": "100"
             }
@@ -304,7 +304,7 @@ const tpl: `foobar`
           "tsType": {
             "repr": "hello",
             "kind": "typeRef",
-            "typeRef": {
+            "value": {
               "typeParams": null,
               "typeName": "RegExp"
             }
@@ -330,13 +330,13 @@ const tpl: `foobar`
           "tsType": {
             "repr": "foobar",
             "kind": "literal",
-            "literal": {
+            "value": {
               "kind": "template",
               "tsTypes": [
                 {
                   "repr": "foobar",
                   "kind": "literal",
-                  "literal": {
+                  "value": {
                     "kind": "string",
                     "string": "foobar"
                   }
@@ -365,7 +365,7 @@ const tpl: `foobar`
           "tsType": {
             "repr": "Date",
             "kind": "typeRef",
-            "typeRef": {
+            "value": {
               "typeParams": null,
               "typeName": "Date"
             }
@@ -391,7 +391,7 @@ const tpl: `foobar`
           "tsType": {
             "repr": "String",
             "kind": "keyword",
-            "keyword": "string"
+            "value": "string"
           },
           "kind": "const"
         }
@@ -414,7 +414,7 @@ const tpl: `foobar`
           "tsType": {
             "repr": "Number",
             "kind": "keyword",
-            "keyword": "number"
+            "value": "number"
           },
           "kind": "const"
         }
@@ -437,7 +437,7 @@ const tpl: `foobar`
           "tsType": {
             "repr": "BigInt",
             "kind": "keyword",
-            "keyword": "bigint"
+            "value": "bigint"
           },
           "kind": "const"
         }
@@ -460,7 +460,7 @@ const tpl: `foobar`
           "tsType": {
             "repr": "Symbol",
             "kind": "keyword",
-            "keyword": "symbol"
+            "value": "symbol"
           },
           "kind": "const"
         }
@@ -483,17 +483,17 @@ const tpl: `foobar`
           "tsType": {
             "repr": "Map",
             "kind": "typeRef",
-            "typeRef": {
+            "value": {
               "typeParams": [
                 {
                   "repr": "string",
                   "kind": "keyword",
-                  "keyword": "string"
+                  "value": "string"
                 },
                 {
                   "repr": "string",
                   "kind": "keyword",
-                  "keyword": "string"
+                  "value": "string"
                 }
               ],
               "typeName": "Map"
@@ -525,14 +525,14 @@ const tpl: `foobar`
               "tsType": {
                 "repr": "string",
                 "kind": "keyword",
-                "keyword": "string"
+                "value": "string"
               }
             }
           ],
           "returnType": {
             "repr": "void",
             "kind": "keyword",
-            "keyword": "void"
+            "value": "void"
           },
           "hasBody": true,
           "isAsync": false,
@@ -563,14 +563,14 @@ const tpl: `foobar`
               "tsType": {
                 "repr": "string",
                 "kind": "keyword",
-                "keyword": "string"
+                "value": "string"
               }
             }
           ],
           "returnType": {
             "repr": "void",
             "kind": "keyword",
-            "keyword": "void"
+            "value": "void"
           },
           "hasBody": true,
           "isAsync": false,
@@ -596,7 +596,7 @@ const tpl: `foobar`
           "tsType": {
             "repr": "string",
             "kind": "keyword",
-            "keyword": "string"
+            "value": "string"
           },
           "kind": "const"
         }

@@ -25,12 +25,12 @@ export function identity<T>(value: T): T { return value; }
                           "old": {
                             "repr": "unknown",
                             "kind": "keyword",
-                            "keyword": "unknown"
+                            "value": "unknown"
                           },
                           "new": {
                             "repr": "T",
                             "kind": "typeRef",
-                            "typeRef": {
+                            "value": {
                               "typeParams": null,
                               "typeName": "T"
                             }
@@ -43,12 +43,12 @@ export function identity<T>(value: T): T { return value; }
                     "old": {
                       "repr": "unknown",
                       "kind": "keyword",
-                      "keyword": "unknown"
+                      "value": "unknown"
                     },
                     "new": {
                       "repr": "T",
                       "kind": "typeRef",
-                      "typeRef": {
+                      "value": {
                         "typeParams": null,
                         "typeName": "T"
                       }

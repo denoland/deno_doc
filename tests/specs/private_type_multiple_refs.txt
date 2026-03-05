@@ -95,7 +95,7 @@ Defined in file:///mod.ts:0:1
               "tsType": {
                 "repr": "PrivateInterface",
                 "kind": "typeRef",
-                "typeRef": {
+                "value": {
                   "typeParams": null,
                   "typeName": "PrivateInterface"
                 }
@@ -150,7 +150,7 @@ Defined in file:///mod.ts:0:1
               "tsType": {
                 "repr": "PrivateInterface",
                 "kind": "typeRef",
-                "typeRef": {
+                "value": {
                   "typeParams": null,
                   "typeName": "PrivateInterface"
                 }

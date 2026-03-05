@@ -35,7 +35,7 @@ export class Foo {
                             "tsType": {
                               "repr": "string",
                               "kind": "keyword",
-                              "keyword": "string"
+                              "value": "string"
                             }
                           },
                           {
@@ -45,7 +45,7 @@ export class Foo {
                             "tsType": {
                               "repr": "number",
                               "kind": "keyword",
-                              "keyword": "number"
+                              "value": "number"
                             }
                           }
                         ],
@@ -70,7 +70,7 @@ export class Foo {
                             "tsType": {
                               "repr": "string",
                               "kind": "keyword",
-                              "keyword": "string"
+                              "value": "string"
                             }
                           }
                         ],

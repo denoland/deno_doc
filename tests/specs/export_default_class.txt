@@ -51,7 +51,7 @@ class default
                   "tsType": {
                     "repr": "string",
                     "kind": "keyword",
-                    "keyword": "string"
+                    "value": "string"
                   }
                 },
                 {
@@ -62,7 +62,7 @@ class default
                   "tsType": {
                     "repr": "number",
                     "kind": "keyword",
-                    "keyword": "number"
+                    "value": "number"
                   }
                 },
                 {
@@ -73,7 +73,7 @@ class default
                   "tsType": {
                     "repr": "number",
                     "kind": "keyword",
-                    "keyword": "number"
+                    "value": "number"
                   }
                 }
               ],

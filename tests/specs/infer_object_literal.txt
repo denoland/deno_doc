@@ -50,7 +50,7 @@ const a: { d(e: string): void; h(): string; h(value: string); [[t]](u: string): 
           "tsType": {
             "repr": "",
             "kind": "typeLiteral",
-            "typeLiteral": {
+            "value": {
               "constructors": [],
               "methods": [
                 {
@@ -70,7 +70,7 @@ const a: { d(e: string): void; h(): string; h(value: string); [[t]](u: string): 
                       "tsType": {
                         "repr": "string",
                         "kind": "keyword",
-                        "keyword": "string"
+                        "value": "string"
                       }
                     }
                   ],
@@ -78,7 +78,7 @@ const a: { d(e: string): void; h(): string; h(value: string); [[t]](u: string): 
                   "returnType": {
                     "repr": "void",
                     "kind": "keyword",
-                    "keyword": "void"
+                    "value": "void"
                   },
                   "typeParams": []
                 },
@@ -96,7 +96,7 @@ const a: { d(e: string): void; h(): string; h(value: string); [[t]](u: string): 
                   "returnType": {
                     "repr": "string",
                     "kind": "keyword",
-                    "keyword": "string"
+                    "value": "string"
                   },
                   "typeParams": []
                 },
@@ -117,7 +117,7 @@ const a: { d(e: string): void; h(): string; h(value: string); [[t]](u: string): 
                       "tsType": {
                         "repr": "string",
                         "kind": "keyword",
-                        "keyword": "string"
+                        "value": "string"
                       }
                     }
                   ],
@@ -142,7 +142,7 @@ const a: { d(e: string): void; h(): string; h(value: string); [[t]](u: string): 
                       "tsType": {
                         "repr": "string",
                         "kind": "keyword",
-                        "keyword": "string"
+                        "value": "string"
                       }
                     }
                   ],
@@ -151,7 +151,7 @@ const a: { d(e: string): void; h(): string; h(value: string); [[t]](u: string): 
                   "returnType": {
                     "repr": "void",
                     "kind": "keyword",
-                    "keyword": "void"
+                    "value": "void"
                   },
                   "typeParams": []
                 }
@@ -174,7 +174,7 @@ const a: { d(e: string): void; h(): string; h(value: string); [[t]](u: string): 
                   "tsType": {
                     "repr": "string",
                     "kind": "keyword",
-                    "keyword": "string"
+                    "value": "string"
                   },
                   "typeParams": []
                 },
@@ -192,17 +192,17 @@ const a: { d(e: string): void; h(): string; h(value: string); [[t]](u: string): 
                   "tsType": {
                     "repr": "Map",
                     "kind": "typeRef",
-                    "typeRef": {
+                    "value": {
                       "typeParams": [
                         {
                           "repr": "string",
                           "kind": "keyword",
-                          "keyword": "string"
+                          "value": "string"
                         },
                         {
                           "repr": "number",
                           "kind": "keyword",
-                          "keyword": "number"
+                          "value": "number"
                         }
                       ],
                       "typeName": "Map"
@@ -224,7 +224,7 @@ const a: { d(e: string): void; h(): string; h(value: string); [[t]](u: string): 
                   "tsType": {
                     "repr": "",
                     "kind": "typeLiteral",
-                    "typeLiteral": {
+                    "value": {
                       "constructors": [],
                       "methods": [],
                       "properties": [
@@ -242,7 +242,7 @@ const a: { d(e: string): void; h(): string; h(value: string); [[t]](u: string): 
                           "tsType": {
                             "repr": "string",
                             "kind": "keyword",
-                            "keyword": "string"
+                            "value": "string"
                           },
                           "typeParams": []
                         }
@@ -267,12 +267,12 @@ const a: { d(e: string): void; h(): string; h(value: string); [[t]](u: string): 
                   "tsType": {
                     "repr": "",
                     "kind": "fnOrConstructor",
-                    "fnOrConstructor": {
+                    "value": {
                       "constructor": false,
                       "tsType": {
                         "repr": "void",
                         "kind": "keyword",
-                        "keyword": "void"
+                        "value": "void"
                       },
                       "params": [
                         {
@@ -282,7 +282,7 @@ const a: { d(e: string): void; h(): string; h(value: string); [[t]](u: string): 
                           "tsType": {
                             "repr": "string",
                             "kind": "keyword",
-                            "keyword": "string"
+                            "value": "string"
                           }
                         }
                       ],
@@ -305,19 +305,19 @@ const a: { d(e: string): void; h(): string; h(value: string); [[t]](u: string): 
                   "tsType": {
                     "repr": "",
                     "kind": "array",
-                    "array": {
+                    "value": {
                       "repr": "",
                       "kind": "union",
-                      "union": [
+                      "value": [
                         {
                           "repr": "number",
                           "kind": "keyword",
-                          "keyword": "number"
+                          "value": "number"
                         },
                         {
                           "repr": "string",
                           "kind": "keyword",
-                          "keyword": "string"
+                          "value": "string"
                         }
                       ]
                     }

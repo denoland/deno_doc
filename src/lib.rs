@@ -172,7 +172,10 @@ pub fn docnodes_v1_to_v2(value: serde_json::Value) -> Vec<Symbol> {
       }
     }
 
-    let declaration = serde_json::Value::Object(obj);
+    // v1 TsTypeDef used variant-name content keys (e.g. "keyword": "string"),
+    // v2 uses "value" as a uniform content key.
+    let mut declaration = serde_json::Value::Object(obj);
+    migrate_ts_type_defs(&mut declaration);
 
     let symbol = symbols.entry(name.clone()).or_insert_with(|| Symbol {
       name,
@@ -189,4 +192,35 @@ pub fn docnodes_v1_to_v2(value: serde_json::Value) -> Vec<Symbol> {
   }
 
   symbols.into_values().collect()
+}
+
+/// Recursively walk JSON and convert v1 TsTypeDef objects (which use
+/// variant-name content keys like `"keyword": "string"`) to v2 format
+/// (which uses `"value"` as the content key).
+fn migrate_ts_type_defs(value: &mut serde_json::Value) {
+  match value {
+    serde_json::Value::Object(obj) => {
+      // If this looks like a v1 TsTypeDef (has "repr" and "kind"), rename
+      // the kind-named content key to "value".
+      if obj.contains_key("repr")
+        && let Some(kind_str) = obj
+          .get("kind")
+          .and_then(|k| k.as_str())
+          .map(|s| s.to_string())
+        && let Some(content) = obj.remove(&kind_str)
+      {
+        obj.insert("value".to_string(), content);
+      }
+
+      for val in obj.values_mut() {
+        migrate_ts_type_defs(val);
+      }
+    }
+    serde_json::Value::Array(arr) => {
+      for val in arr.iter_mut() {
+        migrate_ts_type_defs(val);
+      }
+    }
+    _ => {}
+  }
 }

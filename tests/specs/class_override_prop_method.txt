@@ -56,7 +56,7 @@ class C extends B
               "tsType": {
                 "repr": "string",
                 "kind": "keyword",
-                "keyword": "string"
+                "value": "string"
               },
               "readonly": false,
               "accessibility": null,
@@ -88,7 +88,7 @@ class C extends B
                 "returnType": {
                   "repr": "void",
                   "kind": "keyword",
-                  "keyword": "void"
+                  "value": "void"
                 },
                 "hasBody": true,
                 "isAsync": false,

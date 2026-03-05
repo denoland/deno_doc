@@ -41,7 +41,7 @@ export namespace Utils {
                                     "tsType": {
                                       "repr": "boolean",
                                       "kind": "keyword",
-                                      "keyword": "boolean"
+                                      "value": "boolean"
                                     }
                                   }
                                 ]
@@ -63,7 +63,7 @@ export namespace Utils {
                                 "old": {
                                   "repr": "1.0",
                                   "kind": "literal",
-                                  "literal": {
+                                  "value": {
                                     "kind": "string",
                                     "string": "1.0"
                                   }
@@ -71,7 +71,7 @@ export namespace Utils {
                                 "new": {
                                   "repr": "2.0",
                                   "kind": "literal",
-                                  "literal": {
+                                  "value": {
                                     "kind": "string",
                                     "string": "2.0"
                                   }

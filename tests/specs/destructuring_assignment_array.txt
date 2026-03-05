@@ -79,10 +79,10 @@ private const rest5
           "tsType": {
             "repr": "",
             "kind": "array",
-            "array": {
+            "value": {
               "repr": "string",
               "kind": "keyword",
-              "keyword": "string"
+              "value": "string"
             }
           },
           "kind": "const"

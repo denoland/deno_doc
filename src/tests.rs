@@ -158,7 +158,7 @@ async fn types_header_handling() {
           "tsType": {
             "repr": "a",
             "kind": "literal",
-            "literal": {
+            "value": {
               "kind": "string",
               "string": "a"
             }
@@ -254,7 +254,7 @@ export function fooFn(a: number) {
           "tsType": {
             "repr": "foo",
             "kind": "literal",
-            "literal": {
+            "value": {
               "kind": "string",
               "string": "foo"
             }
@@ -281,7 +281,7 @@ export function fooFn(a: number) {
           "tsType": {
             "repr": "bar",
             "kind": "literal",
-            "literal": {
+            "value": {
               "kind": "string",
               "string": "bar"
             }
@@ -311,9 +311,9 @@ export function fooFn(a: number) {
                 "kind": "identifier",
                 "optional": false,
                 "tsType": {
-                  "keyword": "number",
-                  "kind": "keyword",
                   "repr": "number",
+                  "kind": "keyword",
+                  "value": "number",
                 },
               }
           ],
@@ -484,7 +484,7 @@ async fn deep_reexports() {
           "tsType": {
             "repr": "string",
             "kind": "keyword",
-            "keyword": "string"
+            "value": "string"
           },
           "kind": "const"
         }
@@ -578,7 +578,7 @@ export * as b from "./mod_doc.ts";
                   "tsType": {
                     "repr": "a",
                     "kind": "literal",
-                    "literal": {
+                    "value": {
                       "kind": "string",
                       "string": "a"
                     }
@@ -750,7 +750,7 @@ async fn exports_imported_earlier() {
           "tsType": {
             "repr": "string",
             "kind": "keyword",
-            "keyword": "string"
+            "value": "string"
           },
           "kind": "const"
         }
@@ -824,7 +824,7 @@ async fn exports_imported_earlier_renamed() {
           "tsType": {
             "repr": "string",
             "kind": "keyword",
-            "keyword": "string"
+            "value": "string"
           },
           "kind": "const"
         }
@@ -899,7 +899,7 @@ async fn exports_imported_earlier_default() {
           "tsType": {
             "repr": "string",
             "kind": "keyword",
-            "keyword": "string"
+            "value": "string"
           },
           "kind": "const"
         }
@@ -976,7 +976,7 @@ async fn exports_imported_earlier_private() {
           "tsType": {
             "repr": "string",
             "kind": "keyword",
-            "keyword": "string"
+            "value": "string"
           },
           "kind": "const"
         }
@@ -1062,7 +1062,7 @@ async fn json_module() {
         "tsType": {
           "repr": "",
           "kind": "typeLiteral",
-          "typeLiteral": {
+          "value": {
             "constructors": [],
             "methods": [],
             "properties": [{
@@ -1079,7 +1079,7 @@ async fn json_module() {
               "tsType": {
                 "repr": "5",
                 "kind": "literal",
-                "literal": {
+                "value": {
                   "kind": "number",
                   "number": 5.0,
                 },
@@ -1099,7 +1099,7 @@ async fn json_module() {
               "tsType": {
                 "repr": "text",
                 "kind": "literal",
-                "literal": {
+                "value": {
                   "kind": "string",
                   "string": "text",
                 },
@@ -1119,7 +1119,7 @@ async fn json_module() {
               "tsType": {
                 "repr": "null",
                 "kind": "keyword",
-                "keyword": "null",
+                "value": "null",
               },
               "typeParams": []
             }, {
@@ -1136,10 +1136,10 @@ async fn json_module() {
               "tsType": {
                 "repr": "unknown[]",
                 "kind": "array",
-                "array": {
+                "value": {
                   "repr": "unknown",
                   "kind": "keyword",
-                  "keyword": "unknown",
+                  "value": "unknown",
                 },
               },
               "typeParams": []
@@ -1157,7 +1157,7 @@ async fn json_module() {
               "tsType": {
                 "repr": "",
                 "kind": "typeLiteral",
-                "typeLiteral": {
+                "value": {
                   "constructors": [],
                   "methods": [],
                   "properties": [{
@@ -1174,7 +1174,7 @@ async fn json_module() {
                     "tsType": {
                       "repr": "1",
                       "kind": "literal",
-                      "literal": {
+                      "value": {
                         "kind": "number",
                         "number": 1.0,
                       },

@@ -77,7 +77,7 @@ Defined in file:///mod.ts:0:1
           "tsType": {
             "repr": "MessageEntity.TextLinkMessageEntity",
             "kind": "typeRef",
-            "typeRef": {
+            "value": {
               "typeParams": null,
               "typeName": "MessageEntity.TextLinkMessageEntity"
             }

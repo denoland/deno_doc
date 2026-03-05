@@ -34,7 +34,7 @@ interface Interface extends Iterator, Iterable
             {
               "repr": "Iterator",
               "kind": "typeRef",
-              "typeRef": {
+              "value": {
                 "typeParams": null,
                 "typeName": "Iterator"
               }
@@ -42,7 +42,7 @@ interface Interface extends Iterator, Iterable
             {
               "repr": "Iterable",
               "kind": "typeRef",
-              "typeRef": {
+              "value": {
                 "typeParams": null,
                 "typeName": "Iterable"
               }

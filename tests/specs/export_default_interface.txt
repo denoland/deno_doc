@@ -59,7 +59,7 @@ interface default
                   "tsType": {
                     "repr": "Uint8Array",
                     "kind": "typeRef",
-                    "typeRef": {
+                    "value": {
                       "typeParams": null,
                       "typeName": "Uint8Array"
                     }
@@ -72,7 +72,7 @@ interface default
                   "tsType": {
                     "repr": "unknown",
                     "kind": "keyword",
-                    "keyword": "unknown"
+                    "value": "unknown"
                   }
                 }
               ],
@@ -80,12 +80,12 @@ interface default
               "returnType": {
                 "repr": "Promise",
                 "kind": "typeRef",
-                "typeRef": {
+                "value": {
                   "typeParams": [
                     {
                       "repr": "number",
                       "kind": "keyword",
-                      "keyword": "number"
+                      "value": "number"
                     }
                   ],
                   "typeName": "Promise"

@@ -30,7 +30,7 @@ export function brandNew(): void {}
                 "returnType": {
                   "repr": "void",
                   "kind": "keyword",
-                  "keyword": "void"
+                  "value": "void"
                 },
                 "hasBody": true,
                 "isAsync": false,
@@ -63,7 +63,7 @@ export function brandNew(): void {}
                     "tsType": {
                       "repr": "string",
                       "kind": "keyword",
-                      "keyword": "string"
+                      "value": "string"
                     }
                   },
                   {
@@ -73,14 +73,14 @@ export function brandNew(): void {}
                     "tsType": {
                       "repr": "string",
                       "kind": "keyword",
-                      "keyword": "string"
+                      "value": "string"
                     }
                   }
                 ],
                 "returnType": {
                   "repr": "void",
                   "kind": "keyword",
-                  "keyword": "void"
+                  "value": "void"
                 },
                 "hasBody": true,
                 "isAsync": false,
@@ -108,12 +108,12 @@ export function brandNew(): void {}
                           "old": {
                             "repr": "string",
                             "kind": "keyword",
-                            "keyword": "string"
+                            "value": "string"
                           },
                           "new": {
                             "repr": "number",
                             "kind": "keyword",
-                            "keyword": "number"
+                            "value": "number"
                           }
                         }
                       }
@@ -123,12 +123,12 @@ export function brandNew(): void {}
                     "old": {
                       "repr": "string",
                       "kind": "keyword",
-                      "keyword": "string"
+                      "value": "string"
                     },
                     "new": {
                       "repr": "number",
                       "kind": "keyword",
-                      "keyword": "number"
+                      "value": "number"
                     }
                   }
                 }

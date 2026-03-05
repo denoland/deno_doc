@@ -37,14 +37,14 @@ function adopt<T>(p: import("./module.ts").Pet<T>): void
               "tsType": {
                 "repr": "",
                 "kind": "importType",
-                "importType": {
+                "value": {
                   "specifier": "./module.ts",
                   "qualifier": "Pet",
                   "typeParams": [
                     {
                       "repr": "T",
                       "kind": "typeRef",
-                      "typeRef": {
+                      "value": {
                         "typeParams": null,
                         "typeName": "T"
                       }
@@ -57,7 +57,7 @@ function adopt<T>(p: import("./module.ts").Pet<T>): void
           "returnType": {
             "repr": "void",
             "kind": "keyword",
-            "keyword": "void"
+            "value": "void"
           },
           "hasBody": true,
           "isAsync": false,

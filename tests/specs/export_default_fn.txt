@@ -52,7 +52,7 @@ function default(a: number)
               "tsType": {
                 "repr": "number",
                 "kind": "keyword",
-                "keyword": "number"
+                "value": "number"
               }
             }
           ],
