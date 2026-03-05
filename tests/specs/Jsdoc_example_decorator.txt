@@ -63,6 +63,7 @@ class B
 
 # output.json
 {
+  "imports": [],
   "symbols": [
     {
       "name": "A",

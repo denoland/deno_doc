@@ -38,6 +38,7 @@ class Bar extends obj.Foo
 
 # output.json
 {
+  "imports": [],
   "symbols": [
     {
       "name": "Bar",

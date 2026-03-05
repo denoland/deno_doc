@@ -31,10 +31,6 @@ where
   {
     'outer: for node in doc_nodes {
       for decl in &node.declarations {
-        if matches!(decl.def, DeclarationDef::Import(..)) {
-          continue 'outer;
-        }
-
         if flatten_namespaces
           && matches!(decl.def, DeclarationDef::Namespace(..))
         {
@@ -223,10 +219,6 @@ pub fn flatten_namespace<'a>(
 
     'outer: for node in &nodes {
       for decl in &node.declarations {
-        if matches!(decl.def, DeclarationDef::Import(..)) {
-          continue 'outer;
-        }
-
         if matches!(decl.def, DeclarationDef::Namespace(..)) {
           let children: Vec<_> =
             node.namespace_children.as_ref().unwrap().clone();

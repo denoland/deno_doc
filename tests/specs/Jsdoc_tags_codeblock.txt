@@ -96,6 +96,7 @@ interface D
 
 # output.json
 {
+  "imports": [],
   "symbols": [
     {
       "name": "A",

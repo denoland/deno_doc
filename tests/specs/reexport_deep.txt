@@ -55,12 +55,16 @@ Defined in file:///mod.ts:1:1
 
 type UrlMessageEntity = MessageEntity.TextLinkMessageEntity
 
-Defined in file:///mod.ts:0:1
-
-
 
 # output.json
 {
+  "imports": [
+    {
+      "importedName": "MessageEntity",
+      "originalName": "MessageEntity",
+      "src": "file:///a.ts"
+    }
+  ],
   "symbols": [
     {
       "name": "UrlMessageEntity",
@@ -84,25 +88,6 @@ Defined in file:///mod.ts:0:1
               }
             },
             "typeParams": []
-          }
-        }
-      ]
-    },
-    {
-      "name": "MessageEntity",
-      "declarations": [
-        {
-          "location": {
-            "filename": "file:///mod.ts",
-            "line": 0,
-            "col": 0,
-            "byteIndex": 0
-          },
-          "declarationKind": "private",
-          "kind": "import",
-          "def": {
-            "src": "file:///a.ts",
-            "imported": "MessageEntity"
           }
         }
       ]

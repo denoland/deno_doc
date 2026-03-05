@@ -67,12 +67,16 @@ namespace default
   reference Chat: file:///chat.ts:3:1
   reference Chat: file:///chat.ts:7:1
 
-Defined in file:///mod.ts:0:1
-
-
 
 # output.json
 {
+  "imports": [
+    {
+      "importedName": "Chat",
+      "originalName": "Chat",
+      "src": "file:///chat.ts"
+    }
+  ],
   "symbols": [
     {
       "name": "MyApi",
@@ -301,25 +305,6 @@ Defined in file:///mod.ts:0:1
                 ]
               }
             ]
-          }
-        }
-      ]
-    },
-    {
-      "name": "Chat",
-      "declarations": [
-        {
-          "location": {
-            "filename": "file:///mod.ts",
-            "line": 0,
-            "col": 0,
-            "byteIndex": 0
-          },
-          "declarationKind": "private",
-          "kind": "import",
-          "def": {
-            "src": "file:///chat.ts",
-            "imported": "Chat"
           }
         }
       ]

@@ -38,6 +38,7 @@ namespace Namespace
 
 # output.json
 {
+  "imports": [],
   "symbols": [
     {
       "name": "Namespace",

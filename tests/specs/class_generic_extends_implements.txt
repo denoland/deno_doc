@@ -17,6 +17,7 @@ class Class<A, B> extends Map<A, B> implements Iterator<A>, Iterable<B>
 
 # output.json
 {
+  "imports": [],
   "symbols": [
     {
       "name": "Class",

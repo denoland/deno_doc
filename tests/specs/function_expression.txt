@@ -39,6 +39,7 @@ async function qux(a: string): Promise<string>
 
 # output.json
 {
+  "imports": [],
   "symbols": [
     {
       "name": "foo",

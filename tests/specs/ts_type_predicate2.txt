@@ -16,6 +16,7 @@ function foo(bar: A | B): asserts bar is B
 
 # output.json
 {
+  "imports": [],
   "symbols": [
     {
       "name": "foo",

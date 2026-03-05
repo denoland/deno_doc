@@ -104,6 +104,7 @@ private namespace MyNamespace3
 
 # output.json
 {
+  "imports": [],
   "symbols": [
     {
       "name": "PrivatePropThroughNamespaceRef",

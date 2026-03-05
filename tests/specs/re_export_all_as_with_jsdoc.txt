@@ -18,6 +18,7 @@ namespace other
 
 # output.json
 {
+  "imports": [],
   "symbols": [
     {
       "name": "other",

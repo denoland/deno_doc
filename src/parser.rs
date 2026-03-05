@@ -46,10 +46,12 @@ use crate::Location;
 use crate::diagnostics::DiagnosticsCollector;
 use crate::diagnostics::DocDiagnostic;
 use crate::js_doc::JsDoc;
+use crate::node::DeclarationDef;
 use crate::node::DeclarationKind;
+use crate::node::Document;
+use crate::node::Import;
 use crate::node::NamespaceDef;
 use crate::node::ReferenceDef;
-use crate::node::{DeclarationDef, Document};
 use crate::ts_type::PropertyDef;
 use crate::ts_type::TsTypeDef;
 use crate::ts_type::TsTypeDefKind;
@@ -64,7 +66,7 @@ use crate::util::swc::module_js_doc_for_source;
 use crate::util::symbol::get_module_info;
 use crate::variable::VariableDef;
 use crate::visibility::SymbolVisibility;
-use crate::{Declaration, ImportDef, Symbol};
+use crate::{Declaration, Symbol};
 
 #[derive(Debug)]
 pub enum DocError {
@@ -537,10 +539,10 @@ impl<'a> DocParser<'a> {
     }
   }
 
-  fn get_symbols_for_module_imports(
+  fn get_imports_for_module_info(
     &self,
     module_info: &EsModuleInfo,
-  ) -> Result<Vec<Symbol>, DocError> {
+  ) -> Result<Vec<Import>, DocError> {
     let parsed_source = module_info.source();
     let referrer = module_info.specifier();
     let mut imports = vec![];
@@ -550,11 +552,10 @@ impl<'a> DocParser<'a> {
         && let Some(js_doc) =
           js_doc_for_range(module_info, &import_decl.range())
       {
-        let location = get_location(module_info, import_decl.start());
         for specifier in &import_decl.specifiers {
           use deno_ast::swc::ast::ImportSpecifier::*;
 
-          let (name, maybe_imported_name, src) = match specifier {
+          let (imported_name, original_name, src) = match specifier {
             Named(named_specifier) => (
               named_specifier.local.sym.to_string(),
               named_specifier
@@ -578,19 +579,13 @@ impl<'a> DocParser<'a> {
 
           let resolved_specifier =
             self.resolve_dependency(&src.to_string_lossy(), referrer)?;
-          let import_def = ImportDef {
+
+          imports.push(Import {
+            imported_name: imported_name.into_boxed_str(),
+            js_doc: js_doc.clone(),
             src: resolved_specifier.to_string(),
-            imported: maybe_imported_name,
-          };
-
-          let symbol = Symbol::import(
-            name.into_boxed_str(),
-            location.clone(),
-            js_doc.clone(),
-            import_def,
-          );
-
-          imports.push(symbol);
+            original_name,
+          });
         }
       }
     }
@@ -1093,9 +1088,7 @@ impl<'a> DocParser<'a> {
         if let Some(mut document) =
           self.get_document_for_module_info_body(module_info)
         {
-          document
-            .symbols
-            .extend(self.get_symbols_for_module_imports(module_info)?);
+          document.imports = self.get_imports_for_module_info(module_info)?;
 
           Ok(Some(document))
         } else {
@@ -1189,6 +1182,7 @@ impl<'a> DocParser<'a> {
 
     Some(Document {
       module_doc,
+      imports: vec![],
       symbols,
     })
   }
@@ -1608,6 +1602,7 @@ fn parse_json_module_symbol(
   if let Ok(value) = serde_json::from_str(source) {
     Some(Document {
       module_doc: Default::default(),
+      imports: vec![],
       symbols: vec![Symbol::variable(
         "default".into(),
         true,

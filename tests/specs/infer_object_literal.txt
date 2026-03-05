@@ -34,6 +34,7 @@ const a: { d(e: string): void; h(): string; h(value: string); [[t]](u: string): 
 
 # output.json
 {
+  "imports": [],
   "symbols": [
     {
       "name": "a",

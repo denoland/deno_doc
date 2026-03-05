@@ -68,6 +68,7 @@ class Data
 
 # output.json
 {
+  "imports": [],
   "symbols": [
     {
       "name": "Data",

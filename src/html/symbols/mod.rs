@@ -57,10 +57,6 @@ impl SymbolGroupCtx {
       IndexMap::<crate::node::DocNodeKind, Vec<&Declaration>>::default();
 
     for decl in &symbol.declarations {
-      if matches!(decl.def, DeclarationDef::Import(..)) {
-        continue;
-      }
-
       declarations
         .entry(decl.def.to_kind())
         .or_insert(vec![])
@@ -584,7 +580,7 @@ impl SymbolInnerCtx {
             },
           ))
         }
-        DeclarationDef::Import(..) | DeclarationDef::Reference(..) => {
+        DeclarationDef::Reference(..) => {
           unreachable!()
         }
       });

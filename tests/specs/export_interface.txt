@@ -64,6 +64,7 @@ interface Reader extends Foo, Bar
 
 # output.json
 {
+  "imports": [],
   "symbols": [
     {
       "name": "Reader",

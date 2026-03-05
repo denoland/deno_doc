@@ -18,6 +18,7 @@ interface default
 
 # output.json
 {
+  "imports": [],
   "symbols": [
     {
       "name": "default",

@@ -18,6 +18,7 @@ async function a(): Promise<void>
 
 # output.json
 {
+  "imports": [],
   "symbols": [
     {
       "name": "a",

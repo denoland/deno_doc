@@ -27,6 +27,7 @@ interface TypedIface<T>
 
 # output.json
 {
+  "imports": [],
   "symbols": [
     {
       "name": "TypedIface",

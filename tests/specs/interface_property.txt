@@ -54,6 +54,7 @@ interface I
 
 # output.json
 {
+  "imports": [],
   "symbols": [
     {
       "name": "I",

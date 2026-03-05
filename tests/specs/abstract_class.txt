@@ -17,6 +17,7 @@ abstract class Class
 
 # output.json
 {
+  "imports": [],
   "symbols": [
     {
       "name": "Class",

@@ -79,6 +79,7 @@ private namespace H
 
 # output.json
 {
+  "imports": [],
   "symbols": [
     {
       "name": "a",

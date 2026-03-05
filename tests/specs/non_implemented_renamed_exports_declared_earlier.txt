@@ -17,6 +17,7 @@ function bar(): void
 
 # output.json
 {
+  "imports": [],
   "symbols": [
     {
       "name": "bar",

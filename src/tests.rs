@@ -224,7 +224,7 @@ export function fooFn(a: number) {
     ],
   )
   .await;
-  let entries = DocParser::new(
+  let document = DocParser::new(
     &graph,
     &analyzer,
     &[specifier],
@@ -235,10 +235,9 @@ export function fooFn(a: number) {
   .unwrap()
   .into_values()
   .next()
-  .unwrap()
-  .symbols;
+  .unwrap();
 
-  let expected_json = json!([
+  let expected_symbols = json!([
     {
       "name": "fooConst",
       "declarations": [{
@@ -328,33 +327,22 @@ export function fooFn(a: number) {
         },
       }]
     },
+  ]);
+  let actual = serde_json::to_value(&document.symbols).unwrap();
+  assert_eq!(actual, expected_symbols);
+
+  let expected_imports = json!([
     {
-      "name": "buzz",
-      "declarations": [{
-        "location": {
-          "filename": "file:///test.ts",
-          "line": 2,
-          "col": 0,
-          "byteIndex": 79
-        },
-        "declarationKind": "private",
-        "kind": "import",
-        "def": {
-          "src": "file:///reexport.ts",
-          "imported": "fizz",
-        }
-      }]
+      "importedName": "buzz",
+      "originalName": "fizz",
+      "src": "file:///reexport.ts",
     }
   ]);
-  let actual = serde_json::to_value(&entries).unwrap();
-  assert_eq!(actual, expected_json);
+  let actual = serde_json::to_value(&document.imports).unwrap();
+  assert_eq!(actual, expected_imports);
 
-  let doc = crate::node::Document {
-    module_doc: Default::default(),
-    symbols: entries,
-  };
   assert!(
-    DocPrinter::new(&doc, false, false)
+    DocPrinter::new(&document, false, false)
       .to_string()
       .as_str()
       .contains("function fooFn(a: number)")
@@ -445,6 +433,7 @@ export { Hello } from "./reexport.ts";
 
   let doc = crate::node::Document {
     module_doc: Default::default(),
+    imports: vec![],
     symbols: entries,
   };
   let output = DocPrinter::new(&doc, false, false).to_string();
@@ -509,6 +498,7 @@ async fn deep_reexports() {
 
   let doc = crate::node::Document {
     module_doc: Default::default(),
+    imports: vec![],
     symbols: entries,
   };
   assert!(
@@ -740,7 +730,7 @@ async fn exports_imported_earlier() {
     ],
   )
   .await;
-  let entries = DocParser::new(
+  let document = DocParser::new(
     &graph,
     &analyzer,
     &[specifier],
@@ -751,10 +741,9 @@ async fn exports_imported_earlier() {
   .unwrap()
   .into_values()
   .next()
-  .unwrap()
-  .symbols;
+  .unwrap();
 
-  let expected_json = json!([
+  let expected_symbols = json!([
     {
       "name": "foo",
       "declarations": [{
@@ -776,26 +765,19 @@ async fn exports_imported_earlier() {
         }
       }]
     },
+  ]);
+  let actual = serde_json::to_value(&document.symbols).unwrap();
+  assert_eq!(actual, expected_symbols);
+
+  let expected_imports = json!([
     {
-      "name": "foo",
-      "declarations": [{
-        "kind": "import",
-        "location": {
-          "filename": "file:///test.ts",
-          "line": 1,
-          "col": 2,
-          "byteIndex": 3
-        },
-        "declarationKind": "private",
-        "def": {
-          "src": "file:///foo.ts",
-          "imported": "foo",
-        },
-      }]
+      "importedName": "foo",
+      "originalName": "foo",
+      "src": "file:///foo.ts",
     },
   ]);
-  let actual = serde_json::to_value(&entries).unwrap();
-  assert_eq!(actual, expected_json);
+  let actual = serde_json::to_value(&document.imports).unwrap();
+  assert_eq!(actual, expected_imports);
 }
 
 #[tokio::test]
@@ -815,7 +797,7 @@ async fn exports_imported_earlier_renamed() {
     ],
   )
   .await;
-  let entries = DocParser::new(
+  let document = DocParser::new(
     &graph,
     &analyzer,
     &[specifier],
@@ -826,10 +808,9 @@ async fn exports_imported_earlier_renamed() {
   .unwrap()
   .into_values()
   .next()
-  .unwrap()
-  .symbols;
+  .unwrap();
 
-  let expected_json = json!([
+  let expected_symbols = json!([
     {
       "name": "f",
       "declarations": [{
@@ -851,26 +832,19 @@ async fn exports_imported_earlier_renamed() {
         }
       }]
     },
+  ]);
+  let actual = serde_json::to_value(&document.symbols).unwrap();
+  assert_eq!(actual, expected_symbols);
+
+  let expected_imports = json!([
     {
-      "name": "f",
-      "declarations": [{
-        "kind": "import",
-        "location": {
-          "filename": "file:///test.ts",
-          "line": 1,
-          "col": 2,
-          "byteIndex": 3
-        },
-        "declarationKind": "private",
-        "def": {
-          "src": "file:///foo.ts",
-          "imported": "foo"
-        }
-      }]
+      "importedName": "f",
+      "originalName": "foo",
+      "src": "file:///foo.ts",
     }
   ]);
-  let actual = serde_json::to_value(&entries).unwrap();
-  assert_eq!(actual, expected_json);
+  let actual = serde_json::to_value(&document.imports).unwrap();
+  assert_eq!(actual, expected_imports);
 }
 
 #[tokio::test]
@@ -891,7 +865,7 @@ async fn exports_imported_earlier_default() {
     ],
   )
   .await;
-  let entries = DocParser::new(
+  let document = DocParser::new(
     &graph,
     &analyzer,
     &[specifier],
@@ -902,10 +876,9 @@ async fn exports_imported_earlier_default() {
   .unwrap()
   .into_values()
   .next()
-  .unwrap()
-  .symbols;
+  .unwrap();
 
-  let expected_json = json!([
+  let expected_symbols = json!([
     {
       "name": "foo",
       "declarations": [{
@@ -927,26 +900,19 @@ async fn exports_imported_earlier_default() {
         }
       }]
     },
+  ]);
+  let actual = serde_json::to_value(&document.symbols).unwrap();
+  assert_eq!(actual, expected_symbols);
+
+  let expected_imports = json!([
     {
-      "name": "foo",
-      "declarations": [{
-        "kind": "import",
-        "location": {
-          "filename": "file:///test.ts",
-          "line": 1,
-          "col": 2,
-          "byteIndex": 3
-        },
-        "declarationKind": "private",
-        "def": {
-          "src": "file:///foo.ts",
-          "imported": "default"
-        }
-      }]
+      "importedName": "foo",
+      "originalName": "default",
+      "src": "file:///foo.ts",
     }
   ]);
-  let actual = serde_json::to_value(&entries).unwrap();
-  assert_eq!(actual, expected_json);
+  let actual = serde_json::to_value(&document.imports).unwrap();
+  assert_eq!(actual, expected_imports);
 }
 
 #[tokio::test]
@@ -966,7 +932,7 @@ async fn exports_imported_earlier_private() {
     ],
   )
   .await;
-  let entries = DocParser::new(
+  let document = DocParser::new(
     &graph,
     &analyzer,
     &[specifier],
@@ -980,10 +946,9 @@ async fn exports_imported_earlier_private() {
   .unwrap()
   .into_values()
   .next()
-  .unwrap()
-  .symbols;
+  .unwrap();
 
-  let expected_json = json!([
+  let expected_symbols = json!([
     {
       "name": "foo",
       "declarations": [{
@@ -1005,26 +970,19 @@ async fn exports_imported_earlier_private() {
         }
       }]
     },
+  ]);
+  let actual = serde_json::to_value(&document.symbols).unwrap();
+  assert_eq!(actual, expected_symbols);
+
+  let expected_imports = json!([
     {
-      "name": "foo",
-      "declarations": [{
-        "kind": "import",
-        "location": {
-          "filename": "file:///test.ts",
-          "line": 1,
-          "col": 2,
-          "byteIndex": 3
-        },
-        "declarationKind": "private",
-        "def": {
-          "src": "file:///foo.ts",
-          "imported": "foo",
-        },
-      }]
+      "importedName": "foo",
+      "originalName": "foo",
+      "src": "file:///foo.ts",
     },
   ]);
-  let actual = serde_json::to_value(&entries).unwrap();
-  assert_eq!(actual, expected_json);
+  let actual = serde_json::to_value(&document.imports).unwrap();
+  assert_eq!(actual, expected_imports);
 }
 
 #[tokio::test]

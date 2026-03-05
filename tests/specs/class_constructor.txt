@@ -57,6 +57,7 @@ class Class3
 
 # output.json
 {
+  "imports": [],
   "symbols": [
     {
       "name": "Class",

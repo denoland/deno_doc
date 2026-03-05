@@ -17,6 +17,7 @@ interface Interface<T>
 
 # output.json
 {
+  "imports": [],
   "symbols": [
     {
       "name": "Interface",

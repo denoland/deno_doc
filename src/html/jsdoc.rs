@@ -982,6 +982,7 @@ mod test {
           ModuleSpecifier::parse("file:///a.ts").unwrap(),
           Document {
             module_doc: Default::default(),
+            imports: vec![],
             symbols: vec![
               Symbol::interface(
                 "foo".into(),
@@ -1024,6 +1025,7 @@ mod test {
           ModuleSpecifier::parse("file:///b.ts").unwrap(),
           Document {
             module_doc: Default::default(),
+            imports: vec![],
             symbols: vec![Symbol::interface(
               "baz".into(),
               false,

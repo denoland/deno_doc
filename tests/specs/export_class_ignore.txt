@@ -85,6 +85,7 @@ class Foobar extends Fizz implements Buzz, Aldrin
 
 # output.json
 {
+  "imports": [],
   "symbols": [
     {
       "name": "Foobar",

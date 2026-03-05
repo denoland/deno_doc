@@ -49,6 +49,7 @@ type Colors = "red" | "green" | "blue"
 
 # output.json
 {
+  "imports": [],
   "symbols": [
     {
       "name": "Colors",

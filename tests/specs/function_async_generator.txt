@@ -23,6 +23,7 @@ async function* ag()
 
 # output.json
 {
+  "imports": [],
   "symbols": [
     {
       "name": "ag",

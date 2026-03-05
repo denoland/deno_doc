@@ -2,7 +2,15 @@
 
 export interface Document {
   moduleDoc?: JsDoc;
+  imports?: Import[];
   symbols: DocNode[];
+}
+
+export interface Import {
+  importedName: string;
+  originalName?: string;
+  jsDoc?: JsDoc;
+  src: string;
 }
 
 export interface DocNode {
@@ -25,7 +33,6 @@ export type Declaration =
   | DeclarationTypeAlias
   | DeclarationNamespace
   | DeclarationInterface
-  | DeclarationImport
   | DeclarationReference;
 
 interface DeclarationBase {
@@ -44,7 +51,6 @@ export type DocNodeKind =
   | "typeAlias"
   | "namespace"
   | "interface"
-  | "import"
   | "reference";
 
 export interface DeclarationModuleDoc extends DeclarationBase {
@@ -85,11 +91,6 @@ export interface DeclarationNamespace extends DeclarationBase {
 export interface DeclarationInterface extends DeclarationBase {
   kind: "interface";
   def: InterfaceDef;
-}
-
-export interface DeclarationImport extends DeclarationBase {
-  kind: "import";
-  def: ImportDef;
 }
 
 export interface DeclarationReference extends DeclarationBase {
@@ -188,11 +189,6 @@ export interface FunctionDef {
   isGenerator: boolean;
   typeParams: TsTypeParamDef[];
   decorators?: DecoratorDef[];
-}
-
-export interface ImportDef {
-  src: string;
-  imported?: string;
 }
 
 export interface InterfaceDef {

@@ -138,6 +138,7 @@ class MyClass
 
 # output.json
 {
+  "imports": [],
   "symbols": [
     {
       "name": "MyClass",

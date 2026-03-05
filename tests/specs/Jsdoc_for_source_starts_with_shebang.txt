@@ -55,6 +55,7 @@ interface B
       }
     ]
   },
+  "imports": [],
   "symbols": [
     {
       "name": "A",

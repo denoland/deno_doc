@@ -1,4 +1,3 @@
-use crate::DeclarationDef;
 use crate::html::DocNodeWithContext;
 use crate::html::GenerateCtx;
 use crate::html::UrlResolveKind;
@@ -36,10 +35,16 @@ impl<'ctx> RenderContext<'ctx> {
     doc_nodes: &[DocNodeWithContext],
     current_resolve: UrlResolveKind<'ctx>,
   ) -> Self {
+    let current_imports = current_resolve
+      .get_file()
+      .and_then(|file| ctx.imports.get(file))
+      .map(|imports| get_current_imports(imports))
+      .unwrap_or_default();
+
     Self {
       ctx,
       scoped_symbols: NamespacedSymbols::new(ctx, doc_nodes),
-      current_imports: Rc::new(get_current_imports(doc_nodes)),
+      current_imports: Rc::new(current_imports),
       current_type_params: Default::default(),
       current_resolve,
       namespace_parts: Rc::new([]),
@@ -460,36 +465,30 @@ fn split_with_brackets(s: &str) -> Vec<String> {
 }
 
 fn get_current_imports(
-  symbols: &[DocNodeWithContext],
+  imports: &[crate::node::Import],
 ) -> HashMap<String, String> {
-  let mut imports = HashMap::new();
+  let mut imports_out = HashMap::new();
 
-  for symbol in symbols {
-    for decl in &symbol.declarations {
-      if let DeclarationDef::Import(import_def) = &decl.def {
-        // TODO: handle import aliasing
-        if import_def.imported.as_deref() == Some(symbol.get_name()) {
-          imports.insert(symbol.get_name().to_string(), import_def.src.clone());
-        }
-      }
+  for import in imports {
+    // TODO: handle import aliasing
+    if import.original_name.as_deref() == Some(&*import.imported_name) {
+      imports_out.insert(import.imported_name.to_string(), import.src.clone());
     }
   }
 
-  imports
+  imports_out
 }
 
 #[cfg(test)]
 mod test {
   use super::*;
+  use crate::Location;
   use crate::html::HrefResolver;
   use crate::html::{
     GenerateOptions, UsageComposer, UsageComposerEntry, UsageToMd,
   };
-  use crate::node::DeclarationKind;
   use crate::node::Document;
-  use crate::node::ImportDef;
-  use crate::node::Symbol;
-  use crate::{Declaration, Location};
+  use crate::node::Import;
   use indexmap::IndexMap;
 
   struct TestResolver;
@@ -563,24 +562,13 @@ mod test {
       ModuleSpecifier::parse("file:///mod.ts").unwrap(),
       Document {
         module_doc: Default::default(),
-        symbols: vec![Symbol {
-          name: "foo".into(),
-          is_default: false,
-          declarations: vec![Declaration {
-            location: Location {
-              filename: "a".into(),
-              line: 0,
-              col: 0,
-              byte_index: 0,
-            },
-            declaration_kind: DeclarationKind::Private,
-            js_doc: Default::default(),
-            def: crate::node::DeclarationDef::Import(ImportDef {
-              src: "b".to_string(),
-              imported: Some("foo".to_string()),
-            }),
-          }],
+        imports: vec![Import {
+          imported_name: "foo".into(),
+          js_doc: Default::default(),
+          src: "b".to_string(),
+          original_name: Some("foo".to_string()),
         }],
+        symbols: vec![],
       },
     )]);
 
@@ -616,10 +604,7 @@ mod test {
     let render_ctx = RenderContext::new(&ctx, doc_nodes, UrlResolveKind::Root);
     assert_eq!(render_ctx.lookup_symbol_href("bar").unwrap(), "global$bar");
 
-    // imports
-    let render_ctx = RenderContext::new(&ctx, doc_nodes, UrlResolveKind::Root);
-    assert_eq!(render_ctx.lookup_symbol_href("foo").unwrap(), "b/foo");
-
+    // imports (only available when current resolve is a file)
     let render_ctx = RenderContext::new(
       &ctx,
       doc_nodes,

@@ -25,6 +25,7 @@ namespace Audio
 
 # output.json
 {
+  "imports": [],
   "symbols": [
     {
       "name": "Audio",

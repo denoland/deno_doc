@@ -43,6 +43,7 @@ interface Thing
 
 # output.json
 {
+  "imports": [],
   "symbols": [
     {
       "name": "Thing",

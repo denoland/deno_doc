@@ -42,6 +42,7 @@ interface 插件描述
 
 # output.json
 {
+  "imports": [],
   "symbols": [
     {
       "name": "插件描述",

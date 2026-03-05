@@ -23,6 +23,7 @@ function* g()
 
 # output.json
 {
+  "imports": [],
   "symbols": [
     {
       "name": "g",

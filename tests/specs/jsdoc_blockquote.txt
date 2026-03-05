@@ -123,6 +123,7 @@ function withList(): void
 
 # output.json
 {
+  "imports": [],
   "symbols": [
     {
       "name": "simple",
