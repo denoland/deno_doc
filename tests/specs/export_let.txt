@@ -87,181 +87,183 @@ let tpl: `foobarbaz`
 
 
 # output.json
-[
-  {
-    "name": "str",
-    "declarations": [
-      {
-        "location": {
-          "filename": "file:///mod.ts",
-          "line": 0,
-          "col": 11,
-          "byteIndex": 11
-        },
-        "declarationKind": "export",
-        "kind": "variable",
-        "def": {
-          "tsType": {
-            "repr": "string",
-            "kind": "keyword",
-            "value": "string"
+{
+  "symbols": [
+    {
+      "name": "str",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 0,
+            "col": 11,
+            "byteIndex": 11
           },
-          "kind": "let"
+          "declarationKind": "export",
+          "kind": "variable",
+          "def": {
+            "tsType": {
+              "repr": "string",
+              "kind": "keyword",
+              "value": "string"
+            },
+            "kind": "let"
+          }
         }
-      }
-    ]
-  },
-  {
-    "name": "num",
-    "declarations": [
-      {
-        "location": {
-          "filename": "file:///mod.ts",
-          "line": 1,
-          "col": 11,
-          "byteIndex": 37
-        },
-        "declarationKind": "export",
-        "kind": "variable",
-        "def": {
-          "tsType": {
-            "repr": "number",
-            "kind": "keyword",
-            "value": "number"
+      ]
+    },
+    {
+      "name": "num",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 1,
+            "col": 11,
+            "byteIndex": 37
           },
-          "kind": "let"
+          "declarationKind": "export",
+          "kind": "variable",
+          "def": {
+            "tsType": {
+              "repr": "number",
+              "kind": "keyword",
+              "value": "number"
+            },
+            "kind": "let"
+          }
         }
-      }
-    ]
-  },
-  {
-    "name": "bool",
-    "declarations": [
-      {
-        "location": {
-          "filename": "file:///mod.ts",
-          "line": 2,
-          "col": 11,
-          "byteIndex": 59
-        },
-        "declarationKind": "export",
-        "kind": "variable",
-        "def": {
-          "tsType": {
-            "repr": "boolean",
-            "kind": "keyword",
-            "value": "boolean"
+      ]
+    },
+    {
+      "name": "bool",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 2,
+            "col": 11,
+            "byteIndex": 59
           },
-          "kind": "let"
+          "declarationKind": "export",
+          "kind": "variable",
+          "def": {
+            "tsType": {
+              "repr": "boolean",
+              "kind": "keyword",
+              "value": "boolean"
+            },
+            "kind": "let"
+          }
         }
-      }
-    ]
-  },
-  {
-    "name": "dateStr",
-    "declarations": [
-      {
-        "location": {
-          "filename": "file:///mod.ts",
-          "line": 3,
-          "col": 11,
-          "byteIndex": 84
-        },
-        "declarationKind": "export",
-        "kind": "variable",
-        "def": {
-          "tsType": {
-            "repr": "Date",
-            "kind": "keyword",
-            "value": "string"
+      ]
+    },
+    {
+      "name": "dateStr",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 3,
+            "col": 11,
+            "byteIndex": 84
           },
-          "kind": "let"
+          "declarationKind": "export",
+          "kind": "variable",
+          "def": {
+            "tsType": {
+              "repr": "Date",
+              "kind": "keyword",
+              "value": "string"
+            },
+            "kind": "let"
+          }
         }
-      }
-    ]
-  },
-  {
-    "name": "regex",
-    "declarations": [
-      {
-        "location": {
-          "filename": "file:///mod.ts",
-          "line": 4,
-          "col": 11,
-          "byteIndex": 113
-        },
-        "declarationKind": "export",
-        "kind": "variable",
-        "def": {
-          "tsType": {
-            "repr": "RegExp",
-            "kind": "typeRef",
-            "value": {
-              "typeParams": null,
-              "typeName": "RegExp"
-            }
+      ]
+    },
+    {
+      "name": "regex",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 4,
+            "col": 11,
+            "byteIndex": 113
           },
-          "kind": "let"
+          "declarationKind": "export",
+          "kind": "variable",
+          "def": {
+            "tsType": {
+              "repr": "RegExp",
+              "kind": "typeRef",
+              "value": {
+                "typeParams": null,
+                "typeName": "RegExp"
+              }
+            },
+            "kind": "let"
+          }
         }
-      }
-    ]
-  },
-  {
-    "name": "sym",
-    "declarations": [
-      {
-        "location": {
-          "filename": "file:///mod.ts",
-          "line": 5,
-          "col": 11,
-          "byteIndex": 150
-        },
-        "declarationKind": "export",
-        "kind": "variable",
-        "def": {
-          "tsType": {
-            "repr": "Symbol",
-            "kind": "keyword",
-            "value": "symbol"
+      ]
+    },
+    {
+      "name": "sym",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 5,
+            "col": 11,
+            "byteIndex": 150
           },
-          "kind": "let"
+          "declarationKind": "export",
+          "kind": "variable",
+          "def": {
+            "tsType": {
+              "repr": "Symbol",
+              "kind": "keyword",
+              "value": "symbol"
+            },
+            "kind": "let"
+          }
         }
-      }
-    ]
-  },
-  {
-    "name": "tpl",
-    "declarations": [
-      {
-        "location": {
-          "filename": "file:///mod.ts",
-          "line": 6,
-          "col": 11,
-          "byteIndex": 182
-        },
-        "declarationKind": "export",
-        "kind": "variable",
-        "def": {
-          "tsType": {
-            "repr": "foobarbaz",
-            "kind": "literal",
-            "value": {
-              "kind": "template",
-              "tsTypes": [
-                {
-                  "repr": "foobarbaz",
-                  "kind": "literal",
-                  "value": {
-                    "kind": "string",
-                    "string": "foobarbaz"
+      ]
+    },
+    {
+      "name": "tpl",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 6,
+            "col": 11,
+            "byteIndex": 182
+          },
+          "declarationKind": "export",
+          "kind": "variable",
+          "def": {
+            "tsType": {
+              "repr": "foobarbaz",
+              "kind": "literal",
+              "value": {
+                "kind": "template",
+                "tsTypes": [
+                  {
+                    "repr": "foobarbaz",
+                    "kind": "literal",
+                    "value": {
+                      "kind": "string",
+                      "string": "foobarbaz"
+                    }
                   }
-                }
-              ]
-            }
-          },
-          "kind": "let"
+                ]
+              }
+            },
+            "kind": "let"
+          }
         }
-      }
-    ]
-  }
-]
+      ]
+    }
+  ]
+}

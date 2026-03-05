@@ -37,75 +37,77 @@ class Bar extends obj.Foo
 
 
 # output.json
-[
-  {
-    "name": "Bar",
-    "declarations": [
-      {
-        "location": {
-          "filename": "file:///mod.ts",
-          "line": 3,
-          "col": 0,
-          "byteIndex": 34
-        },
-        "declarationKind": "export",
-        "kind": "class",
-        "def": {
-          "isAbstract": false,
-          "constructors": [],
-          "properties": [],
-          "indexSignatures": [],
-          "methods": [],
-          "extends": "obj.Foo",
-          "implements": [],
-          "typeParams": [],
-          "superTypeParams": []
-        }
-      }
-    ]
-  },
-  {
-    "name": "obj",
-    "declarations": [
-      {
-        "location": {
-          "filename": "file:///mod.ts",
-          "line": 1,
-          "col": 6,
-          "byteIndex": 19
-        },
-        "declarationKind": "private",
-        "kind": "variable",
-        "def": {
-          "tsType": {
-            "repr": "",
-            "kind": "typeLiteral",
-            "value": {
-              "constructors": [],
-              "methods": [],
-              "properties": [
-                {
-                  "name": "Foo",
-                  "location": {
-                    "filename": "file:///mod.ts",
-                    "line": 1,
-                    "col": 14,
-                    "byteIndex": 27
-                  },
-                  "params": [],
-                  "computed": false,
-                  "optional": false,
-                  "tsType": null,
-                  "typeParams": []
-                }
-              ],
-              "callSignatures": [],
-              "indexSignatures": []
-            }
+{
+  "symbols": [
+    {
+      "name": "Bar",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 3,
+            "col": 0,
+            "byteIndex": 34
           },
-          "kind": "const"
+          "declarationKind": "export",
+          "kind": "class",
+          "def": {
+            "isAbstract": false,
+            "constructors": [],
+            "properties": [],
+            "indexSignatures": [],
+            "methods": [],
+            "extends": "obj.Foo",
+            "implements": [],
+            "typeParams": [],
+            "superTypeParams": []
+          }
         }
-      }
-    ]
-  }
-]
+      ]
+    },
+    {
+      "name": "obj",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 1,
+            "col": 6,
+            "byteIndex": 19
+          },
+          "declarationKind": "private",
+          "kind": "variable",
+          "def": {
+            "tsType": {
+              "repr": "",
+              "kind": "typeLiteral",
+              "value": {
+                "constructors": [],
+                "methods": [],
+                "properties": [
+                  {
+                    "name": "Foo",
+                    "location": {
+                      "filename": "file:///mod.ts",
+                      "line": 1,
+                      "col": 14,
+                      "byteIndex": 27
+                    },
+                    "params": [],
+                    "computed": false,
+                    "optional": false,
+                    "tsType": null,
+                    "typeParams": []
+                  }
+                ],
+                "callSignatures": [],
+                "indexSignatures": []
+              }
+            },
+            "kind": "const"
+          }
+        }
+      ]
+    }
+  ]
+}

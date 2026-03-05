@@ -37,86 +37,88 @@ private class YesDiagnostic
 
 
 # output.json
-[
-  {
-    "name": "Other",
-    "declarations": [
-      {
-        "location": {
-          "filename": "file:///mod.ts",
-          "line": 1,
-          "col": 0,
-          "byteIndex": 15
-        },
-        "declarationKind": "export",
-        "jsDoc": {
-          "doc": "Comment"
-        },
-        "kind": "class",
-        "def": {
-          "isAbstract": false,
-          "constructors": [],
-          "properties": [
-            {
-              "jsDoc": {
-                "doc": "Comment"
-              },
-              "tsType": {
-                "repr": "YesDiagnostic",
-                "kind": "typeRef",
-                "value": {
-                  "typeParams": null,
-                  "typeName": "YesDiagnostic"
+{
+  "symbols": [
+    {
+      "name": "Other",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 1,
+            "col": 0,
+            "byteIndex": 15
+          },
+          "declarationKind": "export",
+          "jsDoc": {
+            "doc": "Comment"
+          },
+          "kind": "class",
+          "def": {
+            "isAbstract": false,
+            "constructors": [],
+            "properties": [
+              {
+                "jsDoc": {
+                  "doc": "Comment"
+                },
+                "tsType": {
+                  "repr": "YesDiagnostic",
+                  "kind": "typeRef",
+                  "value": {
+                    "typeParams": null,
+                    "typeName": "YesDiagnostic"
+                  }
+                },
+                "readonly": false,
+                "accessibility": null,
+                "optional": false,
+                "isAbstract": false,
+                "isStatic": false,
+                "name": "prop",
+                "location": {
+                  "filename": "file:///mod.ts",
+                  "line": 3,
+                  "col": 2,
+                  "byteIndex": 55
                 }
-              },
-              "readonly": false,
-              "accessibility": null,
-              "optional": false,
-              "isAbstract": false,
-              "isStatic": false,
-              "name": "prop",
-              "location": {
-                "filename": "file:///mod.ts",
-                "line": 3,
-                "col": 2,
-                "byteIndex": 55
               }
-            }
-          ],
-          "indexSignatures": [],
-          "methods": [],
-          "extends": null,
-          "implements": [],
-          "typeParams": [],
-          "superTypeParams": []
+            ],
+            "indexSignatures": [],
+            "methods": [],
+            "extends": null,
+            "implements": [],
+            "typeParams": [],
+            "superTypeParams": []
+          }
         }
-      }
-    ]
-  },
-  {
-    "name": "YesDiagnostic",
-    "declarations": [
-      {
-        "location": {
-          "filename": "file:///mod.ts",
-          "line": 6,
-          "col": 0,
-          "byteIndex": 78
-        },
-        "declarationKind": "private",
-        "kind": "class",
-        "def": {
-          "isAbstract": false,
-          "constructors": [],
-          "properties": [],
-          "indexSignatures": [],
-          "methods": [],
-          "extends": null,
-          "implements": [],
-          "typeParams": [],
-          "superTypeParams": []
+      ]
+    },
+    {
+      "name": "YesDiagnostic",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 6,
+            "col": 0,
+            "byteIndex": 78
+          },
+          "declarationKind": "private",
+          "kind": "class",
+          "def": {
+            "isAbstract": false,
+            "constructors": [],
+            "properties": [],
+            "indexSignatures": [],
+            "methods": [],
+            "extends": null,
+            "implements": [],
+            "typeParams": [],
+            "superTypeParams": []
+          }
         }
-      }
-    ]
-  }
-]
+      ]
+    }
+  ]
+}

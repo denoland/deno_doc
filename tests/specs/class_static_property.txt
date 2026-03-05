@@ -26,51 +26,53 @@ class Class
 
 
 # output.json
-[
-  {
-    "name": "Class",
-    "declarations": [
-      {
-        "location": {
-          "filename": "file:///mod.ts",
-          "line": 0,
-          "col": 0,
-          "byteIndex": 0
-        },
-        "declarationKind": "export",
-        "kind": "class",
-        "def": {
-          "isAbstract": false,
-          "constructors": [],
-          "properties": [
-            {
-              "tsType": {
-                "repr": "string",
-                "kind": "keyword",
-                "value": "string"
-              },
-              "readonly": false,
-              "accessibility": null,
-              "optional": false,
-              "isAbstract": false,
-              "isStatic": true,
-              "name": "property",
-              "location": {
-                "filename": "file:///mod.ts",
-                "line": 1,
-                "col": 2,
-                "byteIndex": 23
+{
+  "symbols": [
+    {
+      "name": "Class",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 0,
+            "col": 0,
+            "byteIndex": 0
+          },
+          "declarationKind": "export",
+          "kind": "class",
+          "def": {
+            "isAbstract": false,
+            "constructors": [],
+            "properties": [
+              {
+                "tsType": {
+                  "repr": "string",
+                  "kind": "keyword",
+                  "value": "string"
+                },
+                "readonly": false,
+                "accessibility": null,
+                "optional": false,
+                "isAbstract": false,
+                "isStatic": true,
+                "name": "property",
+                "location": {
+                  "filename": "file:///mod.ts",
+                  "line": 1,
+                  "col": 2,
+                  "byteIndex": 23
+                }
               }
-            }
-          ],
-          "indexSignatures": [],
-          "methods": [],
-          "extends": null,
-          "implements": [],
-          "typeParams": [],
-          "superTypeParams": []
+            ],
+            "indexSignatures": [],
+            "methods": [],
+            "extends": null,
+            "implements": [],
+            "typeParams": [],
+            "superTypeParams": []
+          }
         }
-      }
-    ]
-  }
-]
+      ]
+    }
+  ]
+}

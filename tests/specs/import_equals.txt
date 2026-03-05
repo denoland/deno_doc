@@ -23,29 +23,31 @@ interface Options
 
 
 # output.json
-[
-  {
-    "name": "Options",
-    "declarations": [
-      {
-        "location": {
-          "filename": "file:///mod.ts",
-          "line": 1,
-          "col": 2,
-          "byteIndex": 24
-        },
-        "declarationKind": "export",
-        "kind": "interface",
-        "def": {
-          "extends": [],
-          "constructors": [],
-          "methods": [],
-          "properties": [],
-          "callSignatures": [],
-          "indexSignatures": [],
-          "typeParams": []
+{
+  "symbols": [
+    {
+      "name": "Options",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 1,
+            "col": 2,
+            "byteIndex": 24
+          },
+          "declarationKind": "export",
+          "kind": "interface",
+          "def": {
+            "extends": [],
+            "constructors": [],
+            "methods": [],
+            "properties": [],
+            "callSignatures": [],
+            "indexSignatures": [],
+            "typeParams": []
+          }
         }
-      }
-    ]
-  }
-]
+      ]
+    }
+  ]
+}

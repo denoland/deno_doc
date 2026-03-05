@@ -17,41 +17,43 @@ async function a(): Promise<void>
 
 
 # output.json
-[
-  {
-    "name": "a",
-    "declarations": [
-      {
-        "location": {
-          "filename": "file:///mod.ts",
-          "line": 0,
-          "col": 0,
-          "byteIndex": 0
-        },
-        "declarationKind": "export",
-        "kind": "function",
-        "def": {
-          "params": [],
-          "returnType": {
-            "repr": "Promise",
-            "kind": "typeRef",
-            "value": {
-              "typeParams": [
-                {
-                  "repr": "void",
-                  "kind": "keyword",
-                  "value": "void"
-                }
-              ],
-              "typeName": "Promise"
-            }
+{
+  "symbols": [
+    {
+      "name": "a",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 0,
+            "col": 0,
+            "byteIndex": 0
           },
-          "hasBody": true,
-          "isAsync": true,
-          "isGenerator": false,
-          "typeParams": []
+          "declarationKind": "export",
+          "kind": "function",
+          "def": {
+            "params": [],
+            "returnType": {
+              "repr": "Promise",
+              "kind": "typeRef",
+              "value": {
+                "typeParams": [
+                  {
+                    "repr": "void",
+                    "kind": "keyword",
+                    "value": "void"
+                  }
+                ],
+                "typeName": "Promise"
+              }
+            },
+            "hasBody": true,
+            "isAsync": true,
+            "isGenerator": false,
+            "typeParams": []
+          }
         }
-      }
-    ]
-  }
-]
+      ]
+    }
+  ]
+}

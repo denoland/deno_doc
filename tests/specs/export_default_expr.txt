@@ -15,32 +15,34 @@ var default: "foo"
 
 
 # output.json
-[
-  {
-    "name": "default",
-    "isDefault": true,
-    "declarations": [
-      {
-        "location": {
-          "filename": "file:///mod.ts",
-          "line": 0,
-          "col": 0,
-          "byteIndex": 0
-        },
-        "declarationKind": "export",
-        "kind": "variable",
-        "def": {
-          "tsType": {
-            "repr": "foo",
-            "kind": "literal",
-            "value": {
-              "kind": "string",
-              "string": "foo"
-            }
+{
+  "symbols": [
+    {
+      "name": "default",
+      "isDefault": true,
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 0,
+            "col": 0,
+            "byteIndex": 0
           },
-          "kind": "var"
+          "declarationKind": "export",
+          "kind": "variable",
+          "def": {
+            "tsType": {
+              "repr": "foo",
+              "kind": "literal",
+              "value": {
+                "kind": "string",
+                "string": "foo"
+              }
+            },
+            "kind": "var"
+          }
         }
-      }
-    ]
-  }
-]
+      ]
+    }
+  ]
+}

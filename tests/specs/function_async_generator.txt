@@ -22,28 +22,30 @@ async function* ag()
 
 
 # output.json
-[
-  {
-    "name": "ag",
-    "declarations": [
-      {
-        "location": {
-          "filename": "file:///mod.ts",
-          "line": 0,
-          "col": 0,
-          "byteIndex": 0
-        },
-        "declarationKind": "export",
-        "kind": "function",
-        "def": {
-          "params": [],
-          "returnType": null,
-          "hasBody": true,
-          "isAsync": true,
-          "isGenerator": true,
-          "typeParams": []
+{
+  "symbols": [
+    {
+      "name": "ag",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 0,
+            "col": 0,
+            "byteIndex": 0
+          },
+          "declarationKind": "export",
+          "kind": "function",
+          "def": {
+            "params": [],
+            "returnType": null,
+            "hasBody": true,
+            "isAsync": true,
+            "isGenerator": true,
+            "typeParams": []
+          }
         }
-      }
-    ]
-  }
-]
+      ]
+    }
+  ]
+}

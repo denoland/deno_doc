@@ -17,57 +17,59 @@ namespace other
 
 
 # output.json
-[
-  {
-    "name": "other",
-    "declarations": [
-      {
-        "location": {
-          "filename": "file:///mod.ts",
-          "line": 1,
-          "col": 7,
-          "byteIndex": 35
-        },
-        "declarationKind": "export",
-        "jsDoc": {
-          "doc": "Re-exports of other."
-        },
-        "kind": "namespace",
-        "def": {
-          "elements": [
-            {
-              "name": "foo",
-              "declarations": [
-                {
-                  "location": {
-                    "filename": "file:///other.ts",
-                    "line": 1,
-                    "col": 0,
-                    "byteIndex": 18
-                  },
-                  "declarationKind": "export",
-                  "jsDoc": {
-                    "doc": "a function"
-                  },
-                  "kind": "function",
-                  "def": {
-                    "params": [],
-                    "returnType": {
-                      "repr": "void",
-                      "kind": "keyword",
-                      "value": "void"
+{
+  "symbols": [
+    {
+      "name": "other",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 1,
+            "col": 7,
+            "byteIndex": 35
+          },
+          "declarationKind": "export",
+          "jsDoc": {
+            "doc": "Re-exports of other."
+          },
+          "kind": "namespace",
+          "def": {
+            "elements": [
+              {
+                "name": "foo",
+                "declarations": [
+                  {
+                    "location": {
+                      "filename": "file:///other.ts",
+                      "line": 1,
+                      "col": 0,
+                      "byteIndex": 18
                     },
-                    "hasBody": true,
-                    "isAsync": false,
-                    "isGenerator": false,
-                    "typeParams": []
+                    "declarationKind": "export",
+                    "jsDoc": {
+                      "doc": "a function"
+                    },
+                    "kind": "function",
+                    "def": {
+                      "params": [],
+                      "returnType": {
+                        "repr": "void",
+                        "kind": "keyword",
+                        "value": "void"
+                      },
+                      "hasBody": true,
+                      "isAsync": false,
+                      "isGenerator": false,
+                      "typeParams": []
+                    }
                   }
-                }
-              ]
-            }
-          ]
+                ]
+              }
+            ]
+          }
         }
-      }
-    ]
-  }
-]
+      ]
+    }
+  ]
+}

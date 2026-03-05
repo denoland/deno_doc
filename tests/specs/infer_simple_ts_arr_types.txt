@@ -87,230 +87,232 @@ const g: ("a" | 1 | true)[]
 
 
 # output.json
-[
-  {
-    "name": "a",
-    "declarations": [
-      {
-        "location": {
-          "filename": "file:///mod.ts",
-          "line": 0,
-          "col": 13,
-          "byteIndex": 13
-        },
-        "declarationKind": "export",
-        "kind": "variable",
-        "def": {
-          "tsType": {
-            "repr": "",
-            "kind": "array",
-            "value": {
-              "repr": "number",
-              "kind": "keyword",
-              "value": "number"
-            }
+{
+  "symbols": [
+    {
+      "name": "a",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 0,
+            "col": 13,
+            "byteIndex": 13
           },
-          "kind": "const"
-        }
-      }
-    ]
-  },
-  {
-    "name": "b",
-    "declarations": [
-      {
-        "location": {
-          "filename": "file:///mod.ts",
-          "line": 1,
-          "col": 19,
-          "byteIndex": 41
-        },
-        "declarationKind": "export",
-        "kind": "variable",
-        "def": {
-          "tsType": {
-            "repr": "",
-            "kind": "array",
-            "value": {
-              "repr": "boolean",
-              "kind": "keyword",
-              "value": "boolean"
-            }
-          },
-          "kind": "const"
-        }
-      }
-    ]
-  },
-  {
-    "name": "c",
-    "declarations": [
-      {
-        "location": {
-          "filename": "file:///mod.ts",
-          "line": 2,
-          "col": 19,
-          "byteIndex": 72
-        },
-        "declarationKind": "export",
-        "kind": "variable",
-        "def": {
-          "tsType": {
-            "repr": "",
-            "kind": "array",
-            "value": {
-              "repr": "string",
-              "kind": "keyword",
-              "value": "string"
-            }
-          },
-          "kind": "const"
-        }
-      }
-    ]
-  },
-  {
-    "name": "d",
-    "declarations": [
-      {
-        "location": {
-          "filename": "file:///mod.ts",
-          "line": 3,
-          "col": 19,
-          "byteIndex": 102
-        },
-        "declarationKind": "export",
-        "kind": "variable",
-        "def": {
-          "tsType": {
-            "repr": "",
-            "kind": "array",
-            "value": {
+          "declarationKind": "export",
+          "kind": "variable",
+          "def": {
+            "tsType": {
               "repr": "",
-              "kind": "union",
-              "value": [
-                {
-                  "repr": "number",
-                  "kind": "keyword",
-                  "value": "number"
-                },
-                {
-                  "repr": "string",
-                  "kind": "keyword",
-                  "value": "string"
-                }
-              ]
-            }
-          },
-          "kind": "const"
+              "kind": "array",
+              "value": {
+                "repr": "number",
+                "kind": "keyword",
+                "value": "number"
+              }
+            },
+            "kind": "const"
+          }
         }
-      }
-    ]
-  },
-  {
-    "name": "e",
-    "declarations": [
-      {
-        "location": {
-          "filename": "file:///mod.ts",
-          "line": 4,
-          "col": 19,
-          "byteIndex": 135
-        },
-        "declarationKind": "export",
-        "kind": "variable",
-        "def": {
-          "tsType": {
-            "repr": "",
-            "kind": "array",
-            "value": {
-              "repr": "number",
-              "kind": "keyword",
-              "value": "number"
-            }
+      ]
+    },
+    {
+      "name": "b",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 1,
+            "col": 19,
+            "byteIndex": 41
           },
-          "kind": "const"
-        }
-      }
-    ]
-  },
-  {
-    "name": "f",
-    "declarations": [
-      {
-        "location": {
-          "filename": "file:///mod.ts",
-          "line": 5,
-          "col": 19,
-          "byteIndex": 169
-        },
-        "declarationKind": "export",
-        "kind": "variable",
-        "def": {
-          "tsType": {
-            "repr": "any[]",
-            "kind": "array",
-            "value": {
-              "repr": "any",
-              "kind": "keyword",
-              "value": "any"
-            }
-          },
-          "kind": "const"
-        }
-      }
-    ]
-  },
-  {
-    "name": "g",
-    "declarations": [
-      {
-        "location": {
-          "filename": "file:///mod.ts",
-          "line": 6,
-          "col": 19,
-          "byteIndex": 205
-        },
-        "declarationKind": "export",
-        "kind": "variable",
-        "def": {
-          "tsType": {
-            "repr": "",
-            "kind": "array",
-            "value": {
+          "declarationKind": "export",
+          "kind": "variable",
+          "def": {
+            "tsType": {
               "repr": "",
-              "kind": "union",
-              "value": [
-                {
-                  "repr": "a",
-                  "kind": "literal",
-                  "value": {
-                    "kind": "string",
-                    "string": "a"
-                  }
-                },
-                {
-                  "repr": "1",
-                  "kind": "literal",
-                  "value": {
-                    "kind": "number",
-                    "number": 1.0
-                  }
-                },
-                {
-                  "repr": "true",
-                  "kind": "literal",
-                  "value": {
-                    "kind": "boolean",
-                    "boolean": true
-                  }
-                }
-              ]
-            }
-          },
-          "kind": "const"
+              "kind": "array",
+              "value": {
+                "repr": "boolean",
+                "kind": "keyword",
+                "value": "boolean"
+              }
+            },
+            "kind": "const"
+          }
         }
-      }
-    ]
-  }
-]
+      ]
+    },
+    {
+      "name": "c",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 2,
+            "col": 19,
+            "byteIndex": 72
+          },
+          "declarationKind": "export",
+          "kind": "variable",
+          "def": {
+            "tsType": {
+              "repr": "",
+              "kind": "array",
+              "value": {
+                "repr": "string",
+                "kind": "keyword",
+                "value": "string"
+              }
+            },
+            "kind": "const"
+          }
+        }
+      ]
+    },
+    {
+      "name": "d",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 3,
+            "col": 19,
+            "byteIndex": 102
+          },
+          "declarationKind": "export",
+          "kind": "variable",
+          "def": {
+            "tsType": {
+              "repr": "",
+              "kind": "array",
+              "value": {
+                "repr": "",
+                "kind": "union",
+                "value": [
+                  {
+                    "repr": "number",
+                    "kind": "keyword",
+                    "value": "number"
+                  },
+                  {
+                    "repr": "string",
+                    "kind": "keyword",
+                    "value": "string"
+                  }
+                ]
+              }
+            },
+            "kind": "const"
+          }
+        }
+      ]
+    },
+    {
+      "name": "e",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 4,
+            "col": 19,
+            "byteIndex": 135
+          },
+          "declarationKind": "export",
+          "kind": "variable",
+          "def": {
+            "tsType": {
+              "repr": "",
+              "kind": "array",
+              "value": {
+                "repr": "number",
+                "kind": "keyword",
+                "value": "number"
+              }
+            },
+            "kind": "const"
+          }
+        }
+      ]
+    },
+    {
+      "name": "f",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 5,
+            "col": 19,
+            "byteIndex": 169
+          },
+          "declarationKind": "export",
+          "kind": "variable",
+          "def": {
+            "tsType": {
+              "repr": "any[]",
+              "kind": "array",
+              "value": {
+                "repr": "any",
+                "kind": "keyword",
+                "value": "any"
+              }
+            },
+            "kind": "const"
+          }
+        }
+      ]
+    },
+    {
+      "name": "g",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 6,
+            "col": 19,
+            "byteIndex": 205
+          },
+          "declarationKind": "export",
+          "kind": "variable",
+          "def": {
+            "tsType": {
+              "repr": "",
+              "kind": "array",
+              "value": {
+                "repr": "",
+                "kind": "union",
+                "value": [
+                  {
+                    "repr": "a",
+                    "kind": "literal",
+                    "value": {
+                      "kind": "string",
+                      "string": "a"
+                    }
+                  },
+                  {
+                    "repr": "1",
+                    "kind": "literal",
+                    "value": {
+                      "kind": "number",
+                      "number": 1.0
+                    }
+                  },
+                  {
+                    "repr": "true",
+                    "kind": "literal",
+                    "value": {
+                      "kind": "boolean",
+                      "boolean": true
+                    }
+                  }
+                ]
+              }
+            },
+            "kind": "const"
+          }
+        }
+      ]
+    }
+  ]
+}

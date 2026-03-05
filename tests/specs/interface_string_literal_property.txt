@@ -35,66 +35,68 @@ interface I
 
 
 # output.json
-[
-  {
-    "name": "I",
-    "declarations": [
-      {
-        "location": {
-          "filename": "file:///mod.ts",
-          "line": 0,
-          "col": 0,
-          "byteIndex": 0
-        },
-        "declarationKind": "export",
-        "kind": "interface",
-        "def": {
-          "extends": [],
-          "constructors": [],
-          "methods": [],
-          "properties": [
-            {
-              "name": "p",
-              "location": {
-                "filename": "file:///mod.ts",
-                "line": 1,
-                "col": 2,
-                "byteIndex": 23
+{
+  "symbols": [
+    {
+      "name": "I",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 0,
+            "col": 0,
+            "byteIndex": 0
+          },
+          "declarationKind": "export",
+          "kind": "interface",
+          "def": {
+            "extends": [],
+            "constructors": [],
+            "methods": [],
+            "properties": [
+              {
+                "name": "p",
+                "location": {
+                  "filename": "file:///mod.ts",
+                  "line": 1,
+                  "col": 2,
+                  "byteIndex": 23
+                },
+                "params": [],
+                "computed": false,
+                "optional": false,
+                "tsType": {
+                  "repr": "string",
+                  "kind": "keyword",
+                  "value": "string"
+                },
+                "typeParams": []
               },
-              "params": [],
-              "computed": false,
-              "optional": false,
-              "tsType": {
-                "repr": "string",
-                "kind": "keyword",
-                "value": "string"
-              },
-              "typeParams": []
-            },
-            {
-              "name": "po",
-              "location": {
-                "filename": "file:///mod.ts",
-                "line": 2,
-                "col": 2,
-                "byteIndex": 38
-              },
-              "params": [],
-              "computed": false,
-              "optional": true,
-              "tsType": {
-                "repr": "number",
-                "kind": "keyword",
-                "value": "number"
-              },
-              "typeParams": []
-            }
-          ],
-          "callSignatures": [],
-          "indexSignatures": [],
-          "typeParams": []
+              {
+                "name": "po",
+                "location": {
+                  "filename": "file:///mod.ts",
+                  "line": 2,
+                  "col": 2,
+                  "byteIndex": 38
+                },
+                "params": [],
+                "computed": false,
+                "optional": true,
+                "tsType": {
+                  "repr": "number",
+                  "kind": "keyword",
+                  "value": "number"
+                },
+                "typeParams": []
+              }
+            ],
+            "callSignatures": [],
+            "indexSignatures": [],
+            "typeParams": []
+          }
         }
-      }
-    ]
-  }
-]
+      ]
+    }
+  ]
+}

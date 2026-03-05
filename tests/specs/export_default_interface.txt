@@ -17,89 +17,91 @@ interface default
 
 
 # output.json
-[
-  {
-    "name": "default",
-    "isDefault": true,
-    "declarations": [
-      {
-        "location": {
-          "filename": "file:///mod.ts",
-          "line": 3,
-          "col": 0,
-          "byteIndex": 28
-        },
-        "declarationKind": "export",
-        "jsDoc": {
-          "doc": "Interface js doc"
-        },
-        "kind": "interface",
-        "def": {
-          "defName": "Reader",
-          "extends": [],
-          "constructors": [],
-          "methods": [
-            {
-              "name": "read",
-              "jsDoc": {
-                "doc": "Read n bytes"
-              },
-              "kind": "method",
-              "location": {
-                "filename": "file:///mod.ts",
-                "line": 5,
-                "col": 4,
-                "byteIndex": 90
-              },
-              "params": [
-                {
-                  "kind": "identifier",
-                  "name": "buf",
-                  "optional": false,
-                  "tsType": {
-                    "repr": "Uint8Array",
-                    "kind": "typeRef",
-                    "value": {
-                      "typeParams": null,
-                      "typeName": "Uint8Array"
+{
+  "symbols": [
+    {
+      "name": "default",
+      "isDefault": true,
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 3,
+            "col": 0,
+            "byteIndex": 28
+          },
+          "declarationKind": "export",
+          "jsDoc": {
+            "doc": "Interface js doc"
+          },
+          "kind": "interface",
+          "def": {
+            "defName": "Reader",
+            "extends": [],
+            "constructors": [],
+            "methods": [
+              {
+                "name": "read",
+                "jsDoc": {
+                  "doc": "Read n bytes"
+                },
+                "kind": "method",
+                "location": {
+                  "filename": "file:///mod.ts",
+                  "line": 5,
+                  "col": 4,
+                  "byteIndex": 90
+                },
+                "params": [
+                  {
+                    "kind": "identifier",
+                    "name": "buf",
+                    "optional": false,
+                    "tsType": {
+                      "repr": "Uint8Array",
+                      "kind": "typeRef",
+                      "value": {
+                        "typeParams": null,
+                        "typeName": "Uint8Array"
+                      }
                     }
+                  },
+                  {
+                    "kind": "identifier",
+                    "name": "something",
+                    "optional": false,
+                    "tsType": {
+                      "repr": "unknown",
+                      "kind": "keyword",
+                      "value": "unknown"
+                    }
+                  }
+                ],
+                "optional": true,
+                "returnType": {
+                  "repr": "Promise",
+                  "kind": "typeRef",
+                  "value": {
+                    "typeParams": [
+                      {
+                        "repr": "number",
+                        "kind": "keyword",
+                        "value": "number"
+                      }
+                    ],
+                    "typeName": "Promise"
                   }
                 },
-                {
-                  "kind": "identifier",
-                  "name": "something",
-                  "optional": false,
-                  "tsType": {
-                    "repr": "unknown",
-                    "kind": "keyword",
-                    "value": "unknown"
-                  }
-                }
-              ],
-              "optional": true,
-              "returnType": {
-                "repr": "Promise",
-                "kind": "typeRef",
-                "value": {
-                  "typeParams": [
-                    {
-                      "repr": "number",
-                      "kind": "keyword",
-                      "value": "number"
-                    }
-                  ],
-                  "typeName": "Promise"
-                }
-              },
-              "typeParams": []
-            }
-          ],
-          "properties": [],
-          "callSignatures": [],
-          "indexSignatures": [],
-          "typeParams": []
+                "typeParams": []
+              }
+            ],
+            "properties": [],
+            "callSignatures": [],
+            "indexSignatures": [],
+            "typeParams": []
+          }
         }
-      }
-    ]
-  }
-]
+      ]
+    }
+  ]
+}

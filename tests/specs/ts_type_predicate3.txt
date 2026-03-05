@@ -26,71 +26,73 @@ class C
 
 
 # output.json
-[
-  {
-    "name": "C",
-    "declarations": [
-      {
-        "location": {
-          "filename": "file:///mod.ts",
-          "line": 0,
-          "col": 0,
-          "byteIndex": 0
-        },
-        "declarationKind": "export",
-        "kind": "class",
-        "def": {
-          "isAbstract": false,
-          "constructors": [],
-          "properties": [],
-          "indexSignatures": [],
-          "methods": [
-            {
-              "accessibility": null,
-              "optional": false,
-              "isAbstract": false,
-              "isStatic": false,
-              "name": "isSomething",
-              "kind": "method",
-              "functionDef": {
-                "params": [],
-                "returnType": {
-                  "repr": "this is Something",
-                  "kind": "typePredicate",
-                  "value": {
-                    "asserts": false,
-                    "param": {
-                      "type": "this"
-                    },
-                    "type": {
-                      "repr": "Something",
-                      "kind": "typeRef",
-                      "value": {
-                        "typeParams": null,
-                        "typeName": "Something"
+{
+  "symbols": [
+    {
+      "name": "C",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 0,
+            "col": 0,
+            "byteIndex": 0
+          },
+          "declarationKind": "export",
+          "kind": "class",
+          "def": {
+            "isAbstract": false,
+            "constructors": [],
+            "properties": [],
+            "indexSignatures": [],
+            "methods": [
+              {
+                "accessibility": null,
+                "optional": false,
+                "isAbstract": false,
+                "isStatic": false,
+                "name": "isSomething",
+                "kind": "method",
+                "functionDef": {
+                  "params": [],
+                  "returnType": {
+                    "repr": "this is Something",
+                    "kind": "typePredicate",
+                    "value": {
+                      "asserts": false,
+                      "param": {
+                        "type": "this"
+                      },
+                      "type": {
+                        "repr": "Something",
+                        "kind": "typeRef",
+                        "value": {
+                          "typeParams": null,
+                          "typeName": "Something"
+                        }
                       }
                     }
-                  }
+                  },
+                  "hasBody": true,
+                  "isAsync": false,
+                  "isGenerator": false,
+                  "typeParams": []
                 },
-                "hasBody": true,
-                "isAsync": false,
-                "isGenerator": false,
-                "typeParams": []
-              },
-              "location": {
-                "filename": "file:///mod.ts",
-                "line": 1,
-                "col": 2,
-                "byteIndex": 19
+                "location": {
+                  "filename": "file:///mod.ts",
+                  "line": 1,
+                  "col": 2,
+                  "byteIndex": 19
+                }
               }
-            }
-          ],
-          "extends": null,
-          "implements": [],
-          "typeParams": [],
-          "superTypeParams": []
+            ],
+            "extends": null,
+            "implements": [],
+            "typeParams": [],
+            "superTypeParams": []
+          }
         }
-      }
-    ]
-  }
-]
+      ]
+    }
+  ]
+}

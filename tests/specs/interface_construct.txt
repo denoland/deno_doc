@@ -33,52 +33,54 @@ interface I
 
 
 # output.json
-[
-  {
-    "name": "I",
-    "declarations": [
-      {
-        "location": {
-          "filename": "file:///mod.ts",
-          "line": 0,
-          "col": 0,
-          "byteIndex": 0
-        },
-        "declarationKind": "export",
-        "kind": "interface",
-        "def": {
-          "extends": [],
-          "constructors": [
-            {
-              "params": [
-                {
-                  "kind": "identifier",
-                  "name": "name",
-                  "optional": false,
-                  "tsType": {
-                    "repr": "string",
-                    "kind": "keyword",
-                    "value": "string"
+{
+  "symbols": [
+    {
+      "name": "I",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 0,
+            "col": 0,
+            "byteIndex": 0
+          },
+          "declarationKind": "export",
+          "kind": "interface",
+          "def": {
+            "extends": [],
+            "constructors": [
+              {
+                "params": [
+                  {
+                    "kind": "identifier",
+                    "name": "name",
+                    "optional": false,
+                    "tsType": {
+                      "repr": "string",
+                      "kind": "keyword",
+                      "value": "string"
+                    }
                   }
+                ],
+                "returnType": null,
+                "typeParams": [],
+                "location": {
+                  "filename": "file:///mod.ts",
+                  "line": 1,
+                  "col": 2,
+                  "byteIndex": 23
                 }
-              ],
-              "returnType": null,
-              "typeParams": [],
-              "location": {
-                "filename": "file:///mod.ts",
-                "line": 1,
-                "col": 2,
-                "byteIndex": 23
               }
-            }
-          ],
-          "methods": [],
-          "properties": [],
-          "callSignatures": [],
-          "indexSignatures": [],
-          "typeParams": []
+            ],
+            "methods": [],
+            "properties": [],
+            "callSignatures": [],
+            "indexSignatures": [],
+            "typeParams": []
+          }
         }
-      }
-    ]
-  }
-]
+      ]
+    }
+  ]
+}

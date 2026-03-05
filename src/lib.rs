@@ -36,6 +36,7 @@ mod visibility;
 
 pub use node::Declaration;
 pub use node::DeclarationDef;
+pub use node::Document;
 pub use node::Location;
 pub use node::Symbol;
 

@@ -24,39 +24,41 @@ function foo(a: number)
 
 
 # output.json
-[
-  {
-    "name": "foo",
-    "declarations": [
-      {
-        "location": {
-          "filename": "file:///mod.ts",
-          "line": 0,
-          "col": 0,
-          "byteIndex": 0
-        },
-        "declarationKind": "export",
-        "kind": "function",
-        "def": {
-          "params": [
-            {
-              "kind": "identifier",
-              "name": "a",
-              "optional": false,
-              "tsType": {
-                "repr": "number",
-                "kind": "keyword",
-                "value": "number"
+{
+  "symbols": [
+    {
+      "name": "foo",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 0,
+            "col": 0,
+            "byteIndex": 0
+          },
+          "declarationKind": "export",
+          "kind": "function",
+          "def": {
+            "params": [
+              {
+                "kind": "identifier",
+                "name": "a",
+                "optional": false,
+                "tsType": {
+                  "repr": "number",
+                  "kind": "keyword",
+                  "value": "number"
+                }
               }
-            }
-          ],
-          "returnType": null,
-          "hasBody": true,
-          "isAsync": false,
-          "isGenerator": false,
-          "typeParams": []
+            ],
+            "returnType": null,
+            "hasBody": true,
+            "isAsync": false,
+            "isGenerator": false,
+            "typeParams": []
+          }
         }
-      }
-    ]
-  }
-]
+      ]
+    }
+  ]
+}

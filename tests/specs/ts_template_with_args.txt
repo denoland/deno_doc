@@ -15,53 +15,55 @@ const tpl: `test${number}`
 
 
 # output.json
-[
-  {
-    "name": "tpl",
-    "declarations": [
-      {
-        "location": {
-          "filename": "file:///mod.ts",
-          "line": 0,
-          "col": 13,
-          "byteIndex": 13
-        },
-        "declarationKind": "export",
-        "kind": "variable",
-        "def": {
-          "tsType": {
-            "repr": "test${number}",
-            "kind": "literal",
-            "value": {
-              "kind": "template",
-              "tsTypes": [
-                {
-                  "repr": "test",
-                  "kind": "literal",
-                  "value": {
-                    "kind": "string",
-                    "string": "test"
-                  }
-                },
-                {
-                  "repr": "number",
-                  "kind": "keyword",
-                  "value": "number"
-                },
-                {
-                  "repr": "",
-                  "kind": "literal",
-                  "value": {
-                    "kind": "string",
-                    "string": ""
-                  }
-                }
-              ]
-            }
+{
+  "symbols": [
+    {
+      "name": "tpl",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 0,
+            "col": 13,
+            "byteIndex": 13
           },
-          "kind": "const"
+          "declarationKind": "export",
+          "kind": "variable",
+          "def": {
+            "tsType": {
+              "repr": "test${number}",
+              "kind": "literal",
+              "value": {
+                "kind": "template",
+                "tsTypes": [
+                  {
+                    "repr": "test",
+                    "kind": "literal",
+                    "value": {
+                      "kind": "string",
+                      "string": "test"
+                    }
+                  },
+                  {
+                    "repr": "number",
+                    "kind": "keyword",
+                    "value": "number"
+                  },
+                  {
+                    "repr": "",
+                    "kind": "literal",
+                    "value": {
+                      "kind": "string",
+                      "string": ""
+                    }
+                  }
+                ]
+              }
+            },
+            "kind": "const"
+          }
         }
-      }
-    ]
-  }
-]
+      ]
+    }
+  ]
+}

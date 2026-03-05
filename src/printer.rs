@@ -8,6 +8,8 @@ use crate::display::display_generator;
 use crate::js_doc::JsDoc;
 use crate::js_doc::JsDocTag;
 use crate::node::DeclarationDef;
+use crate::node::Document;
+use crate::node::DocNodeKind;
 use crate::node::DeclarationKind;
 use crate::node::Symbol;
 
@@ -23,26 +25,37 @@ fn italic_cyan<'a, S: Display + 'a>(s: S) -> Style<Style<S>> {
 }
 
 pub struct DocPrinter<'a> {
-  doc_nodes: &'a [Symbol],
+  document: &'a Document,
   use_color: bool,
   private: bool,
 }
 
 impl DocPrinter<'_> {
   pub fn new(
-    doc_nodes: &[Symbol],
+    document: &Document,
     use_color: bool,
     private: bool,
   ) -> DocPrinter<'_> {
     DocPrinter {
-      doc_nodes,
+      document,
       use_color,
       private,
     }
   }
 
   pub fn format(&self, w: &mut Formatter<'_>) -> FmtResult {
-    self.format_with_indent(w, self.doc_nodes, 0)
+    colors::set_use_color(self.use_color);
+    if !self.document.module_doc.is_empty() {
+      if let Some(doc) = &self.document.module_doc.doc {
+        render_markdown(w, doc, 0)?;
+      }
+      for tag in &self.document.module_doc.tags {
+        self.format_jsdoc_tag(w, tag, 0)?;
+      }
+      writeln!(w)?;
+    }
+
+    self.format_with_indent(w, &self.document.symbols, 0)
   }
 
   fn format_with_indent(
@@ -114,16 +127,15 @@ impl DocPrinter<'_> {
       .declarations
       .iter()
       .map(|decl| match &decl.def {
-        DeclarationDef::ModuleDoc => 0,
-        DeclarationDef::Function(..) => 1,
-        DeclarationDef::Variable(..) => 2,
-        DeclarationDef::Class(..) => 3,
-        DeclarationDef::Enum(..) => 4,
-        DeclarationDef::Interface(..) => 5,
-        DeclarationDef::TypeAlias(..) => 6,
-        DeclarationDef::Namespace(..) => 7,
-        DeclarationDef::Import(..) => 8,
-        DeclarationDef::Reference(..) => 9,
+        DeclarationDef::Function(..) => 0,
+        DeclarationDef::Variable(..) => 1,
+        DeclarationDef::Class(..) => 2,
+        DeclarationDef::Enum(..) => 3,
+        DeclarationDef::Interface(..) => 4,
+        DeclarationDef::TypeAlias(..) => 5,
+        DeclarationDef::Namespace(..) => 6,
+        DeclarationDef::Import(..) => 7,
+        DeclarationDef::Reference(..) => 8,
       })
       .min()
       .unwrap()
@@ -138,7 +150,6 @@ impl DocPrinter<'_> {
     has_overloads: bool,
   ) -> FmtResult {
     match &decl.def {
-      DeclarationDef::ModuleDoc => self.format_module_doc(w, node, indent),
       DeclarationDef::Function(..) => {
         self.format_function_signature_def(w, node, decl, indent, has_overloads)
       }
@@ -693,17 +704,6 @@ impl DocPrinter<'_> {
     }
 
     writeln!(w)
-  }
-
-  fn format_module_doc(
-    &self,
-    _w: &mut Formatter<'_>,
-    _node: &Symbol,
-    _indent: i64,
-  ) -> FmtResult {
-    // currently we do not print out JSDoc in the printer, so there is nothing
-    // to print.
-    Ok(())
   }
 
   fn format_type_alias_signature(

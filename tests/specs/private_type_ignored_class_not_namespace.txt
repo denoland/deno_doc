@@ -25,83 +25,85 @@ private namespace MyNamespace
 
 
 # output.json
-[
-  {
-    "name": "PrivateProp",
-    "declarations": [
-      {
-        "location": {
-          "filename": "file:///mod.ts",
-          "line": 2,
-          "col": 0,
-          "byteIndex": 105
-        },
-        "declarationKind": "export",
-        "jsDoc": {
-          "doc": "Comment"
-        },
-        "kind": "typeAlias",
-        "def": {
-          "tsType": {
-            "repr": "MyNamespace.MyInternal",
-            "kind": "typeQuery",
-            "value": "MyNamespace.MyInternal"
+{
+  "symbols": [
+    {
+      "name": "PrivateProp",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 2,
+            "col": 0,
+            "byteIndex": 105
           },
-          "typeParams": []
+          "declarationKind": "export",
+          "jsDoc": {
+            "doc": "Comment"
+          },
+          "kind": "typeAlias",
+          "def": {
+            "tsType": {
+              "repr": "MyNamespace.MyInternal",
+              "kind": "typeQuery",
+              "value": "MyNamespace.MyInternal"
+            },
+            "typeParams": []
+          }
         }
-      }
-    ]
-  },
-  {
-    "name": "MyNamespace",
-    "declarations": [
-      {
-        "location": {
-          "filename": "file:///mod.ts",
-          "line": 4,
-          "col": 0,
-          "byteIndex": 163
-        },
-        "declarationKind": "private",
-        "kind": "namespace",
-        "def": {
-          "elements": [
-            {
-              "name": "MyInternal",
-              "declarations": [
-                {
-                  "location": {
-                    "filename": "file:///mod.ts",
-                    "line": 6,
-                    "col": 2,
-                    "byteIndex": 208
-                  },
-                  "declarationKind": "export",
-                  "jsDoc": {
-                    "tags": [
-                      {
-                        "kind": "internal"
-                      }
-                    ]
-                  },
-                  "kind": "class",
-                  "def": {
-                    "isAbstract": false,
-                    "constructors": [],
-                    "properties": [],
-                    "indexSignatures": [],
-                    "methods": [],
-                    "extends": null,
-                    "implements": [],
-                    "typeParams": [],
-                    "superTypeParams": []
+      ]
+    },
+    {
+      "name": "MyNamespace",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 4,
+            "col": 0,
+            "byteIndex": 163
+          },
+          "declarationKind": "private",
+          "kind": "namespace",
+          "def": {
+            "elements": [
+              {
+                "name": "MyInternal",
+                "declarations": [
+                  {
+                    "location": {
+                      "filename": "file:///mod.ts",
+                      "line": 6,
+                      "col": 2,
+                      "byteIndex": 208
+                    },
+                    "declarationKind": "export",
+                    "jsDoc": {
+                      "tags": [
+                        {
+                          "kind": "internal"
+                        }
+                      ]
+                    },
+                    "kind": "class",
+                    "def": {
+                      "isAbstract": false,
+                      "constructors": [],
+                      "properties": [],
+                      "indexSignatures": [],
+                      "methods": [],
+                      "extends": null,
+                      "implements": [],
+                      "typeParams": [],
+                      "superTypeParams": []
+                    }
                   }
-                }
-              ]
-            }
-          ]
+                ]
+              }
+            ]
+          }
         }
-      }
-    ]
-  }
-]
+      ]
+    }
+  ]
+}

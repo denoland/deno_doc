@@ -17,84 +17,86 @@ type MappedTypeWithNewProperties<Type> = readonly [Properties in keyof Type as N
 
 
 # output.json
-[
-  {
-    "name": "MappedTypeWithNewProperties",
-    "declarations": [
-      {
-        "location": {
-          "filename": "file:///mod.ts",
-          "line": 0,
-          "col": 0,
-          "byteIndex": 0
-        },
-        "declarationKind": "export",
-        "kind": "typeAlias",
-        "def": {
-          "tsType": {
-            "repr": "",
-            "kind": "mapped",
-            "value": {
-              "readonly": true,
-              "typeParam": {
-                "name": "Properties",
-                "constraint": {
-                  "repr": "",
-                  "kind": "typeOperator",
+{
+  "symbols": [
+    {
+      "name": "MappedTypeWithNewProperties",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 0,
+            "col": 0,
+            "byteIndex": 0
+          },
+          "declarationKind": "export",
+          "kind": "typeAlias",
+          "def": {
+            "tsType": {
+              "repr": "",
+              "kind": "mapped",
+              "value": {
+                "readonly": true,
+                "typeParam": {
+                  "name": "Properties",
+                  "constraint": {
+                    "repr": "",
+                    "kind": "typeOperator",
+                    "value": {
+                      "operator": "keyof",
+                      "tsType": {
+                        "repr": "Type",
+                        "kind": "typeRef",
+                        "value": {
+                          "typeParams": null,
+                          "typeName": "Type"
+                        }
+                      }
+                    }
+                  }
+                },
+                "nameType": {
+                  "repr": "NewKeyType",
+                  "kind": "typeRef",
                   "value": {
-                    "operator": "keyof",
-                    "tsType": {
+                    "typeParams": null,
+                    "typeName": "NewKeyType"
+                  }
+                },
+                "optional": true,
+                "tsType": {
+                  "repr": "",
+                  "kind": "indexedAccess",
+                  "value": {
+                    "readonly": false,
+                    "objType": {
                       "repr": "Type",
                       "kind": "typeRef",
                       "value": {
                         "typeParams": null,
                         "typeName": "Type"
                       }
-                    }
-                  }
-                }
-              },
-              "nameType": {
-                "repr": "NewKeyType",
-                "kind": "typeRef",
-                "value": {
-                  "typeParams": null,
-                  "typeName": "NewKeyType"
-                }
-              },
-              "optional": true,
-              "tsType": {
-                "repr": "",
-                "kind": "indexedAccess",
-                "value": {
-                  "readonly": false,
-                  "objType": {
-                    "repr": "Type",
-                    "kind": "typeRef",
-                    "value": {
-                      "typeParams": null,
-                      "typeName": "Type"
-                    }
-                  },
-                  "indexType": {
-                    "repr": "Properties",
-                    "kind": "typeRef",
-                    "value": {
-                      "typeParams": null,
-                      "typeName": "Properties"
+                    },
+                    "indexType": {
+                      "repr": "Properties",
+                      "kind": "typeRef",
+                      "value": {
+                        "typeParams": null,
+                        "typeName": "Properties"
+                      }
                     }
                   }
                 }
               }
-            }
-          },
-          "typeParams": [
-            {
-              "name": "Type"
-            }
-          ]
+            },
+            "typeParams": [
+              {
+                "name": "Type"
+              }
+            ]
+          }
         }
-      }
-    ]
-  }
-]
+      ]
+    }
+  ]
+}

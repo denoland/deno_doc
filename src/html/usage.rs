@@ -187,18 +187,10 @@ fn get_identifier_for_file(
     if let Some(file) = ctx.get_current_resolve().get_file() {
       ctx
         .ctx
-        .doc_nodes
+        .module_docs
         .get(file)
-        .and_then(|symbols| {
-          symbols.iter().find_map(|symbol| {
-            symbol
-              .declarations
-              .iter()
-              .find(|decl| matches!(decl.def, DeclarationDef::ModuleDoc))
-          })
-        })
-        .and_then(|decl| {
-          decl.js_doc.tags.iter().find_map(|tag| {
+        .and_then(|js_doc| {
+          js_doc.tags.iter().find_map(|tag| {
             if let JsDocTag::Module { name } = tag {
               name.as_ref().map(|name| name.to_string())
             } else {

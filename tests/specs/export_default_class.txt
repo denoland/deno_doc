@@ -15,85 +15,87 @@ class default
 
 
 # output.json
-[
-  {
-    "name": "default",
-    "isDefault": true,
-    "declarations": [
-      {
-        "location": {
-          "filename": "file:///mod.ts",
-          "line": 1,
-          "col": 0,
-          "byteIndex": 17
-        },
-        "declarationKind": "export",
-        "jsDoc": {
-          "doc": "Class doc"
-        },
-        "kind": "class",
-        "def": {
-          "defName": "Foobar",
-          "isAbstract": false,
-          "constructors": [
-            {
-              "jsDoc": {
-                "doc": "Constructor js doc"
-              },
-              "accessibility": null,
-              "hasBody": true,
-              "name": "constructor",
-              "params": [
-                {
-                  "kind": "identifier",
-                  "name": "name",
-                  "optional": false,
-                  "tsType": {
-                    "repr": "string",
-                    "kind": "keyword",
-                    "value": "string"
-                  }
+{
+  "symbols": [
+    {
+      "name": "default",
+      "isDefault": true,
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 1,
+            "col": 0,
+            "byteIndex": 17
+          },
+          "declarationKind": "export",
+          "jsDoc": {
+            "doc": "Class doc"
+          },
+          "kind": "class",
+          "def": {
+            "defName": "Foobar",
+            "isAbstract": false,
+            "constructors": [
+              {
+                "jsDoc": {
+                  "doc": "Constructor js doc"
                 },
-                {
-                  "accessibility": "private",
-                  "kind": "identifier",
-                  "name": "private2",
-                  "optional": false,
-                  "tsType": {
-                    "repr": "number",
-                    "kind": "keyword",
-                    "value": "number"
+                "accessibility": null,
+                "hasBody": true,
+                "name": "constructor",
+                "params": [
+                  {
+                    "kind": "identifier",
+                    "name": "name",
+                    "optional": false,
+                    "tsType": {
+                      "repr": "string",
+                      "kind": "keyword",
+                      "value": "string"
+                    }
+                  },
+                  {
+                    "accessibility": "private",
+                    "kind": "identifier",
+                    "name": "private2",
+                    "optional": false,
+                    "tsType": {
+                      "repr": "number",
+                      "kind": "keyword",
+                      "value": "number"
+                    }
+                  },
+                  {
+                    "accessibility": "protected",
+                    "kind": "identifier",
+                    "name": "protected2",
+                    "optional": false,
+                    "tsType": {
+                      "repr": "number",
+                      "kind": "keyword",
+                      "value": "number"
+                    }
                   }
-                },
-                {
-                  "accessibility": "protected",
-                  "kind": "identifier",
-                  "name": "protected2",
-                  "optional": false,
-                  "tsType": {
-                    "repr": "number",
-                    "kind": "keyword",
-                    "value": "number"
-                  }
+                ],
+                "location": {
+                  "filename": "file:///mod.ts",
+                  "line": 3,
+                  "col": 4,
+                  "byteIndex": 81
                 }
-              ],
-              "location": {
-                "filename": "file:///mod.ts",
-                "line": 3,
-                "col": 4,
-                "byteIndex": 81
               }
-            }
-          ],
-          "properties": [],
-          "indexSignatures": [],
-          "methods": [],
-          "extends": null,
-          "implements": [],
-          "typeParams": [],
-          "superTypeParams": []
+            ],
+            "properties": [],
+            "indexSignatures": [],
+            "methods": [],
+            "extends": null,
+            "implements": [],
+            "typeParams": [],
+            "superTypeParams": []
+          }
         }
-      }
-    ]
-  }
-]
+      ]
+    }
+  ]
+}

@@ -210,22 +210,27 @@ async fn run() -> anyhow::Result<()> {
         return Ok(());
       }
 
-      let mut doc_nodes =
-        doc_nodes_by_url.into_values().flatten().collect::<Vec<_>>();
+      let mut merged_doc = deno_doc::Document::default();
+      for doc in doc_nodes_by_url.into_values() {
+        if merged_doc.module_doc.is_empty() {
+          merged_doc.module_doc = doc.module_doc;
+        }
+        merged_doc.symbols.extend(doc.symbols);
+      }
 
-      doc_nodes.retain(|doc_node| {
+      merged_doc.symbols.retain(|doc_node| {
         !matches!(doc_node.declarations[0].def, DeclarationDef::Import(..))
       });
 
       if let Some(filter) = filter {
-        doc_nodes = find_nodes_by_name_recursively(doc_nodes, &filter);
+        merged_doc.symbols = find_nodes_by_name_recursively(merged_doc.symbols, &filter);
       }
 
       if json {
-        serde_json::to_writer_pretty(std::io::stdout(), &doc_nodes)?;
+        serde_json::to_writer_pretty(std::io::stdout(), &merged_doc)?;
         println!();
       } else {
-        let result = DocPrinter::new(&doc_nodes, true, false);
+        let result = DocPrinter::new(&merged_doc, true, false);
         println!("{result}");
       }
     }
@@ -379,7 +384,7 @@ fn generate_docs_directory(
   package_name: Option<String>,
   output_dir: PathBuf,
   main_entrypoint: Option<ModuleSpecifier>,
-  doc_nodes_by_url: IndexMap<ModuleSpecifier, Vec<deno_doc::Symbol>>,
+  doc_nodes_by_url: IndexMap<ModuleSpecifier, deno_doc::Document>,
 ) -> Result<(), anyhow::Error> {
   let cwd = current_dir().unwrap();
   let output_dir_resolved = cwd.join(output_dir);

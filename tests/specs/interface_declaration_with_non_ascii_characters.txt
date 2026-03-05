@@ -41,145 +41,147 @@ interface 插件描述
 
 
 # output.json
-[
-  {
-    "name": "插件描述",
-    "declarations": [
-      {
-        "location": {
-          "filename": "file:///mod.ts",
-          "line": 1,
-          "col": 0,
-          "byteIndex": 35
-        },
-        "declarationKind": "export",
-        "kind": "interface",
-        "def": {
-          "extends": [],
-          "constructors": [],
-          "methods": [],
-          "properties": [
-            {
-              "name": "pmim_version",
-              "location": {
-                "filename": "file:///mod.ts",
-                "line": 2,
-                "col": 2,
-                "byteIndex": 69
+{
+  "symbols": [
+    {
+      "name": "插件描述",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 1,
+            "col": 0,
+            "byteIndex": 35
+          },
+          "declarationKind": "export",
+          "kind": "interface",
+          "def": {
+            "extends": [],
+            "constructors": [],
+            "methods": [],
+            "properties": [
+              {
+                "name": "pmim_version",
+                "location": {
+                  "filename": "file:///mod.ts",
+                  "line": 2,
+                  "col": 2,
+                  "byteIndex": 69
+                },
+                "params": [],
+                "computed": false,
+                "optional": false,
+                "tsType": {
+                  "repr": "string",
+                  "kind": "keyword",
+                  "value": "string"
+                },
+                "typeParams": []
               },
-              "params": [],
-              "computed": false,
-              "optional": false,
-              "tsType": {
-                "repr": "string",
-                "kind": "keyword",
-                "value": "string"
-              },
-              "typeParams": []
-            },
-            {
-              "name": "插件信息",
-              "location": {
-                "filename": "file:///mod.ts",
-                "line": 3,
-                "col": 2,
-                "byteIndex": 93
-              },
-              "params": [],
-              "computed": false,
-              "optional": false,
-              "tsType": {
-                "repr": "",
-                "kind": "typeLiteral",
-                "value": {
-                  "constructors": [],
-                  "methods": [],
-                  "properties": [
-                    {
-                      "name": "名称",
-                      "location": {
-                        "filename": "file:///mod.ts",
-                        "line": 4,
-                        "col": 4,
-                        "byteIndex": 113
+              {
+                "name": "插件信息",
+                "location": {
+                  "filename": "file:///mod.ts",
+                  "line": 3,
+                  "col": 2,
+                  "byteIndex": 93
+                },
+                "params": [],
+                "computed": false,
+                "optional": false,
+                "tsType": {
+                  "repr": "",
+                  "kind": "typeLiteral",
+                  "value": {
+                    "constructors": [],
+                    "methods": [],
+                    "properties": [
+                      {
+                        "name": "名称",
+                        "location": {
+                          "filename": "file:///mod.ts",
+                          "line": 4,
+                          "col": 4,
+                          "byteIndex": 113
+                        },
+                        "params": [],
+                        "computed": false,
+                        "optional": false,
+                        "tsType": {
+                          "repr": "string",
+                          "kind": "keyword",
+                          "value": "string"
+                        },
+                        "typeParams": []
                       },
-                      "params": [],
-                      "computed": false,
-                      "optional": false,
-                      "tsType": {
-                        "repr": "string",
-                        "kind": "keyword",
-                        "value": "string"
+                      {
+                        "name": "描述",
+                        "location": {
+                          "filename": "file:///mod.ts",
+                          "line": 5,
+                          "col": 4,
+                          "byteIndex": 133
+                        },
+                        "params": [],
+                        "computed": false,
+                        "optional": false,
+                        "tsType": {
+                          "repr": "string",
+                          "kind": "keyword",
+                          "value": "string"
+                        },
+                        "typeParams": []
                       },
-                      "typeParams": []
-                    },
-                    {
-                      "name": "描述",
-                      "location": {
-                        "filename": "file:///mod.ts",
-                        "line": 5,
-                        "col": 4,
-                        "byteIndex": 133
+                      {
+                        "name": "版本",
+                        "location": {
+                          "filename": "file:///mod.ts",
+                          "line": 6,
+                          "col": 4,
+                          "byteIndex": 153
+                        },
+                        "params": [],
+                        "computed": false,
+                        "optional": false,
+                        "tsType": {
+                          "repr": "string",
+                          "kind": "keyword",
+                          "value": "string"
+                        },
+                        "typeParams": []
                       },
-                      "params": [],
-                      "computed": false,
-                      "optional": false,
-                      "tsType": {
-                        "repr": "string",
-                        "kind": "keyword",
-                        "value": "string"
-                      },
-                      "typeParams": []
-                    },
-                    {
-                      "name": "版本",
-                      "location": {
-                        "filename": "file:///mod.ts",
-                        "line": 6,
-                        "col": 4,
-                        "byteIndex": 153
-                      },
-                      "params": [],
-                      "computed": false,
-                      "optional": false,
-                      "tsType": {
-                        "repr": "string",
-                        "kind": "keyword",
-                        "value": "string"
-                      },
-                      "typeParams": []
-                    },
-                    {
-                      "name": "URL",
-                      "location": {
-                        "filename": "file:///mod.ts",
-                        "line": 7,
-                        "col": 4,
-                        "byteIndex": 173
-                      },
-                      "params": [],
-                      "computed": false,
-                      "optional": false,
-                      "tsType": {
-                        "repr": "string",
-                        "kind": "keyword",
-                        "value": "string"
-                      },
-                      "typeParams": []
-                    }
-                  ],
-                  "callSignatures": [],
-                  "indexSignatures": []
-                }
-              },
-              "typeParams": []
-            }
-          ],
-          "callSignatures": [],
-          "indexSignatures": [],
-          "typeParams": []
+                      {
+                        "name": "URL",
+                        "location": {
+                          "filename": "file:///mod.ts",
+                          "line": 7,
+                          "col": 4,
+                          "byteIndex": 173
+                        },
+                        "params": [],
+                        "computed": false,
+                        "optional": false,
+                        "tsType": {
+                          "repr": "string",
+                          "kind": "keyword",
+                          "value": "string"
+                        },
+                        "typeParams": []
+                      }
+                    ],
+                    "callSignatures": [],
+                    "indexSignatures": []
+                  }
+                },
+                "typeParams": []
+              }
+            ],
+            "callSignatures": [],
+            "indexSignatures": [],
+            "typeParams": []
+          }
         }
-      }
-    ]
-  }
-]
+      ]
+    }
+  ]
+}

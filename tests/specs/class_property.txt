@@ -35,73 +35,75 @@ class Class
 
 
 # output.json
-[
-  {
-    "name": "Class",
-    "declarations": [
-      {
-        "location": {
-          "filename": "file:///mod.ts",
-          "line": 0,
-          "col": 0,
-          "byteIndex": 0
-        },
-        "declarationKind": "export",
-        "kind": "class",
-        "def": {
-          "isAbstract": false,
-          "constructors": [],
-          "properties": [
-            {
-              "tsType": {
-                "repr": "bool",
-                "kind": "typeRef",
-                "value": {
-                  "typeParams": null,
-                  "typeName": "bool"
+{
+  "symbols": [
+    {
+      "name": "Class",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 0,
+            "col": 0,
+            "byteIndex": 0
+          },
+          "declarationKind": "export",
+          "kind": "class",
+          "def": {
+            "isAbstract": false,
+            "constructors": [],
+            "properties": [
+              {
+                "tsType": {
+                  "repr": "bool",
+                  "kind": "typeRef",
+                  "value": {
+                    "typeParams": null,
+                    "typeName": "bool"
+                  }
+                },
+                "readonly": false,
+                "accessibility": null,
+                "optional": false,
+                "isAbstract": false,
+                "isStatic": false,
+                "name": "someproperty",
+                "location": {
+                  "filename": "file:///mod.ts",
+                  "line": 1,
+                  "col": 2,
+                  "byteIndex": 23
                 }
               },
-              "readonly": false,
-              "accessibility": null,
-              "optional": false,
-              "isAbstract": false,
-              "isStatic": false,
-              "name": "someproperty",
-              "location": {
-                "filename": "file:///mod.ts",
-                "line": 1,
-                "col": 2,
-                "byteIndex": 23
+              {
+                "tsType": {
+                  "repr": "bigint",
+                  "kind": "keyword",
+                  "value": "bigint"
+                },
+                "readonly": false,
+                "accessibility": null,
+                "optional": false,
+                "isAbstract": false,
+                "isStatic": false,
+                "name": "optproperty",
+                "location": {
+                  "filename": "file:///mod.ts",
+                  "line": 2,
+                  "col": 2,
+                  "byteIndex": 45
+                }
               }
-            },
-            {
-              "tsType": {
-                "repr": "bigint",
-                "kind": "keyword",
-                "value": "bigint"
-              },
-              "readonly": false,
-              "accessibility": null,
-              "optional": false,
-              "isAbstract": false,
-              "isStatic": false,
-              "name": "optproperty",
-              "location": {
-                "filename": "file:///mod.ts",
-                "line": 2,
-                "col": 2,
-                "byteIndex": 45
-              }
-            }
-          ],
-          "indexSignatures": [],
-          "methods": [],
-          "extends": null,
-          "implements": [],
-          "typeParams": [],
-          "superTypeParams": []
+            ],
+            "indexSignatures": [],
+            "methods": [],
+            "extends": null,
+            "implements": [],
+            "typeParams": [],
+            "superTypeParams": []
+          }
         }
-      }
-    ]
-  }
-]
+      ]
+    }
+  ]
+}

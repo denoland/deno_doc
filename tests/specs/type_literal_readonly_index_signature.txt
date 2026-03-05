@@ -15,61 +15,63 @@ type T = { readonly [key: string]: number; }
 
 
 # output.json
-[
-  {
-    "name": "T",
-    "declarations": [
-      {
-        "location": {
-          "filename": "file:///mod.ts",
-          "line": 0,
-          "col": 0,
-          "byteIndex": 0
-        },
-        "declarationKind": "export",
-        "kind": "typeAlias",
-        "def": {
-          "tsType": {
-            "repr": "",
-            "kind": "typeLiteral",
-            "value": {
-              "constructors": [],
-              "methods": [],
-              "properties": [],
-              "callSignatures": [],
-              "indexSignatures": [
-                {
-                  "readonly": true,
-                  "params": [
-                    {
-                      "kind": "identifier",
-                      "name": "key",
-                      "optional": false,
-                      "tsType": {
-                        "repr": "string",
-                        "kind": "keyword",
-                        "value": "string"
-                      }
-                    }
-                  ],
-                  "tsType": {
-                    "repr": "number",
-                    "kind": "keyword",
-                    "value": "number"
-                  },
-                  "location": {
-                    "filename": "file:///mod.ts",
-                    "line": 0,
-                    "col": 18,
-                    "byteIndex": 18
-                  }
-                }
-              ]
-            }
+{
+  "symbols": [
+    {
+      "name": "T",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 0,
+            "col": 0,
+            "byteIndex": 0
           },
-          "typeParams": []
+          "declarationKind": "export",
+          "kind": "typeAlias",
+          "def": {
+            "tsType": {
+              "repr": "",
+              "kind": "typeLiteral",
+              "value": {
+                "constructors": [],
+                "methods": [],
+                "properties": [],
+                "callSignatures": [],
+                "indexSignatures": [
+                  {
+                    "readonly": true,
+                    "params": [
+                      {
+                        "kind": "identifier",
+                        "name": "key",
+                        "optional": false,
+                        "tsType": {
+                          "repr": "string",
+                          "kind": "keyword",
+                          "value": "string"
+                        }
+                      }
+                    ],
+                    "tsType": {
+                      "repr": "number",
+                      "kind": "keyword",
+                      "value": "number"
+                    },
+                    "location": {
+                      "filename": "file:///mod.ts",
+                      "line": 0,
+                      "col": 18,
+                      "byteIndex": 18
+                    }
+                  }
+                ]
+              }
+            },
+            "typeParams": []
+          }
         }
-      }
-    ]
-  }
-]
+      ]
+    }
+  ]
+}

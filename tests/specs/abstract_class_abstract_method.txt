@@ -26,58 +26,60 @@ abstract class Class
 
 
 # output.json
-[
-  {
-    "name": "Class",
-    "declarations": [
-      {
-        "location": {
-          "filename": "file:///mod.ts",
-          "line": 0,
-          "col": 0,
-          "byteIndex": 0
-        },
-        "declarationKind": "export",
-        "kind": "class",
-        "def": {
-          "isAbstract": true,
-          "constructors": [],
-          "properties": [],
-          "indexSignatures": [],
-          "methods": [
-            {
-              "accessibility": null,
-              "optional": false,
-              "isAbstract": true,
-              "isStatic": false,
-              "name": "method",
-              "kind": "method",
-              "functionDef": {
-                "params": [],
-                "returnType": {
-                  "repr": "void",
-                  "kind": "keyword",
-                  "value": "void"
+{
+  "symbols": [
+    {
+      "name": "Class",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 0,
+            "col": 0,
+            "byteIndex": 0
+          },
+          "declarationKind": "export",
+          "kind": "class",
+          "def": {
+            "isAbstract": true,
+            "constructors": [],
+            "properties": [],
+            "indexSignatures": [],
+            "methods": [
+              {
+                "accessibility": null,
+                "optional": false,
+                "isAbstract": true,
+                "isStatic": false,
+                "name": "method",
+                "kind": "method",
+                "functionDef": {
+                  "params": [],
+                  "returnType": {
+                    "repr": "void",
+                    "kind": "keyword",
+                    "value": "void"
+                  },
+                  "hasBody": true,
+                  "isAsync": false,
+                  "isGenerator": false,
+                  "typeParams": []
                 },
-                "hasBody": true,
-                "isAsync": false,
-                "isGenerator": false,
-                "typeParams": []
-              },
-              "location": {
-                "filename": "file:///mod.ts",
-                "line": 1,
-                "col": 2,
-                "byteIndex": 32
+                "location": {
+                  "filename": "file:///mod.ts",
+                  "line": 1,
+                  "col": 2,
+                  "byteIndex": 32
+                }
               }
-            }
-          ],
-          "extends": null,
-          "implements": [],
-          "typeParams": [],
-          "superTypeParams": []
+            ],
+            "extends": null,
+            "implements": [],
+            "typeParams": [],
+            "superTypeParams": []
+          }
         }
-      }
-    ]
-  }
-]
+      ]
+    }
+  ]
+}

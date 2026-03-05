@@ -38,189 +38,191 @@ async function qux(a: string): Promise<string>
 
 
 # output.json
-[
-  {
-    "name": "foo",
-    "declarations": [
-      {
-        "location": {
-          "filename": "file:///mod.ts",
-          "line": 1,
-          "col": 13,
-          "byteIndex": 42
-        },
-        "declarationKind": "export",
-        "jsDoc": {
-          "doc": "A function expression"
-        },
-        "kind": "function",
-        "def": {
-          "params": [
-            {
-              "kind": "identifier",
-              "name": "a",
-              "optional": false,
-              "tsType": {
-                "repr": "string",
-                "kind": "keyword",
-                "value": "string"
-              }
-            }
-          ],
-          "returnType": {
-            "repr": "void",
-            "kind": "keyword",
-            "value": "void"
+{
+  "symbols": [
+    {
+      "name": "foo",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 1,
+            "col": 13,
+            "byteIndex": 42
           },
-          "hasBody": true,
-          "isAsync": false,
-          "isGenerator": false,
-          "typeParams": []
-        }
-      }
-    ]
-  },
-  {
-    "name": "bar",
-    "declarations": [
-      {
-        "location": {
-          "filename": "file:///mod.ts",
-          "line": 4,
-          "col": 13,
-          "byteIndex": 128
-        },
-        "declarationKind": "export",
-        "jsDoc": {
-          "doc": "A named function expression"
-        },
-        "kind": "function",
-        "def": {
-          "defName": "myFunc",
-          "params": [
-            {
-              "kind": "identifier",
-              "name": "a",
-              "optional": false,
-              "tsType": {
-                "repr": "string",
-                "kind": "keyword",
-                "value": "string"
-              }
-            },
-            {
-              "kind": "identifier",
-              "name": "b",
-              "optional": false,
-              "tsType": {
-                "repr": "number",
-                "kind": "keyword",
-                "value": "number"
-              }
-            }
-          ],
-          "returnType": {
-            "repr": "string",
-            "kind": "keyword",
-            "value": "string"
+          "declarationKind": "export",
+          "jsDoc": {
+            "doc": "A function expression"
           },
-          "hasBody": true,
-          "isAsync": false,
-          "isGenerator": false,
-          "typeParams": []
-        }
-      }
-    ]
-  },
-  {
-    "name": "baz",
-    "declarations": [
-      {
-        "location": {
-          "filename": "file:///mod.ts",
-          "line": 9,
-          "col": 13,
-          "byteIndex": 236
-        },
-        "declarationKind": "export",
-        "jsDoc": {
-          "doc": "An arrow function"
-        },
-        "kind": "function",
-        "def": {
-          "params": [
-            {
-              "kind": "identifier",
-              "name": "a",
-              "optional": false,
-              "tsType": {
-                "repr": "string",
-                "kind": "keyword",
-                "value": "string"
-              }
-            }
-          ],
-          "returnType": {
-            "repr": "void",
-            "kind": "keyword",
-            "value": "void"
-          },
-          "hasBody": true,
-          "isAsync": false,
-          "isGenerator": false,
-          "typeParams": []
-        }
-      }
-    ]
-  },
-  {
-    "name": "qux",
-    "declarations": [
-      {
-        "location": {
-          "filename": "file:///mod.ts",
-          "line": 12,
-          "col": 13,
-          "byteIndex": 312
-        },
-        "declarationKind": "export",
-        "jsDoc": {
-          "doc": "An async arrow function"
-        },
-        "kind": "function",
-        "def": {
-          "params": [
-            {
-              "kind": "identifier",
-              "name": "a",
-              "optional": false,
-              "tsType": {
-                "repr": "string",
-                "kind": "keyword",
-                "value": "string"
-              }
-            }
-          ],
-          "returnType": {
-            "repr": "Promise",
-            "kind": "typeRef",
-            "value": {
-              "typeParams": [
-                {
+          "kind": "function",
+          "def": {
+            "params": [
+              {
+                "kind": "identifier",
+                "name": "a",
+                "optional": false,
+                "tsType": {
                   "repr": "string",
                   "kind": "keyword",
                   "value": "string"
                 }
-              ],
-              "typeName": "Promise"
-            }
-          },
-          "hasBody": true,
-          "isAsync": true,
-          "isGenerator": false,
-          "typeParams": []
+              }
+            ],
+            "returnType": {
+              "repr": "void",
+              "kind": "keyword",
+              "value": "void"
+            },
+            "hasBody": true,
+            "isAsync": false,
+            "isGenerator": false,
+            "typeParams": []
+          }
         }
-      }
-    ]
-  }
-]
+      ]
+    },
+    {
+      "name": "bar",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 4,
+            "col": 13,
+            "byteIndex": 128
+          },
+          "declarationKind": "export",
+          "jsDoc": {
+            "doc": "A named function expression"
+          },
+          "kind": "function",
+          "def": {
+            "defName": "myFunc",
+            "params": [
+              {
+                "kind": "identifier",
+                "name": "a",
+                "optional": false,
+                "tsType": {
+                  "repr": "string",
+                  "kind": "keyword",
+                  "value": "string"
+                }
+              },
+              {
+                "kind": "identifier",
+                "name": "b",
+                "optional": false,
+                "tsType": {
+                  "repr": "number",
+                  "kind": "keyword",
+                  "value": "number"
+                }
+              }
+            ],
+            "returnType": {
+              "repr": "string",
+              "kind": "keyword",
+              "value": "string"
+            },
+            "hasBody": true,
+            "isAsync": false,
+            "isGenerator": false,
+            "typeParams": []
+          }
+        }
+      ]
+    },
+    {
+      "name": "baz",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 9,
+            "col": 13,
+            "byteIndex": 236
+          },
+          "declarationKind": "export",
+          "jsDoc": {
+            "doc": "An arrow function"
+          },
+          "kind": "function",
+          "def": {
+            "params": [
+              {
+                "kind": "identifier",
+                "name": "a",
+                "optional": false,
+                "tsType": {
+                  "repr": "string",
+                  "kind": "keyword",
+                  "value": "string"
+                }
+              }
+            ],
+            "returnType": {
+              "repr": "void",
+              "kind": "keyword",
+              "value": "void"
+            },
+            "hasBody": true,
+            "isAsync": false,
+            "isGenerator": false,
+            "typeParams": []
+          }
+        }
+      ]
+    },
+    {
+      "name": "qux",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 12,
+            "col": 13,
+            "byteIndex": 312
+          },
+          "declarationKind": "export",
+          "jsDoc": {
+            "doc": "An async arrow function"
+          },
+          "kind": "function",
+          "def": {
+            "params": [
+              {
+                "kind": "identifier",
+                "name": "a",
+                "optional": false,
+                "tsType": {
+                  "repr": "string",
+                  "kind": "keyword",
+                  "value": "string"
+                }
+              }
+            ],
+            "returnType": {
+              "repr": "Promise",
+              "kind": "typeRef",
+              "value": {
+                "typeParams": [
+                  {
+                    "repr": "string",
+                    "kind": "keyword",
+                    "value": "string"
+                  }
+                ],
+                "typeName": "Promise"
+              }
+            },
+            "hasBody": true,
+            "isAsync": true,
+            "isGenerator": false,
+            "typeParams": []
+          }
+        }
+      ]
+    }
+  ]
+}

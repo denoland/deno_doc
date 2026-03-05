@@ -403,7 +403,6 @@ impl DiagnosticDocNodeVisitor<'_, '_> {
         | DeclarationDef::TypeAlias(..)
         | DeclarationDef::Variable(..) => true,
         DeclarationDef::Import(..)
-        | DeclarationDef::ModuleDoc
         | DeclarationDef::Reference(..) => false,
       }
     }

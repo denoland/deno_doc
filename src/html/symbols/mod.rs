@@ -584,8 +584,7 @@ impl SymbolInnerCtx {
             },
           ))
         }
-        DeclarationDef::ModuleDoc
-        | DeclarationDef::Import(..)
+        DeclarationDef::Import(..)
         | DeclarationDef::Reference(..) => unreachable!(),
       });
 

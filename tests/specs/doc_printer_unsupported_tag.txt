@@ -23,44 +23,46 @@ function noop(): void
 
 
 # output.json
-[
-  {
-    "name": "noop",
-    "declarations": [
-      {
-        "location": {
-          "filename": "file:///mod.ts",
-          "line": 4,
-          "col": 0,
-          "byteIndex": 48
-        },
-        "declarationKind": "export",
-        "jsDoc": {
-          "tags": [
-            {
-              "kind": "unsupported",
-              "value": "@customtagone"
-            },
-            {
-              "kind": "unsupported",
-              "value": "@customtagtwo value"
-            }
-          ]
-        },
-        "kind": "function",
-        "def": {
-          "params": [],
-          "returnType": {
-            "repr": "void",
-            "kind": "keyword",
-            "value": "void"
+{
+  "symbols": [
+    {
+      "name": "noop",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 4,
+            "col": 0,
+            "byteIndex": 48
           },
-          "hasBody": true,
-          "isAsync": false,
-          "isGenerator": false,
-          "typeParams": []
+          "declarationKind": "export",
+          "jsDoc": {
+            "tags": [
+              {
+                "kind": "unsupported",
+                "value": "@customtagone"
+              },
+              {
+                "kind": "unsupported",
+                "value": "@customtagtwo value"
+              }
+            ]
+          },
+          "kind": "function",
+          "def": {
+            "params": [],
+            "returnType": {
+              "repr": "void",
+              "kind": "keyword",
+              "value": "void"
+            },
+            "hasBody": true,
+            "isAsync": false,
+            "isGenerator": false,
+            "typeParams": []
+          }
         }
-      }
-    ]
-  }
-]
+      ]
+    }
+  ]
+}

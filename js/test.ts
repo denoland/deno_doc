@@ -9,9 +9,9 @@ Deno.test({
     const records = await doc(
       ["https://deno.land/std@0.104.0/fmt/colors.ts"],
     );
-    const entries = records["https://deno.land/std@0.104.0/fmt/colors.ts"];
-    assertEquals(entries.length, 49);
-    const fnStripColor = entries.find((n) =>
+    const document = records["https://deno.land/std@0.104.0/fmt/colors.ts"];
+    assertEquals(document.symbols.length, 49);
+    const fnStripColor = document.symbols.find((n) =>
       n.declarations.some((d) => d.kind === "function") &&
       n.name === "stripColor"
     );
@@ -61,7 +61,7 @@ Deno.test({
 Deno.test({
   name: "doc() - with headers",
   async fn() {
-    const entries = await doc(["https://example.com/a"], {
+    const documents = await doc(["https://example.com/a"], {
       load(specifier) {
         return Promise.resolve({
           kind: "module",
@@ -75,7 +75,7 @@ Deno.test({
         });
       },
     });
-    assertEquals(Object.values(entries)[0].length, 1);
+    assertEquals(Object.values(documents)[0].symbols.length, 1);
   },
 });
 
@@ -121,10 +121,10 @@ Deno.test({
         });
       },
     });
-    const entries = Object.values(records)[0];
-    assertEquals(entries.length, 1);
-    assertEquals(entries[0].declarations[0].kind, "class");
-    assertEquals(entries[0].name, "B");
+    const document = Object.values(records)[0];
+    assertEquals(document.symbols.length, 1);
+    assertEquals(document.symbols[0].declarations[0].kind, "class");
+    assertEquals(document.symbols[0].name, "B");
   },
 });
 

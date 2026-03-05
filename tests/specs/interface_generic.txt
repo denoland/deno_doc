@@ -16,33 +16,35 @@ interface Interface<T>
 
 
 # output.json
-[
-  {
-    "name": "Interface",
-    "declarations": [
-      {
-        "location": {
-          "filename": "file:///mod.ts",
-          "line": 0,
-          "col": 0,
-          "byteIndex": 0
-        },
-        "declarationKind": "export",
-        "kind": "interface",
-        "def": {
-          "extends": [],
-          "constructors": [],
-          "methods": [],
-          "properties": [],
-          "callSignatures": [],
-          "indexSignatures": [],
-          "typeParams": [
-            {
-              "name": "T"
-            }
-          ]
+{
+  "symbols": [
+    {
+      "name": "Interface",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 0,
+            "col": 0,
+            "byteIndex": 0
+          },
+          "declarationKind": "export",
+          "kind": "interface",
+          "def": {
+            "extends": [],
+            "constructors": [],
+            "methods": [],
+            "properties": [],
+            "callSignatures": [],
+            "indexSignatures": [],
+            "typeParams": [
+              {
+                "name": "T"
+              }
+            ]
+          }
         }
-      }
-    ]
-  }
-]
+      ]
+    }
+  ]
+}

@@ -15,83 +15,85 @@ type T<Type> = readonly [P in keyof Type as NewType]: Type[P]
 
 
 # output.json
-[
-  {
-    "name": "T",
-    "declarations": [
-      {
-        "location": {
-          "filename": "file:///mod.ts",
-          "line": 0,
-          "col": 0,
-          "byteIndex": 0
-        },
-        "declarationKind": "export",
-        "kind": "typeAlias",
-        "def": {
-          "tsType": {
-            "repr": "",
-            "kind": "mapped",
-            "value": {
-              "readonly": true,
-              "typeParam": {
-                "name": "P",
-                "constraint": {
-                  "repr": "",
-                  "kind": "typeOperator",
+{
+  "symbols": [
+    {
+      "name": "T",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 0,
+            "col": 0,
+            "byteIndex": 0
+          },
+          "declarationKind": "export",
+          "kind": "typeAlias",
+          "def": {
+            "tsType": {
+              "repr": "",
+              "kind": "mapped",
+              "value": {
+                "readonly": true,
+                "typeParam": {
+                  "name": "P",
+                  "constraint": {
+                    "repr": "",
+                    "kind": "typeOperator",
+                    "value": {
+                      "operator": "keyof",
+                      "tsType": {
+                        "repr": "Type",
+                        "kind": "typeRef",
+                        "value": {
+                          "typeParams": null,
+                          "typeName": "Type"
+                        }
+                      }
+                    }
+                  }
+                },
+                "nameType": {
+                  "repr": "NewType",
+                  "kind": "typeRef",
                   "value": {
-                    "operator": "keyof",
-                    "tsType": {
+                    "typeParams": null,
+                    "typeName": "NewType"
+                  }
+                },
+                "tsType": {
+                  "repr": "",
+                  "kind": "indexedAccess",
+                  "value": {
+                    "readonly": false,
+                    "objType": {
                       "repr": "Type",
                       "kind": "typeRef",
                       "value": {
                         "typeParams": null,
                         "typeName": "Type"
                       }
-                    }
-                  }
-                }
-              },
-              "nameType": {
-                "repr": "NewType",
-                "kind": "typeRef",
-                "value": {
-                  "typeParams": null,
-                  "typeName": "NewType"
-                }
-              },
-              "tsType": {
-                "repr": "",
-                "kind": "indexedAccess",
-                "value": {
-                  "readonly": false,
-                  "objType": {
-                    "repr": "Type",
-                    "kind": "typeRef",
-                    "value": {
-                      "typeParams": null,
-                      "typeName": "Type"
-                    }
-                  },
-                  "indexType": {
-                    "repr": "P",
-                    "kind": "typeRef",
-                    "value": {
-                      "typeParams": null,
-                      "typeName": "P"
+                    },
+                    "indexType": {
+                      "repr": "P",
+                      "kind": "typeRef",
+                      "value": {
+                        "typeParams": null,
+                        "typeName": "P"
+                      }
                     }
                   }
                 }
               }
-            }
-          },
-          "typeParams": [
-            {
-              "name": "Type"
-            }
-          ]
+            },
+            "typeParams": [
+              {
+                "name": "Type"
+              }
+            ]
+          }
         }
-      }
-    ]
-  }
-]
+      ]
+    }
+  ]
+}

@@ -15,74 +15,76 @@ function foo(bar: A | B): asserts bar is B
 
 
 # output.json
-[
-  {
-    "name": "foo",
-    "declarations": [
-      {
-        "location": {
-          "filename": "file:///mod.ts",
-          "line": 0,
-          "col": 0,
-          "byteIndex": 0
-        },
-        "declarationKind": "export",
-        "kind": "function",
-        "def": {
-          "params": [
-            {
-              "kind": "identifier",
-              "name": "bar",
-              "optional": false,
-              "tsType": {
-                "repr": "",
-                "kind": "union",
-                "value": [
-                  {
-                    "repr": "A",
-                    "kind": "typeRef",
-                    "value": {
-                      "typeParams": null,
-                      "typeName": "A"
+{
+  "symbols": [
+    {
+      "name": "foo",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 0,
+            "col": 0,
+            "byteIndex": 0
+          },
+          "declarationKind": "export",
+          "kind": "function",
+          "def": {
+            "params": [
+              {
+                "kind": "identifier",
+                "name": "bar",
+                "optional": false,
+                "tsType": {
+                  "repr": "",
+                  "kind": "union",
+                  "value": [
+                    {
+                      "repr": "A",
+                      "kind": "typeRef",
+                      "value": {
+                        "typeParams": null,
+                        "typeName": "A"
+                      }
+                    },
+                    {
+                      "repr": "B",
+                      "kind": "typeRef",
+                      "value": {
+                        "typeParams": null,
+                        "typeName": "B"
+                      }
                     }
-                  },
-                  {
-                    "repr": "B",
-                    "kind": "typeRef",
-                    "value": {
-                      "typeParams": null,
-                      "typeName": "B"
-                    }
-                  }
-                ]
-              }
-            }
-          ],
-          "returnType": {
-            "repr": "asserts bar is B",
-            "kind": "typePredicate",
-            "value": {
-              "asserts": true,
-              "param": {
-                "type": "identifier",
-                "name": "bar"
-              },
-              "type": {
-                "repr": "B",
-                "kind": "typeRef",
-                "value": {
-                  "typeParams": null,
-                  "typeName": "B"
+                  ]
                 }
               }
-            }
-          },
-          "hasBody": true,
-          "isAsync": false,
-          "isGenerator": false,
-          "typeParams": []
+            ],
+            "returnType": {
+              "repr": "asserts bar is B",
+              "kind": "typePredicate",
+              "value": {
+                "asserts": true,
+                "param": {
+                  "type": "identifier",
+                  "name": "bar"
+                },
+                "type": {
+                  "repr": "B",
+                  "kind": "typeRef",
+                  "value": {
+                    "typeParams": null,
+                    "typeName": "B"
+                  }
+                }
+              }
+            },
+            "hasBody": true,
+            "isAsync": false,
+            "isGenerator": false,
+            "typeParams": []
+          }
         }
-      }
-    ]
-  }
-]
+      ]
+    }
+  ]
+}

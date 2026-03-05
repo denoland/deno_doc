@@ -28,80 +28,82 @@ interface Generic<T>
 
 
 # output.json
-[
-  {
-    "name": "Generic",
-    "declarations": [
-      {
-        "location": {
-          "filename": "file:///mod.ts",
-          "line": 0,
-          "col": 0,
-          "byteIndex": 0
-        },
-        "declarationKind": "export",
-        "kind": "interface",
-        "def": {
-          "extends": [],
-          "constructors": [],
-          "methods": [],
-          "properties": [],
-          "callSignatures": [],
-          "indexSignatures": [],
-          "typeParams": [
-            {
-              "name": "T"
-            }
-          ]
-        }
-      }
-    ]
-  },
-  {
-    "name": "f",
-    "declarations": [
-      {
-        "location": {
-          "filename": "file:///mod.ts",
-          "line": 1,
-          "col": 0,
-          "byteIndex": 31
-        },
-        "declarationKind": "export",
-        "kind": "function",
-        "def": {
-          "params": [],
-          "returnType": {
-            "repr": "Generic",
-            "kind": "typeRef",
-            "value": {
-              "typeParams": [
-                {
-                  "repr": "",
-                  "kind": "tuple",
-                  "value": [
-                    {
-                      "repr": "string",
-                      "kind": "keyword",
-                      "value": "string"
-                    },
-                    {
-                      "repr": "number",
-                      "kind": "keyword",
-                      "value": "number"
-                    }
-                  ]
-                }
-              ],
-              "typeName": "Generic"
-            }
+{
+  "symbols": [
+    {
+      "name": "Generic",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 0,
+            "col": 0,
+            "byteIndex": 0
           },
-          "hasBody": true,
-          "isAsync": false,
-          "isGenerator": false,
-          "typeParams": []
+          "declarationKind": "export",
+          "kind": "interface",
+          "def": {
+            "extends": [],
+            "constructors": [],
+            "methods": [],
+            "properties": [],
+            "callSignatures": [],
+            "indexSignatures": [],
+            "typeParams": [
+              {
+                "name": "T"
+              }
+            ]
+          }
         }
-      }
-    ]
-  }
-]
+      ]
+    },
+    {
+      "name": "f",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 1,
+            "col": 0,
+            "byteIndex": 31
+          },
+          "declarationKind": "export",
+          "kind": "function",
+          "def": {
+            "params": [],
+            "returnType": {
+              "repr": "Generic",
+              "kind": "typeRef",
+              "value": {
+                "typeParams": [
+                  {
+                    "repr": "",
+                    "kind": "tuple",
+                    "value": [
+                      {
+                        "repr": "string",
+                        "kind": "keyword",
+                        "value": "string"
+                      },
+                      {
+                        "repr": "number",
+                        "kind": "keyword",
+                        "value": "number"
+                      }
+                    ]
+                  }
+                ],
+                "typeName": "Generic"
+              }
+            },
+            "hasBody": true,
+            "isAsync": false,
+            "isGenerator": false,
+            "typeParams": []
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -17,34 +17,36 @@ class A
 
 
 # output.json
-[
-  {
-    "name": "A",
-    "declarations": [
-      {
-        "location": {
-          "filename": "file:///mod.ts",
-          "line": 8,
-          "col": 0,
-          "byteIndex": 109
-        },
-        "declarationKind": "export",
-        "jsDoc": {
-          "doc": "One associated with a class"
-        },
-        "kind": "class",
-        "def": {
-          "isAbstract": false,
-          "constructors": [],
-          "properties": [],
-          "indexSignatures": [],
-          "methods": [],
-          "extends": null,
-          "implements": [],
-          "typeParams": [],
-          "superTypeParams": []
+{
+  "symbols": [
+    {
+      "name": "A",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 8,
+            "col": 0,
+            "byteIndex": 109
+          },
+          "declarationKind": "export",
+          "jsDoc": {
+            "doc": "One associated with a class"
+          },
+          "kind": "class",
+          "def": {
+            "isAbstract": false,
+            "constructors": [],
+            "properties": [],
+            "indexSignatures": [],
+            "methods": [],
+            "extends": null,
+            "implements": [],
+            "typeParams": [],
+            "superTypeParams": []
+          }
         }
-      }
-    ]
-  }
-]
+      ]
+    }
+  ]
+}

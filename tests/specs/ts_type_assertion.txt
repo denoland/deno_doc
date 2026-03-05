@@ -15,50 +15,52 @@ function foo(bar: any): asserts bar
 
 
 # output.json
-[
-  {
-    "name": "foo",
-    "declarations": [
-      {
-        "location": {
-          "filename": "file:///mod.ts",
-          "line": 0,
-          "col": 0,
-          "byteIndex": 0
-        },
-        "declarationKind": "export",
-        "kind": "function",
-        "def": {
-          "params": [
-            {
-              "kind": "identifier",
-              "name": "bar",
-              "optional": false,
-              "tsType": {
-                "repr": "any",
-                "kind": "keyword",
-                "value": "any"
-              }
-            }
-          ],
-          "returnType": {
-            "repr": "asserts bar",
-            "kind": "typePredicate",
-            "value": {
-              "asserts": true,
-              "param": {
-                "type": "identifier",
-                "name": "bar"
-              },
-              "type": null
-            }
+{
+  "symbols": [
+    {
+      "name": "foo",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 0,
+            "col": 0,
+            "byteIndex": 0
           },
-          "hasBody": true,
-          "isAsync": false,
-          "isGenerator": false,
-          "typeParams": []
+          "declarationKind": "export",
+          "kind": "function",
+          "def": {
+            "params": [
+              {
+                "kind": "identifier",
+                "name": "bar",
+                "optional": false,
+                "tsType": {
+                  "repr": "any",
+                  "kind": "keyword",
+                  "value": "any"
+                }
+              }
+            ],
+            "returnType": {
+              "repr": "asserts bar",
+              "kind": "typePredicate",
+              "value": {
+                "asserts": true,
+                "param": {
+                  "type": "identifier",
+                  "name": "bar"
+                },
+                "type": null
+              }
+            },
+            "hasBody": true,
+            "isAsync": false,
+            "isGenerator": false,
+            "typeParams": []
+          }
         }
-      }
-    ]
-  }
-]
+      ]
+    }
+  ]
+}

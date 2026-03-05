@@ -16,32 +16,34 @@ function bar(): void
 
 
 # output.json
-[
-  {
-    "name": "bar",
-    "declarations": [
-      {
-        "location": {
-          "filename": "file:///mod.ts",
-          "line": 1,
-          "col": 0,
-          "byteIndex": 32
-        },
-        "declarationKind": "export",
-        "kind": "function",
-        "def": {
-          "params": [],
-          "returnType": {
-            "repr": "void",
-            "kind": "keyword",
-            "value": "void"
+{
+  "symbols": [
+    {
+      "name": "bar",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 1,
+            "col": 0,
+            "byteIndex": 32
           },
-          "hasBody": true,
-          "isAsync": false,
-          "isGenerator": false,
-          "typeParams": []
+          "declarationKind": "export",
+          "kind": "function",
+          "def": {
+            "params": [],
+            "returnType": {
+              "repr": "void",
+              "kind": "keyword",
+              "value": "void"
+            },
+            "hasBody": true,
+            "isAsync": false,
+            "isGenerator": false,
+            "typeParams": []
+          }
         }
-      }
-    ]
-  }
-]
+      ]
+    }
+  ]
+}

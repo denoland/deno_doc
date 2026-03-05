@@ -16,46 +16,48 @@ interface Interface extends Iterator, Iterable
 
 
 # output.json
-[
-  {
-    "name": "Interface",
-    "declarations": [
-      {
-        "location": {
-          "filename": "file:///mod.ts",
-          "line": 0,
-          "col": 0,
-          "byteIndex": 0
-        },
-        "declarationKind": "export",
-        "kind": "interface",
-        "def": {
-          "extends": [
-            {
-              "repr": "Iterator",
-              "kind": "typeRef",
-              "value": {
-                "typeParams": null,
-                "typeName": "Iterator"
+{
+  "symbols": [
+    {
+      "name": "Interface",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 0,
+            "col": 0,
+            "byteIndex": 0
+          },
+          "declarationKind": "export",
+          "kind": "interface",
+          "def": {
+            "extends": [
+              {
+                "repr": "Iterator",
+                "kind": "typeRef",
+                "value": {
+                  "typeParams": null,
+                  "typeName": "Iterator"
+                }
+              },
+              {
+                "repr": "Iterable",
+                "kind": "typeRef",
+                "value": {
+                  "typeParams": null,
+                  "typeName": "Iterable"
+                }
               }
-            },
-            {
-              "repr": "Iterable",
-              "kind": "typeRef",
-              "value": {
-                "typeParams": null,
-                "typeName": "Iterable"
-              }
-            }
-          ],
-          "constructors": [],
-          "methods": [],
-          "properties": [],
-          "callSignatures": [],
-          "indexSignatures": [],
-          "typeParams": []
+            ],
+            "constructors": [],
+            "methods": [],
+            "properties": [],
+            "callSignatures": [],
+            "indexSignatures": [],
+            "typeParams": []
+          }
         }
-      }
-    ]
-  }
-]
+      ]
+    }
+  ]
+}

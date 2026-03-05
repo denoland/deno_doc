@@ -71,38 +71,28 @@ pub(crate) fn js_doc_for_range(
 pub(crate) fn module_js_doc_for_source(
   parsed_source: &ParsedSource,
 ) -> Option<Option<(JsDoc, SourceRange)>> {
-  let shebang_length = parsed_source
-    .program_ref()
-    .shebang()
-    .map_or(0, |shebang| shebang.len());
-  let pos_leading_comment =
-    parsed_source.comments().leading_map().keys().min()?;
+  parsed_source
+    .comments()
+    .get_vec()
+    .into_iter()
+    .filter(|comment| comment.kind == CommentKind::Block && comment.text.starts_with('*'))
+    .find_map(|comment| {
+      let js_doc = parse_js_doc(&comment);
 
-  let comments = if shebang_length > 0 {
-    parsed_source
-      .comments()
-      .get_leading(SourcePos::unsafely_from_byte_pos(*pos_leading_comment))
-  } else {
-    parsed_source.get_leading_comments()
-  };
-  if let Some(js_doc_comment) = comments.and_then(|comments| {
-    comments.iter().find(|comment| {
-      comment.kind == CommentKind::Block && comment.text.starts_with('*')
-    })
-  }) {
-    let js_doc = parse_js_doc(js_doc_comment);
-    if js_doc
-      .tags
-      .iter()
-      .any(|tag| matches!(tag, JsDocTag::Module { .. }))
-    {
-      if js_doc.tags.contains(&JsDocTag::Ignore) {
-        return Some(None);
+      if js_doc
+        .tags
+        .iter()
+        .any(|tag| matches!(tag, JsDocTag::Module { .. }))
+      {
+        if js_doc.tags.contains(&JsDocTag::Ignore) {
+          Some(None)
+        } else {
+          Some(Some((js_doc, comment.range())))
+        }
+      } else {
+        None
       }
-      return Some(Some((js_doc, js_doc_comment.range())));
-    }
-  }
-  None
+    })
 }
 
 pub fn get_location(module_info: &EsModuleInfo, pos: SourcePos) -> Location {

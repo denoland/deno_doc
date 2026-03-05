@@ -163,10 +163,10 @@ impl DocDiff {
     let mut modified_modules = IndexMap::new();
 
     for specifier in old_modules.intersection(&new_modules) {
-      let old_nodes = old.get(*specifier).unwrap();
-      let new_nodes = new.get(*specifier).unwrap();
+      let old_doc = old.get(*specifier).unwrap();
+      let new_doc = new.get(*specifier).unwrap();
 
-      let module_diff = ModuleDiff::diff(old_nodes, new_nodes);
+      let module_diff = ModuleDiff::diff(&old_doc.symbols, &new_doc.symbols);
 
       if module_diff.has_changes() {
         modified_modules.insert((*specifier).clone(), module_diff);
@@ -602,7 +602,6 @@ impl DeclarationDefDiff {
 
       (DeclarationDef::Import(..), DeclarationDef::Import(..)) => None,
       (DeclarationDef::Reference(..), DeclarationDef::Reference(..)) => None,
-      (DeclarationDef::ModuleDoc, DeclarationDef::ModuleDoc) => None,
 
       _ => unreachable!(),
     }

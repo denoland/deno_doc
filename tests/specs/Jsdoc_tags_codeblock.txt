@@ -95,142 +95,144 @@ interface D
 
 
 # output.json
-[
-  {
-    "name": "A",
-    "declarations": [
-      {
-        "location": {
-          "filename": "file:///mod.ts",
-          "line": 9,
-          "col": 0,
-          "byteIndex": 98
-        },
-        "declarationKind": "export",
-        "jsDoc": {
-          "doc": "A is a class\n",
-          "tags": [
-            {
-              "kind": "example",
-              "doc": "```ts\nconst bar = \"foo\";\nconsole.log(bar);\n```"
-            }
-          ]
-        },
-        "kind": "class",
-        "def": {
-          "isAbstract": false,
-          "constructors": [],
-          "properties": [],
-          "indexSignatures": [],
-          "methods": [],
-          "extends": null,
-          "implements": [],
-          "typeParams": [],
-          "superTypeParams": []
-        }
-      }
-    ]
-  },
-  {
-    "name": "B",
-    "declarations": [
-      {
-        "location": {
-          "filename": "file:///mod.ts",
-          "line": 19,
-          "col": 0,
-          "byteIndex": 221
-        },
-        "declarationKind": "export",
-        "jsDoc": {
-          "doc": "B is an interface\n",
-          "tags": [
-            {
-              "kind": "example",
-              "doc": "```ts\nconsole.log(bar);\n```"
-            }
-          ]
-        },
-        "kind": "interface",
-        "def": {
-          "extends": [],
-          "constructors": [],
-          "methods": [],
-          "properties": [],
-          "callSignatures": [],
-          "indexSignatures": [],
-          "typeParams": []
-        }
-      }
-    ]
-  },
-  {
-    "name": "C",
-    "declarations": [
-      {
-        "location": {
-          "filename": "file:///mod.ts",
-          "line": 31,
-          "col": 0,
-          "byteIndex": 367
-        },
-        "declarationKind": "export",
-        "jsDoc": {
-          "doc": "C is a function\n",
-          "tags": [
-            {
-              "kind": "example",
-              "doc": "```ts\nclass Bar {\n  #foo = \"something\";\n}\nconsole.log(bar);\n```"
-            }
-          ]
-        },
-        "kind": "function",
-        "def": {
-          "params": [],
-          "returnType": {
-            "repr": "void",
-            "kind": "keyword",
-            "value": "void"
+{
+  "symbols": [
+    {
+      "name": "A",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 9,
+            "col": 0,
+            "byteIndex": 98
           },
-          "hasBody": true,
-          "isAsync": false,
-          "isGenerator": false,
-          "typeParams": []
+          "declarationKind": "export",
+          "jsDoc": {
+            "doc": "A is a class\n",
+            "tags": [
+              {
+                "kind": "example",
+                "doc": "```ts\nconst bar = \"foo\";\nconsole.log(bar);\n```"
+              }
+            ]
+          },
+          "kind": "class",
+          "def": {
+            "isAbstract": false,
+            "constructors": [],
+            "properties": [],
+            "indexSignatures": [],
+            "methods": [],
+            "extends": null,
+            "implements": [],
+            "typeParams": [],
+            "superTypeParams": []
+          }
         }
-      }
-    ]
-  },
-  {
-    "name": "D",
-    "declarations": [
-      {
-        "location": {
-          "filename": "file:///mod.ts",
-          "line": 40,
-          "col": 0,
-          "byteIndex": 476
-        },
-        "declarationKind": "export",
-        "jsDoc": {
-          "doc": "D\n",
-          "tags": [
-            {
-              "kind": "example",
-              "doc": "```ts\nconst bar = \"foo\";\n```"
-            }
-          ]
-        },
-        "kind": "interface",
-        "def": {
-          "extends": [],
-          "constructors": [],
-          "methods": [],
-          "properties": [],
-          "callSignatures": [],
-          "indexSignatures": [],
-          "typeParams": []
+      ]
+    },
+    {
+      "name": "B",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 19,
+            "col": 0,
+            "byteIndex": 221
+          },
+          "declarationKind": "export",
+          "jsDoc": {
+            "doc": "B is an interface\n",
+            "tags": [
+              {
+                "kind": "example",
+                "doc": "```ts\nconsole.log(bar);\n```"
+              }
+            ]
+          },
+          "kind": "interface",
+          "def": {
+            "extends": [],
+            "constructors": [],
+            "methods": [],
+            "properties": [],
+            "callSignatures": [],
+            "indexSignatures": [],
+            "typeParams": []
+          }
         }
-      }
-    ]
-  }
-]
+      ]
+    },
+    {
+      "name": "C",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 31,
+            "col": 0,
+            "byteIndex": 367
+          },
+          "declarationKind": "export",
+          "jsDoc": {
+            "doc": "C is a function\n",
+            "tags": [
+              {
+                "kind": "example",
+                "doc": "```ts\nclass Bar {\n  #foo = \"something\";\n}\nconsole.log(bar);\n```"
+              }
+            ]
+          },
+          "kind": "function",
+          "def": {
+            "params": [],
+            "returnType": {
+              "repr": "void",
+              "kind": "keyword",
+              "value": "void"
+            },
+            "hasBody": true,
+            "isAsync": false,
+            "isGenerator": false,
+            "typeParams": []
+          }
+        }
+      ]
+    },
+    {
+      "name": "D",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 40,
+            "col": 0,
+            "byteIndex": 476
+          },
+          "declarationKind": "export",
+          "jsDoc": {
+            "doc": "D\n",
+            "tags": [
+              {
+                "kind": "example",
+                "doc": "```ts\nconst bar = \"foo\";\n```"
+              }
+            ]
+          },
+          "kind": "interface",
+          "def": {
+            "extends": [],
+            "constructors": [],
+            "methods": [],
+            "properties": [],
+            "callSignatures": [],
+            "indexSignatures": [],
+            "typeParams": []
+          }
+        }
+      ]
+    }
+  ]
+}

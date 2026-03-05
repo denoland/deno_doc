@@ -35,80 +35,82 @@ class C extends B
 
 
 # output.json
-[
-  {
-    "name": "C",
-    "declarations": [
-      {
-        "location": {
-          "filename": "file:///mod.ts",
-          "line": 0,
-          "col": 0,
-          "byteIndex": 0
-        },
-        "declarationKind": "export",
-        "kind": "class",
-        "def": {
-          "isAbstract": false,
-          "constructors": [],
-          "properties": [
-            {
-              "tsType": {
-                "repr": "string",
-                "kind": "keyword",
-                "value": "string"
-              },
-              "readonly": false,
-              "accessibility": null,
-              "optional": false,
-              "isAbstract": false,
-              "isStatic": false,
-              "isOverride": true,
-              "name": "b",
-              "location": {
-                "filename": "file:///mod.ts",
-                "line": 2,
-                "col": 2,
-                "byteIndex": 53
-              }
-            }
-          ],
-          "indexSignatures": [],
-          "methods": [
-            {
-              "accessibility": null,
-              "optional": false,
-              "isAbstract": false,
-              "isStatic": false,
-              "isOverride": true,
-              "name": "a",
-              "kind": "method",
-              "functionDef": {
-                "params": [],
-                "returnType": {
-                  "repr": "void",
+{
+  "symbols": [
+    {
+      "name": "C",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 0,
+            "col": 0,
+            "byteIndex": 0
+          },
+          "declarationKind": "export",
+          "kind": "class",
+          "def": {
+            "isAbstract": false,
+            "constructors": [],
+            "properties": [
+              {
+                "tsType": {
+                  "repr": "string",
                   "kind": "keyword",
-                  "value": "void"
+                  "value": "string"
                 },
-                "hasBody": true,
-                "isAsync": false,
-                "isGenerator": false,
-                "typeParams": []
-              },
-              "location": {
-                "filename": "file:///mod.ts",
-                "line": 1,
-                "col": 2,
-                "byteIndex": 29
+                "readonly": false,
+                "accessibility": null,
+                "optional": false,
+                "isAbstract": false,
+                "isStatic": false,
+                "isOverride": true,
+                "name": "b",
+                "location": {
+                  "filename": "file:///mod.ts",
+                  "line": 2,
+                  "col": 2,
+                  "byteIndex": 53
+                }
               }
-            }
-          ],
-          "extends": "B",
-          "implements": [],
-          "typeParams": [],
-          "superTypeParams": []
+            ],
+            "indexSignatures": [],
+            "methods": [
+              {
+                "accessibility": null,
+                "optional": false,
+                "isAbstract": false,
+                "isStatic": false,
+                "isOverride": true,
+                "name": "a",
+                "kind": "method",
+                "functionDef": {
+                  "params": [],
+                  "returnType": {
+                    "repr": "void",
+                    "kind": "keyword",
+                    "value": "void"
+                  },
+                  "hasBody": true,
+                  "isAsync": false,
+                  "isGenerator": false,
+                  "typeParams": []
+                },
+                "location": {
+                  "filename": "file:///mod.ts",
+                  "line": 1,
+                  "col": 2,
+                  "byteIndex": 29
+                }
+              }
+            ],
+            "extends": "B",
+            "implements": [],
+            "typeParams": [],
+            "superTypeParams": []
+          }
         }
-      }
-    ]
-  }
-]
+      ]
+    }
+  ]
+}

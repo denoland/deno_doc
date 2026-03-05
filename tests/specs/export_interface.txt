@@ -63,182 +63,184 @@ interface Reader extends Foo, Bar
 
 
 # output.json
-[
-  {
-    "name": "Reader",
-    "declarations": [
-      {
-        "location": {
-          "filename": "file:///mod.ts",
-          "line": 7,
-          "col": 0,
-          "byteIndex": 64
-        },
-        "declarationKind": "export",
-        "jsDoc": {
-          "doc": "Interface js doc"
-        },
-        "kind": "interface",
-        "def": {
-          "extends": [
-            {
-              "repr": "Foo",
-              "kind": "typeRef",
-              "value": {
-                "typeParams": null,
-                "typeName": "Foo"
-              }
-            },
-            {
-              "repr": "Bar",
-              "kind": "typeRef",
-              "value": {
-                "typeParams": null,
-                "typeName": "Bar"
-              }
-            }
-          ],
-          "constructors": [],
-          "methods": [
-            {
-              "name": "read",
-              "jsDoc": {
-                "doc": "Read n bytes"
-              },
-              "kind": "method",
-              "location": {
-                "filename": "file:///mod.ts",
-                "line": 9,
-                "col": 4,
-                "byteIndex": 135
-              },
-              "params": [
-                {
-                  "kind": "identifier",
-                  "name": "buf",
-                  "optional": false,
-                  "tsType": {
-                    "repr": "Uint8Array",
-                    "kind": "typeRef",
-                    "value": {
-                      "typeParams": null,
-                      "typeName": "Uint8Array"
-                    }
-                  }
-                },
-                {
-                  "kind": "identifier",
-                  "name": "something",
-                  "optional": false,
-                  "tsType": {
-                    "repr": "unknown",
-                    "kind": "keyword",
-                    "value": "unknown"
-                  }
-                }
-              ],
-              "optional": true,
-              "returnType": {
-                "repr": "Promise",
+{
+  "symbols": [
+    {
+      "name": "Reader",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 7,
+            "col": 0,
+            "byteIndex": 64
+          },
+          "declarationKind": "export",
+          "jsDoc": {
+            "doc": "Interface js doc"
+          },
+          "kind": "interface",
+          "def": {
+            "extends": [
+              {
+                "repr": "Foo",
                 "kind": "typeRef",
                 "value": {
-                  "typeParams": [
-                    {
-                      "repr": "number",
-                      "kind": "keyword",
-                      "value": "number"
-                    }
-                  ],
-                  "typeName": "Promise"
+                  "typeParams": null,
+                  "typeName": "Foo"
                 }
               },
-              "typeParams": []
-            }
-          ],
-          "properties": [],
-          "callSignatures": [],
-          "indexSignatures": [
-            {
-              "jsDoc": {
-                "doc": "Test"
-              },
-              "readonly": false,
-              "params": [
-                {
-                  "kind": "identifier",
-                  "name": "key",
-                  "optional": false,
-                  "tsType": {
-                    "repr": "string",
-                    "kind": "keyword",
-                    "value": "string"
-                  }
+              {
+                "repr": "Bar",
+                "kind": "typeRef",
+                "value": {
+                  "typeParams": null,
+                  "typeName": "Bar"
                 }
-              ],
-              "tsType": {
-                "repr": "number",
-                "kind": "keyword",
-                "value": "number"
-              },
-              "location": {
-                "filename": "file:///mod.ts",
-                "line": 11,
-                "col": 4,
-                "byteIndex": 215
               }
-            }
-          ],
-          "typeParams": []
+            ],
+            "constructors": [],
+            "methods": [
+              {
+                "name": "read",
+                "jsDoc": {
+                  "doc": "Read n bytes"
+                },
+                "kind": "method",
+                "location": {
+                  "filename": "file:///mod.ts",
+                  "line": 9,
+                  "col": 4,
+                  "byteIndex": 135
+                },
+                "params": [
+                  {
+                    "kind": "identifier",
+                    "name": "buf",
+                    "optional": false,
+                    "tsType": {
+                      "repr": "Uint8Array",
+                      "kind": "typeRef",
+                      "value": {
+                        "typeParams": null,
+                        "typeName": "Uint8Array"
+                      }
+                    }
+                  },
+                  {
+                    "kind": "identifier",
+                    "name": "something",
+                    "optional": false,
+                    "tsType": {
+                      "repr": "unknown",
+                      "kind": "keyword",
+                      "value": "unknown"
+                    }
+                  }
+                ],
+                "optional": true,
+                "returnType": {
+                  "repr": "Promise",
+                  "kind": "typeRef",
+                  "value": {
+                    "typeParams": [
+                      {
+                        "repr": "number",
+                        "kind": "keyword",
+                        "value": "number"
+                      }
+                    ],
+                    "typeName": "Promise"
+                  }
+                },
+                "typeParams": []
+              }
+            ],
+            "properties": [],
+            "callSignatures": [],
+            "indexSignatures": [
+              {
+                "jsDoc": {
+                  "doc": "Test"
+                },
+                "readonly": false,
+                "params": [
+                  {
+                    "kind": "identifier",
+                    "name": "key",
+                    "optional": false,
+                    "tsType": {
+                      "repr": "string",
+                      "kind": "keyword",
+                      "value": "string"
+                    }
+                  }
+                ],
+                "tsType": {
+                  "repr": "number",
+                  "kind": "keyword",
+                  "value": "number"
+                },
+                "location": {
+                  "filename": "file:///mod.ts",
+                  "line": 11,
+                  "col": 4,
+                  "byteIndex": 215
+                }
+              }
+            ],
+            "typeParams": []
+          }
         }
-      }
-    ]
-  },
-  {
-    "name": "Foo",
-    "declarations": [
-      {
-        "location": {
-          "filename": "file:///mod.ts",
-          "line": 0,
-          "col": 0,
-          "byteIndex": 0
-        },
-        "declarationKind": "private",
-        "kind": "interface",
-        "def": {
-          "extends": [],
-          "constructors": [],
-          "methods": [],
-          "properties": [],
-          "callSignatures": [],
-          "indexSignatures": [],
-          "typeParams": []
+      ]
+    },
+    {
+      "name": "Foo",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 0,
+            "col": 0,
+            "byteIndex": 0
+          },
+          "declarationKind": "private",
+          "kind": "interface",
+          "def": {
+            "extends": [],
+            "constructors": [],
+            "methods": [],
+            "properties": [],
+            "callSignatures": [],
+            "indexSignatures": [],
+            "typeParams": []
+          }
         }
-      }
-    ]
-  },
-  {
-    "name": "Bar",
-    "declarations": [
-      {
-        "location": {
-          "filename": "file:///mod.ts",
-          "line": 2,
-          "col": 0,
-          "byteIndex": 18
-        },
-        "declarationKind": "private",
-        "kind": "interface",
-        "def": {
-          "extends": [],
-          "constructors": [],
-          "methods": [],
-          "properties": [],
-          "callSignatures": [],
-          "indexSignatures": [],
-          "typeParams": []
+      ]
+    },
+    {
+      "name": "Bar",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 2,
+            "col": 0,
+            "byteIndex": 18
+          },
+          "declarationKind": "private",
+          "kind": "interface",
+          "def": {
+            "extends": [],
+            "constructors": [],
+            "methods": [],
+            "properties": [],
+            "callSignatures": [],
+            "indexSignatures": [],
+            "typeParams": []
+          }
         }
-      }
-    ]
-  }
-]
+      ]
+    }
+  ]
+}

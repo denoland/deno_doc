@@ -23,65 +23,67 @@ class A
 
 
 # output.json
-[
-  {
-    "name": "A",
-    "declarations": [
-      {
-        "location": {
-          "filename": "file:///mod.ts",
-          "line": 2,
-          "col": 0,
-          "byteIndex": 21
-        },
-        "declarationKind": "export",
-        "jsDoc": {
-          "doc": "jsdoc"
-        },
-        "kind": "class",
-        "def": {
-          "isAbstract": false,
-          "constructors": [],
-          "properties": [
-            {
-              "tsType": {
-                "repr": "string",
-                "kind": "keyword",
-                "value": "string"
-              },
-              "readonly": false,
-              "accessibility": null,
-              "optional": false,
-              "isAbstract": false,
-              "isStatic": false,
-              "name": "a",
-              "location": {
-                "filename": "file:///mod.ts",
-                "line": 3,
-                "col": 2,
-                "byteIndex": 40
+{
+  "symbols": [
+    {
+      "name": "A",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 2,
+            "col": 0,
+            "byteIndex": 21
+          },
+          "declarationKind": "export",
+          "jsDoc": {
+            "doc": "jsdoc"
+          },
+          "kind": "class",
+          "def": {
+            "isAbstract": false,
+            "constructors": [],
+            "properties": [
+              {
+                "tsType": {
+                  "repr": "string",
+                  "kind": "keyword",
+                  "value": "string"
+                },
+                "readonly": false,
+                "accessibility": null,
+                "optional": false,
+                "isAbstract": false,
+                "isStatic": false,
+                "name": "a",
+                "location": {
+                  "filename": "file:///mod.ts",
+                  "line": 3,
+                  "col": 2,
+                  "byteIndex": 40
+                }
               }
-            }
-          ],
-          "indexSignatures": [],
-          "methods": [],
-          "extends": null,
-          "implements": [],
-          "typeParams": [],
-          "superTypeParams": [],
-          "decorators": [
-            {
-              "name": "sealed",
-              "location": {
-                "filename": "file:///mod.ts",
-                "line": 1,
-                "col": 1,
-                "byteIndex": 14
+            ],
+            "indexSignatures": [],
+            "methods": [],
+            "extends": null,
+            "implements": [],
+            "typeParams": [],
+            "superTypeParams": [],
+            "decorators": [
+              {
+                "name": "sealed",
+                "location": {
+                  "filename": "file:///mod.ts",
+                  "line": 1,
+                  "col": 1,
+                  "byteIndex": 14
+                }
               }
-            }
-          ]
+            ]
+          }
         }
-      }
-    ]
-  }
-]
+      ]
+    }
+  ]
+}

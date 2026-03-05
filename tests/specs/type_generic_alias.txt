@@ -15,35 +15,37 @@ type A<T> = T
 
 
 # output.json
-[
-  {
-    "name": "A",
-    "declarations": [
-      {
-        "location": {
-          "filename": "file:///mod.ts",
-          "line": 0,
-          "col": 0,
-          "byteIndex": 0
-        },
-        "declarationKind": "export",
-        "kind": "typeAlias",
-        "def": {
-          "tsType": {
-            "repr": "T",
-            "kind": "typeRef",
-            "value": {
-              "typeParams": null,
-              "typeName": "T"
-            }
+{
+  "symbols": [
+    {
+      "name": "A",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 0,
+            "col": 0,
+            "byteIndex": 0
           },
-          "typeParams": [
-            {
-              "name": "T"
-            }
-          ]
+          "declarationKind": "export",
+          "kind": "typeAlias",
+          "def": {
+            "tsType": {
+              "repr": "T",
+              "kind": "typeRef",
+              "value": {
+                "typeParams": null,
+                "typeName": "T"
+              }
+            },
+            "typeParams": [
+              {
+                "name": "T"
+              }
+            ]
+          }
         }
-      }
-    ]
-  }
-]
+      ]
+    }
+  ]
+}

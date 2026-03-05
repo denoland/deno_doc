@@ -88,7 +88,10 @@ expression: files.get(file_name).unwrap()
 </nav>
 <div id="searchResults"></div><div id="content">
     <main><section>
-  <div class="space-y-2 flex-1"><div class="space-y-7" id="module_doc"></div>
+  <div class="space-y-2 flex-1"><div class="deprecated">
+    <div><span>Deprecated</span></div><div><div class="markdown"></div> </div></div><div class="space-y-7" id="module_doc"><div class="markdown"><p>Some docs
+with a line break</p>
+</div></div>
 </div>
 </section>
 </main><div class="toc">

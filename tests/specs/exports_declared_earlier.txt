@@ -40,96 +40,98 @@ const hello: "world"
 
 
 # output.json
-[
-  {
-    "name": "hello",
-    "declarations": [
-      {
-        "location": {
-          "filename": "file:///mod.ts",
-          "line": 0,
-          "col": 6,
-          "byteIndex": 6
-        },
-        "declarationKind": "export",
-        "kind": "variable",
-        "def": {
-          "tsType": {
-            "repr": "world",
-            "kind": "literal",
-            "value": {
-              "kind": "string",
-              "string": "world"
-            }
+{
+  "symbols": [
+    {
+      "name": "hello",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 0,
+            "col": 6,
+            "byteIndex": 6
           },
-          "kind": "const"
-        }
-      }
-    ]
-  },
-  {
-    "name": "say",
-    "declarations": [
-      {
-        "location": {
-          "filename": "file:///mod.ts",
-          "line": 1,
-          "col": 0,
-          "byteIndex": 23
-        },
-        "declarationKind": "export",
-        "kind": "function",
-        "def": {
-          "params": [
-            {
-              "kind": "identifier",
-              "name": "words",
-              "optional": false,
-              "tsType": {
-                "repr": "string",
-                "kind": "keyword",
-                "value": "string"
+          "declarationKind": "export",
+          "kind": "variable",
+          "def": {
+            "tsType": {
+              "repr": "world",
+              "kind": "literal",
+              "value": {
+                "kind": "string",
+                "string": "world"
               }
-            }
-          ],
-          "returnType": {
-            "repr": "void",
-            "kind": "keyword",
-            "value": "void"
-          },
-          "hasBody": true,
-          "isAsync": false,
-          "isGenerator": false,
-          "typeParams": []
+            },
+            "kind": "const"
+          }
         }
-      }
-    ]
-  },
-  {
-    "name": "bar",
-    "declarations": [
-      {
-        "location": {
-          "filename": "file:///mod.ts",
-          "line": 2,
-          "col": 0,
-          "byteIndex": 61
-        },
-        "declarationKind": "export",
-        "kind": "function",
-        "def": {
-          "params": [],
-          "returnType": {
-            "repr": "void",
-            "kind": "keyword",
-            "value": "void"
+      ]
+    },
+    {
+      "name": "say",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 1,
+            "col": 0,
+            "byteIndex": 23
           },
-          "hasBody": true,
-          "isAsync": false,
-          "isGenerator": false,
-          "typeParams": []
+          "declarationKind": "export",
+          "kind": "function",
+          "def": {
+            "params": [
+              {
+                "kind": "identifier",
+                "name": "words",
+                "optional": false,
+                "tsType": {
+                  "repr": "string",
+                  "kind": "keyword",
+                  "value": "string"
+                }
+              }
+            ],
+            "returnType": {
+              "repr": "void",
+              "kind": "keyword",
+              "value": "void"
+            },
+            "hasBody": true,
+            "isAsync": false,
+            "isGenerator": false,
+            "typeParams": []
+          }
         }
-      }
-    ]
-  }
-]
+      ]
+    },
+    {
+      "name": "bar",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 2,
+            "col": 0,
+            "byteIndex": 61
+          },
+          "declarationKind": "export",
+          "kind": "function",
+          "def": {
+            "params": [],
+            "returnType": {
+              "repr": "void",
+              "kind": "keyword",
+              "value": "void"
+            },
+            "hasBody": true,
+            "isAsync": false,
+            "isGenerator": false,
+            "typeParams": []
+          }
+        }
+      ]
+    }
+  ]
+}

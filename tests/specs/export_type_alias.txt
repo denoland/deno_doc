@@ -9,40 +9,42 @@ type NumberArray = Array<number>
 
 
 # output.json
-[
-  {
-    "name": "NumberArray",
-    "declarations": [
-      {
-        "location": {
-          "filename": "file:///mod.ts",
-          "line": 1,
-          "col": 0,
-          "byteIndex": 29
-        },
-        "declarationKind": "export",
-        "jsDoc": {
-          "doc": "Array holding numbers"
-        },
-        "kind": "typeAlias",
-        "def": {
-          "tsType": {
-            "repr": "Array",
-            "kind": "typeRef",
-            "value": {
-              "typeParams": [
-                {
-                  "repr": "number",
-                  "kind": "keyword",
-                  "value": "number"
-                }
-              ],
-              "typeName": "Array"
-            }
+{
+  "symbols": [
+    {
+      "name": "NumberArray",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 1,
+            "col": 0,
+            "byteIndex": 29
           },
-          "typeParams": []
+          "declarationKind": "export",
+          "jsDoc": {
+            "doc": "Array holding numbers"
+          },
+          "kind": "typeAlias",
+          "def": {
+            "tsType": {
+              "repr": "Array",
+              "kind": "typeRef",
+              "value": {
+                "typeParams": [
+                  {
+                    "repr": "number",
+                    "kind": "keyword",
+                    "value": "number"
+                  }
+                ],
+                "typeName": "Array"
+              }
+            },
+            "typeParams": []
+          }
         }
-      }
-    ]
-  }
-]
+      ]
+    }
+  ]
+}
