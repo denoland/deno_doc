@@ -15,60 +15,62 @@ function adopt<T>(p: import("./module.ts").Pet<T>): void
 
 
 # output.json
-[
-  {
-    "name": "adopt",
-    "declarations": [
-      {
-        "location": {
-          "filename": "file:///mod.ts",
-          "line": 0,
-          "col": 0,
-          "byteIndex": 0
-        },
-        "declarationKind": "export",
-        "kind": "function",
-        "def": {
-          "params": [
-            {
-              "kind": "identifier",
-              "name": "p",
-              "optional": false,
-              "tsType": {
-                "repr": "",
-                "kind": "importType",
-                "value": {
-                  "specifier": "./module.ts",
-                  "qualifier": "Pet",
-                  "typeParams": [
-                    {
-                      "repr": "T",
-                      "kind": "typeRef",
-                      "value": {
-                        "typeParams": null,
-                        "typeName": "T"
+{
+  "symbols": [
+    {
+      "name": "adopt",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 0,
+            "col": 0,
+            "byteIndex": 0
+          },
+          "declarationKind": "export",
+          "kind": "function",
+          "def": {
+            "params": [
+              {
+                "kind": "identifier",
+                "name": "p",
+                "optional": false,
+                "tsType": {
+                  "repr": "",
+                  "kind": "importType",
+                  "value": {
+                    "specifier": "./module.ts",
+                    "qualifier": "Pet",
+                    "typeParams": [
+                      {
+                        "repr": "T",
+                        "kind": "typeRef",
+                        "value": {
+                          "typeParams": null,
+                          "typeName": "T"
+                        }
                       }
-                    }
-                  ]
+                    ]
+                  }
                 }
               }
-            }
-          ],
-          "returnType": {
-            "repr": "void",
-            "kind": "keyword",
-            "value": "void"
-          },
-          "hasBody": true,
-          "isAsync": false,
-          "isGenerator": false,
-          "typeParams": [
-            {
-              "name": "T"
-            }
-          ]
+            ],
+            "returnType": {
+              "repr": "void",
+              "kind": "keyword",
+              "value": "void"
+            },
+            "hasBody": true,
+            "isAsync": false,
+            "isGenerator": false,
+            "typeParams": [
+              {
+                "name": "T"
+              }
+            ]
+          }
         }
-      }
-    ]
-  }
-]
+      ]
+    }
+  ]
+}

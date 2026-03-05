@@ -47,79 +47,81 @@ namespace RootNs
 
 
 # output.json
-[
-  {
-    "name": "RootNs",
-    "declarations": [
-      {
-        "location": {
-          "filename": "file:///mod.ts",
-          "line": 0,
-          "col": 0,
-          "byteIndex": 0
-        },
-        "declarationKind": "export",
-        "kind": "namespace",
-        "def": {
-          "elements": [
-            {
-              "name": "NestedNs",
-              "declarations": [
-                {
-                  "location": {
-                    "filename": "file:///mod.ts",
-                    "line": 1,
-                    "col": 2,
-                    "byteIndex": 28
-                  },
-                  "declarationKind": "export",
-                  "kind": "namespace",
-                  "def": {
-                    "elements": [
-                      {
-                        "name": "Foo",
-                        "declarations": [
-                          {
-                            "location": {
-                              "filename": "file:///mod.ts",
-                              "line": 2,
-                              "col": 4,
-                              "byteIndex": 60
-                            },
-                            "declarationKind": "export",
-                            "kind": "enum",
-                            "def": {
-                              "members": []
+{
+  "symbols": [
+    {
+      "name": "RootNs",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 0,
+            "col": 0,
+            "byteIndex": 0
+          },
+          "declarationKind": "export",
+          "kind": "namespace",
+          "def": {
+            "elements": [
+              {
+                "name": "NestedNs",
+                "declarations": [
+                  {
+                    "location": {
+                      "filename": "file:///mod.ts",
+                      "line": 1,
+                      "col": 2,
+                      "byteIndex": 28
+                    },
+                    "declarationKind": "export",
+                    "kind": "namespace",
+                    "def": {
+                      "elements": [
+                        {
+                          "name": "Foo",
+                          "declarations": [
+                            {
+                              "location": {
+                                "filename": "file:///mod.ts",
+                                "line": 2,
+                                "col": 4,
+                                "byteIndex": 60
+                              },
+                              "declarationKind": "export",
+                              "kind": "enum",
+                              "def": {
+                                "members": []
+                              }
                             }
-                          }
-                        ]
-                      }
-                    ]
+                          ]
+                        }
+                      ]
+                    }
                   }
-                }
-              ]
-            },
-            {
-              "name": "Foo",
-              "declarations": [
-                {
-                  "location": {
-                    "filename": "file:///mod.ts",
-                    "line": 6,
-                    "col": 2,
-                    "byteIndex": 91
-                  },
-                  "declarationKind": "export",
-                  "kind": "enum",
-                  "def": {
-                    "members": []
+                ]
+              },
+              {
+                "name": "Foo",
+                "declarations": [
+                  {
+                    "location": {
+                      "filename": "file:///mod.ts",
+                      "line": 6,
+                      "col": 2,
+                      "byteIndex": 91
+                    },
+                    "declarationKind": "export",
+                    "kind": "enum",
+                    "def": {
+                      "members": []
+                    }
                   }
-                }
-              ]
-            }
-          ]
+                ]
+              }
+            ]
+          }
         }
-      }
-    ]
-  }
-]
+      ]
+    }
+  ]
+}

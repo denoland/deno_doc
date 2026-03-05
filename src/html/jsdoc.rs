@@ -1,6 +1,5 @@
 use super::render_context::RenderContext;
 use super::util::*;
-use crate::DeclarationDef;
 use crate::html::ShortPath;
 use crate::js_doc::JsDoc;
 use crate::js_doc::JsDocTag;
@@ -802,34 +801,30 @@ impl ModuleDocCtx {
 
     let mut sections = Vec::with_capacity(7);
 
-    let (deprecated, html) = if let Some(decl) =
-      module_doc_nodes.iter().find_map(|n| {
-        n.declarations
-          .iter()
-          .find(|decl| matches!(decl.def, DeclarationDef::ModuleDoc))
-      }) {
-      let deprecated = decl.js_doc.tags.iter().find_map(|tag| {
-        if let JsDocTag::Deprecated { doc } = tag {
-          Some(render_markdown(
-            render_ctx,
-            doc.as_deref().unwrap_or_default(),
-            false,
-          ))
-        } else {
-          None
+    let (deprecated, html) =
+      if let Some(js_doc) = render_ctx.ctx.module_docs.get(short_path) {
+        let deprecated = js_doc.tags.iter().find_map(|tag| {
+          if let JsDocTag::Deprecated { doc } = tag {
+            Some(render_markdown(
+              render_ctx,
+              doc.as_deref().unwrap_or_default(),
+              false,
+            ))
+          } else {
+            None
+          }
+        });
+
+        if let Some(examples) = jsdoc_examples(render_ctx, js_doc) {
+          sections.push(examples);
         }
-      });
 
-      if let Some(examples) = jsdoc_examples(render_ctx, &decl.js_doc) {
-        sections.push(examples);
-      }
+        let html = jsdoc_body_to_html(render_ctx, js_doc, summary);
 
-      let html = jsdoc_body_to_html(render_ctx, &decl.js_doc, summary);
-
-      (deprecated, html)
-    } else {
-      (None, None)
-    };
+        (deprecated, html)
+      } else {
+        (None, None)
+      };
 
     if render_symbols {
       let partitions_by_kind = super::partition::partition_nodes_by_kind(
@@ -896,6 +891,7 @@ mod test {
   use crate::interface::InterfaceDef;
   use crate::js_doc::JsDoc;
   use crate::node::DeclarationKind;
+  use crate::node::Document;
 
   struct EmptyResolver;
 
@@ -984,62 +980,68 @@ mod test {
       IndexMap::from([
         (
           ModuleSpecifier::parse("file:///a.ts").unwrap(),
-          vec![
-            Symbol::interface(
-              "foo".into(),
-              false,
-              Location::default(),
-              DeclarationKind::Export,
-              JsDoc::default(),
-              InterfaceDef {
-                def_name: None,
-                extends: vec![],
-                constructors: vec![],
-                methods: vec![],
-                properties: vec![],
-                call_signatures: vec![],
-                index_signatures: vec![],
-                type_params: Box::new([]),
-              },
-            ),
-            Symbol::interface(
-              "bar".into(),
-              false,
-              Location::default(),
-              DeclarationKind::Export,
-              JsDoc::default(),
-              InterfaceDef {
-                def_name: None,
-                extends: vec![],
-                constructors: vec![],
-                methods: vec![],
-                properties: vec![],
-                call_signatures: vec![],
-                index_signatures: vec![],
-                type_params: Box::new([]),
-              },
-            ),
-          ],
+          Document {
+            module_doc: Default::default(),
+            symbols: vec![
+              Symbol::interface(
+                "foo".into(),
+                false,
+                Location::default(),
+                DeclarationKind::Export,
+                JsDoc::default(),
+                InterfaceDef {
+                  def_name: None,
+                  extends: vec![],
+                  constructors: vec![],
+                  methods: vec![],
+                  properties: vec![],
+                  call_signatures: vec![],
+                  index_signatures: vec![],
+                  type_params: Box::new([]),
+                },
+              ),
+              Symbol::interface(
+                "bar".into(),
+                false,
+                Location::default(),
+                DeclarationKind::Export,
+                JsDoc::default(),
+                InterfaceDef {
+                  def_name: None,
+                  extends: vec![],
+                  constructors: vec![],
+                  methods: vec![],
+                  properties: vec![],
+                  call_signatures: vec![],
+                  index_signatures: vec![],
+                  type_params: Box::new([]),
+                },
+              ),
+            ],
+          },
         ),
         (
           ModuleSpecifier::parse("file:///b.ts").unwrap(),
-          vec![Symbol::interface(
-            "baz".into(),
-            false,
-            Location::default(),
-            DeclarationKind::Export,
-            JsDoc::default(),
-            InterfaceDef {
-              def_name: None,
-              extends: vec![],
-              constructors: vec![],
-              methods: vec![],
-              properties: vec![],
-              call_signatures: vec![],
-              index_signatures: vec![],
-              type_params: Box::new([]),
-            },
-          )],
+          Document {
+            module_doc: Default::default(),
+            symbols: vec![Symbol::interface(
+              "baz".into(),
+              false,
+              Location::default(),
+              DeclarationKind::Export,
+              JsDoc::default(),
+              InterfaceDef {
+                def_name: None,
+                extends: vec![],
+                constructors: vec![],
+                methods: vec![],
+                properties: vec![],
+                call_signatures: vec![],
+                index_signatures: vec![],
+                type_params: Box::new([]),
+              },
+            )],
+          },
         ),
       ]),
       None,

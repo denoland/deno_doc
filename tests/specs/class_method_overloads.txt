@@ -36,163 +36,165 @@ class A
 
 
 # output.json
-[
-  {
-    "name": "A",
-    "declarations": [
-      {
-        "location": {
-          "filename": "file:///mod.ts",
-          "line": 0,
-          "col": 0,
-          "byteIndex": 0
-        },
-        "declarationKind": "export",
-        "kind": "class",
-        "def": {
-          "isAbstract": false,
-          "constructors": [],
-          "properties": [],
-          "indexSignatures": [],
-          "methods": [
-            {
-              "accessibility": null,
-              "optional": false,
-              "isAbstract": false,
-              "isStatic": false,
-              "name": "a",
-              "kind": "method",
-              "functionDef": {
-                "params": [
-                  {
-                    "kind": "identifier",
-                    "name": "b",
-                    "optional": false,
-                    "tsType": {
-                      "repr": "string",
-                      "kind": "keyword",
-                      "value": "string"
-                    }
-                  }
-                ],
-                "returnType": {
-                  "repr": "string",
-                  "kind": "keyword",
-                  "value": "string"
-                },
-                "isAsync": false,
-                "isGenerator": false,
-                "typeParams": []
-              },
-              "location": {
-                "filename": "file:///mod.ts",
-                "line": 1,
-                "col": 6,
-                "byteIndex": 23
-              }
-            },
-            {
-              "accessibility": null,
-              "optional": false,
-              "isAbstract": false,
-              "isStatic": false,
-              "name": "a",
-              "kind": "method",
-              "functionDef": {
-                "params": [
-                  {
-                    "kind": "identifier",
-                    "name": "b",
-                    "optional": false,
-                    "tsType": {
-                      "repr": "number",
-                      "kind": "keyword",
-                      "value": "number"
-                    }
-                  }
-                ],
-                "returnType": {
-                  "repr": "number",
-                  "kind": "keyword",
-                  "value": "number"
-                },
-                "isAsync": false,
-                "isGenerator": false,
-                "typeParams": []
-              },
-              "location": {
-                "filename": "file:///mod.ts",
-                "line": 2,
-                "col": 6,
-                "byteIndex": 51
-              }
-            },
-            {
-              "accessibility": null,
-              "optional": false,
-              "isAbstract": false,
-              "isStatic": false,
-              "name": "a",
-              "kind": "method",
-              "functionDef": {
-                "params": [
-                  {
-                    "kind": "identifier",
-                    "name": "b",
-                    "optional": false,
-                    "tsType": {
-                      "repr": "",
-                      "kind": "union",
-                      "value": [
-                        {
-                          "repr": "string",
-                          "kind": "keyword",
-                          "value": "string"
-                        },
-                        {
-                          "repr": "number",
-                          "kind": "keyword",
-                          "value": "number"
-                        }
-                      ]
-                    }
-                  }
-                ],
-                "returnType": {
-                  "repr": "",
-                  "kind": "union",
-                  "value": [
+{
+  "symbols": [
+    {
+      "name": "A",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 0,
+            "col": 0,
+            "byteIndex": 0
+          },
+          "declarationKind": "export",
+          "kind": "class",
+          "def": {
+            "isAbstract": false,
+            "constructors": [],
+            "properties": [],
+            "indexSignatures": [],
+            "methods": [
+              {
+                "accessibility": null,
+                "optional": false,
+                "isAbstract": false,
+                "isStatic": false,
+                "name": "a",
+                "kind": "method",
+                "functionDef": {
+                  "params": [
                     {
-                      "repr": "string",
-                      "kind": "keyword",
-                      "value": "string"
-                    },
-                    {
-                      "repr": "number",
-                      "kind": "keyword",
-                      "value": "number"
+                      "kind": "identifier",
+                      "name": "b",
+                      "optional": false,
+                      "tsType": {
+                        "repr": "string",
+                        "kind": "keyword",
+                        "value": "string"
+                      }
                     }
-                  ]
+                  ],
+                  "returnType": {
+                    "repr": "string",
+                    "kind": "keyword",
+                    "value": "string"
+                  },
+                  "isAsync": false,
+                  "isGenerator": false,
+                  "typeParams": []
                 },
-                "hasBody": true,
-                "isAsync": false,
-                "isGenerator": false,
-                "typeParams": []
+                "location": {
+                  "filename": "file:///mod.ts",
+                  "line": 1,
+                  "col": 6,
+                  "byteIndex": 23
+                }
               },
-              "location": {
-                "filename": "file:///mod.ts",
-                "line": 3,
-                "col": 6,
-                "byteIndex": 79
+              {
+                "accessibility": null,
+                "optional": false,
+                "isAbstract": false,
+                "isStatic": false,
+                "name": "a",
+                "kind": "method",
+                "functionDef": {
+                  "params": [
+                    {
+                      "kind": "identifier",
+                      "name": "b",
+                      "optional": false,
+                      "tsType": {
+                        "repr": "number",
+                        "kind": "keyword",
+                        "value": "number"
+                      }
+                    }
+                  ],
+                  "returnType": {
+                    "repr": "number",
+                    "kind": "keyword",
+                    "value": "number"
+                  },
+                  "isAsync": false,
+                  "isGenerator": false,
+                  "typeParams": []
+                },
+                "location": {
+                  "filename": "file:///mod.ts",
+                  "line": 2,
+                  "col": 6,
+                  "byteIndex": 51
+                }
+              },
+              {
+                "accessibility": null,
+                "optional": false,
+                "isAbstract": false,
+                "isStatic": false,
+                "name": "a",
+                "kind": "method",
+                "functionDef": {
+                  "params": [
+                    {
+                      "kind": "identifier",
+                      "name": "b",
+                      "optional": false,
+                      "tsType": {
+                        "repr": "",
+                        "kind": "union",
+                        "value": [
+                          {
+                            "repr": "string",
+                            "kind": "keyword",
+                            "value": "string"
+                          },
+                          {
+                            "repr": "number",
+                            "kind": "keyword",
+                            "value": "number"
+                          }
+                        ]
+                      }
+                    }
+                  ],
+                  "returnType": {
+                    "repr": "",
+                    "kind": "union",
+                    "value": [
+                      {
+                        "repr": "string",
+                        "kind": "keyword",
+                        "value": "string"
+                      },
+                      {
+                        "repr": "number",
+                        "kind": "keyword",
+                        "value": "number"
+                      }
+                    ]
+                  },
+                  "hasBody": true,
+                  "isAsync": false,
+                  "isGenerator": false,
+                  "typeParams": []
+                },
+                "location": {
+                  "filename": "file:///mod.ts",
+                  "line": 3,
+                  "col": 6,
+                  "byteIndex": 79
+                }
               }
-            }
-          ],
-          "extends": null,
-          "implements": [],
-          "typeParams": [],
-          "superTypeParams": []
+            ],
+            "extends": null,
+            "implements": [],
+            "typeParams": [],
+            "superTypeParams": []
+          }
         }
-      }
-    ]
-  }
-]
+      ]
+    }
+  ]
+}

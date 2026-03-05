@@ -286,6 +286,7 @@ pub struct GenerateOptions {
 pub struct GenerateCtx {
   pub package_name: Option<String>,
   pub common_ancestor: Option<PathBuf>,
+  pub module_docs: IndexMap<Rc<ShortPath>, crate::js_doc::JsDoc>,
   pub doc_nodes: IndexMap<Rc<ShortPath>, Vec<DocNodeWithContext>>,
   pub href_resolver: Rc<dyn HrefResolver>,
   pub usage_composer: Option<Rc<dyn UsageComposer>>,
@@ -321,10 +322,11 @@ impl GenerateCtx {
     let diff = diff.map(DiffIndex::new);
 
     let mut main_entrypoint = None;
+    let mut module_docs = IndexMap::new();
 
     let mut doc_nodes = doc_nodes_by_url
       .into_iter()
-      .map(|(specifier, nodes)| {
+      .map(|(specifier, document)| {
         let short_path = Rc::new(ShortPath::new(
           specifier,
           options.main_entrypoint.as_ref(),
@@ -336,7 +338,10 @@ impl GenerateCtx {
           main_entrypoint = Some(short_path.clone());
         }
 
-        let nodes = nodes
+        module_docs.insert(short_path.clone(), document.module_doc);
+
+        let nodes = document
+          .symbols
           .into_iter()
           .map(|mut symbol| {
             if &*symbol.name == "default"
@@ -523,6 +528,7 @@ impl GenerateCtx {
     Ok(Self {
       package_name: options.package_name,
       common_ancestor,
+      module_docs,
       doc_nodes,
       href_resolver: options.href_resolver,
       usage_composer: options.usage_composer,

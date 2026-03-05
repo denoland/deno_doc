@@ -51,103 +51,105 @@ const h: number
 
 
 # output.json
-[
-  {
-    "name": "a",
-    "declarations": [
-      {
-        "location": {
-          "filename": "file:///mod.ts",
-          "line": 5,
-          "col": 2,
-          "byteIndex": 123
-        },
-        "declarationKind": "export",
-        "jsDoc": {
-          "doc": "export a doc"
-        },
-        "kind": "variable",
-        "def": {
-          "tsType": {
-            "repr": "string",
-            "kind": "keyword",
-            "value": "string"
+{
+  "symbols": [
+    {
+      "name": "a",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 5,
+            "col": 2,
+            "byteIndex": 123
           },
-          "kind": "const"
-        }
-      }
-    ]
-  },
-  {
-    "name": "b",
-    "declarations": [
-      {
-        "location": {
-          "filename": "file:///mod.ts",
-          "line": 7,
-          "col": 2,
-          "byteIndex": 150
-        },
-        "declarationKind": "export",
-        "jsDoc": {
-          "doc": "export b doc"
-        },
-        "kind": "variable",
-        "def": {
-          "tsType": {
-            "repr": "number",
-            "kind": "keyword",
-            "value": "number"
+          "declarationKind": "export",
+          "jsDoc": {
+            "doc": "export a doc"
           },
-          "kind": "const"
+          "kind": "variable",
+          "def": {
+            "tsType": {
+              "repr": "string",
+              "kind": "keyword",
+              "value": "string"
+            },
+            "kind": "const"
+          }
         }
-      }
-    ]
-  },
-  {
-    "name": "f",
-    "declarations": [
-      {
-        "location": {
-          "filename": "file:///mod.ts",
-          "line": 15,
-          "col": 15,
-          "byteIndex": 250
-        },
-        "declarationKind": "export",
-        "kind": "variable",
-        "def": {
-          "tsType": {
-            "repr": "string",
-            "kind": "keyword",
-            "value": "string"
+      ]
+    },
+    {
+      "name": "b",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 7,
+            "col": 2,
+            "byteIndex": 150
           },
-          "kind": "const"
-        }
-      }
-    ]
-  },
-  {
-    "name": "h",
-    "declarations": [
-      {
-        "location": {
-          "filename": "file:///mod.ts",
-          "line": 15,
-          "col": 21,
-          "byteIndex": 256
-        },
-        "declarationKind": "export",
-        "kind": "variable",
-        "def": {
-          "tsType": {
-            "repr": "number",
-            "kind": "keyword",
-            "value": "number"
+          "declarationKind": "export",
+          "jsDoc": {
+            "doc": "export b doc"
           },
-          "kind": "const"
+          "kind": "variable",
+          "def": {
+            "tsType": {
+              "repr": "number",
+              "kind": "keyword",
+              "value": "number"
+            },
+            "kind": "const"
+          }
         }
-      }
-    ]
-  }
-]
+      ]
+    },
+    {
+      "name": "f",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 15,
+            "col": 15,
+            "byteIndex": 250
+          },
+          "declarationKind": "export",
+          "kind": "variable",
+          "def": {
+            "tsType": {
+              "repr": "string",
+              "kind": "keyword",
+              "value": "string"
+            },
+            "kind": "const"
+          }
+        }
+      ]
+    },
+    {
+      "name": "h",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 15,
+            "col": 21,
+            "byteIndex": 256
+          },
+          "declarationKind": "export",
+          "kind": "variable",
+          "def": {
+            "tsType": {
+              "repr": "number",
+              "kind": "keyword",
+              "value": "number"
+            },
+            "kind": "const"
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -56,154 +56,156 @@ class Class3
 
 
 # output.json
-[
-  {
-    "name": "Class",
-    "declarations": [
-      {
-        "location": {
-          "filename": "file:///mod.ts",
-          "line": 0,
-          "col": 0,
-          "byteIndex": 0
-        },
-        "declarationKind": "export",
-        "kind": "class",
-        "def": {
-          "isAbstract": false,
-          "constructors": [
-            {
-              "accessibility": null,
-              "hasBody": true,
-              "name": "constructor",
-              "params": [
-                {
-                  "accessibility": "public",
-                  "kind": "identifier",
-                  "name": "a",
-                  "optional": false,
-                  "tsType": null
-                },
-                {
-                  "kind": "identifier",
-                  "name": "b",
-                  "optional": false,
-                  "tsType": null,
-                  "readonly": true
-                }
-              ],
-              "location": {
-                "filename": "file:///mod.ts",
-                "line": 1,
-                "col": 2,
-                "byteIndex": 23
-              }
-            }
-          ],
-          "properties": [],
-          "indexSignatures": [],
-          "methods": [],
-          "extends": null,
-          "implements": [],
-          "typeParams": [],
-          "superTypeParams": []
-        }
-      }
-    ]
-  },
-  {
-    "name": "Class2",
-    "declarations": [
-      {
-        "location": {
-          "filename": "file:///mod.ts",
-          "line": 7,
-          "col": 0,
-          "byteIndex": 124
-        },
-        "declarationKind": "export",
-        "jsDoc": {
-          "doc": "doc2"
-        },
-        "kind": "class",
-        "def": {
-          "isAbstract": false,
-          "constructors": [
-            {
-              "accessibility": null,
-              "hasBody": true,
-              "name": "constructor",
-              "params": [],
-              "location": {
-                "filename": "file:///mod.ts",
-                "line": 8,
-                "col": 2,
-                "byteIndex": 148
-              }
-            }
-          ],
-          "properties": [],
-          "indexSignatures": [],
-          "methods": [],
-          "extends": null,
-          "implements": [],
-          "typeParams": [],
-          "superTypeParams": []
-        }
-      }
-    ]
-  },
-  {
-    "name": "Class3",
-    "declarations": [
-      {
-        "location": {
-          "filename": "file:///mod.ts",
-          "line": 14,
-          "col": 0,
-          "byteIndex": 238
-        },
-        "declarationKind": "export",
-        "jsDoc": {
-          "doc": "doc3"
-        },
-        "kind": "class",
-        "def": {
-          "isAbstract": false,
-          "constructors": [
-            {
-              "accessibility": "private",
-              "hasBody": true,
-              "name": "constructor",
-              "params": [
-                {
-                  "kind": "identifier",
-                  "name": "value",
-                  "optional": false,
-                  "tsType": {
-                    "repr": "string",
-                    "kind": "keyword",
-                    "value": "string"
+{
+  "symbols": [
+    {
+      "name": "Class",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 0,
+            "col": 0,
+            "byteIndex": 0
+          },
+          "declarationKind": "export",
+          "kind": "class",
+          "def": {
+            "isAbstract": false,
+            "constructors": [
+              {
+                "accessibility": null,
+                "hasBody": true,
+                "name": "constructor",
+                "params": [
+                  {
+                    "accessibility": "public",
+                    "kind": "identifier",
+                    "name": "a",
+                    "optional": false,
+                    "tsType": null
+                  },
+                  {
+                    "kind": "identifier",
+                    "name": "b",
+                    "optional": false,
+                    "tsType": null,
+                    "readonly": true
                   }
+                ],
+                "location": {
+                  "filename": "file:///mod.ts",
+                  "line": 1,
+                  "col": 2,
+                  "byteIndex": 23
                 }
-              ],
-              "location": {
-                "filename": "file:///mod.ts",
-                "line": 15,
-                "col": 2,
-                "byteIndex": 262
               }
-            }
-          ],
-          "properties": [],
-          "indexSignatures": [],
-          "methods": [],
-          "extends": null,
-          "implements": [],
-          "typeParams": [],
-          "superTypeParams": []
+            ],
+            "properties": [],
+            "indexSignatures": [],
+            "methods": [],
+            "extends": null,
+            "implements": [],
+            "typeParams": [],
+            "superTypeParams": []
+          }
         }
-      }
-    ]
-  }
-]
+      ]
+    },
+    {
+      "name": "Class2",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 7,
+            "col": 0,
+            "byteIndex": 124
+          },
+          "declarationKind": "export",
+          "jsDoc": {
+            "doc": "doc2"
+          },
+          "kind": "class",
+          "def": {
+            "isAbstract": false,
+            "constructors": [
+              {
+                "accessibility": null,
+                "hasBody": true,
+                "name": "constructor",
+                "params": [],
+                "location": {
+                  "filename": "file:///mod.ts",
+                  "line": 8,
+                  "col": 2,
+                  "byteIndex": 148
+                }
+              }
+            ],
+            "properties": [],
+            "indexSignatures": [],
+            "methods": [],
+            "extends": null,
+            "implements": [],
+            "typeParams": [],
+            "superTypeParams": []
+          }
+        }
+      ]
+    },
+    {
+      "name": "Class3",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 14,
+            "col": 0,
+            "byteIndex": 238
+          },
+          "declarationKind": "export",
+          "jsDoc": {
+            "doc": "doc3"
+          },
+          "kind": "class",
+          "def": {
+            "isAbstract": false,
+            "constructors": [
+              {
+                "accessibility": "private",
+                "hasBody": true,
+                "name": "constructor",
+                "params": [
+                  {
+                    "kind": "identifier",
+                    "name": "value",
+                    "optional": false,
+                    "tsType": {
+                      "repr": "string",
+                      "kind": "keyword",
+                      "value": "string"
+                    }
+                  }
+                ],
+                "location": {
+                  "filename": "file:///mod.ts",
+                  "line": 15,
+                  "col": 2,
+                  "byteIndex": 262
+                }
+              }
+            ],
+            "properties": [],
+            "indexSignatures": [],
+            "methods": [],
+            "extends": null,
+            "implements": [],
+            "typeParams": [],
+            "superTypeParams": []
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -76,241 +76,243 @@ namespace f
 
 
 # output.json
-[
-  {
-    "name": "a",
-    "declarations": [
-      {
-        "location": {
-          "filename": "file:///mod.ts",
-          "line": 1,
-          "col": 0,
-          "byteIndex": 20
-        },
-        "declarationKind": "export",
-        "jsDoc": {
-          "doc": "Description."
-        },
-        "kind": "namespace",
-        "def": {
-          "elements": [
-            {
-              "name": "a",
-              "declarations": [
-                {
-                  "location": {
-                    "filename": "file:///mod.ts",
-                    "line": 3,
-                    "col": 8,
-                    "byteIndex": 79
-                  },
-                  "declarationKind": "export",
-                  "jsDoc": {
-                    "doc": "Description."
-                  },
-                  "kind": "variable",
-                  "def": {
-                    "tsType": {
-                      "repr": "string",
-                      "kind": "keyword",
-                      "value": "string"
+{
+  "symbols": [
+    {
+      "name": "a",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 1,
+            "col": 0,
+            "byteIndex": 20
+          },
+          "declarationKind": "export",
+          "jsDoc": {
+            "doc": "Description."
+          },
+          "kind": "namespace",
+          "def": {
+            "elements": [
+              {
+                "name": "a",
+                "declarations": [
+                  {
+                    "location": {
+                      "filename": "file:///mod.ts",
+                      "line": 3,
+                      "col": 8,
+                      "byteIndex": 79
                     },
-                    "kind": "const"
+                    "declarationKind": "export",
+                    "jsDoc": {
+                      "doc": "Description."
+                    },
+                    "kind": "variable",
+                    "def": {
+                      "tsType": {
+                        "repr": "string",
+                        "kind": "keyword",
+                        "value": "string"
+                      },
+                      "kind": "const"
+                    }
                   }
-                }
-              ]
-            }
-          ]
+                ]
+              }
+            ]
+          }
         }
-      }
-    ]
-  },
-  {
-    "name": "b",
-    "declarations": [
-      {
-        "location": {
-          "filename": "file:///mod.ts",
-          "line": 8,
-          "col": 0,
-          "byteIndex": 129
-        },
-        "declarationKind": "export",
-        "jsDoc": {
-          "doc": "Description."
-        },
-        "kind": "namespace",
-        "def": {
-          "elements": [
-            {
-              "name": "b",
-              "declarations": [
-                {
-                  "location": {
-                    "filename": "file:///mod.ts",
-                    "line": 10,
-                    "col": 2,
-                    "byteIndex": 182
-                  },
-                  "declarationKind": "export",
-                  "jsDoc": {
-                    "doc": "Description."
-                  },
-                  "kind": "class",
-                  "def": {
-                    "isAbstract": false,
-                    "constructors": [],
-                    "properties": [],
-                    "indexSignatures": [],
-                    "methods": [],
-                    "extends": null,
-                    "implements": [],
-                    "typeParams": [],
-                    "superTypeParams": []
+      ]
+    },
+    {
+      "name": "b",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 8,
+            "col": 0,
+            "byteIndex": 129
+          },
+          "declarationKind": "export",
+          "jsDoc": {
+            "doc": "Description."
+          },
+          "kind": "namespace",
+          "def": {
+            "elements": [
+              {
+                "name": "b",
+                "declarations": [
+                  {
+                    "location": {
+                      "filename": "file:///mod.ts",
+                      "line": 10,
+                      "col": 2,
+                      "byteIndex": 182
+                    },
+                    "declarationKind": "export",
+                    "jsDoc": {
+                      "doc": "Description."
+                    },
+                    "kind": "class",
+                    "def": {
+                      "isAbstract": false,
+                      "constructors": [],
+                      "properties": [],
+                      "indexSignatures": [],
+                      "methods": [],
+                      "extends": null,
+                      "implements": [],
+                      "typeParams": [],
+                      "superTypeParams": []
+                    }
                   }
-                }
-              ]
-            }
-          ]
+                ]
+              }
+            ]
+          }
         }
-      }
-    ]
-  },
-  {
-    "name": "c",
-    "declarations": [
-      {
-        "location": {
-          "filename": "file:///mod.ts",
-          "line": 14,
-          "col": 0,
-          "byteIndex": 223
-        },
-        "declarationKind": "export",
-        "jsDoc": {
-          "doc": "Description."
-        },
-        "kind": "namespace",
-        "def": {
-          "elements": []
+      ]
+    },
+    {
+      "name": "c",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 14,
+            "col": 0,
+            "byteIndex": 223
+          },
+          "declarationKind": "export",
+          "jsDoc": {
+            "doc": "Description."
+          },
+          "kind": "namespace",
+          "def": {
+            "elements": []
+          }
         }
-      }
-    ]
-  },
-  {
-    "name": "d",
-    "declarations": [
-      {
-        "location": {
-          "filename": "file:///mod.ts",
-          "line": 19,
-          "col": 0,
-          "byteIndex": 285
-        },
-        "declarationKind": "export",
-        "jsDoc": {
-          "doc": "Description."
-        },
-        "kind": "namespace",
-        "def": {
-          "elements": [
-            {
-              "name": "e",
-              "declarations": [
-                {
-                  "location": {
-                    "filename": "file:///mod.ts",
-                    "line": 21,
-                    "col": 2,
-                    "byteIndex": 330
-                  },
-                  "declarationKind": "export",
-                  "jsDoc": {
-                    "doc": "Description."
-                  },
-                  "kind": "namespace",
-                  "def": {
-                    "elements": []
+      ]
+    },
+    {
+      "name": "d",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 19,
+            "col": 0,
+            "byteIndex": 285
+          },
+          "declarationKind": "export",
+          "jsDoc": {
+            "doc": "Description."
+          },
+          "kind": "namespace",
+          "def": {
+            "elements": [
+              {
+                "name": "e",
+                "declarations": [
+                  {
+                    "location": {
+                      "filename": "file:///mod.ts",
+                      "line": 21,
+                      "col": 2,
+                      "byteIndex": 330
+                    },
+                    "declarationKind": "export",
+                    "jsDoc": {
+                      "doc": "Description."
+                    },
+                    "kind": "namespace",
+                    "def": {
+                      "elements": []
+                    }
                   }
-                }
-              ]
-            }
-          ]
+                ]
+              }
+            ]
+          }
         }
-      }
-    ]
-  },
-  {
-    "name": "f",
-    "declarations": [
-      {
-        "location": {
-          "filename": "file:///mod.ts",
-          "line": 27,
-          "col": 0,
-          "byteIndex": 396
-        },
-        "declarationKind": "export",
-        "jsDoc": {
-          "doc": "Description."
-        },
-        "kind": "namespace",
-        "def": {
-          "elements": [
-            {
-              "name": "g",
-              "declarations": [
-                {
-                  "location": {
-                    "filename": "file:///mod.ts",
-                    "line": 29,
-                    "col": 2,
-                    "byteIndex": 441
-                  },
-                  "declarationKind": "export",
-                  "jsDoc": {
-                    "doc": "Description."
-                  },
-                  "kind": "namespace",
-                  "def": {
-                    "elements": [
-                      {
-                        "name": "value",
-                        "declarations": [
-                          {
-                            "location": {
-                              "filename": "file:///mod.ts",
-                              "line": 31,
-                              "col": 10,
-                              "byteIndex": 496
-                            },
-                            "declarationKind": "export",
-                            "jsDoc": {
-                              "doc": "Description."
-                            },
-                            "kind": "variable",
-                            "def": {
-                              "tsType": {
-                                "repr": "f",
-                                "kind": "typeRef",
-                                "value": {
-                                  "typeParams": null,
-                                  "typeName": "f"
-                                }
+      ]
+    },
+    {
+      "name": "f",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 27,
+            "col": 0,
+            "byteIndex": 396
+          },
+          "declarationKind": "export",
+          "jsDoc": {
+            "doc": "Description."
+          },
+          "kind": "namespace",
+          "def": {
+            "elements": [
+              {
+                "name": "g",
+                "declarations": [
+                  {
+                    "location": {
+                      "filename": "file:///mod.ts",
+                      "line": 29,
+                      "col": 2,
+                      "byteIndex": 441
+                    },
+                    "declarationKind": "export",
+                    "jsDoc": {
+                      "doc": "Description."
+                    },
+                    "kind": "namespace",
+                    "def": {
+                      "elements": [
+                        {
+                          "name": "value",
+                          "declarations": [
+                            {
+                              "location": {
+                                "filename": "file:///mod.ts",
+                                "line": 31,
+                                "col": 10,
+                                "byteIndex": 496
                               },
-                              "kind": "const"
+                              "declarationKind": "export",
+                              "jsDoc": {
+                                "doc": "Description."
+                              },
+                              "kind": "variable",
+                              "def": {
+                                "tsType": {
+                                  "repr": "f",
+                                  "kind": "typeRef",
+                                  "value": {
+                                    "typeParams": null,
+                                    "typeName": "f"
+                                  }
+                                },
+                                "kind": "const"
+                              }
                             }
-                          }
-                        ]
-                      }
-                    ]
+                          ]
+                        }
+                      ]
+                    }
                   }
-                }
-              ]
-            }
-          ]
+                ]
+              }
+            ]
+          }
         }
-      }
-    ]
-  }
-]
+      ]
+    }
+  ]
+}

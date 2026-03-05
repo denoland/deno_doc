@@ -3,7 +3,6 @@
 use std::panic::AssertUnwindSafe;
 
 use deno_ast::diagnostics::Diagnostic;
-use deno_doc::Symbol;
 use deno_graph::ModuleSpecifier;
 use deno_graph::source::Source;
 use file_test_runner::RunOptions;
@@ -104,7 +103,7 @@ fn run_test(test: &CollectedTest) {
   );
 
   // Check that the JSON output is round-trippable.
-  let _parsed_json_output: Vec<Symbol> =
+  let _parsed_json_output: deno_doc::Document =
     serde_json::from_str(&json_output).unwrap();
 }
 
@@ -182,7 +181,9 @@ fn parse_spec(text: String) -> Spec {
       options = Some(serde_json::from_str(line).unwrap());
       continue;
     }
-    if let Some(specifier) = line.strip_prefix("# ") {
+    if let Some(specifier) = line.strip_prefix("# ")
+      && (specifier.contains('.') || specifier == "diagnostics")
+    {
       if let Some(file) = current_file.take() {
         files.push(file);
       }

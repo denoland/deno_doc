@@ -16,51 +16,53 @@ interface Interface<V> extends Iterable<V>
 
 
 # output.json
-[
-  {
-    "name": "Interface",
-    "declarations": [
-      {
-        "location": {
-          "filename": "file:///mod.ts",
-          "line": 0,
-          "col": 0,
-          "byteIndex": 0
-        },
-        "declarationKind": "export",
-        "kind": "interface",
-        "def": {
-          "extends": [
-            {
-              "repr": "Iterable",
-              "kind": "typeRef",
-              "value": {
-                "typeParams": [
-                  {
-                    "repr": "V",
-                    "kind": "typeRef",
-                    "value": {
-                      "typeParams": null,
-                      "typeName": "V"
+{
+  "symbols": [
+    {
+      "name": "Interface",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 0,
+            "col": 0,
+            "byteIndex": 0
+          },
+          "declarationKind": "export",
+          "kind": "interface",
+          "def": {
+            "extends": [
+              {
+                "repr": "Iterable",
+                "kind": "typeRef",
+                "value": {
+                  "typeParams": [
+                    {
+                      "repr": "V",
+                      "kind": "typeRef",
+                      "value": {
+                        "typeParams": null,
+                        "typeName": "V"
+                      }
                     }
-                  }
-                ],
-                "typeName": "Iterable"
+                  ],
+                  "typeName": "Iterable"
+                }
               }
-            }
-          ],
-          "constructors": [],
-          "methods": [],
-          "properties": [],
-          "callSignatures": [],
-          "indexSignatures": [],
-          "typeParams": [
-            {
-              "name": "V"
-            }
-          ]
+            ],
+            "constructors": [],
+            "methods": [],
+            "properties": [],
+            "callSignatures": [],
+            "indexSignatures": [],
+            "typeParams": [
+              {
+                "name": "V"
+              }
+            ]
+          }
         }
-      }
-    ]
-  }
-]
+      ]
+    }
+  ]
+}

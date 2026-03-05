@@ -31,10 +31,7 @@ where
   {
     'outer: for node in doc_nodes {
       for decl in &node.declarations {
-        if matches!(
-          decl.def,
-          DeclarationDef::ModuleDoc | DeclarationDef::Import(..)
-        ) {
+        if matches!(decl.def, DeclarationDef::Import(..)) {
           continue 'outer;
         }
 
@@ -226,10 +223,7 @@ pub fn flatten_namespace<'a>(
 
     'outer: for node in &nodes {
       for decl in &node.declarations {
-        if matches!(
-          decl.def,
-          DeclarationDef::ModuleDoc | DeclarationDef::Import(..)
-        ) {
+        if matches!(decl.def, DeclarationDef::Import(..)) {
           continue 'outer;
         }
 

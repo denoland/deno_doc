@@ -37,83 +37,85 @@ namespace Namespace
 
 
 # output.json
-[
-  {
-    "name": "Namespace",
-    "declarations": [
-      {
-        "location": {
-          "filename": "file:///mod.ts",
-          "line": 0,
-          "col": 0,
-          "byteIndex": 0
-        },
-        "declarationKind": "export",
-        "kind": "namespace",
-        "def": {
-          "elements": [
-            {
-              "name": "a",
-              "declarations": [
-                {
-                  "location": {
-                    "filename": "file:///mod.ts",
-                    "line": 6,
-                    "col": 2,
-                    "byteIndex": 82
-                  },
-                  "declarationKind": "export",
-                  "jsDoc": {
-                    "doc": "Doc comment 1\n\nDetails 1"
-                  },
-                  "kind": "function",
-                  "def": {
-                    "params": [],
-                    "returnType": {
-                      "repr": "void",
-                      "kind": "keyword",
-                      "value": "void"
+{
+  "symbols": [
+    {
+      "name": "Namespace",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 0,
+            "col": 0,
+            "byteIndex": 0
+          },
+          "declarationKind": "export",
+          "kind": "namespace",
+          "def": {
+            "elements": [
+              {
+                "name": "a",
+                "declarations": [
+                  {
+                    "location": {
+                      "filename": "file:///mod.ts",
+                      "line": 6,
+                      "col": 2,
+                      "byteIndex": 82
                     },
-                    "hasBody": true,
-                    "isAsync": false,
-                    "isGenerator": false,
-                    "typeParams": []
+                    "declarationKind": "export",
+                    "jsDoc": {
+                      "doc": "Doc comment 1\n\nDetails 1"
+                    },
+                    "kind": "function",
+                    "def": {
+                      "params": [],
+                      "returnType": {
+                        "repr": "void",
+                        "kind": "keyword",
+                        "value": "void"
+                      },
+                      "hasBody": true,
+                      "isAsync": false,
+                      "isGenerator": false,
+                      "typeParams": []
+                    }
                   }
-                }
-              ]
-            },
-            {
-              "name": "B",
-              "declarations": [
-                {
-                  "location": {
-                    "filename": "file:///mod.ts",
-                    "line": 12,
-                    "col": 2,
-                    "byteIndex": 158
-                  },
-                  "declarationKind": "export",
-                  "jsDoc": {
-                    "doc": "Doc comment 2\n\nDetails 2"
-                  },
-                  "kind": "class",
-                  "def": {
-                    "isAbstract": false,
-                    "constructors": [],
-                    "properties": [],
-                    "indexSignatures": [],
-                    "methods": [],
-                    "extends": null,
-                    "implements": [],
-                    "typeParams": [],
-                    "superTypeParams": []
+                ]
+              },
+              {
+                "name": "B",
+                "declarations": [
+                  {
+                    "location": {
+                      "filename": "file:///mod.ts",
+                      "line": 12,
+                      "col": 2,
+                      "byteIndex": 158
+                    },
+                    "declarationKind": "export",
+                    "jsDoc": {
+                      "doc": "Doc comment 2\n\nDetails 2"
+                    },
+                    "kind": "class",
+                    "def": {
+                      "isAbstract": false,
+                      "constructors": [],
+                      "properties": [],
+                      "indexSignatures": [],
+                      "methods": [],
+                      "extends": null,
+                      "implements": [],
+                      "typeParams": [],
+                      "superTypeParams": []
+                    }
                   }
-                }
-              ]
-            }
-          ]
+                ]
+              }
+            ]
+          }
         }
-      }
-    ]
-  }
-]
+      ]
+    }
+  ]
+}

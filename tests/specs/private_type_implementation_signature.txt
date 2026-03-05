@@ -75,159 +75,161 @@ private interface YesDiagnostic2
 
 
 # output.json
-[
-  {
-    "name": "SameName",
-    "declarations": [
-      {
-        "location": {
-          "filename": "file:///mod.ts",
-          "line": 1,
-          "col": 0,
-          "byteIndex": 15
-        },
-        "declarationKind": "export",
-        "jsDoc": {
-          "doc": "Comment"
-        },
-        "kind": "namespace",
-        "def": {
-          "elements": []
-        }
-      },
-      {
-        "location": {
-          "filename": "file:///mod.ts",
-          "line": 3,
-          "col": 0,
-          "byteIndex": 59
-        },
-        "declarationKind": "export",
-        "jsDoc": {
-          "doc": "Comment"
-        },
-        "kind": "function",
-        "def": {
-          "params": [],
-          "returnType": {
-            "repr": "YesDiagnostic1",
-            "kind": "typeRef",
-            "value": {
-              "typeParams": null,
-              "typeName": "YesDiagnostic1"
-            }
+{
+  "symbols": [
+    {
+      "name": "SameName",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 1,
+            "col": 0,
+            "byteIndex": 15
           },
-          "hasBody": true,
-          "isAsync": false,
-          "isGenerator": false,
-          "typeParams": []
-        }
-      }
-    ]
-  },
-  {
-    "name": "test",
-    "declarations": [
-      {
-        "location": {
-          "filename": "file:///mod.ts",
-          "line": 7,
-          "col": 0,
-          "byteIndex": 122
-        },
-        "declarationKind": "export",
-        "jsDoc": {
-          "doc": "Comment"
-        },
-        "kind": "function",
-        "def": {
-          "params": [],
-          "returnType": {
-            "repr": "YesDiagnostic2",
-            "kind": "typeRef",
-            "value": {
-              "typeParams": null,
-              "typeName": "YesDiagnostic2"
-            }
+          "declarationKind": "export",
+          "jsDoc": {
+            "doc": "Comment"
           },
-          "isAsync": false,
-          "isGenerator": false,
-          "typeParams": []
-        }
-      },
-      {
-        "location": {
-          "filename": "file:///mod.ts",
-          "line": 8,
-          "col": 0,
-          "byteIndex": 162
+          "kind": "namespace",
+          "def": {
+            "elements": []
+          }
         },
-        "declarationKind": "export",
-        "kind": "function",
-        "def": {
-          "params": [],
-          "returnType": {
-            "repr": "NoDiagnostic",
-            "kind": "typeRef",
-            "value": {
-              "typeParams": null,
-              "typeName": "NoDiagnostic"
-            }
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 3,
+            "col": 0,
+            "byteIndex": 59
           },
-          "hasBody": true,
-          "isAsync": false,
-          "isGenerator": false,
-          "typeParams": []
+          "declarationKind": "export",
+          "jsDoc": {
+            "doc": "Comment"
+          },
+          "kind": "function",
+          "def": {
+            "params": [],
+            "returnType": {
+              "repr": "YesDiagnostic1",
+              "kind": "typeRef",
+              "value": {
+                "typeParams": null,
+                "typeName": "YesDiagnostic1"
+              }
+            },
+            "hasBody": true,
+            "isAsync": false,
+            "isGenerator": false,
+            "typeParams": []
+          }
         }
-      }
-    ]
-  },
-  {
-    "name": "YesDiagnostic1",
-    "declarations": [
-      {
-        "location": {
-          "filename": "file:///mod.ts",
-          "line": 12,
-          "col": 0,
-          "byteIndex": 205
+      ]
+    },
+    {
+      "name": "test",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 7,
+            "col": 0,
+            "byteIndex": 122
+          },
+          "declarationKind": "export",
+          "jsDoc": {
+            "doc": "Comment"
+          },
+          "kind": "function",
+          "def": {
+            "params": [],
+            "returnType": {
+              "repr": "YesDiagnostic2",
+              "kind": "typeRef",
+              "value": {
+                "typeParams": null,
+                "typeName": "YesDiagnostic2"
+              }
+            },
+            "isAsync": false,
+            "isGenerator": false,
+            "typeParams": []
+          }
         },
-        "declarationKind": "private",
-        "kind": "interface",
-        "def": {
-          "extends": [],
-          "constructors": [],
-          "methods": [],
-          "properties": [],
-          "callSignatures": [],
-          "indexSignatures": [],
-          "typeParams": []
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 8,
+            "col": 0,
+            "byteIndex": 162
+          },
+          "declarationKind": "export",
+          "kind": "function",
+          "def": {
+            "params": [],
+            "returnType": {
+              "repr": "NoDiagnostic",
+              "kind": "typeRef",
+              "value": {
+                "typeParams": null,
+                "typeName": "NoDiagnostic"
+              }
+            },
+            "hasBody": true,
+            "isAsync": false,
+            "isGenerator": false,
+            "typeParams": []
+          }
         }
-      }
-    ]
-  },
-  {
-    "name": "YesDiagnostic2",
-    "declarations": [
-      {
-        "location": {
-          "filename": "file:///mod.ts",
-          "line": 13,
-          "col": 0,
-          "byteIndex": 233
-        },
-        "declarationKind": "private",
-        "kind": "interface",
-        "def": {
-          "extends": [],
-          "constructors": [],
-          "methods": [],
-          "properties": [],
-          "callSignatures": [],
-          "indexSignatures": [],
-          "typeParams": []
+      ]
+    },
+    {
+      "name": "YesDiagnostic1",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 12,
+            "col": 0,
+            "byteIndex": 205
+          },
+          "declarationKind": "private",
+          "kind": "interface",
+          "def": {
+            "extends": [],
+            "constructors": [],
+            "methods": [],
+            "properties": [],
+            "callSignatures": [],
+            "indexSignatures": [],
+            "typeParams": []
+          }
         }
-      }
-    ]
-  }
-]
+      ]
+    },
+    {
+      "name": "YesDiagnostic2",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 13,
+            "col": 0,
+            "byteIndex": 233
+          },
+          "declarationKind": "private",
+          "kind": "interface",
+          "def": {
+            "extends": [],
+            "constructors": [],
+            "methods": [],
+            "properties": [],
+            "callSignatures": [],
+            "indexSignatures": [],
+            "typeParams": []
+          }
+        }
+      ]
+    }
+  ]
+}

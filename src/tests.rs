@@ -88,7 +88,8 @@ async fn content_type_handling() {
       .unwrap()
       .into_values()
       .next()
-      .unwrap();
+      .unwrap()
+      .symbols;
   assert_eq!(entries.len(), 1);
 }
 
@@ -140,7 +141,8 @@ async fn types_header_handling() {
       .unwrap()
       .into_values()
       .next()
-      .unwrap();
+      .unwrap()
+      .symbols;
   assert_eq!(
     serde_json::to_value(&entries).unwrap(),
     json!([{
@@ -233,7 +235,8 @@ export function fooFn(a: number) {
   .unwrap()
   .into_values()
   .next()
-  .unwrap();
+  .unwrap()
+  .symbols;
 
   let expected_json = json!([
     {
@@ -346,8 +349,12 @@ export function fooFn(a: number) {
   let actual = serde_json::to_value(&entries).unwrap();
   assert_eq!(actual, expected_json);
 
+  let doc = crate::node::Document {
+    module_doc: Default::default(),
+    symbols: entries,
+  };
   assert!(
-    DocPrinter::new(&entries, false, false)
+    DocPrinter::new(&doc, false, false)
       .to_string()
       .as_str()
       .contains("function fooFn(a: number)")
@@ -383,7 +390,8 @@ export { Hello } from "./reexport.ts";
   .unwrap()
   .into_values()
   .next()
-  .unwrap();
+  .unwrap()
+  .symbols;
 
   let expected_json = json!([
     {
@@ -435,7 +443,11 @@ export { Hello } from "./reexport.ts";
   let actual = serde_json::to_value(&entries).unwrap();
   assert_eq!(actual, expected_json);
 
-  let output = DocPrinter::new(&entries, false, false).to_string();
+  let doc = crate::node::Document {
+    module_doc: Default::default(),
+    symbols: entries,
+  };
+  let output = DocPrinter::new(&doc, false, false).to_string();
   assert!(output.contains("class Hello"));
   assert!(output.contains("interface Hello"));
 }
@@ -466,7 +478,8 @@ async fn deep_reexports() {
   .unwrap()
   .into_values()
   .next()
-  .unwrap();
+  .unwrap()
+  .symbols;
 
   let expected_json = json!([
     {
@@ -494,8 +507,12 @@ async fn deep_reexports() {
   let actual = serde_json::to_value(&entries).unwrap();
   assert_eq!(actual, expected_json);
 
+  let doc = crate::node::Document {
+    module_doc: Default::default(),
+    symbols: entries,
+  };
   assert!(
-    DocPrinter::new(&entries, false, false)
+    DocPrinter::new(&doc, false, false)
       .to_string()
       .contains("const foo")
   );
@@ -535,7 +552,8 @@ export * as b from "./mod_doc.ts";
   .unwrap()
   .into_values()
   .next()
-  .unwrap();
+  .unwrap()
+  .symbols;
 
   let actual = serde_json::to_value(&entries).unwrap();
   let expected = json!([
@@ -639,7 +657,8 @@ export namespace Deno {
   .unwrap()
   .into_values()
   .next()
-  .unwrap();
+  .unwrap()
+  .symbols;
 
   // Namespace
   let found = find_nodes_by_name_recursively(entries.clone(), "Deno");
@@ -732,7 +751,8 @@ async fn exports_imported_earlier() {
   .unwrap()
   .into_values()
   .next()
-  .unwrap();
+  .unwrap()
+  .symbols;
 
   let expected_json = json!([
     {
@@ -806,7 +826,8 @@ async fn exports_imported_earlier_renamed() {
   .unwrap()
   .into_values()
   .next()
-  .unwrap();
+  .unwrap()
+  .symbols;
 
   let expected_json = json!([
     {
@@ -881,7 +902,8 @@ async fn exports_imported_earlier_default() {
   .unwrap()
   .into_values()
   .next()
-  .unwrap();
+  .unwrap()
+  .symbols;
 
   let expected_json = json!([
     {
@@ -958,7 +980,8 @@ async fn exports_imported_earlier_private() {
   .unwrap()
   .into_values()
   .next()
-  .unwrap();
+  .unwrap()
+  .symbols;
 
   let expected_json = json!([
     {
@@ -1044,7 +1067,8 @@ async fn json_module() {
   .unwrap()
   .into_values()
   .next()
-  .unwrap();
+  .unwrap()
+  .symbols;
 
   let expected_json = json!([
     {

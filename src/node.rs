@@ -5,6 +5,13 @@ use serde::Deserialize;
 use serde::Serialize;
 use std::sync::Arc;
 
+#[derive(Debug, Serialize, Deserialize, Clone, Default)]
+pub struct Document {
+  #[serde(skip_serializing_if = "JsDoc::is_empty", default)]
+  pub module_doc: JsDoc,
+  pub symbols: Vec<Symbol>,
+}
+
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct NamespaceDef {
   pub elements: Vec<Arc<Symbol>>,
@@ -31,7 +38,6 @@ pub enum DocNodeKind {
   Function,
   Import,
   Interface,
-  ModuleDoc,
   Namespace,
   Reference,
   TypeAlias,
@@ -46,7 +52,6 @@ impl From<&DeclarationDef> for DocNodeKind {
       DeclarationDef::Function(..) => Self::Function,
       DeclarationDef::Import(..) => Self::Import,
       DeclarationDef::Interface(..) => Self::Interface,
-      DeclarationDef::ModuleDoc => Self::ModuleDoc,
       DeclarationDef::Namespace(..) => Self::Namespace,
       DeclarationDef::Reference(..) => Self::Reference,
       DeclarationDef::TypeAlias(..) => Self::TypeAlias,
@@ -140,7 +145,6 @@ pub enum DeclarationDef {
   Namespace(NamespaceDef),
   Interface(super::interface::InterfaceDef),
   Import(ImportDef),
-  ModuleDoc,
   Reference(ReferenceDef),
 }
 
@@ -155,7 +159,6 @@ impl DeclarationDef {
       DeclarationDef::Namespace(_) => DocNodeKind::Namespace,
       DeclarationDef::Interface(_) => DocNodeKind::Interface,
       DeclarationDef::Import(_) => DocNodeKind::Import,
-      DeclarationDef::ModuleDoc => DocNodeKind::ModuleDoc,
       DeclarationDef::Reference(_) => DocNodeKind::Reference,
     }
   }
@@ -348,15 +351,6 @@ impl Declaration {
       def: DeclarationDef::Reference(reference_def),
     }
   }
-
-  pub fn module_doc(location: Location, js_doc: JsDoc) -> Self {
-    Self {
-      location,
-      declaration_kind: DeclarationKind::Export,
-      js_doc,
-      def: DeclarationDef::ModuleDoc,
-    }
-  }
 }
 
 impl Default for Symbol {
@@ -368,7 +362,9 @@ impl Default for Symbol {
         declaration_kind: DeclarationKind::Private,
         location: Location::default(),
         js_doc: JsDoc::default(),
-        def: DeclarationDef::ModuleDoc,
+        def: DeclarationDef::Reference(ReferenceDef {
+          target: Default::default(),
+        }),
       }],
     }
   }
@@ -385,10 +381,6 @@ impl Symbol {
       is_default,
       declarations: vec![declaration],
     }
-  }
-
-  pub fn module_doc(location: Location, js_doc: JsDoc) -> Self {
-    Self::single("".into(), false, Declaration::module_doc(location, js_doc))
   }
 
   pub fn function(
@@ -539,7 +531,6 @@ impl Symbol {
         }
         DeclarationDef::Enum(..)
         | DeclarationDef::Import(..)
-        | DeclarationDef::ModuleDoc
         | DeclarationDef::Namespace(..)
         | DeclarationDef::TypeAlias(..)
         | DeclarationDef::Variable(..)

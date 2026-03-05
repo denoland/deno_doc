@@ -16,23 +16,25 @@ enum Enum
 
 
 # output.json
-[
-  {
-    "name": "Enum",
-    "declarations": [
-      {
-        "location": {
-          "filename": "file:///mod.ts",
-          "line": 0,
-          "col": 0,
-          "byteIndex": 0
-        },
-        "declarationKind": "export",
-        "kind": "enum",
-        "def": {
-          "members": []
+{
+  "symbols": [
+    {
+      "name": "Enum",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 0,
+            "col": 0,
+            "byteIndex": 0
+          },
+          "declarationKind": "export",
+          "kind": "enum",
+          "def": {
+            "members": []
+          }
         }
-      }
-    ]
-  }
-]
+      ]
+    }
+  ]
+}

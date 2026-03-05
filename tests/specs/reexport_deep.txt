@@ -60,50 +60,52 @@ Defined in file:///mod.ts:0:1
 
 
 # output.json
-[
-  {
-    "name": "UrlMessageEntity",
-    "declarations": [
-      {
-        "location": {
-          "filename": "file:///mod.ts",
-          "line": 1,
-          "col": 0,
-          "byteIndex": 45
-        },
-        "declarationKind": "export",
-        "kind": "typeAlias",
-        "def": {
-          "tsType": {
-            "repr": "MessageEntity.TextLinkMessageEntity",
-            "kind": "typeRef",
-            "value": {
-              "typeParams": null,
-              "typeName": "MessageEntity.TextLinkMessageEntity"
-            }
+{
+  "symbols": [
+    {
+      "name": "UrlMessageEntity",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 1,
+            "col": 0,
+            "byteIndex": 45
           },
-          "typeParams": []
+          "declarationKind": "export",
+          "kind": "typeAlias",
+          "def": {
+            "tsType": {
+              "repr": "MessageEntity.TextLinkMessageEntity",
+              "kind": "typeRef",
+              "value": {
+                "typeParams": null,
+                "typeName": "MessageEntity.TextLinkMessageEntity"
+              }
+            },
+            "typeParams": []
+          }
         }
-      }
-    ]
-  },
-  {
-    "name": "MessageEntity",
-    "declarations": [
-      {
-        "location": {
-          "filename": "file:///mod.ts",
-          "line": 0,
-          "col": 0,
-          "byteIndex": 0
-        },
-        "declarationKind": "private",
-        "kind": "import",
-        "def": {
-          "src": "file:///a.ts",
-          "imported": "MessageEntity"
+      ]
+    },
+    {
+      "name": "MessageEntity",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 0,
+            "col": 0,
+            "byteIndex": 0
+          },
+          "declarationKind": "private",
+          "kind": "import",
+          "def": {
+            "src": "file:///a.ts",
+            "imported": "MessageEntity"
+          }
         }
-      }
-    ]
-  }
-]
+      ]
+    }
+  ]
+}

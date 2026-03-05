@@ -42,84 +42,86 @@ interface Thing
 
 
 # output.json
-[
-  {
-    "name": "Thing",
-    "declarations": [
-      {
-        "location": {
-          "filename": "file:///mod.ts",
-          "line": 0,
-          "col": 0,
-          "byteIndex": 0
-        },
-        "declarationKind": "export",
-        "kind": "interface",
-        "def": {
-          "extends": [],
-          "constructors": [],
-          "methods": [
-            {
-              "name": "size",
-              "kind": "getter",
-              "location": {
-                "filename": "file:///mod.ts",
-                "line": 1,
-                "col": 2,
-                "byteIndex": 27
+{
+  "symbols": [
+    {
+      "name": "Thing",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 0,
+            "col": 0,
+            "byteIndex": 0
+          },
+          "declarationKind": "export",
+          "kind": "interface",
+          "def": {
+            "extends": [],
+            "constructors": [],
+            "methods": [
+              {
+                "name": "size",
+                "kind": "getter",
+                "location": {
+                  "filename": "file:///mod.ts",
+                  "line": 1,
+                  "col": 2,
+                  "byteIndex": 27
+                },
+                "params": [],
+                "optional": false,
+                "returnType": {
+                  "repr": "number",
+                  "kind": "keyword",
+                  "value": "number"
+                },
+                "typeParams": []
               },
-              "params": [],
-              "optional": false,
-              "returnType": {
-                "repr": "number",
-                "kind": "keyword",
-                "value": "number"
-              },
-              "typeParams": []
-            },
-            {
-              "name": "size",
-              "kind": "setter",
-              "location": {
-                "filename": "file:///mod.ts",
-                "line": 2,
-                "col": 2,
-                "byteIndex": 49
-              },
-              "params": [
-                {
-                  "kind": "identifier",
-                  "name": "value",
-                  "optional": false,
-                  "tsType": {
-                    "repr": "",
-                    "kind": "union",
-                    "value": [
-                      {
-                        "repr": "number",
-                        "kind": "keyword",
-                        "value": "number"
-                      },
-                      {
-                        "repr": "string",
-                        "kind": "keyword",
-                        "value": "string"
-                      }
-                    ]
+              {
+                "name": "size",
+                "kind": "setter",
+                "location": {
+                  "filename": "file:///mod.ts",
+                  "line": 2,
+                  "col": 2,
+                  "byteIndex": 49
+                },
+                "params": [
+                  {
+                    "kind": "identifier",
+                    "name": "value",
+                    "optional": false,
+                    "tsType": {
+                      "repr": "",
+                      "kind": "union",
+                      "value": [
+                        {
+                          "repr": "number",
+                          "kind": "keyword",
+                          "value": "number"
+                        },
+                        {
+                          "repr": "string",
+                          "kind": "keyword",
+                          "value": "string"
+                        }
+                      ]
+                    }
                   }
-                }
-              ],
-              "optional": false,
-              "returnType": null,
-              "typeParams": []
-            }
-          ],
-          "properties": [],
-          "callSignatures": [],
-          "indexSignatures": [],
-          "typeParams": []
+                ],
+                "optional": false,
+                "returnType": null,
+                "typeParams": []
+              }
+            ],
+            "properties": [],
+            "callSignatures": [],
+            "indexSignatures": [],
+            "typeParams": []
+          }
         }
-      }
-    ]
-  }
-]
+      ]
+    }
+  ]
+}

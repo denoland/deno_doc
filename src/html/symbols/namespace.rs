@@ -441,8 +441,7 @@ fn summary_for_symbol(
     }
     DeclarationDef::Reference(..)
     | DeclarationDef::Namespace(..)
-    | DeclarationDef::Import(..)
-    | DeclarationDef::ModuleDoc => None,
+    | DeclarationDef::Import(..) => None,
   }
 }
 

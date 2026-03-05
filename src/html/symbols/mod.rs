@@ -584,9 +584,9 @@ impl SymbolInnerCtx {
             },
           ))
         }
-        DeclarationDef::ModuleDoc
-        | DeclarationDef::Import(..)
-        | DeclarationDef::Reference(..) => unreachable!(),
+        DeclarationDef::Import(..) | DeclarationDef::Reference(..) => {
+          unreachable!()
+        }
       });
 
       let references = decl

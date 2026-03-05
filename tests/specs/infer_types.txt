@@ -15,75 +15,77 @@ type Flatten<T> = T extends Array<infer U> ? U : T
 
 
 # output.json
-[
-  {
-    "name": "Flatten",
-    "declarations": [
-      {
-        "location": {
-          "filename": "file:///mod.ts",
-          "line": 0,
-          "col": 0,
-          "byteIndex": 0
-        },
-        "declarationKind": "export",
-        "kind": "typeAlias",
-        "def": {
-          "tsType": {
-            "repr": "",
-            "kind": "conditional",
-            "value": {
-              "checkType": {
-                "repr": "T",
-                "kind": "typeRef",
-                "value": {
-                  "typeParams": null,
-                  "typeName": "T"
-                }
-              },
-              "extendsType": {
-                "repr": "Array",
-                "kind": "typeRef",
-                "value": {
-                  "typeParams": [
-                    {
-                      "repr": "",
-                      "kind": "infer",
-                      "value": {
-                        "typeParam": {
-                          "name": "U"
+{
+  "symbols": [
+    {
+      "name": "Flatten",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 0,
+            "col": 0,
+            "byteIndex": 0
+          },
+          "declarationKind": "export",
+          "kind": "typeAlias",
+          "def": {
+            "tsType": {
+              "repr": "",
+              "kind": "conditional",
+              "value": {
+                "checkType": {
+                  "repr": "T",
+                  "kind": "typeRef",
+                  "value": {
+                    "typeParams": null,
+                    "typeName": "T"
+                  }
+                },
+                "extendsType": {
+                  "repr": "Array",
+                  "kind": "typeRef",
+                  "value": {
+                    "typeParams": [
+                      {
+                        "repr": "",
+                        "kind": "infer",
+                        "value": {
+                          "typeParam": {
+                            "name": "U"
+                          }
                         }
                       }
-                    }
-                  ],
-                  "typeName": "Array"
-                }
-              },
-              "trueType": {
-                "repr": "U",
-                "kind": "typeRef",
-                "value": {
-                  "typeParams": null,
-                  "typeName": "U"
-                }
-              },
-              "falseType": {
-                "repr": "T",
-                "kind": "typeRef",
-                "value": {
-                  "typeParams": null,
-                  "typeName": "T"
+                    ],
+                    "typeName": "Array"
+                  }
+                },
+                "trueType": {
+                  "repr": "U",
+                  "kind": "typeRef",
+                  "value": {
+                    "typeParams": null,
+                    "typeName": "U"
+                  }
+                },
+                "falseType": {
+                  "repr": "T",
+                  "kind": "typeRef",
+                  "value": {
+                    "typeParams": null,
+                    "typeName": "T"
+                  }
                 }
               }
-            }
-          },
-          "typeParams": [
-            {
-              "name": "T"
-            }
-          ]
+            },
+            "typeParams": [
+              {
+                "name": "T"
+              }
+            ]
+          }
         }
-      }
-    ]
-  }
-]
+      ]
+    }
+  ]
+}

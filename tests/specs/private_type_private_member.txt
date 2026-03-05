@@ -55,117 +55,119 @@ private interface YesDiagnostic
 
 
 # output.json
-[
-  {
-    "name": "MyClass",
-    "declarations": [
-      {
-        "location": {
-          "filename": "file:///mod.ts",
-          "line": 1,
-          "col": 0,
-          "byteIndex": 15
-        },
-        "declarationKind": "export",
-        "jsDoc": {
-          "doc": "Comment"
-        },
-        "kind": "class",
-        "def": {
-          "isAbstract": false,
-          "constructors": [],
-          "properties": [],
-          "indexSignatures": [],
-          "methods": [
-            {
-              "accessibility": "protected",
-              "optional": false,
-              "isAbstract": false,
-              "isStatic": false,
-              "name": "secondMethod",
-              "kind": "method",
-              "functionDef": {
-                "params": [],
-                "returnType": {
-                  "repr": "YesDiagnostic",
-                  "kind": "typeRef",
-                  "value": {
-                    "typeParams": null,
-                    "typeName": "YesDiagnostic"
-                  }
+{
+  "symbols": [
+    {
+      "name": "MyClass",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 1,
+            "col": 0,
+            "byteIndex": 15
+          },
+          "declarationKind": "export",
+          "jsDoc": {
+            "doc": "Comment"
+          },
+          "kind": "class",
+          "def": {
+            "isAbstract": false,
+            "constructors": [],
+            "properties": [],
+            "indexSignatures": [],
+            "methods": [
+              {
+                "accessibility": "protected",
+                "optional": false,
+                "isAbstract": false,
+                "isStatic": false,
+                "name": "secondMethod",
+                "kind": "method",
+                "functionDef": {
+                  "params": [],
+                  "returnType": {
+                    "repr": "YesDiagnostic",
+                    "kind": "typeRef",
+                    "value": {
+                      "typeParams": null,
+                      "typeName": "YesDiagnostic"
+                    }
+                  },
+                  "hasBody": true,
+                  "isAsync": false,
+                  "isGenerator": false,
+                  "typeParams": []
                 },
-                "hasBody": true,
-                "isAsync": false,
-                "isGenerator": false,
-                "typeParams": []
+                "location": {
+                  "filename": "file:///mod.ts",
+                  "line": 2,
+                  "col": 2,
+                  "byteIndex": 40
+                }
               },
-              "location": {
-                "filename": "file:///mod.ts",
-                "line": 2,
-                "col": 2,
-                "byteIndex": 40
-              }
-            },
-            {
-              "accessibility": "private",
-              "optional": false,
-              "isAbstract": false,
-              "isStatic": false,
-              "name": "myMethod",
-              "kind": "method",
-              "functionDef": {
-                "params": [],
-                "returnType": {
-                  "repr": "NoDiagnostic",
-                  "kind": "typeRef",
-                  "value": {
-                    "typeParams": null,
-                    "typeName": "NoDiagnostic"
-                  }
+              {
+                "accessibility": "private",
+                "optional": false,
+                "isAbstract": false,
+                "isStatic": false,
+                "name": "myMethod",
+                "kind": "method",
+                "functionDef": {
+                  "params": [],
+                  "returnType": {
+                    "repr": "NoDiagnostic",
+                    "kind": "typeRef",
+                    "value": {
+                      "typeParams": null,
+                      "typeName": "NoDiagnostic"
+                    }
+                  },
+                  "hasBody": true,
+                  "isAsync": false,
+                  "isGenerator": false,
+                  "typeParams": []
                 },
-                "hasBody": true,
-                "isAsync": false,
-                "isGenerator": false,
-                "typeParams": []
-              },
-              "location": {
-                "filename": "file:///mod.ts",
-                "line": 5,
-                "col": 2,
-                "byteIndex": 89
+                "location": {
+                  "filename": "file:///mod.ts",
+                  "line": 5,
+                  "col": 2,
+                  "byteIndex": 89
+                }
               }
-            }
-          ],
-          "extends": null,
-          "implements": [],
-          "typeParams": [],
-          "superTypeParams": []
+            ],
+            "extends": null,
+            "implements": [],
+            "typeParams": [],
+            "superTypeParams": []
+          }
         }
-      }
-    ]
-  },
-  {
-    "name": "YesDiagnostic",
-    "declarations": [
-      {
-        "location": {
-          "filename": "file:///mod.ts",
-          "line": 9,
-          "col": 0,
-          "byteIndex": 131
-        },
-        "declarationKind": "private",
-        "kind": "interface",
-        "def": {
-          "extends": [],
-          "constructors": [],
-          "methods": [],
-          "properties": [],
-          "callSignatures": [],
-          "indexSignatures": [],
-          "typeParams": []
+      ]
+    },
+    {
+      "name": "YesDiagnostic",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 9,
+            "col": 0,
+            "byteIndex": 131
+          },
+          "declarationKind": "private",
+          "kind": "interface",
+          "def": {
+            "extends": [],
+            "constructors": [],
+            "methods": [],
+            "properties": [],
+            "callSignatures": [],
+            "indexSignatures": [],
+            "typeParams": []
+          }
         }
-      }
-    ]
-  }
-]
+      ]
+    }
+  ]
+}

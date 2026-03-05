@@ -24,48 +24,50 @@ namespace Audio
 
 
 # output.json
-[
-  {
-    "name": "Audio",
-    "declarations": [
-      {
-        "location": {
-          "filename": "file:///audio.ts",
-          "line": 3,
-          "col": 0,
-          "byteIndex": 66
-        },
-        "declarationKind": "export",
-        "jsDoc": {
-          "doc": "Some documentation."
-        },
-        "kind": "namespace",
-        "def": {
-          "elements": [
-            {
-              "name": "Speech",
-              "declarations": [
-                {
-                  "location": {
-                    "filename": "file:///speech.ts",
-                    "line": 1,
-                    "col": 0,
-                    "byteIndex": 27
-                  },
-                  "declarationKind": "export",
-                  "jsDoc": {
-                    "doc": "Some documentation."
-                  },
-                  "kind": "namespace",
-                  "def": {
-                    "elements": []
+{
+  "symbols": [
+    {
+      "name": "Audio",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///audio.ts",
+            "line": 3,
+            "col": 0,
+            "byteIndex": 66
+          },
+          "declarationKind": "export",
+          "jsDoc": {
+            "doc": "Some documentation."
+          },
+          "kind": "namespace",
+          "def": {
+            "elements": [
+              {
+                "name": "Speech",
+                "declarations": [
+                  {
+                    "location": {
+                      "filename": "file:///speech.ts",
+                      "line": 1,
+                      "col": 0,
+                      "byteIndex": 27
+                    },
+                    "declarationKind": "export",
+                    "jsDoc": {
+                      "doc": "Some documentation."
+                    },
+                    "kind": "namespace",
+                    "def": {
+                      "elements": []
+                    }
                   }
-                }
-              ]
-            }
-          ]
+                ]
+              }
+            ]
+          }
         }
-      }
-    ]
-  }
-]
+      ]
+    }
+  ]
+}

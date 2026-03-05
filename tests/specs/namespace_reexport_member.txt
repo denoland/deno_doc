@@ -72,255 +72,257 @@ Defined in file:///mod.ts:0:1
 
 
 # output.json
-[
-  {
-    "name": "MyApi",
-    "declarations": [
-      {
-        "location": {
-          "filename": "file:///mod.ts",
-          "line": 3,
-          "col": 0,
-          "byteIndex": 46
-        },
-        "declarationKind": "export",
-        "jsDoc": {
-          "doc": "Doc"
-        },
-        "kind": "class",
-        "def": {
-          "isAbstract": false,
-          "constructors": [],
-          "properties": [
-            {
-              "jsDoc": {
-                "doc": "Doc"
-              },
-              "tsType": {
-                "repr": "Chat",
-                "kind": "typeRef",
-                "value": {
-                  "typeParams": null,
-                  "typeName": "Chat"
-                }
-              },
-              "readonly": false,
-              "accessibility": null,
-              "optional": false,
-              "isAbstract": false,
-              "isStatic": false,
-              "name": "completions",
-              "location": {
-                "filename": "file:///mod.ts",
-                "line": 5,
-                "col": 2,
-                "byteIndex": 82
-              }
-            }
-          ],
-          "indexSignatures": [],
-          "methods": [],
-          "extends": null,
-          "implements": [],
-          "typeParams": [],
-          "superTypeParams": []
-        }
-      },
-      {
-        "location": {
-          "filename": "file:///mod.ts",
-          "line": 11,
-          "col": 0,
-          "byteIndex": 140
-        },
-        "declarationKind": "export",
-        "jsDoc": {
-          "doc": "Doc"
-        },
-        "kind": "namespace",
-        "def": {
-          "elements": [
-            {
-              "name": "Chat",
-              "declarations": [
-                {
-                  "location": {
-                    "filename": "file:///chat.ts",
-                    "line": 3,
-                    "col": 0,
-                    "byteIndex": 65
-                  },
-                  "declarationKind": "export",
-                  "jsDoc": {
-                    "doc": "Doc"
-                  },
-                  "kind": "class",
-                  "def": {
-                    "isAbstract": false,
-                    "constructors": [],
-                    "properties": [],
-                    "indexSignatures": [],
-                    "methods": [],
-                    "extends": null,
-                    "implements": [],
-                    "typeParams": [],
-                    "superTypeParams": []
+{
+  "symbols": [
+    {
+      "name": "MyApi",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 3,
+            "col": 0,
+            "byteIndex": 46
+          },
+          "declarationKind": "export",
+          "jsDoc": {
+            "doc": "Doc"
+          },
+          "kind": "class",
+          "def": {
+            "isAbstract": false,
+            "constructors": [],
+            "properties": [
+              {
+                "jsDoc": {
+                  "doc": "Doc"
+                },
+                "tsType": {
+                  "repr": "Chat",
+                  "kind": "typeRef",
+                  "value": {
+                    "typeParams": null,
+                    "typeName": "Chat"
                   }
                 },
-                {
-                  "location": {
-                    "filename": "file:///chat.ts",
-                    "line": 7,
-                    "col": 0,
-                    "byteIndex": 130
-                  },
-                  "declarationKind": "export",
-                  "jsDoc": {
-                    "doc": "Doc"
-                  },
-                  "kind": "namespace",
-                  "def": {
-                    "elements": []
-                  }
+                "readonly": false,
+                "accessibility": null,
+                "optional": false,
+                "isAbstract": false,
+                "isStatic": false,
+                "name": "completions",
+                "location": {
+                  "filename": "file:///mod.ts",
+                  "line": 5,
+                  "col": 2,
+                  "byteIndex": 82
                 }
-              ]
-            }
-          ]
-        }
-      }
-    ]
-  },
-  {
-    "name": "default",
-    "isDefault": true,
-    "declarations": [
-      {
-        "location": {
-          "filename": "file:///mod.ts",
-          "line": 3,
-          "col": 0,
-          "byteIndex": 46
-        },
-        "declarationKind": "export",
-        "jsDoc": {
-          "doc": "Doc"
-        },
-        "kind": "class",
-        "def": {
-          "isAbstract": false,
-          "constructors": [],
-          "properties": [
-            {
-              "jsDoc": {
-                "doc": "Doc"
-              },
-              "tsType": {
-                "repr": "Chat",
-                "kind": "typeRef",
-                "value": {
-                  "typeParams": null,
-                  "typeName": "Chat"
-                }
-              },
-              "readonly": false,
-              "accessibility": null,
-              "optional": false,
-              "isAbstract": false,
-              "isStatic": false,
-              "name": "completions",
-              "location": {
-                "filename": "file:///mod.ts",
-                "line": 5,
-                "col": 2,
-                "byteIndex": 82
               }
-            }
-          ],
-          "indexSignatures": [],
-          "methods": [],
-          "extends": null,
-          "implements": [],
-          "typeParams": [],
-          "superTypeParams": []
-        }
-      },
-      {
-        "location": {
-          "filename": "file:///mod.ts",
-          "line": 11,
-          "col": 0,
-          "byteIndex": 140
+            ],
+            "indexSignatures": [],
+            "methods": [],
+            "extends": null,
+            "implements": [],
+            "typeParams": [],
+            "superTypeParams": []
+          }
         },
-        "declarationKind": "export",
-        "jsDoc": {
-          "doc": "Doc"
-        },
-        "kind": "namespace",
-        "def": {
-          "elements": [
-            {
-              "name": "Chat",
-              "declarations": [
-                {
-                  "location": {
-                    "filename": "file:///mod.ts",
-                    "line": 12,
-                    "col": 11,
-                    "byteIndex": 184
-                  },
-                  "declarationKind": "export",
-                  "kind": "reference",
-                  "def": {
-                    "target": {
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 11,
+            "col": 0,
+            "byteIndex": 140
+          },
+          "declarationKind": "export",
+          "jsDoc": {
+            "doc": "Doc"
+          },
+          "kind": "namespace",
+          "def": {
+            "elements": [
+              {
+                "name": "Chat",
+                "declarations": [
+                  {
+                    "location": {
                       "filename": "file:///chat.ts",
                       "line": 3,
                       "col": 0,
                       "byteIndex": 65
+                    },
+                    "declarationKind": "export",
+                    "jsDoc": {
+                      "doc": "Doc"
+                    },
+                    "kind": "class",
+                    "def": {
+                      "isAbstract": false,
+                      "constructors": [],
+                      "properties": [],
+                      "indexSignatures": [],
+                      "methods": [],
+                      "extends": null,
+                      "implements": [],
+                      "typeParams": [],
+                      "superTypeParams": []
                     }
-                  }
-                },
-                {
-                  "location": {
-                    "filename": "file:///mod.ts",
-                    "line": 12,
-                    "col": 11,
-                    "byteIndex": 184
                   },
-                  "declarationKind": "export",
-                  "kind": "reference",
-                  "def": {
-                    "target": {
+                  {
+                    "location": {
                       "filename": "file:///chat.ts",
                       "line": 7,
                       "col": 0,
                       "byteIndex": 130
+                    },
+                    "declarationKind": "export",
+                    "jsDoc": {
+                      "doc": "Doc"
+                    },
+                    "kind": "namespace",
+                    "def": {
+                      "elements": []
                     }
                   }
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "default",
+      "isDefault": true,
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 3,
+            "col": 0,
+            "byteIndex": 46
+          },
+          "declarationKind": "export",
+          "jsDoc": {
+            "doc": "Doc"
+          },
+          "kind": "class",
+          "def": {
+            "isAbstract": false,
+            "constructors": [],
+            "properties": [
+              {
+                "jsDoc": {
+                  "doc": "Doc"
+                },
+                "tsType": {
+                  "repr": "Chat",
+                  "kind": "typeRef",
+                  "value": {
+                    "typeParams": null,
+                    "typeName": "Chat"
+                  }
+                },
+                "readonly": false,
+                "accessibility": null,
+                "optional": false,
+                "isAbstract": false,
+                "isStatic": false,
+                "name": "completions",
+                "location": {
+                  "filename": "file:///mod.ts",
+                  "line": 5,
+                  "col": 2,
+                  "byteIndex": 82
                 }
-              ]
-            }
-          ]
-        }
-      }
-    ]
-  },
-  {
-    "name": "Chat",
-    "declarations": [
-      {
-        "location": {
-          "filename": "file:///mod.ts",
-          "line": 0,
-          "col": 0,
-          "byteIndex": 0
+              }
+            ],
+            "indexSignatures": [],
+            "methods": [],
+            "extends": null,
+            "implements": [],
+            "typeParams": [],
+            "superTypeParams": []
+          }
         },
-        "declarationKind": "private",
-        "kind": "import",
-        "def": {
-          "src": "file:///chat.ts",
-          "imported": "Chat"
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 11,
+            "col": 0,
+            "byteIndex": 140
+          },
+          "declarationKind": "export",
+          "jsDoc": {
+            "doc": "Doc"
+          },
+          "kind": "namespace",
+          "def": {
+            "elements": [
+              {
+                "name": "Chat",
+                "declarations": [
+                  {
+                    "location": {
+                      "filename": "file:///mod.ts",
+                      "line": 12,
+                      "col": 11,
+                      "byteIndex": 184
+                    },
+                    "declarationKind": "export",
+                    "kind": "reference",
+                    "def": {
+                      "target": {
+                        "filename": "file:///chat.ts",
+                        "line": 3,
+                        "col": 0,
+                        "byteIndex": 65
+                      }
+                    }
+                  },
+                  {
+                    "location": {
+                      "filename": "file:///mod.ts",
+                      "line": 12,
+                      "col": 11,
+                      "byteIndex": 184
+                    },
+                    "declarationKind": "export",
+                    "kind": "reference",
+                    "def": {
+                      "target": {
+                        "filename": "file:///chat.ts",
+                        "line": 7,
+                        "col": 0,
+                        "byteIndex": 130
+                      }
+                    }
+                  }
+                ]
+              }
+            ]
+          }
         }
-      }
-    ]
-  }
-]
+      ]
+    },
+    {
+      "name": "Chat",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 0,
+            "col": 0,
+            "byteIndex": 0
+          },
+          "declarationKind": "private",
+          "kind": "import",
+          "def": {
+            "src": "file:///chat.ts",
+            "imported": "Chat"
+          }
+        }
+      ]
+    }
+  ]
+}

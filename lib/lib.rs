@@ -5,7 +5,7 @@ use anyhow::Context;
 use deno_doc::html::UrlResolveKind;
 use deno_doc::html::UsageComposerEntry;
 use deno_doc::html::UsageToMd;
-use deno_doc::DocParser;
+use deno_doc::{DocParser, Document};
 use deno_graph::ast::CapturingModuleAnalyzer;
 use deno_graph::source::CacheSetting;
 use deno_graph::source::LoadError;
@@ -566,7 +566,7 @@ fn generate_html_inner(
   >(default_symbol_map)
   .map_err(|err| anyhow!("defaultSymbolMap: {}", err))?;
 
-  let doc_nodes_by_url: IndexMap<ModuleSpecifier, Vec<deno_doc::Symbol>> =
+  let doc_nodes_by_url: IndexMap<ModuleSpecifier, Document> =
     serde_wasm_bindgen::from_value(doc_nodes_by_url)
       .map_err(|err| anyhow!("docNodesByUrl: {}", err))?;
 

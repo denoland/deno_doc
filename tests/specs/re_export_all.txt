@@ -43,54 +43,56 @@ class Test
 
 
 # output.json
-[
-  {
-    "name": "Test",
-    "declarations": [
-      {
-        "location": {
-          "filename": "file:///b.ts",
-          "line": 0,
-          "col": 0,
-          "byteIndex": 0
-        },
-        "declarationKind": "export",
-        "kind": "class",
-        "def": {
-          "isAbstract": false,
-          "constructors": [],
-          "properties": [],
-          "indexSignatures": [],
-          "methods": [],
-          "extends": null,
-          "implements": [],
-          "typeParams": [],
-          "superTypeParams": []
-        }
-      }
-    ]
-  },
-  {
-    "name": "test1",
-    "declarations": [
-      {
-        "location": {
-          "filename": "file:///a.ts",
-          "line": 0,
-          "col": 6,
-          "byteIndex": 6
-        },
-        "declarationKind": "export",
-        "kind": "variable",
-        "def": {
-          "tsType": {
-            "repr": "string",
-            "kind": "keyword",
-            "value": "string"
+{
+  "symbols": [
+    {
+      "name": "Test",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///b.ts",
+            "line": 0,
+            "col": 0,
+            "byteIndex": 0
           },
-          "kind": "const"
+          "declarationKind": "export",
+          "kind": "class",
+          "def": {
+            "isAbstract": false,
+            "constructors": [],
+            "properties": [],
+            "indexSignatures": [],
+            "methods": [],
+            "extends": null,
+            "implements": [],
+            "typeParams": [],
+            "superTypeParams": []
+          }
         }
-      }
-    ]
-  }
-]
+      ]
+    },
+    {
+      "name": "test1",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///a.ts",
+            "line": 0,
+            "col": 6,
+            "byteIndex": 6
+          },
+          "declarationKind": "export",
+          "kind": "variable",
+          "def": {
+            "tsType": {
+              "repr": "string",
+              "kind": "keyword",
+              "value": "string"
+            },
+            "kind": "const"
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -44,76 +44,78 @@ namespace Tabs
 
 
 # output.json
-[
-  {
-    "name": "Tabs",
-    "declarations": [
-      {
-        "location": {
-          "filename": "file:///mod.ts",
-          "line": 7,
-          "col": 0,
-          "byteIndex": 47
-        },
-        "declarationKind": "export",
-        "jsDoc": {
-          "doc": "Line 1\n\nLine 2\n\n\tIndented"
-        },
-        "kind": "namespace",
-        "def": {
-          "elements": [
-            {
-              "name": "Tabs",
-              "declarations": [
-                {
-                  "location": {
-                    "filename": "file:///mod.ts",
-                    "line": 15,
-                    "col": 2,
-                    "byteIndex": 126
-                  },
-                  "declarationKind": "export",
-                  "jsDoc": {
-                    "doc": "Line 1\n\nLine 2\n\n\tIndented"
-                  },
-                  "kind": "interface",
-                  "def": {
-                    "extends": [],
-                    "constructors": [],
-                    "methods": [],
-                    "properties": [
-                      {
-                        "name": "property",
-                        "jsDoc": {
-                          "doc": "Line 1\n\nLine 2\n\n\tIndented"
-                        },
-                        "location": {
-                          "filename": "file:///mod.ts",
-                          "line": 23,
-                          "col": 4,
-                          "byteIndex": 212
-                        },
-                        "params": [],
-                        "computed": false,
-                        "optional": false,
-                        "tsType": {
-                          "repr": "string",
-                          "kind": "keyword",
-                          "value": "string"
-                        },
-                        "typeParams": []
-                      }
-                    ],
-                    "callSignatures": [],
-                    "indexSignatures": [],
-                    "typeParams": []
+{
+  "symbols": [
+    {
+      "name": "Tabs",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 7,
+            "col": 0,
+            "byteIndex": 47
+          },
+          "declarationKind": "export",
+          "jsDoc": {
+            "doc": "Line 1\n\nLine 2\n\n\tIndented"
+          },
+          "kind": "namespace",
+          "def": {
+            "elements": [
+              {
+                "name": "Tabs",
+                "declarations": [
+                  {
+                    "location": {
+                      "filename": "file:///mod.ts",
+                      "line": 15,
+                      "col": 2,
+                      "byteIndex": 126
+                    },
+                    "declarationKind": "export",
+                    "jsDoc": {
+                      "doc": "Line 1\n\nLine 2\n\n\tIndented"
+                    },
+                    "kind": "interface",
+                    "def": {
+                      "extends": [],
+                      "constructors": [],
+                      "methods": [],
+                      "properties": [
+                        {
+                          "name": "property",
+                          "jsDoc": {
+                            "doc": "Line 1\n\nLine 2\n\n\tIndented"
+                          },
+                          "location": {
+                            "filename": "file:///mod.ts",
+                            "line": 23,
+                            "col": 4,
+                            "byteIndex": 212
+                          },
+                          "params": [],
+                          "computed": false,
+                          "optional": false,
+                          "tsType": {
+                            "repr": "string",
+                            "kind": "keyword",
+                            "value": "string"
+                          },
+                          "typeParams": []
+                        }
+                      ],
+                      "callSignatures": [],
+                      "indexSignatures": [],
+                      "typeParams": []
+                    }
                   }
-                }
-              ]
-            }
-          ]
+                ]
+              }
+            ]
+          }
         }
-      }
-    ]
-  }
-]
+      ]
+    }
+  ]
+}

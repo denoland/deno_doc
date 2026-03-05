@@ -26,55 +26,57 @@ interface TypedIface<T>
 
 
 # output.json
-[
-  {
-    "name": "TypedIface",
-    "declarations": [
-      {
-        "location": {
-          "filename": "file:///mod.ts",
-          "line": 0,
-          "col": 0,
-          "byteIndex": 0
-        },
-        "declarationKind": "export",
-        "kind": "interface",
-        "def": {
-          "extends": [],
-          "constructors": [],
-          "methods": [
-            {
-              "name": "something",
-              "kind": "method",
-              "location": {
-                "filename": "file:///mod.ts",
-                "line": 1,
-                "col": 4,
-                "byteIndex": 37
-              },
-              "params": [],
-              "optional": false,
-              "returnType": {
-                "repr": "T",
-                "kind": "typeRef",
-                "value": {
-                  "typeParams": null,
-                  "typeName": "T"
-                }
-              },
-              "typeParams": []
-            }
-          ],
-          "properties": [],
-          "callSignatures": [],
-          "indexSignatures": [],
-          "typeParams": [
-            {
-              "name": "T"
-            }
-          ]
+{
+  "symbols": [
+    {
+      "name": "TypedIface",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 0,
+            "col": 0,
+            "byteIndex": 0
+          },
+          "declarationKind": "export",
+          "kind": "interface",
+          "def": {
+            "extends": [],
+            "constructors": [],
+            "methods": [
+              {
+                "name": "something",
+                "kind": "method",
+                "location": {
+                  "filename": "file:///mod.ts",
+                  "line": 1,
+                  "col": 4,
+                  "byteIndex": 37
+                },
+                "params": [],
+                "optional": false,
+                "returnType": {
+                  "repr": "T",
+                  "kind": "typeRef",
+                  "value": {
+                    "typeParams": null,
+                    "typeName": "T"
+                  }
+                },
+                "typeParams": []
+              }
+            ],
+            "properties": [],
+            "callSignatures": [],
+            "indexSignatures": [],
+            "typeParams": [
+              {
+                "name": "T"
+              }
+            ]
+          }
         }
-      }
-    ]
-  }
-]
+      ]
+    }
+  ]
+}

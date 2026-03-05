@@ -67,114 +67,116 @@ class Data
 
 
 # output.json
-[
-  {
-    "name": "Data",
-    "declarations": [
-      {
-        "location": {
-          "filename": "file:///data.ts",
-          "line": 7,
-          "col": 0,
-          "byteIndex": 98
-        },
-        "declarationKind": "export",
-        "jsDoc": {
-          "doc": "doc"
-        },
-        "kind": "class",
-        "def": {
-          "isAbstract": false,
-          "constructors": [],
-          "properties": [
-            {
-              "jsDoc": {
-                "doc": "doc"
-              },
-              "tsType": {
-                "repr": "PrivateNotExported",
-                "kind": "typeRef",
-                "value": {
-                  "typeParams": null,
-                  "typeName": "PrivateNotExported"
-                }
-              },
-              "readonly": false,
-              "accessibility": null,
-              "optional": false,
-              "isAbstract": false,
-              "isStatic": false,
-              "name": "prop",
-              "location": {
-                "filename": "file:///data.ts",
-                "line": 9,
-                "col": 2,
-                "byteIndex": 133
-              }
-            },
-            {
-              "jsDoc": {
-                "doc": "doc"
-              },
-              "tsType": {
-                "repr": "PrivateExportedButNotFromModTs",
-                "kind": "typeRef",
-                "value": {
-                  "typeParams": null,
-                  "typeName": "PrivateExportedButNotFromModTs"
-                }
-              },
-              "readonly": false,
-              "accessibility": null,
-              "optional": false,
-              "isAbstract": false,
-              "isStatic": false,
-              "name": "prop2",
-              "location": {
-                "filename": "file:///data.ts",
-                "line": 11,
-                "col": 2,
-                "byteIndex": 174
-              }
-            },
-            {
-              "jsDoc": {
-                "tags": [
-                  {
-                    "kind": "internal"
+{
+  "symbols": [
+    {
+      "name": "Data",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///data.ts",
+            "line": 7,
+            "col": 0,
+            "byteIndex": 98
+          },
+          "declarationKind": "export",
+          "jsDoc": {
+            "doc": "doc"
+          },
+          "kind": "class",
+          "def": {
+            "isAbstract": false,
+            "constructors": [],
+            "properties": [
+              {
+                "jsDoc": {
+                  "doc": "doc"
+                },
+                "tsType": {
+                  "repr": "PrivateNotExported",
+                  "kind": "typeRef",
+                  "value": {
+                    "typeParams": null,
+                    "typeName": "PrivateNotExported"
                   }
-                ]
-              },
-              "tsType": {
-                "repr": "PrivateReferencedInInternal",
-                "kind": "typeRef",
-                "value": {
-                  "typeParams": null,
-                  "typeName": "PrivateReferencedInInternal"
+                },
+                "readonly": false,
+                "accessibility": null,
+                "optional": false,
+                "isAbstract": false,
+                "isStatic": false,
+                "name": "prop",
+                "location": {
+                  "filename": "file:///data.ts",
+                  "line": 9,
+                  "col": 2,
+                  "byteIndex": 133
                 }
               },
-              "readonly": false,
-              "accessibility": null,
-              "optional": false,
-              "isAbstract": false,
-              "isStatic": false,
-              "name": "prop3",
-              "location": {
-                "filename": "file:///data.ts",
-                "line": 13,
-                "col": 2,
-                "byteIndex": 234
+              {
+                "jsDoc": {
+                  "doc": "doc"
+                },
+                "tsType": {
+                  "repr": "PrivateExportedButNotFromModTs",
+                  "kind": "typeRef",
+                  "value": {
+                    "typeParams": null,
+                    "typeName": "PrivateExportedButNotFromModTs"
+                  }
+                },
+                "readonly": false,
+                "accessibility": null,
+                "optional": false,
+                "isAbstract": false,
+                "isStatic": false,
+                "name": "prop2",
+                "location": {
+                  "filename": "file:///data.ts",
+                  "line": 11,
+                  "col": 2,
+                  "byteIndex": 174
+                }
+              },
+              {
+                "jsDoc": {
+                  "tags": [
+                    {
+                      "kind": "internal"
+                    }
+                  ]
+                },
+                "tsType": {
+                  "repr": "PrivateReferencedInInternal",
+                  "kind": "typeRef",
+                  "value": {
+                    "typeParams": null,
+                    "typeName": "PrivateReferencedInInternal"
+                  }
+                },
+                "readonly": false,
+                "accessibility": null,
+                "optional": false,
+                "isAbstract": false,
+                "isStatic": false,
+                "name": "prop3",
+                "location": {
+                  "filename": "file:///data.ts",
+                  "line": 13,
+                  "col": 2,
+                  "byteIndex": 234
+                }
               }
-            }
-          ],
-          "indexSignatures": [],
-          "methods": [],
-          "extends": null,
-          "implements": [],
-          "typeParams": [],
-          "superTypeParams": []
+            ],
+            "indexSignatures": [],
+            "methods": [],
+            "extends": null,
+            "implements": [],
+            "typeParams": [],
+            "superTypeParams": []
+          }
         }
-      }
-    ]
-  }
-]
+      ]
+    }
+  ]
+}

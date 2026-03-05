@@ -253,22 +253,10 @@ impl IndexCtx {
         let sections = ctx
           .doc_nodes
           .iter()
-          .map(|(short_path, nodes)| {
-            let doc = nodes
-              .iter()
-              .find_map(|node| {
-                node
-                  .declarations
-                  .iter()
-                  .find(|decl| matches!(decl.def, DeclarationDef::ModuleDoc))
-              })
-              .and_then(|node| {
-                crate::html::jsdoc::jsdoc_body_to_html(
-                  &render_ctx,
-                  &node.js_doc,
-                  true,
-                )
-              });
+          .map(|(short_path, _nodes)| {
+            let doc = ctx.module_docs.get(short_path).and_then(|js_doc| {
+              crate::html::jsdoc::jsdoc_body_to_html(&render_ctx, js_doc, true)
+            });
 
             let title = short_path.display_name();
 

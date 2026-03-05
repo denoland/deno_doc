@@ -76,237 +76,239 @@ type Test = OtherPrivateType
 
 
 # output.json
-[
-  {
-    "name": "MyClass",
-    "declarations": [
-      {
-        "location": {
-          "filename": "file:///mod.ts",
-          "line": 6,
-          "col": 0,
-          "byteIndex": 109
-        },
-        "declarationKind": "export",
-        "jsDoc": {
-          "tags": [
-            {
-              "kind": "internal"
-            }
-          ]
-        },
-        "kind": "class",
-        "def": {
-          "isAbstract": false,
-          "constructors": [],
-          "properties": [
-            {
-              "tsType": null,
-              "readonly": false,
-              "accessibility": null,
-              "optional": false,
-              "isAbstract": false,
-              "isStatic": false,
-              "name": "test",
-              "location": {
-                "filename": "file:///mod.ts",
-                "line": 8,
-                "col": 2,
-                "byteIndex": 187
+{
+  "symbols": [
+    {
+      "name": "MyClass",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 6,
+            "col": 0,
+            "byteIndex": 109
+          },
+          "declarationKind": "export",
+          "jsDoc": {
+            "tags": [
+              {
+                "kind": "internal"
               }
-            },
-            {
-              "tsType": {
-                "repr": "PrivateType",
-                "kind": "typeRef",
-                "value": {
-                  "typeParams": null,
-                  "typeName": "PrivateType"
+            ]
+          },
+          "kind": "class",
+          "def": {
+            "isAbstract": false,
+            "constructors": [],
+            "properties": [
+              {
+                "tsType": null,
+                "readonly": false,
+                "accessibility": null,
+                "optional": false,
+                "isAbstract": false,
+                "isStatic": false,
+                "name": "test",
+                "location": {
+                  "filename": "file:///mod.ts",
+                  "line": 8,
+                  "col": 2,
+                  "byteIndex": 187
                 }
               },
-              "readonly": false,
-              "accessibility": null,
-              "optional": false,
-              "isAbstract": false,
-              "isStatic": false,
-              "name": "privateTypeUse",
-              "location": {
-                "filename": "file:///mod.ts",
-                "line": 14,
-                "col": 2,
-                "byteIndex": 240
-              }
-            }
-          ],
-          "indexSignatures": [],
-          "methods": [
-            {
-              "accessibility": null,
-              "optional": false,
-              "isAbstract": false,
-              "isStatic": false,
-              "name": "method",
-              "kind": "method",
-              "functionDef": {
-                "params": [],
-                "returnType": null,
-                "hasBody": true,
-                "isAsync": false,
-                "isGenerator": false,
-                "typeParams": []
-              },
-              "location": {
-                "filename": "file:///mod.ts",
-                "line": 10,
-                "col": 2,
-                "byteIndex": 196
-              }
-            }
-          ],
-          "extends": null,
-          "implements": [],
-          "typeParams": [],
-          "superTypeParams": []
-        }
-      }
-    ]
-  },
-  {
-    "name": "Other",
-    "declarations": [
-      {
-        "location": {
-          "filename": "file:///mod.ts",
-          "line": 18,
-          "col": 0,
-          "byteIndex": 284
-        },
-        "declarationKind": "export",
-        "jsDoc": {
-          "doc": "Test"
-        },
-        "kind": "class",
-        "def": {
-          "isAbstract": false,
-          "constructors": [],
-          "properties": [
-            {
-              "jsDoc": {
-                "tags": [
-                  {
-                    "kind": "internal"
+              {
+                "tsType": {
+                  "repr": "PrivateType",
+                  "kind": "typeRef",
+                  "value": {
+                    "typeParams": null,
+                    "typeName": "PrivateType"
                   }
-                ]
-              },
-              "tsType": null,
-              "readonly": false,
-              "accessibility": null,
-              "optional": false,
-              "isAbstract": false,
-              "isStatic": false,
-              "name": "test",
-              "location": {
-                "filename": "file:///mod.ts",
-                "line": 20,
-                "col": 2,
-                "byteIndex": 326
+                },
+                "readonly": false,
+                "accessibility": null,
+                "optional": false,
+                "isAbstract": false,
+                "isStatic": false,
+                "name": "privateTypeUse",
+                "location": {
+                  "filename": "file:///mod.ts",
+                  "line": 14,
+                  "col": 2,
+                  "byteIndex": 240
+                }
               }
-            }
-          ],
-          "indexSignatures": [],
-          "methods": [
-            {
-              "jsDoc": {
-                "tags": [
-                  {
-                    "kind": "internal"
-                  }
-                ]
-              },
-              "accessibility": null,
-              "optional": false,
-              "isAbstract": false,
-              "isStatic": false,
-              "name": "method",
-              "kind": "method",
-              "functionDef": {
-                "params": [],
-                "returnType": null,
-                "hasBody": true,
-                "isAsync": false,
-                "isGenerator": false,
-                "typeParams": []
-              },
-              "location": {
-                "filename": "file:///mod.ts",
-                "line": 23,
-                "col": 2,
-                "byteIndex": 354
+            ],
+            "indexSignatures": [],
+            "methods": [
+              {
+                "accessibility": null,
+                "optional": false,
+                "isAbstract": false,
+                "isStatic": false,
+                "name": "method",
+                "kind": "method",
+                "functionDef": {
+                  "params": [],
+                  "returnType": null,
+                  "hasBody": true,
+                  "isAsync": false,
+                  "isGenerator": false,
+                  "typeParams": []
+                },
+                "location": {
+                  "filename": "file:///mod.ts",
+                  "line": 10,
+                  "col": 2,
+                  "byteIndex": 196
+                }
               }
-            }
-          ],
-          "extends": null,
-          "implements": [],
-          "typeParams": [],
-          "superTypeParams": []
+            ],
+            "extends": null,
+            "implements": [],
+            "typeParams": [],
+            "superTypeParams": []
+          }
         }
-      }
-    ]
-  },
-  {
-    "name": "Test",
-    "declarations": [
-      {
-        "location": {
-          "filename": "file:///mod.ts",
-          "line": 33,
-          "col": 0,
-          "byteIndex": 480
-        },
-        "declarationKind": "export",
-        "kind": "typeAlias",
-        "def": {
-          "tsType": {
-            "repr": "OtherPrivateType",
-            "kind": "typeRef",
-            "value": {
-              "typeParams": null,
-              "typeName": "OtherPrivateType"
-            }
+      ]
+    },
+    {
+      "name": "Other",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 18,
+            "col": 0,
+            "byteIndex": 284
           },
-          "typeParams": []
-        }
-      }
-    ]
-  },
-  {
-    "name": "PrivateType",
-    "declarations": [
-      {
-        "location": {
-          "filename": "file:///mod.ts",
-          "line": 3,
-          "col": 0,
-          "byteIndex": 64
-        },
-        "declarationKind": "private",
-        "jsDoc": {
-          "tags": [
-            {
-              "kind": "internal"
-            }
-          ]
-        },
-        "kind": "typeAlias",
-        "def": {
-          "tsType": {
-            "repr": "string",
-            "kind": "keyword",
-            "value": "string"
+          "declarationKind": "export",
+          "jsDoc": {
+            "doc": "Test"
           },
-          "typeParams": []
+          "kind": "class",
+          "def": {
+            "isAbstract": false,
+            "constructors": [],
+            "properties": [
+              {
+                "jsDoc": {
+                  "tags": [
+                    {
+                      "kind": "internal"
+                    }
+                  ]
+                },
+                "tsType": null,
+                "readonly": false,
+                "accessibility": null,
+                "optional": false,
+                "isAbstract": false,
+                "isStatic": false,
+                "name": "test",
+                "location": {
+                  "filename": "file:///mod.ts",
+                  "line": 20,
+                  "col": 2,
+                  "byteIndex": 326
+                }
+              }
+            ],
+            "indexSignatures": [],
+            "methods": [
+              {
+                "jsDoc": {
+                  "tags": [
+                    {
+                      "kind": "internal"
+                    }
+                  ]
+                },
+                "accessibility": null,
+                "optional": false,
+                "isAbstract": false,
+                "isStatic": false,
+                "name": "method",
+                "kind": "method",
+                "functionDef": {
+                  "params": [],
+                  "returnType": null,
+                  "hasBody": true,
+                  "isAsync": false,
+                  "isGenerator": false,
+                  "typeParams": []
+                },
+                "location": {
+                  "filename": "file:///mod.ts",
+                  "line": 23,
+                  "col": 2,
+                  "byteIndex": 354
+                }
+              }
+            ],
+            "extends": null,
+            "implements": [],
+            "typeParams": [],
+            "superTypeParams": []
+          }
         }
-      }
-    ]
-  }
-]
+      ]
+    },
+    {
+      "name": "Test",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 33,
+            "col": 0,
+            "byteIndex": 480
+          },
+          "declarationKind": "export",
+          "kind": "typeAlias",
+          "def": {
+            "tsType": {
+              "repr": "OtherPrivateType",
+              "kind": "typeRef",
+              "value": {
+                "typeParams": null,
+                "typeName": "OtherPrivateType"
+              }
+            },
+            "typeParams": []
+          }
+        }
+      ]
+    },
+    {
+      "name": "PrivateType",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 3,
+            "col": 0,
+            "byteIndex": 64
+          },
+          "declarationKind": "private",
+          "jsDoc": {
+            "tags": [
+              {
+                "kind": "internal"
+              }
+            ]
+          },
+          "kind": "typeAlias",
+          "def": {
+            "tsType": {
+              "repr": "string",
+              "kind": "keyword",
+              "value": "string"
+            },
+            "typeParams": []
+          }
+        }
+      ]
+    }
+  ]
+}

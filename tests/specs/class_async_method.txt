@@ -26,74 +26,76 @@ class Class
 
 
 # output.json
-[
-  {
-    "name": "Class",
-    "declarations": [
-      {
-        "location": {
-          "filename": "file:///mod.ts",
-          "line": 0,
-          "col": 0,
-          "byteIndex": 0
-        },
-        "declarationKind": "export",
-        "kind": "class",
-        "def": {
-          "isAbstract": false,
-          "constructors": [],
-          "properties": [],
-          "indexSignatures": [],
-          "methods": [
-            {
-              "accessibility": null,
-              "optional": false,
-              "isAbstract": false,
-              "isStatic": false,
-              "name": "amethod",
-              "kind": "method",
-              "functionDef": {
-                "params": [
-                  {
-                    "kind": "identifier",
-                    "name": "v",
-                    "optional": false,
-                    "tsType": null
-                  }
-                ],
-                "returnType": {
-                  "repr": "Promise",
-                  "kind": "typeRef",
-                  "value": {
-                    "typeParams": [
-                      {
-                        "repr": "void",
-                        "kind": "keyword",
-                        "value": "void"
-                      }
-                    ],
-                    "typeName": "Promise"
-                  }
+{
+  "symbols": [
+    {
+      "name": "Class",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 0,
+            "col": 0,
+            "byteIndex": 0
+          },
+          "declarationKind": "export",
+          "kind": "class",
+          "def": {
+            "isAbstract": false,
+            "constructors": [],
+            "properties": [],
+            "indexSignatures": [],
+            "methods": [
+              {
+                "accessibility": null,
+                "optional": false,
+                "isAbstract": false,
+                "isStatic": false,
+                "name": "amethod",
+                "kind": "method",
+                "functionDef": {
+                  "params": [
+                    {
+                      "kind": "identifier",
+                      "name": "v",
+                      "optional": false,
+                      "tsType": null
+                    }
+                  ],
+                  "returnType": {
+                    "repr": "Promise",
+                    "kind": "typeRef",
+                    "value": {
+                      "typeParams": [
+                        {
+                          "repr": "void",
+                          "kind": "keyword",
+                          "value": "void"
+                        }
+                      ],
+                      "typeName": "Promise"
+                    }
+                  },
+                  "hasBody": true,
+                  "isAsync": true,
+                  "isGenerator": false,
+                  "typeParams": []
                 },
-                "hasBody": true,
-                "isAsync": true,
-                "isGenerator": false,
-                "typeParams": []
-              },
-              "location": {
-                "filename": "file:///mod.ts",
-                "line": 1,
-                "col": 2,
-                "byteIndex": 23
+                "location": {
+                  "filename": "file:///mod.ts",
+                  "line": 1,
+                  "col": 2,
+                  "byteIndex": 23
+                }
               }
-            }
-          ],
-          "extends": null,
-          "implements": [],
-          "typeParams": [],
-          "superTypeParams": []
+            ],
+            "extends": null,
+            "implements": [],
+            "typeParams": [],
+            "superTypeParams": []
+          }
         }
-      }
-    ]
-  }
-]
+      ]
+    }
+  ]
+}

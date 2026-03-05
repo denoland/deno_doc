@@ -4,10 +4,10 @@ expression: module_docs
 ---
 [
   {
-    "deprecated": null,
+    "deprecated": "<div class=\"markdown\"></div>",
     "sections": {
       "id": "module_doc",
-      "docs": null,
+      "docs": "<div class=\"markdown\"><p>Some docs\nwith a line break</p>\n</div>",
       "sections": []
     }
   },

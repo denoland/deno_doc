@@ -21,12 +21,9 @@ export interface B {}
 export function C() {}
 
 # output.txt
-Defined in file:///mod.ts:1:1
-
-  This module provides simple examples of a class, an interface, and a function.
-
-  @module
-      MyModule
+This module provides simple examples of a class, an interface, and a function.
+@module
+    MyModule
 
 
 Defined in file:///mod.ts:19:1
@@ -48,115 +45,102 @@ interface B
 
 
 # output.json
-[
-  {
-    "name": "",
-    "declarations": [
+{
+  "module_doc": {
+    "doc": "This module provides simple examples of a class, an interface, and a function.",
+    "tags": [
       {
-        "location": {
-          "filename": "file:///mod.ts",
-          "line": 1,
-          "col": 0,
-          "byteIndex": 52
-        },
-        "declarationKind": "export",
-        "jsDoc": {
-          "doc": "This module provides simple examples of a class, an interface, and a function.",
-          "tags": [
-            {
-              "kind": "module",
-              "name": "MyModule"
-            }
-          ]
-        },
-        "kind": "moduleDoc"
+        "kind": "module",
+        "name": "MyModule"
       }
     ]
   },
-  {
-    "name": "A",
-    "declarations": [
-      {
-        "location": {
-          "filename": "file:///mod.ts",
-          "line": 9,
-          "col": 0,
-          "byteIndex": 193
-        },
-        "declarationKind": "export",
-        "jsDoc": {
-          "doc": "A is a simple class."
-        },
-        "kind": "class",
-        "def": {
-          "isAbstract": false,
-          "constructors": [],
-          "properties": [],
-          "indexSignatures": [],
-          "methods": [],
-          "extends": null,
-          "implements": [],
-          "typeParams": [],
-          "superTypeParams": []
-        }
-      }
-    ]
-  },
-  {
-    "name": "B",
-    "declarations": [
-      {
-        "location": {
-          "filename": "file:///mod.ts",
-          "line": 14,
-          "col": 0,
-          "byteIndex": 248
-        },
-        "declarationKind": "export",
-        "jsDoc": {
-          "doc": "B is a simple interface."
-        },
-        "kind": "interface",
-        "def": {
-          "extends": [],
-          "constructors": [],
-          "methods": [],
-          "properties": [],
-          "callSignatures": [],
-          "indexSignatures": [],
-          "typeParams": []
-        }
-      }
-    ]
-  },
-  {
-    "name": "C",
-    "declarations": [
-      {
-        "location": {
-          "filename": "file:///mod.ts",
-          "line": 19,
-          "col": 0,
-          "byteIndex": 299
-        },
-        "declarationKind": "export",
-        "jsDoc": {
-          "doc": "C is a function."
-        },
-        "kind": "function",
-        "def": {
-          "params": [],
-          "returnType": {
-            "repr": "void",
-            "kind": "keyword",
-            "value": "void"
+  "symbols": [
+    {
+      "name": "A",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 9,
+            "col": 0,
+            "byteIndex": 193
           },
-          "hasBody": true,
-          "isAsync": false,
-          "isGenerator": false,
-          "typeParams": []
+          "declarationKind": "export",
+          "jsDoc": {
+            "doc": "A is a simple class."
+          },
+          "kind": "class",
+          "def": {
+            "isAbstract": false,
+            "constructors": [],
+            "properties": [],
+            "indexSignatures": [],
+            "methods": [],
+            "extends": null,
+            "implements": [],
+            "typeParams": [],
+            "superTypeParams": []
+          }
         }
-      }
-    ]
-  }
-]
+      ]
+    },
+    {
+      "name": "B",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 14,
+            "col": 0,
+            "byteIndex": 248
+          },
+          "declarationKind": "export",
+          "jsDoc": {
+            "doc": "B is a simple interface."
+          },
+          "kind": "interface",
+          "def": {
+            "extends": [],
+            "constructors": [],
+            "methods": [],
+            "properties": [],
+            "callSignatures": [],
+            "indexSignatures": [],
+            "typeParams": []
+          }
+        }
+      ]
+    },
+    {
+      "name": "C",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 19,
+            "col": 0,
+            "byteIndex": 299
+          },
+          "declarationKind": "export",
+          "jsDoc": {
+            "doc": "C is a function."
+          },
+          "kind": "function",
+          "def": {
+            "params": [],
+            "returnType": {
+              "repr": "void",
+              "kind": "keyword",
+              "value": "void"
+            },
+            "hasBody": true,
+            "isAsync": false,
+            "isGenerator": false,
+            "typeParams": []
+          }
+        }
+      ]
+    }
+  ]
+}

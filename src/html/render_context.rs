@@ -486,6 +486,7 @@ mod test {
     GenerateOptions, UsageComposer, UsageComposerEntry, UsageToMd,
   };
   use crate::node::DeclarationKind;
+  use crate::node::Document;
   use crate::node::ImportDef;
   use crate::node::Symbol;
   use crate::{Declaration, Location};
@@ -560,24 +561,27 @@ mod test {
   fn lookup_symbol_href() {
     let doc_nodes_by_url = indexmap::IndexMap::from([(
       ModuleSpecifier::parse("file:///mod.ts").unwrap(),
-      vec![Symbol {
-        name: "foo".into(),
-        is_default: false,
-        declarations: vec![Declaration {
-          location: Location {
-            filename: "a".into(),
-            line: 0,
-            col: 0,
-            byte_index: 0,
-          },
-          declaration_kind: DeclarationKind::Private,
-          js_doc: Default::default(),
-          def: crate::node::DeclarationDef::Import(ImportDef {
-            src: "b".to_string(),
-            imported: Some("foo".to_string()),
-          }),
+      Document {
+        module_doc: Default::default(),
+        symbols: vec![Symbol {
+          name: "foo".into(),
+          is_default: false,
+          declarations: vec![Declaration {
+            location: Location {
+              filename: "a".into(),
+              line: 0,
+              col: 0,
+              byte_index: 0,
+            },
+            declaration_kind: DeclarationKind::Private,
+            js_doc: Default::default(),
+            def: crate::node::DeclarationDef::Import(ImportDef {
+              src: "b".to_string(),
+              imported: Some("foo".to_string()),
+            }),
+          }],
         }],
-      }],
+      },
     )]);
 
     let ctx = GenerateCtx::new(

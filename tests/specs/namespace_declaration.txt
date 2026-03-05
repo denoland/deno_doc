@@ -16,23 +16,25 @@ namespace Namespace
 
 
 # output.json
-[
-  {
-    "name": "Namespace",
-    "declarations": [
-      {
-        "location": {
-          "filename": "file:///mod.ts",
-          "line": 0,
-          "col": 0,
-          "byteIndex": 0
-        },
-        "declarationKind": "export",
-        "kind": "namespace",
-        "def": {
-          "elements": []
+{
+  "symbols": [
+    {
+      "name": "Namespace",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 0,
+            "col": 0,
+            "byteIndex": 0
+          },
+          "declarationKind": "export",
+          "kind": "namespace",
+          "def": {
+            "elements": []
+          }
         }
-      }
-    ]
-  }
-]
+      ]
+    }
+  ]
+}

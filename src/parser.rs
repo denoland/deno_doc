@@ -46,10 +46,10 @@ use crate::Location;
 use crate::diagnostics::DiagnosticsCollector;
 use crate::diagnostics::DocDiagnostic;
 use crate::js_doc::JsDoc;
-use crate::node::DeclarationDef;
 use crate::node::DeclarationKind;
 use crate::node::NamespaceDef;
 use crate::node::ReferenceDef;
+use crate::node::{DeclarationDef, Document};
 use crate::ts_type::PropertyDef;
 use crate::ts_type::TsTypeDef;
 use crate::ts_type::TsTypeDefKind;
@@ -93,7 +93,7 @@ impl From<deno_ast::ParseDiagnostic> for DocError {
   }
 }
 
-pub type ParseOutput = IndexMap<ModuleSpecifier, Vec<Symbol>>;
+pub type ParseOutput = IndexMap<ModuleSpecifier, Document>;
 
 #[derive(Default, Clone)]
 pub struct DocParserOptions {
@@ -175,7 +175,7 @@ impl<'a> DocParser<'a> {
 
     let mut all_locations = symbols_by_url
       .values()
-      .flatten()
+      .flat_map(|doc| doc.symbols.iter())
       .flat_map(|symbol| {
         fn walk_arc_symbols(symbol: &[Arc<Symbol>]) -> Vec<Location> {
           symbol
@@ -206,17 +206,18 @@ impl<'a> DocParser<'a> {
       })
       .collect::<HashSet<_>>();
 
-    for (specifier, symbols) in symbols_by_url.iter_mut() {
+    for (specifier, document) in symbols_by_url.iter_mut() {
       self.resolve_references_for_nodes(
         specifier,
-        symbols,
+        &mut document.symbols,
         &[],
         &mut all_locations,
       )?;
     }
 
-    for (_, symbols) in &symbols_by_url {
-      self.collect_diagnostics_for_symbols(symbols);
+    for (_, document) in &symbols_by_url {
+      // TODO: jsdoc
+      self.collect_diagnostics_for_symbols(&document.symbols);
     }
 
     Ok(symbols_by_url)
@@ -440,17 +441,18 @@ impl<'a> DocParser<'a> {
     &self,
     specifier: &ModuleSpecifier,
     mut visited: HashSet<ModuleSpecifier>,
-  ) -> Result<Vec<Symbol>, DocError> {
+  ) -> Result<Document, DocError> {
     if !visited.insert(specifier.clone()) {
-      return Ok(Vec::new()); // circular
+      return Ok(Default::default()); // circular
     }
     let module = resolve_deno_graph_module(self.graph, specifier)?;
 
     match module {
       Module::Js(_) | Module::Json(_) | Module::Wasm(_) => {
         let module_info = self.get_module_info(module.specifier())?;
-        let module_symbols = self.get_symbols_for_module_info(module_info)?;
-        let mut flattened_symbols = Vec::new();
+        let mut document = self
+          .get_symbols_for_module_info(module_info)?
+          .unwrap_or_default();
         let exports = module_info.exports(&self.root_symbol);
         for (export_name, export) in exports.resolved {
           let export = export.as_resolved_export();
@@ -495,26 +497,12 @@ impl<'a> DocParser<'a> {
                   }
 
                   // hoist any module doc to be the exported namespaces module doc
-                  let mut js_doc = JsDoc::default();
-                  for doc_node in &doc_nodes {
-                    if matches!(
-                      doc_node.declarations[0].def,
-                      DeclarationDef::ModuleDoc
-                    ) {
-                      js_doc = doc_node.declarations[0].js_doc.clone();
-                    }
-                  }
-                  js_doc
+                  doc_nodes.module_doc.clone()
                 })();
                 let ns_def = NamespaceDef {
                   elements: doc_nodes
+                    .symbols
                     .into_iter()
-                    .filter(|dn| {
-                      !matches!(
-                        dn.declarations[0].def,
-                        DeclarationDef::ModuleDoc
-                      )
-                    })
                     .map(|mut node| {
                       let decl = &mut node.declarations[0];
                       let target = decl.location.clone();
@@ -534,17 +522,18 @@ impl<'a> DocParser<'a> {
                   js_doc,
                   ns_def,
                 );
-                flattened_symbols.push(ns_symbol);
+                document.symbols.push(ns_symbol);
               }
               DefinitionKind::Definition => {}
             }
           }
         }
 
-        flattened_symbols.extend(module_symbols);
-        Ok(flattened_symbols)
+        Ok(document)
       }
-      Module::Npm(_) | Module::Node(_) | Module::External(_) => Ok(vec![]),
+      Module::Npm(_) | Module::Node(_) | Module::External(_) => {
+        Ok(Default::default())
+      }
     }
   }
 
@@ -1094,42 +1083,45 @@ impl<'a> DocParser<'a> {
   fn get_symbols_for_module_info(
     &self,
     module_info: ModuleInfoRef,
-  ) -> Result<Vec<Symbol>, DocError> {
+  ) -> Result<Option<Document>, DocError> {
     match module_info {
-      ModuleInfoRef::Json(module) => Ok(
-        parse_json_module_symbol(
-          module.specifier(),
-          module.text_info().text_str(),
-        )
-        .map(|n| vec![n])
-        .unwrap_or_default(),
-      ),
+      ModuleInfoRef::Json(module) => Ok(parse_json_module_symbol(
+        module.specifier(),
+        module.text_info().text_str(),
+      )),
       ModuleInfoRef::Esm(module_info) => {
-        let mut definitions =
-          self.get_symbols_for_module_info_body(module_info);
-        definitions.extend(self.get_symbols_for_module_imports(module_info)?);
+        if let Some(mut document) =
+          self.get_document_for_module_info_body(module_info)
+        {
+          document
+            .symbols
+            .extend(self.get_symbols_for_module_imports(module_info)?);
 
-        Ok(definitions)
+          Ok(Some(document))
+        } else {
+          Ok(None)
+        }
       }
     }
   }
 
-  fn get_symbols_for_module_info_body(
+  fn get_document_for_module_info_body(
     &self,
     module_info: &EsModuleInfo,
-  ) -> Vec<Symbol> {
+  ) -> Option<Document> {
     let mut symbols = Vec::new();
     // check to see if there is a module level JSDoc for the source file
-    if let Some(module_js_doc) = module_js_doc_for_source(module_info.source())
+    let module_doc = if let Some(module_js_doc) =
+      module_js_doc_for_source(module_info.source())
     {
-      if let Some((js_doc, range)) = module_js_doc {
-        let symbol =
-          Symbol::module_doc(get_location(module_info, range.start), js_doc);
-        symbols.push(symbol);
+      if let Some((js_doc, _range)) = module_js_doc {
+        js_doc
       } else {
-        return vec![];
+        return None;
       }
-    }
+    } else {
+      Default::default()
+    };
 
     let mut handled_symbols = HashSet::new();
     let exports = module_info.exports(&self.root_symbol);
@@ -1195,7 +1187,10 @@ impl<'a> DocParser<'a> {
       }
     }
 
-    symbols
+    Some(Document {
+      module_doc,
+      symbols,
+    })
   }
 
   #[allow(clippy::too_many_arguments)]
@@ -1213,11 +1208,13 @@ impl<'a> DocParser<'a> {
     let mut decls = Vec::with_capacity(2);
     match module_info {
       ModuleInfoRef::Json(module_info) => {
-        if let Some(symbol) = parse_json_module_symbol(
+        if let Some(document) = parse_json_module_symbol(
           module_info.specifier(),
           module_info.text_info().text_str(),
         ) {
-          decls.extend(symbol.declarations);
+          for symbol in document.symbols {
+            decls.extend(symbol.declarations);
+          }
         }
         return decls;
       }
@@ -1607,24 +1604,27 @@ fn decl_from_expr(
 fn parse_json_module_symbol(
   specifier: &ModuleSpecifier,
   source: &str,
-) -> Option<Symbol> {
+) -> Option<Document> {
   if let Ok(value) = serde_json::from_str(source) {
-    Some(Symbol::variable(
-      "default".into(),
-      true,
-      Location {
-        filename: specifier.to_string().into_boxed_str(),
-        col: 0,
-        line: 0,
-        byte_index: 0,
-      },
-      DeclarationKind::Export,
-      JsDoc::default(),
-      VariableDef {
-        kind: VarDeclKind::Var,
-        ts_type: Some(parse_json_module_type(&value)),
-      },
-    ))
+    Some(Document {
+      module_doc: Default::default(),
+      symbols: vec![Symbol::variable(
+        "default".into(),
+        true,
+        Location {
+          filename: specifier.to_string().into_boxed_str(),
+          col: 0,
+          line: 0,
+          byte_index: 0,
+        },
+        DeclarationKind::Export,
+        JsDoc::default(),
+        VariableDef {
+          kind: VarDeclKind::Var,
+          ts_type: Some(parse_json_module_type(&value)),
+        },
+      )],
+    })
   } else {
     // no doc nodes
     None

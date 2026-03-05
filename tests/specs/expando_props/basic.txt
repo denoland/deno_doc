@@ -33,151 +33,153 @@ namespace test
 
 
 # output.json
-[
-  {
-    "name": "test",
-    "declarations": [
-      {
-        "location": {
-          "filename": "file:///mod.ts",
-          "line": 1,
-          "col": 0,
-          "byteIndex": 15
-        },
-        "declarationKind": "export",
-        "jsDoc": {
-          "doc": "Testing"
-        },
-        "kind": "function",
-        "def": {
-          "params": [],
-          "returnType": {
-            "repr": "void",
-            "kind": "keyword",
-            "value": "void"
+{
+  "symbols": [
+    {
+      "name": "test",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 1,
+            "col": 0,
+            "byteIndex": 15
           },
-          "hasBody": true,
-          "isAsync": false,
-          "isGenerator": false,
-          "typeParams": []
-        }
-      },
-      {
-        "location": {
-          "filename": "file:///mod.ts",
-          "line": 5,
-          "col": 5,
-          "byteIndex": 60
+          "declarationKind": "export",
+          "jsDoc": {
+            "doc": "Testing"
+          },
+          "kind": "function",
+          "def": {
+            "params": [],
+            "returnType": {
+              "repr": "void",
+              "kind": "keyword",
+              "value": "void"
+            },
+            "hasBody": true,
+            "isAsync": false,
+            "isGenerator": false,
+            "typeParams": []
+          }
         },
-        "declarationKind": "export",
-        "jsDoc": {
-          "doc": "Additional properties on the `test` function."
-        },
-        "kind": "namespace",
-        "def": {
-          "elements": [
-            {
-              "name": "skip",
-              "declarations": [
-                {
-                  "location": {
-                    "filename": "file:///mod.ts",
-                    "line": 5,
-                    "col": 5,
-                    "byteIndex": 60
-                  },
-                  "declarationKind": "declare",
-                  "jsDoc": {
-                    "doc": "doc1"
-                  },
-                  "kind": "function",
-                  "def": {
-                    "params": [
-                      {
-                        "kind": "identifier",
-                        "name": "param",
-                        "optional": false,
-                        "tsType": {
-                          "repr": "string",
-                          "kind": "keyword",
-                          "value": "string"
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 5,
+            "col": 5,
+            "byteIndex": 60
+          },
+          "declarationKind": "export",
+          "jsDoc": {
+            "doc": "Additional properties on the `test` function."
+          },
+          "kind": "namespace",
+          "def": {
+            "elements": [
+              {
+                "name": "skip",
+                "declarations": [
+                  {
+                    "location": {
+                      "filename": "file:///mod.ts",
+                      "line": 5,
+                      "col": 5,
+                      "byteIndex": 60
+                    },
+                    "declarationKind": "declare",
+                    "jsDoc": {
+                      "doc": "doc1"
+                    },
+                    "kind": "function",
+                    "def": {
+                      "params": [
+                        {
+                          "kind": "identifier",
+                          "name": "param",
+                          "optional": false,
+                          "tsType": {
+                            "repr": "string",
+                            "kind": "keyword",
+                            "value": "string"
+                          }
                         }
-                      }
-                    ],
-                    "returnType": {
-                      "repr": "void",
-                      "kind": "keyword",
-                      "value": "void"
-                    },
-                    "hasBody": true,
-                    "isAsync": false,
-                    "isGenerator": false,
-                    "typeParams": []
+                      ],
+                      "returnType": {
+                        "repr": "void",
+                        "kind": "keyword",
+                        "value": "void"
+                      },
+                      "hasBody": true,
+                      "isAsync": false,
+                      "isGenerator": false,
+                      "typeParams": []
+                    }
                   }
-                }
-              ]
-            },
-            {
-              "name": "textProp",
-              "declarations": [
-                {
-                  "location": {
-                    "filename": "file:///mod.ts",
-                    "line": 9,
-                    "col": 5,
-                    "byteIndex": 115
-                  },
-                  "declarationKind": "declare",
-                  "jsDoc": {
-                    "doc": "doc2"
-                  },
-                  "kind": "variable",
-                  "def": {
-                    "tsType": {
-                      "repr": "asdf",
-                      "kind": "literal",
-                      "value": {
-                        "kind": "string",
-                        "string": "asdf"
-                      }
+                ]
+              },
+              {
+                "name": "textProp",
+                "declarations": [
+                  {
+                    "location": {
+                      "filename": "file:///mod.ts",
+                      "line": 9,
+                      "col": 5,
+                      "byteIndex": 115
                     },
-                    "kind": "const"
-                  }
-                }
-              ]
-            },
-            {
-              "name": "booleanProp",
-              "declarations": [
-                {
-                  "location": {
-                    "filename": "file:///mod.ts",
-                    "line": 12,
-                    "col": 5,
-                    "byteIndex": 152
-                  },
-                  "declarationKind": "declare",
-                  "jsDoc": {
-                    "doc": "doc3"
-                  },
-                  "kind": "variable",
-                  "def": {
-                    "tsType": {
-                      "repr": "true",
-                      "kind": "literal",
-                      "value": {
-                        "kind": "boolean",
-                        "boolean": true
-                      }
+                    "declarationKind": "declare",
+                    "jsDoc": {
+                      "doc": "doc2"
                     },
-                    "kind": "const"
+                    "kind": "variable",
+                    "def": {
+                      "tsType": {
+                        "repr": "asdf",
+                        "kind": "literal",
+                        "value": {
+                          "kind": "string",
+                          "string": "asdf"
+                        }
+                      },
+                      "kind": "const"
+                    }
                   }
-                }
-              ]
-            }
-          ]
+                ]
+              },
+              {
+                "name": "booleanProp",
+                "declarations": [
+                  {
+                    "location": {
+                      "filename": "file:///mod.ts",
+                      "line": 12,
+                      "col": 5,
+                      "byteIndex": 152
+                    },
+                    "declarationKind": "declare",
+                    "jsDoc": {
+                      "doc": "doc3"
+                    },
+                    "kind": "variable",
+                    "def": {
+                      "tsType": {
+                        "repr": "true",
+                        "kind": "literal",
+                        "value": {
+                          "kind": "boolean",
+                          "boolean": true
+                        }
+                      },
+                      "kind": "const"
+                    }
+                  }
+                ]
+              }
+            ]
+          }
         }
-      }
-    ]
-  }
-]
+      ]
+    }
+  ]
+}

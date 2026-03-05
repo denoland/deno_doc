@@ -219,10 +219,7 @@ pub fn compute_namespaced_symbols<'a>(
     let name_path: Rc<[String]> = symbol.sub_qualifier().into();
 
     for decl in &symbol.declarations {
-      if matches!(
-        decl.def,
-        DeclarationDef::ModuleDoc | DeclarationDef::Import(..)
-      ) {
+      if matches!(decl.def, DeclarationDef::Import(..)) {
         continue;
       }
 
@@ -590,7 +587,7 @@ impl From<DocNodeKind> for DocNodeKindCtx {
       DocNodeKind::Namespace => {
         ('N', "Namespace", "Namespace", "namespace", "Namespaces")
       }
-      DocNodeKind::ModuleDoc | DocNodeKind::Import | DocNodeKind::Reference => {
+      DocNodeKind::Import | DocNodeKind::Reference => {
         unreachable!()
       }
     };
