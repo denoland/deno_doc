@@ -67,7 +67,10 @@ interface Interface
                   "kind": "typeRef",
                   "value": {
                     "typeParams": null,
-                    "typeName": "Interface"
+                    "typeName": "Interface",
+                    "resolution": {
+                      "kind": "local"
+                    }
                   }
                 },
                 "location": {

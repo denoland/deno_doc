@@ -95,7 +95,10 @@ interface Generic<T>
                     ]
                   }
                 ],
-                "typeName": "Generic"
+                "typeName": "Generic",
+                "resolution": {
+                  "kind": "local"
+                }
               }
             },
             "hasBody": true,

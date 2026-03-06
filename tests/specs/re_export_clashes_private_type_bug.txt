@@ -168,7 +168,10 @@ class MyClass
                   "kind": "typeRef",
                   "value": {
                     "typeParams": null,
-                    "typeName": "Internal1"
+                    "typeName": "Internal1",
+                    "resolution": {
+                      "kind": "local"
+                    }
                   }
                 },
                 "readonly": false,
@@ -193,7 +196,10 @@ class MyClass
                   "kind": "typeRef",
                   "value": {
                     "typeParams": null,
-                    "typeName": "Internal2"
+                    "typeName": "Internal2",
+                    "resolution": {
+                      "kind": "local"
+                    }
                   }
                 },
                 "readonly": false,

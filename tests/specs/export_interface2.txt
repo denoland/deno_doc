@@ -61,7 +61,12 @@ interface TypedIface<T>
                   "kind": "typeRef",
                   "value": {
                     "typeParams": null,
-                    "typeName": "T"
+                    "typeName": "T",
+                    "resolution": {
+                      "kind": "typeParam",
+                      "declaringName": "TypedIface",
+                      "declaringKind": "interface"
+                    }
                   }
                 },
                 "typeParams": []

@@ -68,7 +68,10 @@ private class YesDiagnostic
                   "kind": "typeRef",
                   "value": {
                     "typeParams": null,
-                    "typeName": "YesDiagnostic"
+                    "typeName": "YesDiagnostic",
+                    "resolution": {
+                      "kind": "local"
+                    }
                   }
                 },
                 "readonly": false,

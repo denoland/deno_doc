@@ -36,7 +36,12 @@ type A<T> = T
               "kind": "typeRef",
               "value": {
                 "typeParams": null,
-                "typeName": "T"
+                "typeName": "T",
+                "resolution": {
+                  "kind": "typeParam",
+                  "declaringName": "A",
+                  "declaringKind": "typeAlias"
+                }
               }
             },
             "typeParams": [

@@ -93,7 +93,10 @@ private interface YesDiagnostic
                     "kind": "typeRef",
                     "value": {
                       "typeParams": null,
-                      "typeName": "YesDiagnostic"
+                      "typeName": "YesDiagnostic",
+                      "resolution": {
+                        "kind": "local"
+                      }
                     }
                   },
                   "hasBody": true,
@@ -122,7 +125,10 @@ private interface YesDiagnostic
                     "kind": "typeRef",
                     "value": {
                       "typeParams": null,
-                      "typeName": "NoDiagnostic"
+                      "typeName": "NoDiagnostic",
+                      "resolution": {
+                        "kind": "local"
+                      }
                     }
                   },
                   "hasBody": true,

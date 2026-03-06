@@ -43,7 +43,12 @@ interface Interface<V> extends Iterable<V>
                       "kind": "typeRef",
                       "value": {
                         "typeParams": null,
-                        "typeName": "V"
+                        "typeName": "V",
+                        "resolution": {
+                          "kind": "typeParam",
+                          "declaringName": "Interface",
+                          "declaringKind": "interface"
+                        }
                       }
                     }
                   ],

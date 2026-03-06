@@ -97,7 +97,10 @@ class PublicType2
                   "kind": "typeRef",
                   "value": {
                     "typeParams": null,
-                    "typeName": "NonExportedType"
+                    "typeName": "NonExportedType",
+                    "resolution": {
+                      "kind": "local"
+                    }
                   }
                 },
                 "readonly": false,
@@ -169,7 +172,10 @@ class PublicType2
                   "kind": "typeRef",
                   "value": {
                     "typeParams": null,
-                    "typeName": "NonExportedType2"
+                    "typeName": "NonExportedType2",
+                    "resolution": {
+                      "kind": "local"
+                    }
                   }
                 },
                 "readonly": false,
