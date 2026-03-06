@@ -51,7 +51,10 @@ export interface Foo {
                           "kind": "typeRef",
                           "value": {
                             "typeParams": null,
-                            "typeName": "Foo"
+                            "typeName": "Foo",
+                            "resolution": {
+                              "kind": "local"
+                            }
                           }
                         },
                         "typeParams": [],
@@ -82,7 +85,10 @@ export interface Foo {
                           "kind": "typeRef",
                           "value": {
                             "typeParams": null,
-                            "typeName": "Foo"
+                            "typeName": "Foo",
+                            "resolution": {
+                              "kind": "local"
+                            }
                           }
                         },
                         "typeParams": [],

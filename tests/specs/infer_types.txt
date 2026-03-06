@@ -40,7 +40,12 @@ type Flatten<T> = T extends Array<infer U> ? U : T
                   "kind": "typeRef",
                   "value": {
                     "typeParams": null,
-                    "typeName": "T"
+                    "typeName": "T",
+                    "resolution": {
+                      "kind": "typeParam",
+                      "declaringName": "Flatten",
+                      "declaringKind": "typeAlias"
+                    }
                   }
                 },
                 "extendsType": {
@@ -74,7 +79,12 @@ type Flatten<T> = T extends Array<infer U> ? U : T
                   "kind": "typeRef",
                   "value": {
                     "typeParams": null,
-                    "typeName": "T"
+                    "typeName": "T",
+                    "resolution": {
+                      "kind": "typeParam",
+                      "declaringName": "Flatten",
+                      "declaringKind": "typeAlias"
+                    }
                   }
                 }
               }

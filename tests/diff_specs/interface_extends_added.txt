@@ -75,7 +75,10 @@ export interface Foo extends Base {
                         "kind": "typeRef",
                         "value": {
                           "typeParams": null,
-                          "typeName": "Base"
+                          "typeName": "Base",
+                          "resolution": {
+                            "kind": "local"
+                          }
                         }
                       }
                     ]

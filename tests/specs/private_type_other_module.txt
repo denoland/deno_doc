@@ -124,7 +124,12 @@ class MyClass extends YesDiagnostic2
                   "kind": "typeRef",
                   "value": {
                     "typeParams": null,
-                    "typeName": "MyNamespace.YesDiagnostic"
+                    "typeName": "MyNamespace.YesDiagnostic",
+                    "resolution": {
+                      "kind": "import",
+                      "specifier": "./diagnostic.ts",
+                      "name": "MyNamespace"
+                    }
                   }
                 },
                 "readonly": false,

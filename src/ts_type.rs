@@ -249,11 +249,15 @@ impl TsTypeDef {
       None
     };
 
+    let root_ident = ts_entity_name_root_ident(&other.type_name);
+    let resolution = resolve_type_ref(module_info, root_ident);
+
     TsTypeDef {
       repr: type_name.clone(),
       kind: TsTypeDefKind::TypeRef(TsTypeRefDef {
         type_params,
         type_name,
+        resolution,
       }),
     }
   }
@@ -276,11 +280,15 @@ impl TsTypeDef {
       None
     };
 
+    let resolution = expr_root_ident(&other.expr)
+      .and_then(|i| resolve_type_ref(module_info, i));
+
     TsTypeDef {
       repr: type_name.clone(),
       kind: TsTypeDefKind::TypeRef(TsTypeRefDef {
         type_params,
         type_name,
+        resolution,
       }),
     }
   }
@@ -723,11 +731,297 @@ fn ts_entity_name_to_name(entity_name: &TsEntityName) -> String {
   }
 }
 
+fn ts_entity_name_root_ident(entity_name: &TsEntityName) -> &Ident {
+  match entity_name {
+    TsEntityName::Ident(ident) => ident,
+    TsEntityName::TsQualifiedName(ts_qualified_name) => {
+      ts_entity_name_root_ident(&ts_qualified_name.left)
+    }
+  }
+}
+
+fn expr_root_ident(expr: &Expr) -> Option<&Ident> {
+  match expr {
+    Expr::Ident(ident) => Some(ident),
+    Expr::Member(member_expr) => expr_root_ident(&member_expr.obj),
+    _ => None,
+  }
+}
+
+fn resolve_type_ref(
+  module_info: &EsModuleInfo,
+  ident: &Ident,
+) -> Option<TypeRefResolution> {
+  if let Some(symbol) = module_info.symbol_from_swc(&ident.to_id()) {
+    if let Some(file_dep) = symbol.file_dep() {
+      Some(TypeRefResolution::Import {
+        specifier: file_dep.specifier.clone(),
+        name: file_dep.name.maybe_name().map(|s| s.to_string()),
+      })
+    } else {
+      Some(TypeRefResolution::Local)
+    }
+  } else if ident.ctxt != module_info.source().unresolved_context() {
+    // The identifier has a resolved syntax context but is not a module-level
+    // symbol — it's a type parameter or other locally-scoped binding.
+    let origin = find_type_param_origin(module_info, &ident.to_id());
+    Some(TypeRefResolution::TypeParam {
+      declaring_name: origin.as_ref().map(|o| o.0.clone()),
+      declaring_kind: origin.as_ref().map(|o| o.1.clone()),
+    })
+  } else {
+    // Unresolved identifier — a global type (Promise, Array, etc.)
+    // or truly unresolvable.
+    None
+  }
+}
+
+/// Walks the module AST to find which declaration owns a type parameter.
+fn find_type_param_origin(
+  module_info: &EsModuleInfo,
+  target_id: &Id,
+) -> Option<(String, TypeParamDeclaringKind)> {
+  use deno_ast::ModuleItemRef;
+
+  let program = module_info.source().program_ref();
+
+  for item in program.body() {
+    match item {
+      ModuleItemRef::ModuleDecl(ModuleDecl::ExportDecl(export)) => {
+        if let Some(origin) = find_type_param_in_decl(&export.decl, target_id)
+        {
+          return Some(origin);
+        }
+      }
+      ModuleItemRef::Stmt(Stmt::Decl(decl)) => {
+        if let Some(origin) = find_type_param_in_decl(decl, target_id) {
+          return Some(origin);
+        }
+      }
+      ModuleItemRef::ModuleDecl(ModuleDecl::ExportDefaultDecl(export)) => {
+        match &export.decl {
+          DefaultDecl::Class(class_expr) => {
+            if let Some(origin) = find_type_param_in_class(
+              &class_expr.class,
+              class_expr
+                .ident
+                .as_ref()
+                .map(|i| i.sym.as_ref())
+                .unwrap_or("default"),
+              target_id,
+            ) {
+              return Some(origin);
+            }
+          }
+          DefaultDecl::Fn(fn_expr) => {
+            if has_type_param(&fn_expr.function.type_params, target_id) {
+              let name = fn_expr
+                .ident
+                .as_ref()
+                .map(|i| i.sym.to_string())
+                .unwrap_or_else(|| "default".to_string());
+              return Some((name, TypeParamDeclaringKind::Function));
+            }
+          }
+          DefaultDecl::TsInterfaceDecl(iface) => {
+            if let Some(origin) =
+              find_type_param_in_interface(iface, target_id)
+            {
+              return Some(origin);
+            }
+          }
+        }
+      }
+      _ => {}
+    }
+  }
+
+  None
+}
+
+fn find_type_param_in_decl(
+  decl: &Decl,
+  target_id: &Id,
+) -> Option<(String, TypeParamDeclaringKind)> {
+  match decl {
+    Decl::Class(class_decl) => find_type_param_in_class(
+      &class_decl.class,
+      class_decl.ident.sym.as_ref(),
+      target_id,
+    ),
+    Decl::Fn(fn_decl) => {
+      if has_type_param(&fn_decl.function.type_params, target_id) {
+        Some((
+          fn_decl.ident.sym.to_string(),
+          TypeParamDeclaringKind::Function,
+        ))
+      } else {
+        None
+      }
+    }
+    Decl::TsInterface(iface) => {
+      find_type_param_in_interface(iface, target_id)
+    }
+    Decl::TsTypeAlias(alias) => {
+      if has_type_param(&alias.type_params, target_id) {
+        Some((
+          alias.id.sym.to_string(),
+          TypeParamDeclaringKind::TypeAlias,
+        ))
+      } else {
+        None
+      }
+    }
+    Decl::TsModule(ts_module) => {
+      // Check declarations inside namespaces
+      if let Some(TsNamespaceBody::TsModuleBlock(block)) = &ts_module.body {
+        for item in &block.body {
+          let inner_decl = match item {
+            ModuleItem::ModuleDecl(ModuleDecl::ExportDecl(export)) => {
+              Some(&export.decl)
+            }
+            ModuleItem::Stmt(Stmt::Decl(decl)) => Some(decl),
+            _ => None,
+          };
+          if let Some(origin) = inner_decl.and_then(|inner_decl| find_type_param_in_decl(inner_decl, target_id)) {
+            return Some(origin);
+          }
+        }
+      }
+      None
+    }
+    _ => None,
+  }
+}
+
+fn find_type_param_in_class(
+  class: &Class,
+  class_name: &str,
+  target_id: &Id,
+) -> Option<(String, TypeParamDeclaringKind)> {
+  if has_type_param(&class.type_params, target_id) {
+    return Some((class_name.to_string(), TypeParamDeclaringKind::Class));
+  }
+
+  // Check method type params
+  for member in &class.body {
+    if let ClassMember::Method(method) = member && has_type_param(&method.function.type_params, target_id) {
+      let method_name = simple_prop_name(&method.key);
+      return Some((method_name, TypeParamDeclaringKind::Method));
+    }
+  }
+
+  None
+}
+
+fn find_type_param_in_interface(
+  iface: &TsInterfaceDecl,
+  target_id: &Id,
+) -> Option<(String, TypeParamDeclaringKind)> {
+  if has_type_param(&iface.type_params, target_id) {
+    return Some((
+      iface.id.sym.to_string(),
+      TypeParamDeclaringKind::Interface,
+    ));
+  }
+
+  // Check method type params
+  for member in &iface.body.body {
+    match member {
+      TsTypeElement::TsMethodSignature(method) => {
+        if has_type_param(&method.type_params, target_id) {
+          let method_name = simple_expr_name(&method.key);
+          return Some((method_name, TypeParamDeclaringKind::Method));
+        }
+      }
+      TsTypeElement::TsConstructSignatureDecl(ctor) => {
+        if has_type_param(&ctor.type_params, target_id) {
+          return Some(("new".to_string(), TypeParamDeclaringKind::Method));
+        }
+      }
+      TsTypeElement::TsCallSignatureDecl(call) => {
+        if has_type_param(&call.type_params, target_id) {
+          return Some(("call".to_string(), TypeParamDeclaringKind::Method));
+        }
+      }
+      _ => {}
+    }
+  }
+
+  None
+}
+
+fn simple_prop_name(prop_name: &PropName) -> String {
+  match prop_name {
+    PropName::Ident(ident) => ident.sym.to_string(),
+    PropName::Str(str_) => str_.value.to_string_lossy().into_owned(),
+    PropName::Num(num) => num.value.to_string(),
+    PropName::BigInt(num) => num.value.to_string(),
+    PropName::Computed(_) => "[computed]".to_string(),
+  }
+}
+
+fn simple_expr_name(expr: &Expr) -> String {
+  match expr {
+    Expr::Ident(ident) => ident.sym.to_string(),
+    _ => "[computed]".to_string(),
+  }
+}
+
+fn has_type_param(
+  type_params: &Option<Box<TsTypeParamDecl>>,
+  target_id: &Id,
+) -> bool {
+  type_params
+    .as_ref()
+    .is_some_and(|tp| tp.params.iter().any(|p| p.name.to_id() == *target_id))
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq)]
+#[serde(rename_all = "camelCase")]
+pub enum TypeParamDeclaringKind {
+  Class,
+  Interface,
+  Function,
+  TypeAlias,
+  Method,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[serde(tag = "kind", rename_all = "camelCase")]
+pub enum TypeRefResolution {
+  /// Resolves to a symbol defined locally in this module.
+  Local,
+  /// Resolves to a type parameter in the enclosing declaration.
+  #[serde(rename_all = "camelCase")]
+  TypeParam {
+    /// Name of the declaration that declares this type parameter.
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    declaring_name: Option<String>,
+    /// Kind of the declaration that declares this type parameter.
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    declaring_kind: Option<TypeParamDeclaringKind>,
+  },
+  /// Resolves to a symbol imported from another module.
+  #[serde(rename_all = "camelCase")]
+  Import {
+    /// The raw import specifier (e.g. `"./bar.ts"` or `"https://..."`).
+    specifier: String,
+    /// The name of the symbol in the source module
+    /// (e.g. `"Foo"` for `import { Foo }`, `"default"` for default imports,
+    /// or `None` for namespace imports like `import * as ns`).
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    name: Option<String>,
+  },
+}
+
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "camelCase")]
 pub struct TsTypeRefDef {
   pub type_params: Option<Box<[TsTypeDef]>>,
   pub type_name: String,
+  #[serde(skip_serializing_if = "Option::is_none", default)]
+  pub resolution: Option<TypeRefResolution>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq)]
@@ -1321,6 +1615,7 @@ impl TsTypeDef {
       kind: TsTypeDefKind::TypeRef(TsTypeRefDef {
         type_params: None,
         type_name: "RegExp".to_string(),
+        resolution: None,
       }),
     }
   }
@@ -1682,6 +1977,7 @@ fn infer_ts_type_from_new_expr(
           maybe_type_param_instantiation_to_type_defs(module_info, Some(init))
         }),
         type_name: ident.sym.to_string(),
+        resolution: resolve_type_ref(module_info, ident),
       }),
     }),
     _ => None,

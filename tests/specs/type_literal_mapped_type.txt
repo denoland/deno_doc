@@ -48,7 +48,12 @@ type T<Type> = readonly [P in keyof Type as NewType]: Type[P]
                         "kind": "typeRef",
                         "value": {
                           "typeParams": null,
-                          "typeName": "Type"
+                          "typeName": "Type",
+                          "resolution": {
+                            "kind": "typeParam",
+                            "declaringName": "T",
+                            "declaringKind": "typeAlias"
+                          }
                         }
                       }
                     }
@@ -72,7 +77,12 @@ type T<Type> = readonly [P in keyof Type as NewType]: Type[P]
                       "kind": "typeRef",
                       "value": {
                         "typeParams": null,
-                        "typeName": "Type"
+                        "typeName": "Type",
+                        "resolution": {
+                          "kind": "typeParam",
+                          "declaringName": "T",
+                          "declaringKind": "typeAlias"
+                        }
                       }
                     },
                     "indexType": {
@@ -80,7 +90,10 @@ type T<Type> = readonly [P in keyof Type as NewType]: Type[P]
                       "kind": "typeRef",
                       "value": {
                         "typeParams": null,
-                        "typeName": "P"
+                        "typeName": "P",
+                        "resolution": {
+                          "kind": "typeParam"
+                        }
                       }
                     }
                   }

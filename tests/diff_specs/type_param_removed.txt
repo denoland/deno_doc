@@ -27,7 +27,12 @@ export function identity(value: unknown): unknown { return value; }
                             "kind": "typeRef",
                             "value": {
                               "typeParams": null,
-                              "typeName": "T"
+                              "typeName": "T",
+                              "resolution": {
+                                "kind": "typeParam",
+                                "declaringName": "identity",
+                                "declaringKind": "function"
+                              }
                             }
                           },
                           "new": {
@@ -45,7 +50,12 @@ export function identity(value: unknown): unknown { return value; }
                       "kind": "typeRef",
                       "value": {
                         "typeParams": null,
-                        "typeName": "T"
+                        "typeName": "T",
+                        "resolution": {
+                          "kind": "typeParam",
+                          "declaringName": "identity",
+                          "declaringKind": "function"
+                        }
                       }
                     },
                     "new": {

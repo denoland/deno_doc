@@ -100,7 +100,10 @@ private namespace Test
                   "kind": "typeRef",
                   "value": {
                     "typeParams": null,
-                    "typeName": "Test.Other"
+                    "typeName": "Test.Other",
+                    "resolution": {
+                      "kind": "local"
+                    }
                   }
                 },
                 "typeParams": []
