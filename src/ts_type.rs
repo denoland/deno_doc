@@ -788,8 +788,7 @@ fn find_type_param_origin(
   for item in program.body() {
     match item {
       ModuleItemRef::ModuleDecl(ModuleDecl::ExportDecl(export)) => {
-        if let Some(origin) = find_type_param_in_decl(&export.decl, target_id)
-        {
+        if let Some(origin) = find_type_param_in_decl(&export.decl, target_id) {
           return Some(origin);
         }
       }
@@ -824,8 +823,7 @@ fn find_type_param_origin(
             }
           }
           DefaultDecl::TsInterfaceDecl(iface) => {
-            if let Some(origin) =
-              find_type_param_in_interface(iface, target_id)
+            if let Some(origin) = find_type_param_in_interface(iface, target_id)
             {
               return Some(origin);
             }
@@ -859,15 +857,10 @@ fn find_type_param_in_decl(
         None
       }
     }
-    Decl::TsInterface(iface) => {
-      find_type_param_in_interface(iface, target_id)
-    }
+    Decl::TsInterface(iface) => find_type_param_in_interface(iface, target_id),
     Decl::TsTypeAlias(alias) => {
       if has_type_param(&alias.type_params, target_id) {
-        Some((
-          alias.id.sym.to_string(),
-          TypeParamDeclaringKind::TypeAlias,
-        ))
+        Some((alias.id.sym.to_string(), TypeParamDeclaringKind::TypeAlias))
       } else {
         None
       }
@@ -883,7 +876,9 @@ fn find_type_param_in_decl(
             ModuleItem::Stmt(Stmt::Decl(decl)) => Some(decl),
             _ => None,
           };
-          if let Some(origin) = inner_decl.and_then(|inner_decl| find_type_param_in_decl(inner_decl, target_id)) {
+          if let Some(origin) = inner_decl.and_then(|inner_decl| {
+            find_type_param_in_decl(inner_decl, target_id)
+          }) {
             return Some(origin);
           }
         }
@@ -905,7 +900,9 @@ fn find_type_param_in_class(
 
   // Check method type params
   for member in &class.body {
-    if let ClassMember::Method(method) = member && has_type_param(&method.function.type_params, target_id) {
+    if let ClassMember::Method(method) = member
+      && has_type_param(&method.function.type_params, target_id)
+    {
       let method_name = simple_prop_name(&method.key);
       return Some((method_name, TypeParamDeclaringKind::Method));
     }
@@ -919,10 +916,7 @@ fn find_type_param_in_interface(
   target_id: &Id,
 ) -> Option<(String, TypeParamDeclaringKind)> {
   if has_type_param(&iface.type_params, target_id) {
-    return Some((
-      iface.id.sym.to_string(),
-      TypeParamDeclaringKind::Interface,
-    ));
+    return Some((iface.id.sym.to_string(), TypeParamDeclaringKind::Interface));
   }
 
   // Check method type params
