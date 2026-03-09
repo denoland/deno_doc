@@ -49,7 +49,12 @@ class Class<A, B> extends Map<A, B> implements Iterator<A>, Iterable<B>
                       "kind": "typeRef",
                       "value": {
                         "typeParams": null,
-                        "typeName": "A"
+                        "typeName": "A",
+                        "resolution": {
+                          "kind": "typeParam",
+                          "declaringName": "Class",
+                          "declaringKind": "class"
+                        }
                       }
                     }
                   ],
@@ -66,7 +71,12 @@ class Class<A, B> extends Map<A, B> implements Iterator<A>, Iterable<B>
                       "kind": "typeRef",
                       "value": {
                         "typeParams": null,
-                        "typeName": "B"
+                        "typeName": "B",
+                        "resolution": {
+                          "kind": "typeParam",
+                          "declaringName": "Class",
+                          "declaringKind": "class"
+                        }
                       }
                     }
                   ],
@@ -88,7 +98,12 @@ class Class<A, B> extends Map<A, B> implements Iterator<A>, Iterable<B>
                 "kind": "typeRef",
                 "value": {
                   "typeParams": null,
-                  "typeName": "A"
+                  "typeName": "A",
+                  "resolution": {
+                    "kind": "typeParam",
+                    "declaringName": "Class",
+                    "declaringKind": "class"
+                  }
                 }
               },
               {
@@ -96,7 +111,12 @@ class Class<A, B> extends Map<A, B> implements Iterator<A>, Iterable<B>
                 "kind": "typeRef",
                 "value": {
                   "typeParams": null,
-                  "typeName": "B"
+                  "typeName": "B",
+                  "resolution": {
+                    "kind": "typeParam",
+                    "declaringName": "Class",
+                    "declaringKind": "class"
+                  }
                 }
               }
             ]

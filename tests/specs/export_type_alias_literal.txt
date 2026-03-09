@@ -60,7 +60,10 @@ type A = { a(): void; b?(): void; c(): string; c(v: number); }
                       "kind": "typeRef",
                       "value": {
                         "typeParams": null,
-                        "typeName": "A"
+                        "typeName": "A",
+                        "resolution": {
+                          "kind": "local"
+                        }
                       }
                     },
                     "typeParams": [],

@@ -297,7 +297,10 @@ namespace f
                                   "kind": "typeRef",
                                   "value": {
                                     "typeParams": null,
-                                    "typeName": "f"
+                                    "typeName": "f",
+                                    "resolution": {
+                                      "kind": "local"
+                                    }
                                   }
                                 },
                                 "kind": "const"

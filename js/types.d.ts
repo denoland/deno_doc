@@ -755,9 +755,30 @@ export type TsTypeDefKind =
   | "typeLiteral"
   | "typePredicate";
 
+export type TypeParamDeclaringKind =
+  | "class"
+  | "interface"
+  | "function"
+  | "typeAlias"
+  | "method";
+
+export type TypeRefResolution =
+  | { kind: "local" }
+  | {
+    kind: "typeParam";
+    declaringName?: string;
+    declaringKind?: TypeParamDeclaringKind;
+  }
+  | {
+    kind: "import";
+    specifier: string;
+    name?: string;
+  };
+
 export interface TsTypeRefDef {
   typeParams?: TsTypeDef[];
   typeName: string;
+  resolution?: TypeRefResolution;
 }
 
 export interface TypeAliasDef {

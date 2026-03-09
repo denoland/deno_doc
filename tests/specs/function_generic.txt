@@ -48,7 +48,12 @@ function add<T>(a: T, b: T)
                   "kind": "typeRef",
                   "value": {
                     "typeParams": null,
-                    "typeName": "T"
+                    "typeName": "T",
+                    "resolution": {
+                      "kind": "typeParam",
+                      "declaringName": "add",
+                      "declaringKind": "function"
+                    }
                   }
                 }
               },
@@ -61,7 +66,12 @@ function add<T>(a: T, b: T)
                   "kind": "typeRef",
                   "value": {
                     "typeParams": null,
-                    "typeName": "T"
+                    "typeName": "T",
+                    "resolution": {
+                      "kind": "typeParam",
+                      "declaringName": "add",
+                      "declaringKind": "function"
+                    }
                   }
                 }
               }

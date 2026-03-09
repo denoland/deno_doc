@@ -73,7 +73,10 @@ export class Foo implements Runnable {
                         "kind": "typeRef",
                         "value": {
                           "typeParams": null,
-                          "typeName": "Runnable"
+                          "typeName": "Runnable",
+                          "resolution": {
+                            "kind": "local"
+                          }
                         }
                       }
                     ]
