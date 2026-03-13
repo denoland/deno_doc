@@ -5,10 +5,10 @@ use super::util::*;
 use crate::js_doc::JsDoc;
 use crate::js_doc::JsDocTag;
 use crate::ts_type::LiteralDefKind;
+use crate::ts_type::TruePlusMinus;
 use crate::ts_type::TsTypeDefKind;
 use crate::ts_type_param::TsTypeParamDef;
-use deno_ast::swc::ast::MethodKind;
-use deno_ast::swc::ast::TruePlusMinus;
+use crate::util::types::MethodKind;
 
 const MAX_INLINE_LEN: usize = 60;
 

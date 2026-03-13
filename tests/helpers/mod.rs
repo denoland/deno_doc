@@ -66,9 +66,11 @@ impl TestBuilder {
       .await;
     graph.valid().unwrap();
     let entrypoints = &[entry_point_url];
+    let allocator = deno_ast::oxc::allocator::Allocator::default();
     let parser = DocParser::new(
       &graph,
       &analyzer,
+      &allocator,
       entrypoints,
       DocParserOptions {
         private: self.private,
@@ -139,9 +141,11 @@ impl DiffTestBuilder {
       )
       .await;
     graph.valid().unwrap();
+    let allocator = deno_ast::oxc::allocator::Allocator::default();
     let parser = DocParser::new(
       &graph,
       &analyzer,
+      &allocator,
       &roots,
       DocParserOptions {
         private: false,

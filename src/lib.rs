@@ -51,6 +51,7 @@ cfg_if! {
   }
 }
 
+pub use deno_ast::oxc::allocator::Allocator as OxcAllocator;
 pub use parser::DocError;
 pub use parser::DocParser;
 pub use parser::DocParserOptions;

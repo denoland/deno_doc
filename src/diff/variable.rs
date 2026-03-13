@@ -2,8 +2,8 @@
 
 use super::Change;
 use super::ts_type::TsTypeDiff;
+use crate::util::types::VarDeclKind;
 use crate::variable::VariableDef;
-use deno_ast::swc::ast::VarDeclKind;
 use serde::Deserialize;
 use serde::Serialize;
 

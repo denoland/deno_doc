@@ -161,9 +161,11 @@ async fn parse_sources(
   let mut source_files = source_files;
   source_files.sort();
 
+  let allocator = deno_ast::oxc::allocator::Allocator::default();
   let parser = DocParser::new(
     &graph,
     &analyzer,
+    &allocator,
     &source_files,
     DocParserOptions {
       diagnostics: false,

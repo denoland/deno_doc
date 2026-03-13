@@ -11,14 +11,17 @@ repository = "https://github.com/denoland/deno_doc"
 members = ["lib"]
 
 [workspace.dependencies]
-deno_graph = { version = "0.108.0", default-features = false, features = [
+deno_graph = { path = "../deno_graph", default-features = false, features = [
   "swc",
   "symbols",
 ] }
-deno_ast = { version = "0.53.2" }
+deno_ast = { path = "../deno_ast" }
 import_map = "0.25.0"
 serde = { version = "1.0.204", features = ["derive"] }
 serde_json = { version = "1.0.122", features = ["preserve_order"] }
+
+[patch."https://github.com/nathanwhit/deno_ast"]
+deno_ast = { path = "../deno_ast" }
 
 [lib]
 name = "deno_doc"
