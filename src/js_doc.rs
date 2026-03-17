@@ -527,8 +527,7 @@ mod tests {
         deno_ast::ModuleSpecifier::parse("file:///test.ts").unwrap();
       let mut loader = deno_graph::source::MemoryLoader::default();
       loader.add_source_with_text(specifier.as_str(), "export {};");
-      let analyzer =
-        deno_graph::ast::CapturingModuleAnalyzer::default();
+      let analyzer = deno_graph::ast::CapturingModuleAnalyzer::default();
       let mut graph =
         deno_graph::ModuleGraph::new(deno_graph::GraphKind::TypesOnly);
       graph
@@ -542,11 +541,8 @@ mod tests {
           },
         )
         .await;
-      let root_symbol =
-        deno_graph::symbols::RootSymbol::new(&graph, &analyzer);
-      let module_info = root_symbol
-        .module_from_specifier(&specifier)
-        .unwrap();
+      let root_symbol = deno_graph::symbols::RootSymbol::new(&graph, &analyzer);
+      let module_info = root_symbol.module_from_specifier(&specifier).unwrap();
       let esm = match module_info {
         deno_graph::symbols::ModuleInfoRef::Esm(esm) => esm,
         _ => panic!("expected esm module"),
@@ -920,10 +916,8 @@ class Foo {}
       })
     );
     assert_eq!(
-      serde_json::to_value(parse_jsdoc(
-        "@module maybe doc\n\nnew paragraph"
-      ))
-      .unwrap(),
+      serde_json::to_value(parse_jsdoc("@module maybe doc\n\nnew paragraph"))
+        .unwrap(),
       serde_json::json!({
         "tags": [{
           "kind": "module",
@@ -936,10 +930,8 @@ class Foo {}
   #[test]
   fn test_js_doc_tag_doc() {
     assert_eq!(
-      serde_json::to_value(parse_jsdoc(
-        "@category Functional Components"
-      ))
-      .unwrap(),
+      serde_json::to_value(parse_jsdoc("@category Functional Components"))
+        .unwrap(),
       serde_json::json!({
         "tags": [{
           "kind": "category",
@@ -948,10 +940,8 @@ class Foo {}
       })
     );
     assert_eq!(
-      serde_json::to_value(parse_jsdoc(
-        "@group Functional Components"
-      ))
-      .unwrap(),
+      serde_json::to_value(parse_jsdoc("@group Functional Components"))
+        .unwrap(),
       serde_json::json!({
         "tags": [{
           "kind": "category",
@@ -960,10 +950,8 @@ class Foo {}
       })
     );
     assert_eq!(
-      serde_json::to_value(parse_jsdoc(
-        "@example\n\nconst a = \"a\";\n"
-      ))
-      .unwrap(),
+      serde_json::to_value(parse_jsdoc("@example\n\nconst a = \"a\";\n"))
+        .unwrap(),
       serde_json::json!({
         "tags": [{
           "kind": "example",
@@ -972,10 +960,8 @@ class Foo {}
       })
     );
     assert_eq!(
-      serde_json::to_value(parse_jsdoc(
-        "@tags allow-read, allow-write"
-      ))
-      .unwrap(),
+      serde_json::to_value(parse_jsdoc("@tags allow-read, allow-write"))
+        .unwrap(),
       serde_json::json!({
         "tags": [{
           "kind": "tags",
@@ -1034,8 +1020,7 @@ const a = "a";
       })
     );
     assert_eq!(
-      serde_json::to_value(parse_jsdoc("@summary A brief summary"))
-        .unwrap(),
+      serde_json::to_value(parse_jsdoc("@summary A brief summary")).unwrap(),
       serde_json::json!({
         "tags": [{
           "kind": "summary",
@@ -1059,10 +1044,8 @@ const a = "a";
     );
     // @description without preceding doc text
     assert_eq!(
-      serde_json::to_value(parse_jsdoc(
-        "@description The description"
-      ))
-      .unwrap(),
+      serde_json::to_value(parse_jsdoc("@description The description"))
+        .unwrap(),
       serde_json::json!({
         "doc": "The description",
       })
@@ -1085,10 +1068,7 @@ const a = "a";
     );
     // multi-line @description
     assert_eq!(
-      serde_json::to_value(parse_jsdoc(
-        "@description Line 1\nLine 2"
-      ))
-      .unwrap(),
+      serde_json::to_value(parse_jsdoc("@description Line 1\nLine 2")).unwrap(),
       serde_json::json!({
         "doc": "Line 1\nLine 2",
       })
@@ -1098,10 +1078,8 @@ const a = "a";
   #[test]
   fn test_js_doc_tag_param() {
     assert_eq!(
-      serde_json::to_value(parse_jsdoc(
-        "@param a maybe doc\n\nnew paragraph"
-      ))
-      .unwrap(),
+      serde_json::to_value(parse_jsdoc("@param a maybe doc\n\nnew paragraph"))
+        .unwrap(),
       serde_json::json!({
         "tags": [{
           "kind": "param",
@@ -1125,8 +1103,7 @@ const a = "a";
       })
     );
     assert_eq!(
-      serde_json::to_value(parse_jsdoc("@param {string} a"))
-        .unwrap(),
+      serde_json::to_value(parse_jsdoc("@param {string} a")).unwrap(),
       serde_json::json!({
         "tags": [{
           "kind": "param",
@@ -1136,10 +1113,8 @@ const a = "a";
       })
     );
     assert_eq!(
-      serde_json::to_value(parse_jsdoc(
-        r#"@param {string} [a="foo"]"#
-      ))
-      .unwrap(),
+      serde_json::to_value(parse_jsdoc(r#"@param {string} [a="foo"]"#))
+        .unwrap(),
       serde_json::json!({
         "tags": [{
           "kind": "param",
@@ -1150,8 +1125,7 @@ const a = "a";
       })
     );
     assert_eq!(
-      serde_json::to_value(parse_jsdoc(r#"@param {string} [a]"#))
-        .unwrap(),
+      serde_json::to_value(parse_jsdoc(r#"@param {string} [a]"#)).unwrap(),
       serde_json::json!({
         "tags": [{
           "kind": "param",
@@ -1191,8 +1165,7 @@ const a = "a";
     );
     // hyphen separator should be stripped
     assert_eq!(
-      serde_json::to_value(parse_jsdoc("@param foo - The foo"))
-        .unwrap(),
+      serde_json::to_value(parse_jsdoc("@param foo - The foo")).unwrap(),
       serde_json::json!({
         "tags": [{
           "kind": "param",
@@ -1202,10 +1175,8 @@ const a = "a";
       })
     );
     assert_eq!(
-      serde_json::to_value(parse_jsdoc(
-        "@param {string} foo - The foo"
-      ))
-      .unwrap(),
+      serde_json::to_value(parse_jsdoc("@param {string} foo - The foo"))
+        .unwrap(),
       serde_json::json!({
         "tags": [{
           "kind": "param",
@@ -1233,10 +1204,8 @@ const a = "a";
       })
     );
     assert_eq!(
-      serde_json::to_value(parse_jsdoc(
-        "@return maybe doc\n\nnew paragraph"
-      ))
-      .unwrap(),
+      serde_json::to_value(parse_jsdoc("@return maybe doc\n\nnew paragraph"))
+        .unwrap(),
       serde_json::json!({
         "tags": [{
           "kind": "return",
@@ -1275,10 +1244,8 @@ const a = "a";
       })
     );
     assert_eq!(
-      serde_json::to_value(parse_jsdoc(
-        "@throws maybe doc\n\nnew paragraph"
-      ))
-      .unwrap(),
+      serde_json::to_value(parse_jsdoc("@throws maybe doc\n\nnew paragraph"))
+        .unwrap(),
       serde_json::json!({
         "tags": [{
           "kind": "throws",
