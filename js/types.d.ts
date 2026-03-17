@@ -329,21 +329,21 @@ export interface JsDocTagValued extends JsDocTagBase {
 
 export interface JsDocTagTyped extends JsDocTagBase {
   kind: "enum" | "extends" | "this" | "type";
-  type: string;
+  ts_type: TsTypeDef;
   doc?: string;
 }
 
 export interface JsDocTagNamedTyped extends JsDocTagBase {
   kind: "property" | "typedef";
   name: string;
-  type: string;
+  ts_type: TsTypeDef;
   doc?: string;
 }
 
 export interface JsDocTagParam extends JsDocTagBase {
   kind: "param";
   name: string;
-  type?: string;
+  ts_type?: TsTypeDef;
   optional?: true;
   default?: string;
   doc?: string;
@@ -351,14 +351,14 @@ export interface JsDocTagParam extends JsDocTagBase {
 
 export interface JsDocTagReturn extends JsDocTagBase {
   kind: "return";
-  type?: string;
+  ts_type?: TsTypeDef;
   doc?: string;
 }
 
 export interface JsDocTagThrows extends JsDocTagBase {
   kind: "throws";
-  type?: string;
-  doc: string;
+  ts_type?: TsTypeDef;
+  doc?: string;
 }
 
 export interface JsDocTagModule extends JsDocTagBase {

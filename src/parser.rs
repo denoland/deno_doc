@@ -1104,17 +1104,16 @@ impl<'a> DocParser<'a> {
   ) -> Option<Document> {
     let mut symbols = Vec::new();
     // check to see if there is a module level JSDoc for the source file
-    let module_doc = if let Some(module_js_doc) =
-      module_js_doc_for_source(module_info.source())
-    {
-      if let Some((js_doc, _range)) = module_js_doc {
-        js_doc
+    let module_doc =
+      if let Some(module_js_doc) = module_js_doc_for_source(module_info) {
+        if let Some((js_doc, _range)) = module_js_doc {
+          js_doc
+        } else {
+          return None;
+        }
       } else {
-        return None;
-      }
-    } else {
-      Default::default()
-    };
+        Default::default()
+      };
 
     let mut handled_symbols = HashSet::new();
     let exports = module_info.exports(&self.root_symbol);

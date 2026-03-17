@@ -31,7 +31,7 @@ function a(b, c, d): void
   @return {string}
       returning doc
 
-  @return {number}
+  @throws {number}
       throw doc
 
   @since
@@ -62,7 +62,11 @@ function a(b, c, d): void
               {
                 "kind": "param",
                 "name": "b",
-                "type": "string",
+                "ts_type": {
+                  "repr": "string",
+                  "kind": "keyword",
+                  "value": "string"
+                },
                 "doc": "some doc"
               },
               {
@@ -79,12 +83,20 @@ function a(b, c, d): void
               },
               {
                 "kind": "return",
-                "type": "string",
+                "ts_type": {
+                  "repr": "string",
+                  "kind": "keyword",
+                  "value": "string"
+                },
                 "doc": "returning doc"
               },
               {
                 "kind": "throws",
-                "type": "number",
+                "ts_type": {
+                  "repr": "number",
+                  "kind": "keyword",
+                  "value": "number"
+                },
                 "doc": "throw doc"
               },
               {

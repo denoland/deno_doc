@@ -1,6 +1,5 @@
 // Copyright 2018-2024 the Deno authors. All rights reserved. MIT license.
 
-use deno_ast::ParsedSource;
 use deno_ast::SourcePos;
 use deno_ast::SourceRange;
 use deno_ast::SourceRangedForSpanned;
@@ -23,8 +22,8 @@ pub(crate) fn is_false(b: &bool) -> bool {
   !b
 }
 
-fn parse_js_doc(js_doc_comment: &Comment) -> JsDoc {
-  remove_stars_from_js_doc(&js_doc_comment.text).into()
+fn parse_js_doc(js_doc_comment: &Comment, module_info: &EsModuleInfo) -> JsDoc {
+  JsDoc::new(remove_stars_from_js_doc(&js_doc_comment.text), module_info)
 }
 
 fn remove_stars_from_js_doc(text: &str) -> String {
@@ -38,16 +37,17 @@ fn remove_stars_from_js_doc(text: &str) -> String {
 }
 
 pub(crate) fn js_doc_for_range_include_ignore(
-  parsed_source: &ParsedSource,
+  module_info: &EsModuleInfo,
   range: &SourceRange,
 ) -> JsDoc {
-  let Some(comments) = parsed_source.comments().get_leading(range.start) else {
+  let Some(comments) = module_info.source().comments().get_leading(range.start)
+  else {
     return JsDoc::default();
   };
   if let Some(js_doc_comment) = comments.iter().rev().find(|comment| {
     comment.kind == CommentKind::Block && comment.text.starts_with('*')
   }) {
-    parse_js_doc(js_doc_comment)
+    parse_js_doc(js_doc_comment, module_info)
   } else {
     JsDoc::default()
   }
@@ -57,7 +57,7 @@ pub(crate) fn js_doc_for_range(
   module_info: &EsModuleInfo,
   range: &SourceRange,
 ) -> Option<JsDoc> {
-  let js_doc = js_doc_for_range_include_ignore(module_info.source(), range);
+  let js_doc = js_doc_for_range_include_ignore(module_info, range);
   if js_doc.tags.contains(&JsDocTag::Ignore) {
     None
   } else {
@@ -69,9 +69,10 @@ pub(crate) fn js_doc_for_range(
 /// with a `@module` tag along with its associated range, otherwise returns
 /// `None`.
 pub(crate) fn module_js_doc_for_source(
-  parsed_source: &ParsedSource,
+  module_info: &EsModuleInfo,
 ) -> Option<Option<(JsDoc, SourceRange)>> {
-  parsed_source
+  module_info
+    .source()
     .comments()
     .get_vec()
     .into_iter()
@@ -79,7 +80,7 @@ pub(crate) fn module_js_doc_for_source(
       comment.kind == CommentKind::Block && comment.text.starts_with('*')
     })
     .find_map(|comment| {
-      let js_doc = parse_js_doc(&comment);
+      let js_doc = parse_js_doc(&comment, module_info);
 
       if js_doc
         .tags

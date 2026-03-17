@@ -459,6 +459,9 @@ pub(crate) fn render_type_def(
         html_escape::encode_text(&import_type.specifier),
       )
     }
+    TsTypeDefKind::Unsupported => {
+      html_escape::encode_text(&def.repr).into_owned()
+    }
   }
 }
 

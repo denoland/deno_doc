@@ -90,19 +90,31 @@ class A
                     {
                       "kind": "param",
                       "name": "name",
-                      "type": "string",
+                      "ts_type": {
+                        "repr": "string",
+                        "kind": "keyword",
+                        "value": "string"
+                      },
                       "doc": "some comment"
                     },
                     {
                       "kind": "param",
                       "name": "a",
-                      "type": "string",
+                      "ts_type": {
+                        "repr": "string",
+                        "kind": "keyword",
+                        "value": "string"
+                      },
                       "doc": "some other comment that\nspans two lines"
                     },
                     {
                       "kind": "param",
                       "name": "b",
-                      "type": "number",
+                      "ts_type": {
+                        "repr": "number",
+                        "kind": "keyword",
+                        "value": "number"
+                      },
                       "doc": "a number"
                     }
                   ]
@@ -173,7 +185,23 @@ class A
                   "tags": [
                     {
                       "kind": "return",
-                      "type": "Promise<void>"
+                      "ts_type": {
+                        "repr": "Promise<void>",
+                        "kind": "typeRef",
+                        "value": {
+                          "typeParams": [
+                            {
+                              "repr": "void",
+                              "kind": "keyword",
+                              "value": "void"
+                            }
+                          ],
+                          "typeName": "Promise",
+                          "resolution": {
+                            "kind": "typeParam"
+                          }
+                        }
+                      }
                     }
                   ]
                 },

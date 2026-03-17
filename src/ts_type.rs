@@ -38,7 +38,6 @@ impl TsTypeDef {
       TsLit::Number(num) => TsTypeDef::number_literal(num),
       TsLit::Str(str_) => TsTypeDef::string_literal(str_),
       TsLit::Tpl(tpl) => TsTypeDef::tpl_literal(
-        module_info,
         tpl
           .types
           .iter()
@@ -107,10 +106,7 @@ impl TsTypeDef {
     }
   }
 
-  fn ts_keyword_type(
-    _module_info: &EsModuleInfo,
-    other: &TsKeywordType,
-  ) -> Self {
+  fn ts_keyword_type(other: &TsKeywordType) -> Self {
     use deno_ast::swc::ast::TsKeywordTypeKind::*;
 
     let keyword_str = match other.kind {
@@ -181,7 +177,7 @@ impl TsTypeDef {
     }
   }
 
-  fn ts_this_type(_module_info: &EsModuleInfo, _other: &TsThisType) -> Self {
+  fn ts_this_type(_other: &TsThisType) -> Self {
     TsTypeDef {
       repr: "this".to_string(),
       kind: TsTypeDefKind::This,
@@ -218,7 +214,7 @@ impl TsTypeDef {
     }
   }
 
-  fn ts_type_query(_module_info: &EsModuleInfo, other: &TsTypeQuery) -> Self {
+  fn ts_type_query(other: &TsTypeQuery) -> Self {
     use deno_ast::swc::ast::TsTypeQueryExpr::*;
 
     let type_name = match &other.expr_name {
@@ -297,7 +293,6 @@ impl TsTypeDef {
     module_info: &EsModuleInfo,
     other: &TsIndexedAccessType,
   ) -> Self {
-    TsTypeDef::new(module_info, &other.obj_type);
     let indexed_access_def = TsIndexedAccessDef {
       readonly: other.readonly,
       obj_type: Box::new(TsTypeDef::new(module_info, &other.obj_type)),
@@ -343,198 +338,191 @@ impl TsTypeDef {
 
       match &type_element {
         TsMethodSignature(ts_method_sig) => {
-          if let Some(js_doc) =
-            js_doc_for_range(module_info, &ts_method_sig.range())
-          {
-            let params = ts_method_sig
-              .params
-              .iter()
-              .map(|param| ts_fn_param_to_param_def(module_info, param))
-              .collect::<Vec<_>>();
+          let js_doc = js_doc_for_range(module_info, &ts_method_sig.range())
+            .unwrap_or_default();
+          let params = ts_method_sig
+            .params
+            .iter()
+            .map(|param| ts_fn_param_to_param_def(module_info, param))
+            .collect::<Vec<_>>();
 
-            let maybe_return_type = ts_method_sig
-              .type_ann
-              .as_ref()
-              .map(|rt| TsTypeDef::new(module_info, &rt.type_ann));
+          let maybe_return_type = ts_method_sig
+            .type_ann
+            .as_ref()
+            .map(|rt| TsTypeDef::new(module_info, &rt.type_ann));
 
-            let type_params = maybe_type_param_decl_to_type_param_defs(
-              module_info,
-              ts_method_sig.type_params.as_deref(),
-            );
-            let name = expr_to_name(&ts_method_sig.key);
-            let method_def = MethodDef {
-              name,
-              js_doc,
-              kind: MethodKind::Method,
-              location: get_location(module_info, ts_method_sig.start()),
-              params,
-              computed: ts_method_sig.computed,
-              optional: ts_method_sig.optional,
-              return_type: maybe_return_type,
-              type_params,
-            };
-            methods.push(method_def);
-          }
+          let type_params = maybe_type_param_decl_to_type_param_defs(
+            module_info,
+            ts_method_sig.type_params.as_deref(),
+          );
+          let name = expr_to_name(&ts_method_sig.key);
+          let location = get_location(module_info, ts_method_sig.start());
+          let method_def = MethodDef {
+            name,
+            js_doc,
+            kind: MethodKind::Method,
+            location,
+            params,
+            computed: ts_method_sig.computed,
+            optional: ts_method_sig.optional,
+            return_type: maybe_return_type,
+            type_params,
+          };
+          methods.push(method_def);
         }
         TsGetterSignature(ts_getter_sig) => {
-          if let Some(js_doc) =
-            js_doc_for_range(module_info, &ts_getter_sig.range())
-          {
-            let maybe_return_type = ts_getter_sig
-              .type_ann
-              .as_ref()
-              .map(|rt| TsTypeDef::new(module_info, &rt.type_ann));
+          let js_doc = js_doc_for_range(module_info, &ts_getter_sig.range())
+            .unwrap_or_default();
+          let maybe_return_type = ts_getter_sig
+            .type_ann
+            .as_ref()
+            .map(|rt| TsTypeDef::new(module_info, &rt.type_ann));
 
-            let name = expr_to_name(&ts_getter_sig.key);
-            let method_def = MethodDef {
-              name,
-              js_doc,
-              kind: MethodKind::Getter,
-              location: get_location(module_info, ts_getter_sig.start()),
-              params: vec![],
-              computed: ts_getter_sig.computed,
-              optional: false,
-              return_type: maybe_return_type,
-              type_params: Box::new([]),
-            };
-            methods.push(method_def);
-          }
+          let name = expr_to_name(&ts_getter_sig.key);
+          let location = get_location(module_info, ts_getter_sig.start());
+          let method_def = MethodDef {
+            name,
+            js_doc,
+            kind: MethodKind::Getter,
+            location,
+            params: vec![],
+            computed: ts_getter_sig.computed,
+            optional: false,
+            return_type: maybe_return_type,
+            type_params: Box::new([]),
+          };
+          methods.push(method_def);
         }
         TsSetterSignature(ts_setter_sig) => {
-          if let Some(js_doc) =
-            js_doc_for_range(module_info, &ts_setter_sig.range())
-          {
-            let name = expr_to_name(&ts_setter_sig.key);
+          let js_doc = js_doc_for_range(module_info, &ts_setter_sig.range())
+            .unwrap_or_default();
+          let name = expr_to_name(&ts_setter_sig.key);
 
-            let params =
-              vec![ts_fn_param_to_param_def(module_info, &ts_setter_sig.param)];
+          let params =
+            vec![ts_fn_param_to_param_def(module_info, &ts_setter_sig.param)];
 
-            let method_def = MethodDef {
-              name,
-              js_doc,
-              kind: MethodKind::Setter,
-              location: get_location(module_info, ts_setter_sig.start()),
-              params,
-              computed: ts_setter_sig.computed,
-              optional: false,
-              return_type: None,
-              type_params: Box::new([]),
-            };
-            methods.push(method_def);
-          }
+          let location = get_location(module_info, ts_setter_sig.start());
+          let method_def = MethodDef {
+            name,
+            js_doc,
+            kind: MethodKind::Setter,
+            location,
+            params,
+            computed: ts_setter_sig.computed,
+            optional: false,
+            return_type: None,
+            type_params: Box::new([]),
+          };
+          methods.push(method_def);
         }
         TsPropertySignature(ts_prop_sig) => {
-          if let Some(js_doc) =
-            js_doc_for_range(module_info, &ts_prop_sig.range())
-          {
-            let name = expr_to_name(&ts_prop_sig.key);
+          let js_doc = js_doc_for_range(module_info, &ts_prop_sig.range())
+            .unwrap_or_default();
+          let name = expr_to_name(&ts_prop_sig.key);
 
-            let ts_type = ts_prop_sig
-              .type_ann
-              .as_ref()
-              .map(|rt| TsTypeDef::new(module_info, &rt.type_ann));
+          let ts_type = ts_prop_sig
+            .type_ann
+            .as_ref()
+            .map(|rt| TsTypeDef::new(module_info, &rt.type_ann));
 
-            let type_params =
-              maybe_type_param_decl_to_type_param_defs(module_info, None);
-            let prop_def = PropertyDef {
-              name,
-              js_doc,
-              location: get_location(module_info, ts_prop_sig.start()),
-              params: vec![],
-              ts_type,
-              readonly: ts_prop_sig.readonly,
-              computed: ts_prop_sig.computed,
-              optional: ts_prop_sig.optional,
-              type_params,
-            };
-            properties.push(prop_def);
-          }
+          let type_params =
+            maybe_type_param_decl_to_type_param_defs(module_info, None);
+          let location = get_location(module_info, ts_prop_sig.start());
+          let prop_def = PropertyDef {
+            name,
+            js_doc,
+            location,
+            params: vec![],
+            ts_type,
+            readonly: ts_prop_sig.readonly,
+            computed: ts_prop_sig.computed,
+            optional: ts_prop_sig.optional,
+            type_params,
+          };
+          properties.push(prop_def);
         }
         TsCallSignatureDecl(ts_call_sig) => {
-          if let Some(js_doc) =
-            js_doc_for_range(module_info, &ts_call_sig.range())
-          {
-            let params = ts_call_sig
-              .params
-              .iter()
-              .map(|param| ts_fn_param_to_param_def(module_info, param))
-              .collect();
+          let js_doc = js_doc_for_range(module_info, &ts_call_sig.range())
+            .unwrap_or_default();
+          let params = ts_call_sig
+            .params
+            .iter()
+            .map(|param| ts_fn_param_to_param_def(module_info, param))
+            .collect();
 
-            let ts_type = ts_call_sig
-              .type_ann
-              .as_ref()
-              .map(|rt| TsTypeDef::new(module_info, &rt.type_ann));
+          let ts_type = ts_call_sig
+            .type_ann
+            .as_ref()
+            .map(|rt| TsTypeDef::new(module_info, &rt.type_ann));
 
-            let type_params = maybe_type_param_decl_to_type_param_defs(
-              module_info,
-              ts_call_sig.type_params.as_deref(),
-            );
+          let type_params = maybe_type_param_decl_to_type_param_defs(
+            module_info,
+            ts_call_sig.type_params.as_deref(),
+          );
 
-            let call_sig_def = CallSignatureDef {
-              js_doc,
-              location: get_location(module_info, ts_call_sig.start()),
-              params,
-              ts_type,
-              type_params,
-            };
-            call_signatures.push(call_sig_def);
-          }
+          let location = get_location(module_info, ts_call_sig.start());
+          let call_sig_def = CallSignatureDef {
+            js_doc,
+            location,
+            params,
+            ts_type,
+            type_params,
+          };
+          call_signatures.push(call_sig_def);
         }
         TsIndexSignature(ts_index_sig) => {
-          if let Some(js_doc) =
-            js_doc_for_range(module_info, &ts_index_sig.range())
-          {
-            let params = ts_index_sig
-              .params
-              .iter()
-              .map(|param| ts_fn_param_to_param_def(module_info, param))
-              .collect();
+          let js_doc = js_doc_for_range(module_info, &ts_index_sig.range())
+            .unwrap_or_default();
+          let params = ts_index_sig
+            .params
+            .iter()
+            .map(|param| ts_fn_param_to_param_def(module_info, param))
+            .collect();
 
-            let ts_type = ts_index_sig
-              .type_ann
-              .as_ref()
-              .map(|rt| TsTypeDef::new(module_info, &rt.type_ann));
+          let ts_type = ts_index_sig
+            .type_ann
+            .as_ref()
+            .map(|rt| TsTypeDef::new(module_info, &rt.type_ann));
 
-            let index_sig_def = IndexSignatureDef {
-              js_doc,
-              location: get_location(module_info, ts_index_sig.start()),
-              readonly: ts_index_sig.readonly,
-              params,
-              ts_type,
-            };
-            index_signatures.push(index_sig_def);
-          }
+          let location = get_location(module_info, ts_index_sig.start());
+          let index_sig_def = IndexSignatureDef {
+            js_doc,
+            location,
+            readonly: ts_index_sig.readonly,
+            params,
+            ts_type,
+          };
+          index_signatures.push(index_sig_def);
         }
         TsConstructSignatureDecl(ts_construct_sig) => {
-          if let Some(prop_js_doc) =
-            js_doc_for_range(module_info, &ts_construct_sig.range())
-          {
-            let params = ts_construct_sig
-              .params
-              .iter()
-              .map(|param| ts_fn_param_to_param_def(module_info, param))
-              .collect();
+          let js_doc = js_doc_for_range(module_info, &ts_construct_sig.range())
+            .unwrap_or_default();
+          let params = ts_construct_sig
+            .params
+            .iter()
+            .map(|param| ts_fn_param_to_param_def(module_info, param))
+            .collect();
 
-            let type_params = maybe_type_param_decl_to_type_param_defs(
-              module_info,
-              ts_construct_sig.type_params.as_deref(),
-            );
+          let type_params = maybe_type_param_decl_to_type_param_defs(
+            module_info,
+            ts_construct_sig.type_params.as_deref(),
+          );
 
-            let maybe_return_type = ts_construct_sig
-              .type_ann
-              .as_ref()
-              .map(|rt| TsTypeDef::new(module_info, &rt.type_ann));
+          let maybe_return_type = ts_construct_sig
+            .type_ann
+            .as_ref()
+            .map(|rt| TsTypeDef::new(module_info, &rt.type_ann));
 
-            let construct_sig_def = ConstructorDef {
-              js_doc: prop_js_doc,
-              location: get_location(module_info, ts_construct_sig.start()),
-              params,
-              return_type: maybe_return_type,
-              type_params,
-            };
+          let location = get_location(module_info, ts_construct_sig.start());
+          let construct_sig_def = ConstructorDef {
+            js_doc,
+            location,
+            params,
+            return_type: maybe_return_type,
+            type_params,
+          };
 
-            constructors.push(construct_sig_def);
-          }
+          constructors.push(construct_sig_def);
         }
       }
     }
@@ -662,17 +650,13 @@ impl TsTypeDef {
     use deno_ast::swc::ast::TsType::*;
 
     match other {
-      TsKeywordType(keyword_type) => {
-        TsTypeDef::ts_keyword_type(module_info, keyword_type)
-      }
-      TsThisType(this_type) => TsTypeDef::ts_this_type(module_info, this_type),
+      TsKeywordType(keyword_type) => TsTypeDef::ts_keyword_type(keyword_type),
+      TsThisType(this_type) => TsTypeDef::ts_this_type(this_type),
       TsFnOrConstructorType(fn_or_con_type) => {
         TsTypeDef::ts_fn_or_constructor_type(module_info, fn_or_con_type)
       }
       TsTypeRef(type_ref) => TsTypeDef::ts_type_ref(module_info, type_ref),
-      TsTypeQuery(type_query) => {
-        TsTypeDef::ts_type_query(module_info, type_query)
-      }
+      TsTypeQuery(type_query) => TsTypeDef::ts_type_query(type_query),
       TsTypeLit(type_literal) => {
         TsTypeDef::ts_type_lit(module_info, type_literal)
       }
@@ -1431,6 +1415,7 @@ pub enum TsTypeDefKind {
   TypeLiteral(TsTypeLiteralDef),
   TypePredicate(TsTypePredicateDef),
   ImportType(TsImportTypeDef),
+  Unsupported,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
@@ -1529,11 +1514,7 @@ impl TsTypeDef {
     Self::literal(repr, lit)
   }
 
-  pub fn tpl_literal(
-    _module_info: &EsModuleInfo,
-    types: Vec<TsTypeDef>,
-    quasis: &[TplElement],
-  ) -> Self {
+  pub fn tpl_literal(types: Vec<TsTypeDef>, quasis: &[TplElement]) -> Self {
     let mut types_out: Vec<(Self, String)> = Vec::new();
     for ts_type in types {
       let repr = format!("${{{}}}", ts_type);
@@ -2147,7 +2128,7 @@ fn infer_ts_type_from_tpl(
     .collect::<Option<Vec<_>>>();
 
   if let Some(exprs) = exprs {
-    TsTypeDef::tpl_literal(module_info, exprs, &tpl.quasis)
+    TsTypeDef::tpl_literal(exprs, &tpl.quasis)
   } else {
     TsTypeDef::string_with_repr("string")
   }
@@ -2335,6 +2316,9 @@ impl Display for TsTypeDef {
       }
       TsTypeDefKind::TypePredicate(type_predicate) => {
         write!(f, "{}", type_predicate)
+      }
+      TsTypeDefKind::Unsupported => {
+        write!(f, "{}", self.repr)
       }
     }
   }
