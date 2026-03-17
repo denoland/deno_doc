@@ -126,15 +126,17 @@ fn get_children_of_node(node: Symbol) -> Vec<Symbol> {
   doc_nodes
 }
 
-pub fn docnodes_v1_to_v2(value: serde_json::Value) -> Vec<Symbol> {
+pub fn docnodes_v1_to_v2(value: serde_json::Value) -> Document {
   let serde_json::Value::Array(arr) = value else {
-    return vec![];
+    return Document::default();
   };
 
   // v1 format: flat array where each entry has "name", "kind", "location",
   // "declarationKind", "jsDoc", and def fields all at the top level.
-  // v2 format: array of Symbol { name, isDefault, declarations: [...] }
-  // where each declaration has the remaining fields.
+  // v2 format: Document { module_doc, imports, symbols }
+  // where symbols are Symbol { name, isDefault, declarations: [...] }.
+  let mut module_doc = js_doc::JsDoc::default();
+  let mut imports = Vec::new();
   let mut symbols: indexmap::IndexMap<Box<str>, Symbol> =
     indexmap::IndexMap::new();
 
@@ -142,6 +144,51 @@ pub fn docnodes_v1_to_v2(value: serde_json::Value) -> Vec<Symbol> {
     let serde_json::Value::Object(mut obj) = item else {
       continue;
     };
+
+    let kind = obj
+      .get("kind")
+      .and_then(|v| v.as_str())
+      .map(|s| s.to_string());
+
+    // v1 moduleDoc nodes become Document.module_doc
+    if kind.as_deref() == Some("moduleDoc") {
+      if let Some(js_doc_val) = obj
+        .remove("jsDoc")
+        .and_then(|v| serde_json::from_value::<js_doc::JsDoc>(v).ok())
+      {
+        module_doc = js_doc_val;
+      }
+      continue;
+    }
+
+    // v1 import nodes become Document.imports
+    if kind.as_deref() == Some("import") {
+      let imported_name: Box<str> = obj
+        .remove("name")
+        .and_then(|v| v.as_str().map(|s| s.into()))
+        .unwrap_or_else(|| "".into());
+      let import_def = obj.remove("importDef").unwrap_or_default();
+      let src = import_def
+        .get("src")
+        .and_then(|v| v.as_str())
+        .unwrap_or("")
+        .to_string();
+      let original_name = import_def
+        .get("imported")
+        .and_then(|v| v.as_str())
+        .map(|s| s.to_string());
+      let js_doc = obj
+        .remove("jsDoc")
+        .and_then(|v| serde_json::from_value::<js_doc::JsDoc>(v).ok())
+        .unwrap_or_default();
+      imports.push(node::Import {
+        imported_name,
+        original_name,
+        src,
+        js_doc,
+      });
+      continue;
+    }
 
     let name: Box<str> = obj
       .remove("name")
@@ -190,7 +237,11 @@ pub fn docnodes_v1_to_v2(value: serde_json::Value) -> Vec<Symbol> {
     }
   }
 
-  symbols.into_values().collect()
+  Document {
+    module_doc,
+    imports,
+    symbols: symbols.into_values().collect(),
+  }
 }
 
 /// Recursively walk JSON and convert v1 TsTypeDef objects (which use

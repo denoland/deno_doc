@@ -88,7 +88,10 @@ interface Reader extends Foo, Bar
                 "kind": "typeRef",
                 "value": {
                   "typeParams": null,
-                  "typeName": "Foo"
+                  "typeName": "Foo",
+                  "resolution": {
+                    "kind": "local"
+                  }
                 }
               },
               {
@@ -96,7 +99,10 @@ interface Reader extends Foo, Bar
                 "kind": "typeRef",
                 "value": {
                   "typeParams": null,
-                  "typeName": "Bar"
+                  "typeName": "Bar",
+                  "resolution": {
+                    "kind": "local"
+                  }
                 }
               }
             ],

@@ -98,7 +98,10 @@ class Data
                   "kind": "typeRef",
                   "value": {
                     "typeParams": null,
-                    "typeName": "PrivateNotExported"
+                    "typeName": "PrivateNotExported",
+                    "resolution": {
+                      "kind": "local"
+                    }
                   }
                 },
                 "readonly": false,
@@ -123,7 +126,10 @@ class Data
                   "kind": "typeRef",
                   "value": {
                     "typeParams": null,
-                    "typeName": "PrivateExportedButNotFromModTs"
+                    "typeName": "PrivateExportedButNotFromModTs",
+                    "resolution": {
+                      "kind": "local"
+                    }
                   }
                 },
                 "readonly": false,
@@ -152,7 +158,10 @@ class Data
                   "kind": "typeRef",
                   "value": {
                     "typeParams": null,
-                    "typeName": "PrivateReferencedInInternal"
+                    "typeName": "PrivateReferencedInInternal",
+                    "resolution": {
+                      "kind": "local"
+                    }
                   }
                 },
                 "readonly": false,

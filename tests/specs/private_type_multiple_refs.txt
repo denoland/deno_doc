@@ -102,7 +102,12 @@ class ClassB
                   "kind": "typeRef",
                   "value": {
                     "typeParams": null,
-                    "typeName": "PrivateInterface"
+                    "typeName": "PrivateInterface",
+                    "resolution": {
+                      "kind": "import",
+                      "specifier": "./private.ts",
+                      "name": "PrivateInterface"
+                    }
                   }
                 },
                 "readonly": false,
@@ -157,7 +162,12 @@ class ClassB
                   "kind": "typeRef",
                   "value": {
                     "typeParams": null,
-                    "typeName": "PrivateInterface"
+                    "typeName": "PrivateInterface",
+                    "resolution": {
+                      "kind": "import",
+                      "specifier": "./private.ts",
+                      "name": "PrivateInterface"
+                    }
                   }
                 },
                 "readonly": false,

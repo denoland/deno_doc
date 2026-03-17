@@ -123,7 +123,10 @@ type Test = OtherPrivateType
                   "kind": "typeRef",
                   "value": {
                     "typeParams": null,
-                    "typeName": "PrivateType"
+                    "typeName": "PrivateType",
+                    "resolution": {
+                      "kind": "local"
+                    }
                   }
                 },
                 "readonly": false,
@@ -273,7 +276,10 @@ type Test = OtherPrivateType
               "kind": "typeRef",
               "value": {
                 "typeParams": null,
-                "typeName": "OtherPrivateType"
+                "typeName": "OtherPrivateType",
+                "resolution": {
+                  "kind": "local"
+                }
               }
             },
             "typeParams": []

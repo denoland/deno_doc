@@ -60,6 +60,7 @@ pub fn function_to_function_def(
             crate::ts_type::TsTypeRefDef {
               type_params: Some(Box::new([TsTypeDef::keyword("void")])),
               type_name: "Promise".to_string(),
+              resolution: None,
             },
           ),
         })

@@ -106,7 +106,12 @@ namespace default
                   "kind": "typeRef",
                   "value": {
                     "typeParams": null,
-                    "typeName": "Chat"
+                    "typeName": "Chat",
+                    "resolution": {
+                      "kind": "import",
+                      "specifier": "./chat.ts",
+                      "name": "Chat"
+                    }
                   }
                 },
                 "readonly": false,
@@ -224,7 +229,12 @@ namespace default
                   "kind": "typeRef",
                   "value": {
                     "typeParams": null,
-                    "typeName": "Chat"
+                    "typeName": "Chat",
+                    "resolution": {
+                      "kind": "import",
+                      "specifier": "./chat.ts",
+                      "name": "Chat"
+                    }
                   }
                 },
                 "readonly": false,
