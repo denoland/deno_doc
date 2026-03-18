@@ -16,7 +16,6 @@ const Const: 0
 
 # output.json
 {
-  "imports": [],
   "symbols": [
     {
       "name": "Const",

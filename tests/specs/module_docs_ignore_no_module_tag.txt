@@ -18,7 +18,6 @@ class A
 
 # output.json
 {
-  "imports": [],
   "symbols": [
     {
       "name": "A",
@@ -35,17 +34,7 @@ class A
             "doc": "One associated with a class"
           },
           "kind": "class",
-          "def": {
-            "isAbstract": false,
-            "constructors": [],
-            "properties": [],
-            "indexSignatures": [],
-            "methods": [],
-            "extends": null,
-            "implements": [],
-            "typeParams": [],
-            "superTypeParams": []
-          }
+          "def": {}
         }
       ]
     }

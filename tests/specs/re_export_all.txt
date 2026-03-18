@@ -44,7 +44,6 @@ class Test
 
 # output.json
 {
-  "imports": [],
   "symbols": [
     {
       "name": "Test",
@@ -58,17 +57,7 @@ class Test
           },
           "declarationKind": "export",
           "kind": "class",
-          "def": {
-            "isAbstract": false,
-            "constructors": [],
-            "properties": [],
-            "indexSignatures": [],
-            "methods": [],
-            "extends": null,
-            "implements": [],
-            "typeParams": [],
-            "superTypeParams": []
-          }
+          "def": {}
         }
       ]
     },

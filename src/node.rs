@@ -9,6 +9,7 @@ use std::sync::Arc;
 pub struct Document {
   #[serde(skip_serializing_if = "JsDoc::is_empty", default)]
   pub module_doc: JsDoc,
+  #[serde(skip_serializing_if = "Vec::is_empty", default)]
   pub imports: Vec<Import>,
   pub symbols: Vec<Symbol>,
 }

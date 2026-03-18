@@ -36,7 +36,6 @@ interface I
 
 # output.json
 {
-  "imports": [],
   "symbols": [
     {
       "name": "I",
@@ -51,9 +50,6 @@ interface I
           "declarationKind": "export",
           "kind": "interface",
           "def": {
-            "extends": [],
-            "constructors": [],
-            "methods": [],
             "properties": [
               {
                 "name": "p",
@@ -63,15 +59,11 @@ interface I
                   "col": 2,
                   "byteIndex": 23
                 },
-                "params": [],
-                "computed": false,
-                "optional": false,
                 "tsType": {
                   "repr": "string",
                   "kind": "keyword",
                   "value": "string"
-                },
-                "typeParams": []
+                }
               },
               {
                 "name": "po",
@@ -81,20 +73,14 @@ interface I
                   "col": 2,
                   "byteIndex": 38
                 },
-                "params": [],
-                "computed": false,
                 "optional": true,
                 "tsType": {
                   "repr": "number",
                   "kind": "keyword",
                   "value": "number"
-                },
-                "typeParams": []
+                }
               }
-            ],
-            "callSignatures": [],
-            "indexSignatures": [],
-            "typeParams": []
+            ]
           }
         }
       ]

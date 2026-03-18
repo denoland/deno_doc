@@ -96,7 +96,6 @@ interface D
 
 # output.json
 {
-  "imports": [],
   "symbols": [
     {
       "name": "A",
@@ -119,17 +118,7 @@ interface D
             ]
           },
           "kind": "class",
-          "def": {
-            "isAbstract": false,
-            "constructors": [],
-            "properties": [],
-            "indexSignatures": [],
-            "methods": [],
-            "extends": null,
-            "implements": [],
-            "typeParams": [],
-            "superTypeParams": []
-          }
+          "def": {}
         }
       ]
     },
@@ -154,15 +143,7 @@ interface D
             ]
           },
           "kind": "interface",
-          "def": {
-            "extends": [],
-            "constructors": [],
-            "methods": [],
-            "properties": [],
-            "callSignatures": [],
-            "indexSignatures": [],
-            "typeParams": []
-          }
+          "def": {}
         }
       ]
     },
@@ -194,10 +175,7 @@ interface D
               "kind": "keyword",
               "value": "void"
             },
-            "hasBody": true,
-            "isAsync": false,
-            "isGenerator": false,
-            "typeParams": []
+            "hasBody": true
           }
         }
       ]
@@ -223,15 +201,7 @@ interface D
             ]
           },
           "kind": "interface",
-          "def": {
-            "extends": [],
-            "constructors": [],
-            "methods": [],
-            "properties": [],
-            "callSignatures": [],
-            "indexSignatures": [],
-            "typeParams": []
-          }
+          "def": {}
         }
       ]
     }

@@ -83,7 +83,6 @@ type UrlMessageEntity = MessageEntity.TextLinkMessageEntity
               "repr": "MessageEntity.TextLinkMessageEntity",
               "kind": "typeRef",
               "value": {
-                "typeParams": null,
                 "typeName": "MessageEntity.TextLinkMessageEntity",
                 "resolution": {
                   "kind": "import",
@@ -91,8 +90,7 @@ type UrlMessageEntity = MessageEntity.TextLinkMessageEntity
                   "name": "MessageEntity"
                 }
               }
-            },
-            "typeParams": []
+            }
           }
         }
       ]

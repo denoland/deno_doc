@@ -16,7 +16,6 @@ function foo(n: number, b: string): void
 
 # output.json
 {
-  "imports": [],
   "symbols": [
     {
       "name": "foo",
@@ -44,8 +43,7 @@ function foo(n: number, b: string): void
                     "value": "number"
                   }
                 },
-                "right": "0",
-                "tsType": null
+                "right": "0"
               },
               {
                 "kind": "assign",
@@ -59,8 +57,7 @@ function foo(n: number, b: string): void
                     "value": "string"
                   }
                 },
-                "right": "0",
-                "tsType": null
+                "right": "0"
               }
             ],
             "returnType": {
@@ -68,10 +65,7 @@ function foo(n: number, b: string): void
               "kind": "keyword",
               "value": "void"
             },
-            "hasBody": true,
-            "isAsync": false,
-            "isGenerator": false,
-            "typeParams": []
+            "hasBody": true
           }
         }
       ]

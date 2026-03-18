@@ -104,7 +104,6 @@ private namespace MyNamespace3
 
 # output.json
 {
-  "imports": [],
   "symbols": [
     {
       "name": "PrivatePropThroughNamespaceRef",
@@ -123,8 +122,7 @@ private namespace MyNamespace3
               "repr": "MyNamespace.Export.someProp",
               "kind": "typeQuery",
               "value": "MyNamespace.Export.someProp"
-            },
-            "typeParams": []
+            }
           }
         }
       ]
@@ -156,8 +154,6 @@ private namespace MyNamespace3
                     "declarationKind": "export",
                     "kind": "class",
                     "def": {
-                      "isAbstract": false,
-                      "constructors": [],
                       "properties": [
                         {
                           "tsType": {
@@ -165,10 +161,6 @@ private namespace MyNamespace3
                             "kind": "keyword",
                             "value": "string"
                           },
-                          "readonly": false,
-                          "accessibility": null,
-                          "optional": false,
-                          "isAbstract": false,
                           "isStatic": true,
                           "name": "someProp",
                           "location": {
@@ -178,13 +170,7 @@ private namespace MyNamespace3
                             "byteIndex": 286
                           }
                         }
-                      ],
-                      "indexSignatures": [],
-                      "methods": [],
-                      "extends": null,
-                      "implements": [],
-                      "typeParams": [],
-                      "superTypeParams": []
+                      ]
                     }
                   }
                 ]
@@ -221,8 +207,6 @@ private namespace MyNamespace3
                     "declarationKind": "export",
                     "kind": "class",
                     "def": {
-                      "isAbstract": false,
-                      "constructors": [],
                       "properties": [
                         {
                           "tsType": {
@@ -230,10 +214,6 @@ private namespace MyNamespace3
                             "kind": "keyword",
                             "value": "string"
                           },
-                          "readonly": false,
-                          "accessibility": null,
-                          "optional": false,
-                          "isAbstract": false,
                           "isStatic": true,
                           "name": "someProp",
                           "location": {
@@ -243,13 +223,7 @@ private namespace MyNamespace3
                             "byteIndex": 286
                           }
                         }
-                      ],
-                      "indexSignatures": [],
-                      "methods": [],
-                      "extends": null,
-                      "implements": [],
-                      "typeParams": [],
-                      "superTypeParams": []
+                      ]
                     }
                   }
                 ]
@@ -286,8 +260,6 @@ private namespace MyNamespace3
                     "declarationKind": "export",
                     "kind": "class",
                     "def": {
-                      "isAbstract": false,
-                      "constructors": [],
                       "properties": [
                         {
                           "tsType": {
@@ -295,10 +267,6 @@ private namespace MyNamespace3
                             "kind": "keyword",
                             "value": "string"
                           },
-                          "readonly": false,
-                          "accessibility": null,
-                          "optional": false,
-                          "isAbstract": false,
                           "isStatic": true,
                           "name": "someProp",
                           "location": {
@@ -308,13 +276,7 @@ private namespace MyNamespace3
                             "byteIndex": 286
                           }
                         }
-                      ],
-                      "indexSignatures": [],
-                      "methods": [],
-                      "extends": null,
-                      "implements": [],
-                      "typeParams": [],
-                      "superTypeParams": []
+                      ]
                     }
                   }
                 ]

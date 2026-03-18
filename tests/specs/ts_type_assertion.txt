@@ -16,7 +16,6 @@ function foo(bar: any): asserts bar
 
 # output.json
 {
-  "imports": [],
   "symbols": [
     {
       "name": "foo",
@@ -51,14 +50,10 @@ function foo(bar: any): asserts bar
                 "param": {
                   "type": "identifier",
                   "name": "bar"
-                },
-                "type": null
+                }
               }
             },
-            "hasBody": true,
-            "isAsync": false,
-            "isGenerator": false,
-            "typeParams": []
+            "hasBody": true
           }
         }
       ]

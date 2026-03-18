@@ -28,10 +28,7 @@ export function bar(): string { return ""; }
                   "kind": "keyword",
                   "value": "string"
                 },
-                "hasBody": true,
-                "isAsync": false,
-                "isGenerator": false,
-                "typeParams": []
+                "hasBody": true
               }
             }
           ]
@@ -57,10 +54,7 @@ export function bar(): string { return ""; }
                   "kind": "keyword",
                   "value": "void"
                 },
-                "hasBody": true,
-                "isAsync": false,
-                "isGenerator": false,
-                "typeParams": []
+                "hasBody": true
               }
             }
           ]

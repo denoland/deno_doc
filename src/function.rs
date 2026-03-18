@@ -21,11 +21,15 @@ pub struct FunctionDef {
   /// set when the function is a default export and has a name in its declaration
   pub def_name: Option<String>,
   pub params: Vec<ParamDef>,
+  #[serde(skip_serializing_if = "Option::is_none", default)]
   pub return_type: Option<TsTypeDef>,
   #[serde(skip_serializing_if = "is_false", default)]
   pub has_body: bool,
+  #[serde(skip_serializing_if = "is_false", default)]
   pub is_async: bool,
+  #[serde(skip_serializing_if = "is_false", default)]
   pub is_generator: bool,
+  #[serde(skip_serializing_if = "<[_]>::is_empty", default)]
   pub type_params: Box<[TsTypeParamDef]>,
   #[serde(skip_serializing_if = "<[_]>::is_empty", default)]
   pub decorators: Box<[DecoratorDef]>,

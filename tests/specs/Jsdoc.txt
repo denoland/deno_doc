@@ -45,7 +45,6 @@ interface B
 
 # output.json
 {
-  "imports": [],
   "symbols": [
     {
       "name": "A",
@@ -62,17 +61,7 @@ interface B
             "doc": "A is a class\n\nNothing more"
           },
           "kind": "class",
-          "def": {
-            "isAbstract": false,
-            "constructors": [],
-            "properties": [],
-            "indexSignatures": [],
-            "methods": [],
-            "extends": null,
-            "implements": [],
-            "typeParams": [],
-            "superTypeParams": []
-          }
+          "def": {}
         }
       ]
     },
@@ -91,15 +80,7 @@ interface B
             "doc": "B is an interface\n\nShould be"
           },
           "kind": "interface",
-          "def": {
-            "extends": [],
-            "constructors": [],
-            "methods": [],
-            "properties": [],
-            "callSignatures": [],
-            "indexSignatures": [],
-            "typeParams": []
-          }
+          "def": {}
         }
       ]
     },
@@ -125,10 +106,7 @@ interface B
               "kind": "keyword",
               "value": "void"
             },
-            "hasBody": true,
-            "isAsync": false,
-            "isGenerator": false,
-            "typeParams": []
+            "hasBody": true
           }
         }
       ]

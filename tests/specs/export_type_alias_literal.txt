@@ -22,7 +22,6 @@ type A = { a(): void; b?(): void; c(): string; c(v: number); }
 
 # output.json
 {
-  "imports": [],
   "symbols": [
     {
       "name": "A",
@@ -38,7 +37,6 @@ type A = { a(): void; b?(): void; c(): string; c(v: number); }
           "kind": "typeAlias",
           "def": {
             "tsType": {
-              "repr": "",
               "kind": "typeLiteral",
               "value": {
                 "constructors": [
@@ -59,14 +57,12 @@ type A = { a(): void; b?(): void; c(): string; c(v: number); }
                       "repr": "A",
                       "kind": "typeRef",
                       "value": {
-                        "typeParams": null,
                         "typeName": "A",
                         "resolution": {
                           "kind": "local"
                         }
                       }
                     },
-                    "typeParams": [],
                     "location": {
                       "filename": "file:///mod.ts",
                       "line": 1,
@@ -86,13 +82,11 @@ type A = { a(): void; b?(): void; c(): string; c(v: number); }
                       "byteIndex": 42
                     },
                     "params": [],
-                    "optional": false,
                     "returnType": {
                       "repr": "void",
                       "kind": "keyword",
                       "value": "void"
-                    },
-                    "typeParams": []
+                    }
                   },
                   {
                     "name": "b",
@@ -109,8 +103,7 @@ type A = { a(): void; b?(): void; c(): string; c(v: number); }
                       "repr": "void",
                       "kind": "keyword",
                       "value": "void"
-                    },
-                    "typeParams": []
+                    }
                   },
                   {
                     "name": "c",
@@ -122,13 +115,11 @@ type A = { a(): void; b?(): void; c(): string; c(v: number); }
                       "byteIndex": 69
                     },
                     "params": [],
-                    "optional": false,
                     "returnType": {
                       "repr": "string",
                       "kind": "keyword",
                       "value": "string"
-                    },
-                    "typeParams": []
+                    }
                   },
                   {
                     "name": "c",
@@ -150,18 +141,11 @@ type A = { a(): void; b?(): void; c(): string; c(v: number); }
                           "value": "number"
                         }
                       }
-                    ],
-                    "optional": false,
-                    "returnType": null,
-                    "typeParams": []
+                    ]
                   }
-                ],
-                "properties": [],
-                "callSignatures": [],
-                "indexSignatures": []
+                ]
               }
-            },
-            "typeParams": []
+            }
           }
         }
       ]

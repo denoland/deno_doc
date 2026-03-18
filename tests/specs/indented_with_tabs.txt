@@ -45,7 +45,6 @@ namespace Tabs
 
 # output.json
 {
-  "imports": [],
   "symbols": [
     {
       "name": "Tabs",
@@ -80,9 +79,6 @@ namespace Tabs
                     },
                     "kind": "interface",
                     "def": {
-                      "extends": [],
-                      "constructors": [],
-                      "methods": [],
                       "properties": [
                         {
                           "name": "property",
@@ -95,20 +91,13 @@ namespace Tabs
                             "col": 4,
                             "byteIndex": 212
                           },
-                          "params": [],
-                          "computed": false,
-                          "optional": false,
                           "tsType": {
                             "repr": "string",
                             "kind": "keyword",
                             "value": "string"
-                          },
-                          "typeParams": []
+                          }
                         }
-                      ],
-                      "callSignatures": [],
-                      "indexSignatures": [],
-                      "typeParams": []
+                      ]
                     }
                   }
                 ]

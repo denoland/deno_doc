@@ -39,10 +39,7 @@ export function bar(a: number) {}
                   "kind": "keyword",
                   "value": "void"
                 },
-                "hasBody": true,
-                "isAsync": false,
-                "isGenerator": false,
-                "typeParams": []
+                "hasBody": true
               }
             }
           ]
@@ -79,10 +76,7 @@ export function bar(a: number) {}
                   "kind": "keyword",
                   "value": "void"
                 },
-                "hasBody": true,
-                "isAsync": false,
-                "isGenerator": false,
-                "typeParams": []
+                "hasBody": true
               }
             }
           ]

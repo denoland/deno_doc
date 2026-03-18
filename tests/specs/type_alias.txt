@@ -16,7 +16,6 @@ type A = number
 
 # output.json
 {
-  "imports": [],
   "symbols": [
     {
       "name": "A",
@@ -35,8 +34,7 @@ type A = number
               "repr": "number",
               "kind": "keyword",
               "value": "number"
-            },
-            "typeParams": []
+            }
           }
         }
       ]

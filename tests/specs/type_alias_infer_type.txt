@@ -16,7 +16,6 @@ type Flatten<T> = T extends Array<infer U> ? U : T
 
 # output.json
 {
-  "imports": [],
   "symbols": [
     {
       "name": "Flatten",
@@ -32,14 +31,12 @@ type Flatten<T> = T extends Array<infer U> ? U : T
           "kind": "typeAlias",
           "def": {
             "tsType": {
-              "repr": "",
               "kind": "conditional",
               "value": {
                 "checkType": {
                   "repr": "T",
                   "kind": "typeRef",
                   "value": {
-                    "typeParams": null,
                     "typeName": "T",
                     "resolution": {
                       "kind": "typeParam",
@@ -54,7 +51,6 @@ type Flatten<T> = T extends Array<infer U> ? U : T
                   "value": {
                     "typeParams": [
                       {
-                        "repr": "",
                         "kind": "infer",
                         "value": {
                           "typeParam": {
@@ -70,7 +66,6 @@ type Flatten<T> = T extends Array<infer U> ? U : T
                   "repr": "U",
                   "kind": "typeRef",
                   "value": {
-                    "typeParams": null,
                     "typeName": "U"
                   }
                 },
@@ -78,7 +73,6 @@ type Flatten<T> = T extends Array<infer U> ? U : T
                   "repr": "T",
                   "kind": "typeRef",
                   "value": {
-                    "typeParams": null,
                     "typeName": "T",
                     "resolution": {
                       "kind": "typeParam",

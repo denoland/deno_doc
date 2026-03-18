@@ -17,7 +17,6 @@ class Class
 
 # output.json
 {
-  "imports": [],
   "symbols": [
     {
       "name": "Class",
@@ -31,17 +30,7 @@ class Class
           },
           "declarationKind": "export",
           "kind": "class",
-          "def": {
-            "isAbstract": false,
-            "constructors": [],
-            "properties": [],
-            "indexSignatures": [],
-            "methods": [],
-            "extends": null,
-            "implements": [],
-            "typeParams": [],
-            "superTypeParams": []
-          }
+          "def": {}
         }
       ]
     }

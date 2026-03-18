@@ -248,6 +248,7 @@ pub enum JsDocTag {
     doc: Option<Box<str>>,
   },
   /// `@enum {type} comment`
+  #[serde(rename_all = "camelCase")]
   Enum {
     ts_type: TsTypeDef,
     #[serde(skip_serializing_if = "Option::is_none", default)]
@@ -261,6 +262,7 @@ pub enum JsDocTag {
   /// `@experimental`
   Experimental,
   /// `@extends {type} comment`
+  #[serde(rename_all = "camelCase")]
   Extends {
     ts_type: TsTypeDef,
     #[serde(skip_serializing_if = "Option::is_none", default)]
@@ -279,6 +281,7 @@ pub enum JsDocTag {
   /// `@param`, `@arg` or `argument`, in format of `@param {type} name comment`
   /// or `@param {type} [name=default] comment`
   /// or `@param {type} [name] comment`
+  #[serde(rename_all = "camelCase")]
   Param {
     name: Box<str>,
     #[serde(skip_serializing_if = "Option::is_none", default)]
@@ -295,6 +298,7 @@ pub enum JsDocTag {
   /// `@private`
   Private,
   /// `@property {type} name comment` or `@prop {type} name comment`
+  #[serde(rename_all = "camelCase")]
   Property {
     name: Box<str>,
     ts_type: TsTypeDef,
@@ -306,6 +310,7 @@ pub enum JsDocTag {
   /// `@readonly`
   ReadOnly,
   /// `@return {type} comment` or `@returns {type} comment`
+  #[serde(rename_all = "camelCase")]
   Return {
     #[serde(skip_serializing_if = "Option::is_none", default)]
     ts_type: Option<TsTypeDef>,
@@ -325,12 +330,14 @@ pub enum JsDocTag {
     doc: Option<Box<str>>,
   },
   /// `@this {type} comment`
+  #[serde(rename_all = "camelCase")]
   This {
     ts_type: TsTypeDef,
     #[serde(skip_serializing_if = "Option::is_none", default)]
     doc: Option<Box<str>>,
   },
   /// `@throws {type} comment` or `@exception {type} comment`
+  #[serde(rename_all = "camelCase")]
   Throws {
     #[serde(skip_serializing_if = "Option::is_none", default)]
     ts_type: Option<TsTypeDef>,
@@ -338,6 +345,7 @@ pub enum JsDocTag {
     doc: Option<Box<str>>,
   },
   /// `@typedef {type} name comment`
+  #[serde(rename_all = "camelCase")]
   TypeDef {
     name: Box<str>,
     ts_type: TsTypeDef,
@@ -345,7 +353,7 @@ pub enum JsDocTag {
     doc: Option<Box<str>>,
   },
   /// `@type {type} comment`
-  #[serde(rename = "type")]
+  #[serde(rename = "type", rename_all = "camelCase")]
   TypeRef {
     ts_type: TsTypeDef,
     #[serde(skip_serializing_if = "Option::is_none", default)]
@@ -564,14 +572,17 @@ mod tests {
     repr: &str,
     type_params: Option<Vec<serde_json::Value>>,
   ) -> serde_json::Value {
+    let mut value = serde_json::json!({
+      "typeName": name,
+      "resolution": { "kind": "typeParam" },
+    });
+    if let Some(tp) = type_params {
+      value["typeParams"] = serde_json::json!(tp);
+    }
     serde_json::json!({
       "repr": repr,
       "kind": "typeRef",
-      "value": {
-        "typeParams": type_params,
-        "typeName": name,
-        "resolution": { "kind": "typeParam" },
-      },
+      "value": value,
     })
   }
 
@@ -780,7 +791,7 @@ class Foo {}
       serde_json::json!({
         "tags": [{
           "kind": "enum",
-          "ts_type": ts_keyword("string"),
+          "tsType": ts_keyword("string"),
           "doc": "more doc\n\nnew paragraph"
         }]
       })
@@ -793,7 +804,7 @@ class Foo {}
       serde_json::json!({
         "tags": [{
           "kind": "extends",
-          "ts_type": ts_keyword("string"),
+          "tsType": ts_keyword("string"),
           "doc": "more doc\n\nnew paragraph"
         }]
       })
@@ -806,7 +817,7 @@ class Foo {}
       serde_json::json!({
         "tags": [{
           "kind": "extends",
-          "ts_type": ts_keyword("string"),
+          "tsType": ts_keyword("string"),
           "doc": "more doc\n\nnew paragraph"
         }]
       })
@@ -819,7 +830,7 @@ class Foo {}
       serde_json::json!({
         "tags": [{
           "kind": "this",
-          "ts_type": ts_keyword("string"),
+          "tsType": ts_keyword("string"),
           "doc": "more doc\n\nnew paragraph"
         }]
       })
@@ -832,7 +843,7 @@ class Foo {}
       serde_json::json!({
         "tags": [{
           "kind": "type",
-          "ts_type": ts_keyword("string"),
+          "tsType": ts_keyword("string"),
           "doc": "more doc\n\nnew paragraph"
         }]
       })
@@ -850,7 +861,7 @@ class Foo {}
         "tags": [{
           "kind": "property",
           "name": "a",
-          "ts_type": ts_keyword("string"),
+          "tsType": ts_keyword("string"),
           "doc": "more doc\n\nnew paragraph"
         }]
       })
@@ -864,7 +875,7 @@ class Foo {}
         "tags": [{
           "kind": "property",
           "name": "a",
-          "ts_type": ts_keyword("string"),
+          "tsType": ts_keyword("string"),
           "doc": "more doc\n\nnew paragraph"
         }]
       })
@@ -878,7 +889,7 @@ class Foo {}
         "tags": [{
           "kind": "typedef",
           "name": "Interface",
-          "ts_type": ts_keyword("object"),
+          "tsType": ts_keyword("object"),
           "doc": "more doc\n\nnew paragraph"
         }]
       })
@@ -1061,7 +1072,7 @@ const a = "a";
         "tags": [{
           "kind": "param",
           "name": "a",
-          "ts_type": ts_keyword("string"),
+          "tsType": ts_keyword("string"),
           "doc": "a param",
         }]
       })
@@ -1097,7 +1108,7 @@ const a = "a";
         "tags": [{
           "kind": "param",
           "name": "a",
-          "ts_type": ts_keyword("string"),
+          "tsType": ts_keyword("string"),
           "doc": "maybe doc\n\nnew paragraph",
         }]
       })
@@ -1108,7 +1119,7 @@ const a = "a";
         "tags": [{
           "kind": "param",
           "name": "a",
-          "ts_type": ts_keyword("string"),
+          "tsType": ts_keyword("string"),
         }]
       })
     );
@@ -1119,7 +1130,7 @@ const a = "a";
         "tags": [{
           "kind": "param",
           "name": "a",
-          "ts_type": ts_keyword("string"),
+          "tsType": ts_keyword("string"),
           "default": "\"foo\"",
         }]
       })
@@ -1130,7 +1141,7 @@ const a = "a";
         "tags": [{
           "kind": "param",
           "name": "a",
-          "ts_type": ts_keyword("string"),
+          "tsType": ts_keyword("string"),
           "optional": true,
         }]
       })
@@ -1144,7 +1155,7 @@ const a = "a";
         "tags": [{
           "kind": "param",
           "name": "a",
-          "ts_type": ts_keyword("string"),
+          "tsType": ts_keyword("string"),
           "doc": "maybe doc\n\nnew paragraph",
         }]
       })
@@ -1158,7 +1169,7 @@ const a = "a";
         "tags": [{
           "kind": "param",
           "name": "a",
-          "ts_type": ts_keyword("string"),
+          "tsType": ts_keyword("string"),
           "doc": "maybe doc\n\nnew paragraph",
         }]
       })
@@ -1181,7 +1192,7 @@ const a = "a";
         "tags": [{
           "kind": "param",
           "name": "foo",
-          "ts_type": ts_keyword("string"),
+          "tsType": ts_keyword("string"),
           "doc": "The foo",
         }]
       })
@@ -1198,7 +1209,7 @@ const a = "a";
       serde_json::json!({
         "tags": [{
           "kind": "return",
-          "ts_type": ts_keyword("string"),
+          "tsType": ts_keyword("string"),
           "doc": "maybe doc\n\nnew paragraph",
         }]
       })
@@ -1221,7 +1232,7 @@ const a = "a";
       serde_json::json!({
         "tags": [{
           "kind": "return",
-          "ts_type": ts_keyword("string"),
+          "tsType": ts_keyword("string"),
           "doc": "maybe doc\n\nnew paragraph",
         }]
       })
@@ -1238,7 +1249,7 @@ const a = "a";
       serde_json::json!({
         "tags": [{
           "kind": "throws",
-          "ts_type": ts_keyword("string"),
+          "tsType": ts_keyword("string"),
           "doc": "maybe doc\n\nnew paragraph",
         }]
       })
@@ -1261,7 +1272,7 @@ const a = "a";
       serde_json::json!({
         "tags": [{
           "kind": "throws",
-          "ts_type": ts_keyword("string"),
+          "tsType": ts_keyword("string"),
           "doc": "maybe doc\n\nnew paragraph",
         }]
       })
@@ -1288,18 +1299,18 @@ multi-line
           {
             "kind": "param",
             "name": "a",
-            "ts_type": ts_keyword("string"),
+            "tsType": ts_keyword("string"),
             "doc": "comment",
           },
           {
             "kind": "param",
             "name": "b",
-            "ts_type": ts_keyword("string"),
+            "tsType": ts_keyword("string"),
             "doc": "comment\nmulti-line",
           },
           {
             "kind": "return",
-            "ts_type": ts_type_ref("Promise", "Promise<T>", Some(vec![
+            "tsType": ts_type_ref("Promise", "Promise<T>", Some(vec![
               ts_type_ref("T", "T", None)
             ])),
             "doc": "nothing"
@@ -1445,7 +1456,7 @@ multi-line
       .unwrap(),
       json!({
         "kind": "enum",
-        "ts_type": { "repr": "number", "kind": "unsupported" },
+        "tsType": { "repr": "number", "kind": "unsupported" },
       })
     );
     assert_eq!(
@@ -1459,7 +1470,7 @@ multi-line
       .unwrap(),
       json!({
         "kind": "extends",
-        "ts_type": { "repr": "OtherType<T>", "kind": "unsupported" },
+        "tsType": { "repr": "OtherType<T>", "kind": "unsupported" },
       })
     );
     assert_eq!(
@@ -1477,7 +1488,7 @@ multi-line
       json!({
         "kind": "param",
         "name": "arg",
-        "ts_type": { "repr": "number", "kind": "unsupported" },
+        "tsType": { "repr": "number", "kind": "unsupported" },
         "default": "1",
         "doc": "comment",
       })
@@ -1518,7 +1529,7 @@ multi-line
       json!({
         "kind": "property",
         "name": "prop",
-        "ts_type": { "repr": "string", "kind": "unsupported" },
+        "tsType": { "repr": "string", "kind": "unsupported" },
       })
     );
     assert_eq!(
@@ -1540,7 +1551,7 @@ multi-line
       .unwrap(),
       json!({
         "kind": "return",
-        "ts_type": { "repr": "string", "kind": "unsupported" },
+        "tsType": { "repr": "string", "kind": "unsupported" },
         "doc": "comment",
       })
     );
@@ -1566,7 +1577,7 @@ multi-line
       .unwrap(),
       json!({
         "kind": "this",
-        "ts_type": { "repr": "Record<string, unknown>", "kind": "unsupported" },
+        "tsType": { "repr": "Record<string, unknown>", "kind": "unsupported" },
       })
     );
     assert_eq!(
@@ -1582,7 +1593,7 @@ multi-line
       json!({
         "kind": "typedef",
         "name": "Interface",
-        "ts_type": { "repr": "object", "kind": "unsupported" },
+        "tsType": { "repr": "object", "kind": "unsupported" },
       })
     );
     assert_eq!(
@@ -1596,7 +1607,7 @@ multi-line
       .unwrap(),
       json!({
         "kind": "type",
-        "ts_type": { "repr": "Map<string, string>", "kind": "unsupported" },
+        "tsType": { "repr": "Map<string, string>", "kind": "unsupported" },
       })
     );
     assert_eq!(

@@ -64,7 +64,6 @@ interface Reader extends Foo, Bar
 
 # output.json
 {
-  "imports": [],
   "symbols": [
     {
       "name": "Reader",
@@ -87,7 +86,6 @@ interface Reader extends Foo, Bar
                 "repr": "Foo",
                 "kind": "typeRef",
                 "value": {
-                  "typeParams": null,
                   "typeName": "Foo",
                   "resolution": {
                     "kind": "local"
@@ -98,7 +96,6 @@ interface Reader extends Foo, Bar
                 "repr": "Bar",
                 "kind": "typeRef",
                 "value": {
-                  "typeParams": null,
                   "typeName": "Bar",
                   "resolution": {
                     "kind": "local"
@@ -106,7 +103,6 @@ interface Reader extends Foo, Bar
                 }
               }
             ],
-            "constructors": [],
             "methods": [
               {
                 "name": "read",
@@ -129,7 +125,6 @@ interface Reader extends Foo, Bar
                       "repr": "Uint8Array",
                       "kind": "typeRef",
                       "value": {
-                        "typeParams": null,
                         "typeName": "Uint8Array"
                       }
                     }
@@ -159,18 +154,14 @@ interface Reader extends Foo, Bar
                     ],
                     "typeName": "Promise"
                   }
-                },
-                "typeParams": []
+                }
               }
             ],
-            "properties": [],
-            "callSignatures": [],
             "indexSignatures": [
               {
                 "jsDoc": {
                   "doc": "Test"
                 },
-                "readonly": false,
                 "params": [
                   {
                     "kind": "identifier",
@@ -195,8 +186,7 @@ interface Reader extends Foo, Bar
                   "byteIndex": 215
                 }
               }
-            ],
-            "typeParams": []
+            ]
           }
         }
       ]
@@ -213,15 +203,7 @@ interface Reader extends Foo, Bar
           },
           "declarationKind": "private",
           "kind": "interface",
-          "def": {
-            "extends": [],
-            "constructors": [],
-            "methods": [],
-            "properties": [],
-            "callSignatures": [],
-            "indexSignatures": [],
-            "typeParams": []
-          }
+          "def": {}
         }
       ]
     },
@@ -237,15 +219,7 @@ interface Reader extends Foo, Bar
           },
           "declarationKind": "private",
           "kind": "interface",
-          "def": {
-            "extends": [],
-            "constructors": [],
-            "methods": [],
-            "properties": [],
-            "callSignatures": [],
-            "indexSignatures": [],
-            "typeParams": []
-          }
+          "def": {}
         }
       ]
     }

@@ -26,7 +26,6 @@ export function identity(value: unknown): unknown { return value; }
                             "repr": "T",
                             "kind": "typeRef",
                             "value": {
-                              "typeParams": null,
                               "typeName": "T",
                               "resolution": {
                                 "kind": "typeParam",
@@ -49,7 +48,6 @@ export function identity(value: unknown): unknown { return value; }
                       "repr": "T",
                       "kind": "typeRef",
                       "value": {
-                        "typeParams": null,
                         "typeName": "T",
                         "resolution": {
                           "kind": "typeParam",

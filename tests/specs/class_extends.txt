@@ -17,7 +17,6 @@ class Class extends Object
 
 # output.json
 {
-  "imports": [],
   "symbols": [
     {
       "name": "Class",
@@ -32,15 +31,7 @@ class Class extends Object
           "declarationKind": "export",
           "kind": "class",
           "def": {
-            "isAbstract": false,
-            "constructors": [],
-            "properties": [],
-            "indexSignatures": [],
-            "methods": [],
-            "extends": "Object",
-            "implements": [],
-            "typeParams": [],
-            "superTypeParams": []
+            "extends": "Object"
           }
         }
       ]

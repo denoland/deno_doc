@@ -27,7 +27,6 @@ class Class
 
 # output.json
 {
-  "imports": [],
   "symbols": [
     {
       "name": "Class",
@@ -42,8 +41,6 @@ class Class
           "declarationKind": "export",
           "kind": "class",
           "def": {
-            "isAbstract": false,
-            "constructors": [],
             "properties": [
               {
                 "tsType": {
@@ -51,10 +48,6 @@ class Class
                   "kind": "keyword",
                   "value": "string"
                 },
-                "readonly": false,
-                "accessibility": null,
-                "optional": false,
-                "isAbstract": false,
                 "isStatic": true,
                 "name": "property",
                 "location": {
@@ -64,13 +57,7 @@ class Class
                   "byteIndex": 23
                 }
               }
-            ],
-            "indexSignatures": [],
-            "methods": [],
-            "extends": null,
-            "implements": [],
-            "typeParams": [],
-            "superTypeParams": []
+            ]
           }
         }
       ]

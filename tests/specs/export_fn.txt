@@ -41,7 +41,6 @@ function foo(a: string, b?: number, cb: (...cbArgs: unknown[]) => void, ...args:
       }
     ]
   },
-  "imports": [],
   "symbols": [
     {
       "name": "foo",
@@ -85,7 +84,6 @@ function foo(a: string, b?: number, cb: (...cbArgs: unknown[]) => void, ...args:
                 "name": "cb",
                 "optional": false,
                 "tsType": {
-                  "repr": "",
                   "kind": "fnOrConstructor",
                   "value": {
                     "constructor": false,
@@ -100,11 +98,9 @@ function foo(a: string, b?: number, cb: (...cbArgs: unknown[]) => void, ...args:
                         "arg": {
                           "kind": "identifier",
                           "name": "cbArgs",
-                          "optional": false,
-                          "tsType": null
+                          "optional": false
                         },
                         "tsType": {
-                          "repr": "",
                           "kind": "array",
                           "value": {
                             "repr": "unknown",
@@ -113,8 +109,7 @@ function foo(a: string, b?: number, cb: (...cbArgs: unknown[]) => void, ...args:
                           }
                         }
                       }
-                    ],
-                    "typeParams": []
+                    ]
                   }
                 }
               },
@@ -123,11 +118,9 @@ function foo(a: string, b?: number, cb: (...cbArgs: unknown[]) => void, ...args:
                 "arg": {
                   "kind": "identifier",
                   "name": "args",
-                  "optional": false,
-                  "tsType": null
+                  "optional": false
                 },
                 "tsType": {
-                  "repr": "",
                   "kind": "array",
                   "value": {
                     "repr": "unknown",
@@ -142,10 +135,7 @@ function foo(a: string, b?: number, cb: (...cbArgs: unknown[]) => void, ...args:
               "kind": "keyword",
               "value": "void"
             },
-            "hasBody": true,
-            "isAsync": false,
-            "isGenerator": false,
-            "typeParams": []
+            "hasBody": true
           }
         }
       ]

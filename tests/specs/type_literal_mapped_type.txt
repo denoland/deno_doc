@@ -16,7 +16,6 @@ type T<Type> = readonly [P in keyof Type as NewType]: Type[P]
 
 # output.json
 {
-  "imports": [],
   "symbols": [
     {
       "name": "T",
@@ -32,14 +31,12 @@ type T<Type> = readonly [P in keyof Type as NewType]: Type[P]
           "kind": "typeAlias",
           "def": {
             "tsType": {
-              "repr": "",
               "kind": "mapped",
               "value": {
                 "readonly": true,
                 "typeParam": {
                   "name": "P",
                   "constraint": {
-                    "repr": "",
                     "kind": "typeOperator",
                     "value": {
                       "operator": "keyof",
@@ -47,7 +44,6 @@ type T<Type> = readonly [P in keyof Type as NewType]: Type[P]
                         "repr": "Type",
                         "kind": "typeRef",
                         "value": {
-                          "typeParams": null,
                           "typeName": "Type",
                           "resolution": {
                             "kind": "typeParam",
@@ -63,20 +59,16 @@ type T<Type> = readonly [P in keyof Type as NewType]: Type[P]
                   "repr": "NewType",
                   "kind": "typeRef",
                   "value": {
-                    "typeParams": null,
                     "typeName": "NewType"
                   }
                 },
                 "tsType": {
-                  "repr": "",
                   "kind": "indexedAccess",
                   "value": {
-                    "readonly": false,
                     "objType": {
                       "repr": "Type",
                       "kind": "typeRef",
                       "value": {
-                        "typeParams": null,
                         "typeName": "Type",
                         "resolution": {
                           "kind": "typeParam",
@@ -89,7 +81,6 @@ type T<Type> = readonly [P in keyof Type as NewType]: Type[P]
                       "repr": "P",
                       "kind": "typeRef",
                       "value": {
-                        "typeParams": null,
                         "typeName": "P",
                         "resolution": {
                           "kind": "typeParam"

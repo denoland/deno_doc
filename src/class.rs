@@ -82,6 +82,7 @@ impl Display for ClassConstructorParamDef {
 pub struct ClassConstructorDef {
   #[serde(skip_serializing_if = "JsDoc::is_empty", default)]
   pub js_doc: JsDoc,
+  #[serde(skip_serializing_if = "Option::is_none", default)]
   pub accessibility: Option<deno_ast::swc::ast::Accessibility>,
   #[serde(skip_serializing_if = "is_false", default)]
   pub is_optional: bool,
@@ -110,13 +111,19 @@ impl Display for ClassConstructorDef {
 pub struct ClassPropertyDef {
   #[serde(skip_serializing_if = "JsDoc::is_empty", default)]
   pub js_doc: JsDoc,
+  #[serde(skip_serializing_if = "Option::is_none", default)]
   pub ts_type: Option<TsTypeDef>,
+  #[serde(skip_serializing_if = "is_false", default)]
   pub readonly: bool,
+  #[serde(skip_serializing_if = "Option::is_none", default)]
   pub accessibility: Option<deno_ast::swc::ast::Accessibility>,
   #[serde(skip_serializing_if = "<[_]>::is_empty", default)]
   pub decorators: Box<[DecoratorDef]>,
+  #[serde(skip_serializing_if = "is_false", default)]
   pub optional: bool,
+  #[serde(skip_serializing_if = "is_false", default)]
   pub is_abstract: bool,
+  #[serde(skip_serializing_if = "is_false", default)]
   pub is_static: bool,
   #[serde(skip_serializing_if = "is_false", default)]
   pub is_override: bool,
@@ -166,9 +173,13 @@ impl Display for ClassPropertyDef {
 pub struct ClassMethodDef {
   #[serde(skip_serializing_if = "JsDoc::is_empty", default)]
   pub js_doc: JsDoc,
+  #[serde(skip_serializing_if = "Option::is_none", default)]
   pub accessibility: Option<deno_ast::swc::ast::Accessibility>,
+  #[serde(skip_serializing_if = "is_false", default)]
   pub optional: bool,
+  #[serde(skip_serializing_if = "is_false", default)]
   pub is_abstract: bool,
+  #[serde(skip_serializing_if = "is_false", default)]
   pub is_static: bool,
   #[serde(skip_serializing_if = "is_false", default)]
   pub is_override: bool,
@@ -221,14 +232,23 @@ pub struct ClassDef {
   #[serde(skip_serializing_if = "Option::is_none", default)]
   /// set when the class is a default export or a class expression, and has a name in its declaration
   pub def_name: Option<Box<str>>,
+  #[serde(skip_serializing_if = "is_false", default)]
   pub is_abstract: bool,
+  #[serde(skip_serializing_if = "<[_]>::is_empty", default)]
   pub constructors: Box<[ClassConstructorDef]>,
+  #[serde(skip_serializing_if = "<[_]>::is_empty", default)]
   pub properties: Box<[ClassPropertyDef]>,
+  #[serde(skip_serializing_if = "<[_]>::is_empty", default)]
   pub index_signatures: Box<[IndexSignatureDef]>,
+  #[serde(skip_serializing_if = "<[_]>::is_empty", default)]
   pub methods: Box<[ClassMethodDef]>,
+  #[serde(skip_serializing_if = "Option::is_none", default)]
   pub extends: Option<Box<str>>,
+  #[serde(skip_serializing_if = "<[_]>::is_empty", default)]
   pub implements: Box<[TsTypeDef]>,
+  #[serde(skip_serializing_if = "<[_]>::is_empty", default)]
   pub type_params: Box<[TsTypeParamDef]>,
+  #[serde(skip_serializing_if = "<[_]>::is_empty", default)]
   pub super_type_params: Box<[TsTypeDef]>,
   #[serde(skip_serializing_if = "<[_]>::is_empty", default)]
   pub decorators: Box<[DecoratorDef]>,

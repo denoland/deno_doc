@@ -31,7 +31,6 @@ class C
 
 # output.json
 {
-  "imports": [],
   "symbols": [
     {
       "name": "C",
@@ -46,8 +45,6 @@ class C
           "declarationKind": "export",
           "kind": "class",
           "def": {
-            "isAbstract": false,
-            "constructors": [],
             "properties": [
               {
                 "tsType": {
@@ -55,11 +52,6 @@ class C
                   "kind": "keyword",
                   "value": "number"
                 },
-                "readonly": false,
-                "accessibility": null,
-                "optional": false,
-                "isAbstract": false,
-                "isStatic": false,
                 "name": "f",
                 "location": {
                   "filename": "file:///mod.ts",
@@ -69,16 +61,11 @@ class C
                 }
               }
             ],
-            "indexSignatures": [],
             "methods": [
               {
                 "jsDoc": {
                   "doc": "a doc"
                 },
-                "accessibility": null,
-                "optional": false,
-                "isAbstract": false,
-                "isStatic": false,
                 "name": "a",
                 "kind": "method",
                 "functionDef": {
@@ -88,10 +75,7 @@ class C
                     "kind": "keyword",
                     "value": "void"
                   },
-                  "hasBody": true,
-                  "isAsync": false,
-                  "isGenerator": false,
-                  "typeParams": []
+                  "hasBody": true
                 },
                 "location": {
                   "filename": "file:///mod.ts",
@@ -100,11 +84,7 @@ class C
                   "byteIndex": 34
                 }
               }
-            ],
-            "extends": null,
-            "implements": [],
-            "typeParams": [],
-            "superTypeParams": []
+            ]
           }
         }
       ]

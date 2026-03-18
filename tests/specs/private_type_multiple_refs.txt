@@ -90,8 +90,6 @@ class ClassB
           },
           "kind": "class",
           "def": {
-            "isAbstract": false,
-            "constructors": [],
             "properties": [
               {
                 "jsDoc": {
@@ -101,7 +99,6 @@ class ClassB
                   "repr": "PrivateInterface",
                   "kind": "typeRef",
                   "value": {
-                    "typeParams": null,
                     "typeName": "PrivateInterface",
                     "resolution": {
                       "kind": "import",
@@ -110,11 +107,6 @@ class ClassB
                     }
                   }
                 },
-                "readonly": false,
-                "accessibility": null,
-                "optional": false,
-                "isAbstract": false,
-                "isStatic": false,
                 "name": "prop",
                 "location": {
                   "filename": "file:///mod.ts",
@@ -123,13 +115,7 @@ class ClassB
                   "byteIndex": 109
                 }
               }
-            ],
-            "indexSignatures": [],
-            "methods": [],
-            "extends": null,
-            "implements": [],
-            "typeParams": [],
-            "superTypeParams": []
+            ]
           }
         }
       ]
@@ -150,8 +136,6 @@ class ClassB
           },
           "kind": "class",
           "def": {
-            "isAbstract": false,
-            "constructors": [],
             "properties": [
               {
                 "jsDoc": {
@@ -161,7 +145,6 @@ class ClassB
                   "repr": "PrivateInterface",
                   "kind": "typeRef",
                   "value": {
-                    "typeParams": null,
                     "typeName": "PrivateInterface",
                     "resolution": {
                       "kind": "import",
@@ -170,11 +153,6 @@ class ClassB
                     }
                   }
                 },
-                "readonly": false,
-                "accessibility": null,
-                "optional": false,
-                "isAbstract": false,
-                "isStatic": false,
                 "name": "prop",
                 "location": {
                   "filename": "file:///mod.ts",
@@ -183,13 +161,7 @@ class ClassB
                   "byteIndex": 195
                 }
               }
-            ],
-            "indexSignatures": [],
-            "methods": [],
-            "extends": null,
-            "implements": [],
-            "typeParams": [],
-            "superTypeParams": []
+            ]
           }
         }
       ]

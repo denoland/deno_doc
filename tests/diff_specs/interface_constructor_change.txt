@@ -50,14 +50,12 @@ export interface Foo {
                           "repr": "Foo",
                           "kind": "typeRef",
                           "value": {
-                            "typeParams": null,
                             "typeName": "Foo",
                             "resolution": {
                               "kind": "local"
                             }
                           }
                         },
-                        "typeParams": [],
                         "location": {
                           "filename": "file:///mod.ts",
                           "line": 1,
@@ -84,14 +82,12 @@ export interface Foo {
                           "repr": "Foo",
                           "kind": "typeRef",
                           "value": {
-                            "typeParams": null,
                             "typeName": "Foo",
                             "resolution": {
                               "kind": "local"
                             }
                           }
                         },
-                        "typeParams": [],
                         "location": {
                           "filename": "file:///mod.ts",
                           "line": 1,

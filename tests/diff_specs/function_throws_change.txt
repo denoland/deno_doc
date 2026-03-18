@@ -28,11 +28,10 @@ export function foo(x: number): void {}
                     "added": [
                       {
                         "kind": "throws",
-                        "ts_type": {
+                        "tsType": {
                           "repr": "SyntaxError",
                           "kind": "typeRef",
                           "value": {
-                            "typeParams": null,
                             "typeName": "SyntaxError",
                             "resolution": {
                               "kind": "typeParam"
@@ -45,11 +44,10 @@ export function foo(x: number): void {}
                     "removed": [
                       {
                         "kind": "throws",
-                        "ts_type": {
+                        "tsType": {
                           "repr": "TypeError",
                           "kind": "typeRef",
                           "value": {
-                            "typeParams": null,
                             "typeName": "TypeError",
                             "resolution": {
                               "kind": "typeParam"
@@ -63,11 +61,10 @@ export function foo(x: number): void {}
                       {
                         "old": {
                           "kind": "throws",
-                          "ts_type": {
+                          "tsType": {
                             "repr": "RangeError",
                             "kind": "typeRef",
                             "value": {
-                              "typeParams": null,
                               "typeName": "RangeError",
                               "resolution": {
                                 "kind": "typeParam"
@@ -78,11 +75,10 @@ export function foo(x: number): void {}
                         },
                         "new": {
                           "kind": "throws",
-                          "ts_type": {
+                          "tsType": {
                             "repr": "RangeError",
                             "kind": "typeRef",
                             "value": {
-                              "typeParams": null,
                               "typeName": "RangeError",
                               "resolution": {
                                 "kind": "typeParam"

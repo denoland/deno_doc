@@ -26,7 +26,6 @@ private namespace MyNamespace
 
 # output.json
 {
-  "imports": [],
   "symbols": [
     {
       "name": "PrivateProp",
@@ -48,8 +47,7 @@ private namespace MyNamespace
               "repr": "MyNamespace.MyInternal",
               "kind": "typeQuery",
               "value": "MyNamespace.MyInternal"
-            },
-            "typeParams": []
+            }
           }
         }
       ]
@@ -87,17 +85,7 @@ private namespace MyNamespace
                       ]
                     },
                     "kind": "class",
-                    "def": {
-                      "isAbstract": false,
-                      "constructors": [],
-                      "properties": [],
-                      "indexSignatures": [],
-                      "methods": [],
-                      "extends": null,
-                      "implements": [],
-                      "typeParams": [],
-                      "superTypeParams": []
-                    }
+                    "def": {}
                   }
                 ]
               }

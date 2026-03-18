@@ -17,7 +17,6 @@ interface Interface
 
 # output.json
 {
-  "imports": [],
   "symbols": [
     {
       "name": "Interface",
@@ -31,15 +30,7 @@ interface Interface
           },
           "declarationKind": "export",
           "kind": "interface",
-          "def": {
-            "extends": [],
-            "constructors": [],
-            "methods": [],
-            "properties": [],
-            "callSignatures": [],
-            "indexSignatures": [],
-            "typeParams": []
-          }
+          "def": {}
         }
       ]
     }

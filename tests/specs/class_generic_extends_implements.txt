@@ -17,7 +17,6 @@ class Class<A, B> extends Map<A, B> implements Iterator<A>, Iterable<B>
 
 # output.json
 {
-  "imports": [],
   "symbols": [
     {
       "name": "Class",
@@ -32,11 +31,6 @@ class Class<A, B> extends Map<A, B> implements Iterator<A>, Iterable<B>
           "declarationKind": "export",
           "kind": "class",
           "def": {
-            "isAbstract": false,
-            "constructors": [],
-            "properties": [],
-            "indexSignatures": [],
-            "methods": [],
             "extends": "Map",
             "implements": [
               {
@@ -48,7 +42,6 @@ class Class<A, B> extends Map<A, B> implements Iterator<A>, Iterable<B>
                       "repr": "A",
                       "kind": "typeRef",
                       "value": {
-                        "typeParams": null,
                         "typeName": "A",
                         "resolution": {
                           "kind": "typeParam",
@@ -70,7 +63,6 @@ class Class<A, B> extends Map<A, B> implements Iterator<A>, Iterable<B>
                       "repr": "B",
                       "kind": "typeRef",
                       "value": {
-                        "typeParams": null,
                         "typeName": "B",
                         "resolution": {
                           "kind": "typeParam",
@@ -97,7 +89,6 @@ class Class<A, B> extends Map<A, B> implements Iterator<A>, Iterable<B>
                 "repr": "A",
                 "kind": "typeRef",
                 "value": {
-                  "typeParams": null,
                   "typeName": "A",
                   "resolution": {
                     "kind": "typeParam",
@@ -110,7 +101,6 @@ class Class<A, B> extends Map<A, B> implements Iterator<A>, Iterable<B>
                 "repr": "B",
                 "kind": "typeRef",
                 "value": {
-                  "typeParams": null,
                   "typeName": "B",
                   "resolution": {
                     "kind": "typeParam",

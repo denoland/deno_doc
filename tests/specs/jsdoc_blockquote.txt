@@ -123,7 +123,6 @@ function withList(): void
 
 # output.json
 {
-  "imports": [],
   "symbols": [
     {
       "name": "simple",
@@ -147,10 +146,7 @@ function withList(): void
               "kind": "keyword",
               "value": "void"
             },
-            "hasBody": true,
-            "isAsync": false,
-            "isGenerator": false,
-            "typeParams": []
+            "hasBody": true
           }
         }
       ]
@@ -177,10 +173,7 @@ function withList(): void
               "kind": "keyword",
               "value": "void"
             },
-            "hasBody": true,
-            "isAsync": false,
-            "isGenerator": false,
-            "typeParams": []
+            "hasBody": true
           }
         }
       ]
@@ -207,10 +200,7 @@ function withList(): void
               "kind": "keyword",
               "value": "void"
             },
-            "hasBody": true,
-            "isAsync": false,
-            "isGenerator": false,
-            "typeParams": []
+            "hasBody": true
           }
         }
       ]
@@ -237,10 +227,7 @@ function withList(): void
               "kind": "keyword",
               "value": "void"
             },
-            "hasBody": true,
-            "isAsync": false,
-            "isGenerator": false,
-            "typeParams": []
+            "hasBody": true
           }
         }
       ]
@@ -267,10 +254,7 @@ function withList(): void
               "kind": "keyword",
               "value": "void"
             },
-            "hasBody": true,
-            "isAsync": false,
-            "isGenerator": false,
-            "typeParams": []
+            "hasBody": true
           }
         }
       ]
@@ -297,10 +281,7 @@ function withList(): void
               "kind": "keyword",
               "value": "void"
             },
-            "hasBody": true,
-            "isAsync": false,
-            "isGenerator": false,
-            "typeParams": []
+            "hasBody": true
           }
         }
       ]
@@ -327,10 +308,7 @@ function withList(): void
               "kind": "keyword",
               "value": "void"
             },
-            "hasBody": true,
-            "isAsync": false,
-            "isGenerator": false,
-            "typeParams": []
+            "hasBody": true
           }
         }
       ]

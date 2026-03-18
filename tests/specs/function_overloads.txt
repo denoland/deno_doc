@@ -30,7 +30,6 @@ function a(b: number): number
 
 # output.json
 {
-  "imports": [],
   "symbols": [
     {
       "name": "a",
@@ -61,10 +60,7 @@ function a(b: number): number
               "repr": "string",
               "kind": "keyword",
               "value": "string"
-            },
-            "isAsync": false,
-            "isGenerator": false,
-            "typeParams": []
+            }
           }
         },
         {
@@ -93,10 +89,7 @@ function a(b: number): number
               "repr": "number",
               "kind": "keyword",
               "value": "number"
-            },
-            "isAsync": false,
-            "isGenerator": false,
-            "typeParams": []
+            }
           }
         },
         {
@@ -115,7 +108,6 @@ function a(b: number): number
                 "name": "b",
                 "optional": false,
                 "tsType": {
-                  "repr": "",
                   "kind": "union",
                   "value": [
                     {
@@ -133,7 +125,6 @@ function a(b: number): number
               }
             ],
             "returnType": {
-              "repr": "",
               "kind": "union",
               "value": [
                 {
@@ -148,10 +139,7 @@ function a(b: number): number
                 }
               ]
             },
-            "hasBody": true,
-            "isAsync": false,
-            "isGenerator": false,
-            "typeParams": []
+            "hasBody": true
           }
         }
       ]

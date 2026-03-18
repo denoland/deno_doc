@@ -42,10 +42,7 @@ export namespace Utils {
                               "kind": "keyword",
                               "value": "void"
                             },
-                            "hasBody": true,
-                            "isAsync": false,
-                            "isGenerator": false,
-                            "typeParams": []
+                            "hasBody": true
                           }
                         }
                       ]

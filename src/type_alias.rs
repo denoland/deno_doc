@@ -10,6 +10,7 @@ use serde::Serialize;
 #[serde(rename_all = "camelCase")]
 pub struct TypeAliasDef {
   pub ts_type: TsTypeDef,
+  #[serde(skip_serializing_if = "<[_]>::is_empty", default)]
   pub type_params: Box<[TsTypeParamDef]>,
 }
 

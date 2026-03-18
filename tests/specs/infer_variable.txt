@@ -88,7 +88,6 @@ const j: number
 
 # output.json
 {
-  "imports": [],
   "symbols": [
     {
       "name": "a",
@@ -240,7 +239,6 @@ const j: number
           "kind": "variable",
           "def": {
             "tsType": {
-              "repr": "",
               "kind": "union",
               "value": [
                 {
@@ -401,11 +399,7 @@ const j: number
                 }
               }
             ],
-            "returnType": null,
-            "hasBody": true,
-            "isAsync": false,
-            "isGenerator": false,
-            "typeParams": []
+            "hasBody": true
           }
         }
       ]

@@ -56,7 +56,6 @@ private interface YesDiagnostic
 
 # output.json
 {
-  "imports": [],
   "symbols": [
     {
       "name": "MyClass",
@@ -74,16 +73,9 @@ private interface YesDiagnostic
           },
           "kind": "class",
           "def": {
-            "isAbstract": false,
-            "constructors": [],
-            "properties": [],
-            "indexSignatures": [],
             "methods": [
               {
                 "accessibility": "protected",
-                "optional": false,
-                "isAbstract": false,
-                "isStatic": false,
                 "name": "secondMethod",
                 "kind": "method",
                 "functionDef": {
@@ -92,17 +84,13 @@ private interface YesDiagnostic
                     "repr": "YesDiagnostic",
                     "kind": "typeRef",
                     "value": {
-                      "typeParams": null,
                       "typeName": "YesDiagnostic",
                       "resolution": {
                         "kind": "local"
                       }
                     }
                   },
-                  "hasBody": true,
-                  "isAsync": false,
-                  "isGenerator": false,
-                  "typeParams": []
+                  "hasBody": true
                 },
                 "location": {
                   "filename": "file:///mod.ts",
@@ -113,9 +101,6 @@ private interface YesDiagnostic
               },
               {
                 "accessibility": "private",
-                "optional": false,
-                "isAbstract": false,
-                "isStatic": false,
                 "name": "myMethod",
                 "kind": "method",
                 "functionDef": {
@@ -124,17 +109,13 @@ private interface YesDiagnostic
                     "repr": "NoDiagnostic",
                     "kind": "typeRef",
                     "value": {
-                      "typeParams": null,
                       "typeName": "NoDiagnostic",
                       "resolution": {
                         "kind": "local"
                       }
                     }
                   },
-                  "hasBody": true,
-                  "isAsync": false,
-                  "isGenerator": false,
-                  "typeParams": []
+                  "hasBody": true
                 },
                 "location": {
                   "filename": "file:///mod.ts",
@@ -143,11 +124,7 @@ private interface YesDiagnostic
                   "byteIndex": 89
                 }
               }
-            ],
-            "extends": null,
-            "implements": [],
-            "typeParams": [],
-            "superTypeParams": []
+            ]
           }
         }
       ]
@@ -164,15 +141,7 @@ private interface YesDiagnostic
           },
           "declarationKind": "private",
           "kind": "interface",
-          "def": {
-            "extends": [],
-            "constructors": [],
-            "methods": [],
-            "properties": [],
-            "callSignatures": [],
-            "indexSignatures": [],
-            "typeParams": []
-          }
+          "def": {}
         }
       ]
     }

@@ -64,7 +64,6 @@ type tplLitArg = `test${number}`
 
 # output.json
 {
-  "imports": [],
   "symbols": [
     {
       "name": "boolLit",
@@ -86,8 +85,7 @@ type tplLitArg = `test${number}`
                 "kind": "boolean",
                 "boolean": false
               }
-            },
-            "typeParams": []
+            }
           }
         }
       ]
@@ -112,8 +110,7 @@ type tplLitArg = `test${number}`
                 "kind": "string",
                 "string": "text"
               }
-            },
-            "typeParams": []
+            }
           }
         }
       ]
@@ -147,8 +144,7 @@ type tplLitArg = `test${number}`
                   }
                 ]
               }
-            },
-            "typeParams": []
+            }
           }
         }
       ]
@@ -186,7 +182,6 @@ type tplLitArg = `test${number}`
                     "value": "number"
                   },
                   {
-                    "repr": "",
                     "kind": "literal",
                     "value": {
                       "kind": "string",
@@ -195,8 +190,7 @@ type tplLitArg = `test${number}`
                   }
                 ]
               }
-            },
-            "typeParams": []
+            }
           }
         }
       ]
@@ -221,8 +215,7 @@ type tplLitArg = `test${number}`
                 "kind": "number",
                 "number": 5.0
               }
-            },
-            "typeParams": []
+            }
           }
         }
       ]

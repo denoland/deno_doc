@@ -43,7 +43,6 @@ interface Thing
 
 # output.json
 {
-  "imports": [],
   "symbols": [
     {
       "name": "Thing",
@@ -58,8 +57,6 @@ interface Thing
           "declarationKind": "export",
           "kind": "interface",
           "def": {
-            "extends": [],
-            "constructors": [],
             "methods": [
               {
                 "name": "size",
@@ -71,13 +68,11 @@ interface Thing
                   "byteIndex": 27
                 },
                 "params": [],
-                "optional": false,
                 "returnType": {
                   "repr": "number",
                   "kind": "keyword",
                   "value": "number"
-                },
-                "typeParams": []
+                }
               },
               {
                 "name": "size",
@@ -94,7 +89,6 @@ interface Thing
                     "name": "value",
                     "optional": false,
                     "tsType": {
-                      "repr": "",
                       "kind": "union",
                       "value": [
                         {
@@ -110,16 +104,9 @@ interface Thing
                       ]
                     }
                   }
-                ],
-                "optional": false,
-                "returnType": null,
-                "typeParams": []
+                ]
               }
-            ],
-            "properties": [],
-            "callSignatures": [],
-            "indexSignatures": [],
-            "typeParams": []
+            ]
           }
         }
       ]

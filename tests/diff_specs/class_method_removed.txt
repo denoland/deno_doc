@@ -25,10 +25,6 @@ export class Foo {
                   "methodChanges": {
                     "removed": [
                       {
-                        "accessibility": null,
-                        "optional": false,
-                        "isAbstract": false,
-                        "isStatic": false,
                         "name": "baz",
                         "kind": "method",
                         "functionDef": {
@@ -38,10 +34,7 @@ export class Foo {
                             "kind": "keyword",
                             "value": "void"
                           },
-                          "hasBody": true,
-                          "isAsync": false,
-                          "isGenerator": false,
-                          "typeParams": []
+                          "hasBody": true
                         },
                         "location": {
                           "filename": "file:///mod.ts",

@@ -102,36 +102,36 @@ export type Accessibility = "public" | "protected" | "private";
 
 export interface ClassDef {
   defName?: string;
-  isAbstract: boolean;
-  constructors: ClassConstructorDef[];
-  properties: ClassPropertyDef[];
-  indexSignatures: ClassIndexSignatureDef[];
-  methods: ClassMethodDef[];
+  isAbstract?: true;
+  constructors?: ClassConstructorDef[];
+  properties?: ClassPropertyDef[];
+  indexSignatures?: ClassIndexSignatureDef[];
+  methods?: ClassMethodDef[];
   extends?: string;
-  implements: TsTypeDef[];
-  typeParams: TsTypeParamDef[];
-  superTypeParams: TsTypeDef[];
+  implements?: TsTypeDef[];
+  typeParams?: TsTypeParamDef[];
+  superTypeParams?: TsTypeDef[];
   decorators?: DecoratorDef[];
 }
 
 export type ClassConstructorParamDef = ParamDef & {
   accessibility?: Accessibility;
-  isOverride?: boolean;
-  readonly?: boolean;
+  isOverride?: true;
+  readonly?: true;
 };
 
 export interface ClassConstructorDef {
   jsDoc?: JsDoc;
   accessibility?: Accessibility;
-  isOptional?: boolean;
-  hasBody?: boolean;
+  isOptional?: true;
+  hasBody?: true;
   name: string;
   params: ClassConstructorParamDef[];
   location: Location;
 }
 
 export interface ClassIndexSignatureDef {
-  readonly: boolean;
+  readonly?: true;
   params: ParamDef[];
   tsType?: TsTypeDef;
 }
@@ -139,10 +139,10 @@ export interface ClassIndexSignatureDef {
 export interface ClassMethodDef {
   jsDoc?: JsDoc;
   accessibility?: Accessibility;
-  optional: boolean;
-  isAbstract: boolean;
-  isStatic: boolean;
-  isOverride?: boolean;
+  optional?: true;
+  isAbstract?: true;
+  isStatic?: true;
+  isOverride?: true;
   name: string;
   kind: MethodKind;
   def: FunctionDef;
@@ -152,12 +152,12 @@ export interface ClassMethodDef {
 export interface ClassPropertyDef {
   jsDoc?: JsDoc;
   tsType?: TsTypeDef;
-  readonly: boolean;
+  readonly?: true;
   accessibility?: Accessibility;
-  optional: boolean;
-  isAbstract: boolean;
-  isStatic: boolean;
-  isOverride?: boolean;
+  optional?: true;
+  isAbstract?: true;
+  isStatic?: true;
+  isOverride?: true;
   name: string;
   decorators?: DecoratorDef[];
   location: Location;
@@ -184,21 +184,21 @@ export interface FunctionDef {
   defName?: string;
   params: ParamDef[];
   returnType?: TsTypeDef;
-  hasBody?: boolean;
-  isAsync: boolean;
-  isGenerator: boolean;
-  typeParams: TsTypeParamDef[];
+  hasBody?: true;
+  isAsync?: true;
+  isGenerator?: true;
+  typeParams?: TsTypeParamDef[];
   decorators?: DecoratorDef[];
 }
 
 export interface InterfaceDef {
   defName?: string;
-  extends: TsTypeDef[];
-  methods: InterfaceMethodDef[];
-  properties: InterfacePropertyDef[];
-  callSignatures: InterfaceCallSignatureDef[];
-  indexSignatures: InterfaceIndexSignatureDef[];
-  typeParams: TsTypeParamDef[];
+  extends?: TsTypeDef[];
+  methods?: InterfaceMethodDef[];
+  properties?: InterfacePropertyDef[];
+  callSignatures?: InterfaceCallSignatureDef[];
+  indexSignatures?: InterfaceIndexSignatureDef[];
+  typeParams?: TsTypeParamDef[];
   constructors?: unknown[];
 }
 
@@ -207,11 +207,11 @@ export interface InterfaceCallSignatureDef {
   jsDoc?: JsDoc;
   params: ParamDef[];
   tsType?: TsTypeDef;
-  typeParams: TsTypeParamDef[];
+  typeParams?: TsTypeParamDef[];
 }
 
 export interface InterfaceIndexSignatureDef {
-  readonly: boolean;
+  readonly?: true;
   params: ParamDef[];
   tsType?: TsTypeDef;
 }
@@ -221,23 +221,23 @@ export interface InterfaceMethodDef {
   kind: MethodKind;
   location: Location;
   jsDoc?: JsDoc;
-  computed?: boolean;
-  optional: boolean;
+  computed?: true;
+  optional?: true;
   params: ParamDef[];
   returnType?: TsTypeDef;
-  typeParams: TsTypeParamDef[];
+  typeParams?: TsTypeParamDef[];
 }
 
 export interface InterfacePropertyDef {
   name: string;
   location: Location;
   jsDoc?: JsDoc;
-  params: ParamDef[];
-  readonly?: boolean;
-  computed: boolean;
-  optional: boolean;
+  params?: ParamDef[];
+  readonly?: true;
+  computed?: true;
+  optional?: true;
   tsType?: TsTypeDef;
-  typeParams: TsTypeParamDef[];
+  typeParams?: TsTypeParamDef[];
 }
 
 export interface ReferenceDef {
@@ -329,21 +329,21 @@ export interface JsDocTagValued extends JsDocTagBase {
 
 export interface JsDocTagTyped extends JsDocTagBase {
   kind: "enum" | "extends" | "this" | "type";
-  ts_type: TsTypeDef;
+  tsType: TsTypeDef;
   doc?: string;
 }
 
 export interface JsDocTagNamedTyped extends JsDocTagBase {
   kind: "property" | "typedef";
   name: string;
-  ts_type: TsTypeDef;
+  tsType: TsTypeDef;
   doc?: string;
 }
 
 export interface JsDocTagParam extends JsDocTagBase {
   kind: "param";
   name: string;
-  ts_type?: TsTypeDef;
+  tsType?: TsTypeDef;
   optional?: true;
   default?: string;
   doc?: string;
@@ -351,13 +351,13 @@ export interface JsDocTagParam extends JsDocTagBase {
 
 export interface JsDocTagReturn extends JsDocTagBase {
   kind: "return";
-  ts_type?: TsTypeDef;
+  tsType?: TsTypeDef;
   doc?: string;
 }
 
 export interface JsDocTagThrows extends JsDocTagBase {
   kind: "throws";
-  ts_type?: TsTypeDef;
+  tsType?: TsTypeDef;
   doc?: string;
 }
 
@@ -379,7 +379,7 @@ export interface JsDocTagUnsupported extends JsDocTagBase {
 export interface LiteralCallSignatureDef {
   params: ParamDef[];
   tsType?: TsTypeDef;
-  typeParams: TsTypeParamDef[];
+  typeParams?: TsTypeParamDef[];
 }
 
 export type LiteralDefKind =
@@ -426,7 +426,7 @@ export interface LiteralDefBoolean extends LiteralDefBase {
 }
 
 export interface LiteralIndexSignatureDef {
-  readonly: boolean;
+  readonly?: true;
   params: ParamDef[];
   tsType?: TsTypeDef;
   location?: Location;
@@ -436,21 +436,21 @@ export interface LiteralMethodDef {
   name: string;
   kind: MethodKind;
   params: ParamDef[];
-  computed?: boolean;
-  optional: boolean;
+  computed?: true;
+  optional?: true;
   returnType?: TsTypeDef;
-  typeParams: TsTypeParamDef[];
+  typeParams?: TsTypeParamDef[];
   location?: Location;
 }
 
 export interface LiteralPropertyDef {
   name: string;
-  params: ParamDef[];
-  readonly?: boolean;
-  computed: boolean;
-  optional: boolean;
+  params?: ParamDef[];
+  readonly?: true;
+  computed?: true;
+  optional?: true;
   tsType?: TsTypeDef;
-  typeParams: TsTypeParamDef[];
+  typeParams?: TsTypeParamDef[];
   location?: Location;
 }
 
@@ -548,7 +548,7 @@ export interface TsFnOrConstructorDef {
   constructor: boolean;
   tsType: TsTypeDef;
   params: ParamDef[];
-  typeParams: TsTypeParamDef[];
+  typeParams?: TsTypeParamDef[];
 }
 
 export interface TsImportTypeDef {
@@ -558,7 +558,7 @@ export interface TsImportTypeDef {
 }
 
 export interface TsIndexedAccessDef {
-  readonly: boolean;
+  readonly?: true;
   objType: TsTypeDef;
   indexType: TsTypeDef;
 }
@@ -576,10 +576,10 @@ export interface TsMappedTypeDef {
 }
 
 export interface TsTypeLiteralDef {
-  methods: LiteralMethodDef[];
-  properties: LiteralPropertyDef[];
-  callSignatures: LiteralCallSignatureDef[];
-  indexSignatures: LiteralIndexSignatureDef[];
+  methods?: LiteralMethodDef[];
+  properties?: LiteralPropertyDef[];
+  callSignatures?: LiteralCallSignatureDef[];
+  indexSignatures?: LiteralIndexSignatureDef[];
   constructors?: unknown[];
 }
 
@@ -595,7 +595,7 @@ export interface TsTypeParamDef {
 }
 
 export interface TsTypePredicateDef {
-  asserts: boolean;
+  asserts?: true;
   param: { type: "this" | "identifier"; name?: string };
   type?: TsTypeDef;
 }
@@ -624,7 +624,7 @@ export type TsTypeDef =
   | TsTypeTypePredicateDef;
 
 interface TsTypeDefBase {
-  repr: string;
+  repr?: string;
   kind: TsTypeDefKind;
 }
 
@@ -783,7 +783,7 @@ export interface TsTypeRefDef {
 
 export interface TypeAliasDef {
   tsType: TsTypeDef;
-  typeParams: TsTypeParamDef[];
+  typeParams?: TsTypeParamDef[];
 }
 
 export type VariableDeclKind = "var" | "let" | "const";

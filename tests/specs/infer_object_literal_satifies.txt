@@ -49,7 +49,6 @@ type Colors = "red" | "green" | "blue"
 
 # output.json
 {
-  "imports": [],
   "symbols": [
     {
       "name": "Colors",
@@ -65,7 +64,6 @@ type Colors = "red" | "green" | "blue"
           "kind": "typeAlias",
           "def": {
             "tsType": {
-              "repr": "",
               "kind": "union",
               "value": [
                 {
@@ -93,8 +91,7 @@ type Colors = "red" | "green" | "blue"
                   }
                 }
               ]
-            },
-            "typeParams": []
+            }
           }
         }
       ]
@@ -113,11 +110,8 @@ type Colors = "red" | "green" | "blue"
           "kind": "variable",
           "def": {
             "tsType": {
-              "repr": "",
               "kind": "typeLiteral",
               "value": {
-                "constructors": [],
-                "methods": [],
                 "properties": [
                   {
                     "name": "red",
@@ -127,15 +121,11 @@ type Colors = "red" | "green" | "blue"
                       "col": 4,
                       "byteIndex": 139
                     },
-                    "params": [],
-                    "computed": false,
-                    "optional": false,
                     "tsType": {
                       "repr": "string",
                       "kind": "keyword",
                       "value": "string"
-                    },
-                    "typeParams": []
+                    }
                   },
                   {
                     "name": "green",
@@ -145,15 +135,11 @@ type Colors = "red" | "green" | "blue"
                       "col": 4,
                       "byteIndex": 157
                     },
-                    "params": [],
-                    "computed": false,
-                    "optional": false,
                     "tsType": {
                       "repr": "boolean",
                       "kind": "keyword",
                       "value": "boolean"
-                    },
-                    "typeParams": []
+                    }
                   },
                   {
                     "name": "blue",
@@ -163,15 +149,11 @@ type Colors = "red" | "green" | "blue"
                       "col": 4,
                       "byteIndex": 177
                     },
-                    "params": [],
-                    "computed": false,
-                    "optional": false,
                     "tsType": {
                       "repr": "string",
                       "kind": "keyword",
                       "value": "string"
-                    },
-                    "typeParams": []
+                    }
                   },
                   {
                     "name": "platypus",
@@ -181,19 +163,13 @@ type Colors = "red" | "green" | "blue"
                       "col": 4,
                       "byteIndex": 198
                     },
-                    "params": [],
-                    "computed": false,
-                    "optional": false,
                     "tsType": {
                       "repr": "boolean",
                       "kind": "keyword",
                       "value": "boolean"
-                    },
-                    "typeParams": []
+                    }
                   }
-                ],
-                "callSignatures": [],
-                "indexSignatures": []
+                ]
               }
             },
             "kind": "const"

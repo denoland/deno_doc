@@ -24,7 +24,6 @@ enum Enum
 
 # output.json
 {
-  "imports": [],
   "symbols": [
     {
       "name": "Enum",

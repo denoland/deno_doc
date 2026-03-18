@@ -16,7 +16,6 @@ class default
 
 # output.json
 {
-  "imports": [],
   "symbols": [
     {
       "name": "default",
@@ -36,13 +35,11 @@ class default
           "kind": "class",
           "def": {
             "defName": "Foobar",
-            "isAbstract": false,
             "constructors": [
               {
                 "jsDoc": {
                   "doc": "Constructor js doc"
                 },
-                "accessibility": null,
                 "hasBody": true,
                 "name": "constructor",
                 "params": [
@@ -86,14 +83,7 @@ class default
                   "byteIndex": 81
                 }
               }
-            ],
-            "properties": [],
-            "indexSignatures": [],
-            "methods": [],
-            "extends": null,
-            "implements": [],
-            "typeParams": [],
-            "superTypeParams": []
+            ]
           }
         }
       ]

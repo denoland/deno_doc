@@ -21,7 +21,6 @@ function foo(): void
 
 # output.json
 {
-  "imports": [],
   "symbols": [
     {
       "name": "foo",
@@ -42,10 +41,7 @@ function foo(): void
               "kind": "keyword",
               "value": "void"
             },
-            "hasBody": true,
-            "isAsync": false,
-            "isGenerator": false,
-            "typeParams": []
+            "hasBody": true
           }
         }
       ]
@@ -69,10 +65,7 @@ function foo(): void
               "kind": "keyword",
               "value": "void"
             },
-            "hasBody": true,
-            "isAsync": false,
-            "isGenerator": false,
-            "typeParams": []
+            "hasBody": true
           }
         }
       ]

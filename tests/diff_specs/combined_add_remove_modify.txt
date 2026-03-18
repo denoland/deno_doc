@@ -32,10 +32,7 @@ export function brandNew(): void {}
                   "kind": "keyword",
                   "value": "void"
                 },
-                "hasBody": true,
-                "isAsync": false,
-                "isGenerator": false,
-                "typeParams": []
+                "hasBody": true
               }
             }
           ]
@@ -82,10 +79,7 @@ export function brandNew(): void {}
                   "kind": "keyword",
                   "value": "void"
                 },
-                "hasBody": true,
-                "isAsync": false,
-                "isGenerator": false,
-                "typeParams": []
+                "hasBody": true
               }
             }
           ]

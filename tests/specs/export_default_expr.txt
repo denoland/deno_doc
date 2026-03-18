@@ -16,7 +16,6 @@ var default: "foo"
 
 # output.json
 {
-  "imports": [],
   "symbols": [
     {
       "name": "default",

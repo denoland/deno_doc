@@ -63,7 +63,6 @@ class A
 
 # output.json
 {
-  "imports": [],
   "symbols": [
     {
       "name": "A",
@@ -81,7 +80,6 @@ class A
           },
           "kind": "class",
           "def": {
-            "isAbstract": false,
             "constructors": [
               {
                 "jsDoc": {
@@ -90,7 +88,7 @@ class A
                     {
                       "kind": "param",
                       "name": "name",
-                      "ts_type": {
+                      "tsType": {
                         "repr": "string",
                         "kind": "keyword",
                         "value": "string"
@@ -100,7 +98,7 @@ class A
                     {
                       "kind": "param",
                       "name": "a",
-                      "ts_type": {
+                      "tsType": {
                         "repr": "string",
                         "kind": "keyword",
                         "value": "string"
@@ -110,7 +108,7 @@ class A
                     {
                       "kind": "param",
                       "name": "b",
-                      "ts_type": {
+                      "tsType": {
                         "repr": "number",
                         "kind": "keyword",
                         "value": "number"
@@ -119,27 +117,23 @@ class A
                     }
                   ]
                 },
-                "accessibility": null,
                 "hasBody": true,
                 "name": "constructor",
                 "params": [
                   {
                     "kind": "identifier",
                     "name": "name",
-                    "optional": false,
-                    "tsType": null
+                    "optional": false
                   },
                   {
                     "kind": "identifier",
                     "name": "a",
-                    "optional": false,
-                    "tsType": null
+                    "optional": false
                   },
                   {
                     "kind": "identifier",
                     "name": "b",
-                    "optional": false,
-                    "tsType": null
+                    "optional": false
                   }
                 ],
                 "location": {
@@ -164,11 +158,6 @@ class A
                   "kind": "keyword",
                   "value": "boolean"
                 },
-                "readonly": false,
-                "accessibility": null,
-                "optional": false,
-                "isAbstract": false,
-                "isStatic": false,
                 "name": "p",
                 "location": {
                   "filename": "file:///mod.ts",
@@ -178,14 +167,13 @@ class A
                 }
               }
             ],
-            "indexSignatures": [],
             "methods": [
               {
                 "jsDoc": {
                   "tags": [
                     {
                       "kind": "return",
-                      "ts_type": {
+                      "tsType": {
                         "repr": "Promise<void>",
                         "kind": "typeRef",
                         "value": {
@@ -205,10 +193,6 @@ class A
                     }
                   ]
                 },
-                "accessibility": null,
-                "optional": false,
-                "isAbstract": false,
-                "isStatic": false,
                 "name": "a",
                 "kind": "method",
                 "functionDef": {
@@ -218,10 +202,7 @@ class A
                     "kind": "keyword",
                     "value": "void"
                   },
-                  "hasBody": true,
-                  "isAsync": false,
-                  "isGenerator": false,
-                  "typeParams": []
+                  "hasBody": true
                 },
                 "location": {
                   "filename": "file:///mod.ts",
@@ -230,11 +211,7 @@ class A
                   "byteIndex": 361
                 }
               }
-            ],
-            "extends": null,
-            "implements": [],
-            "typeParams": [],
-            "superTypeParams": []
+            ]
           }
         }
       ]

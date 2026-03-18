@@ -34,7 +34,6 @@ interface I
 
 # output.json
 {
-  "imports": [],
   "symbols": [
     {
       "name": "I",
@@ -49,7 +48,6 @@ interface I
           "declarationKind": "export",
           "kind": "interface",
           "def": {
-            "extends": [],
             "constructors": [
               {
                 "params": [
@@ -64,8 +62,6 @@ interface I
                     }
                   }
                 ],
-                "returnType": null,
-                "typeParams": [],
                 "location": {
                   "filename": "file:///mod.ts",
                   "line": 1,
@@ -73,12 +69,7 @@ interface I
                   "byteIndex": 23
                 }
               }
-            ],
-            "methods": [],
-            "properties": [],
-            "callSignatures": [],
-            "indexSignatures": [],
-            "typeParams": []
+            ]
           }
         }
       ]

@@ -18,7 +18,6 @@ private const obj: { a: string; b: string; }
 
 # output.json
 {
-  "imports": [],
   "symbols": [
     {
       "name": "obj",
@@ -34,11 +33,8 @@ private const obj: { a: string; b: string; }
           "kind": "variable",
           "def": {
             "tsType": {
-              "repr": "",
               "kind": "typeLiteral",
               "value": {
-                "constructors": [],
-                "methods": [],
                 "properties": [
                   {
                     "name": "a",
@@ -48,15 +44,11 @@ private const obj: { a: string; b: string; }
                       "col": 14,
                       "byteIndex": 14
                     },
-                    "params": [],
-                    "computed": false,
-                    "optional": false,
                     "tsType": {
                       "repr": "string",
                       "kind": "keyword",
                       "value": "string"
-                    },
-                    "typeParams": []
+                    }
                   },
                   {
                     "name": "b",
@@ -66,19 +58,13 @@ private const obj: { a: string; b: string; }
                       "col": 24,
                       "byteIndex": 24
                     },
-                    "params": [],
-                    "computed": false,
-                    "optional": false,
                     "tsType": {
                       "repr": "string",
                       "kind": "keyword",
                       "value": "string"
-                    },
-                    "typeParams": []
+                    }
                   }
-                ],
-                "callSignatures": [],
-                "indexSignatures": []
+                ]
               }
             },
             "kind": "const"
@@ -99,7 +85,6 @@ private const obj: { a: string; b: string; }
           "declarationKind": "private",
           "kind": "variable",
           "def": {
-            "tsType": null,
             "kind": "const"
           }
         }
@@ -118,7 +103,6 @@ private const obj: { a: string; b: string; }
           "declarationKind": "private",
           "kind": "variable",
           "def": {
-            "tsType": null,
             "kind": "const"
           }
         }

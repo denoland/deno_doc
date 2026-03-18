@@ -996,6 +996,7 @@ pub enum TypeRefResolution {
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "camelCase")]
 pub struct TsTypeRefDef {
+  #[serde(skip_serializing_if = "Option::is_none", default)]
   pub type_params: Option<Box<[TsTypeDef]>>,
   pub type_name: String,
   #[serde(skip_serializing_if = "Option::is_none", default)]
@@ -1043,6 +1044,7 @@ pub struct TsFnOrConstructorDef {
   pub constructor: bool,
   pub ts_type: TsTypeDef,
   pub params: Vec<ParamDef>,
+  #[serde(skip_serializing_if = "<[_]>::is_empty", default)]
   pub type_params: Box<[TsTypeParamDef]>,
 }
 
@@ -1126,6 +1128,7 @@ pub struct TsImportTypeDef {
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "camelCase")]
 pub struct TsIndexedAccessDef {
+  #[serde(skip_serializing_if = "is_false", default)]
   pub readonly: bool,
   pub obj_type: Box<TsTypeDef>,
   pub index_type: Box<TsTypeDef>,
@@ -1163,7 +1166,9 @@ pub struct ConstructorDef {
   #[serde(skip_serializing_if = "JsDoc::is_empty", default)]
   pub js_doc: JsDoc,
   pub params: Vec<ParamDef>,
+  #[serde(skip_serializing_if = "Option::is_none", default)]
   pub return_type: Option<TsTypeDef>,
+  #[serde(skip_serializing_if = "<[_]>::is_empty", default)]
   pub type_params: Box<[TsTypeParamDef]>,
   pub location: Location,
 }
@@ -1199,8 +1204,11 @@ pub struct MethodDef {
   pub params: Vec<ParamDef>,
   #[serde(skip_serializing_if = "is_false", default)]
   pub computed: bool,
+  #[serde(skip_serializing_if = "is_false", default)]
   pub optional: bool,
+  #[serde(skip_serializing_if = "Option::is_none", default)]
   pub return_type: Option<TsTypeDef>,
+  #[serde(skip_serializing_if = "<[_]>::is_empty", default)]
   pub type_params: Box<[TsTypeParamDef]>,
 }
 
@@ -1262,12 +1270,17 @@ pub struct PropertyDef {
   pub js_doc: JsDoc,
   #[serde(default)]
   pub location: Location,
+  #[serde(skip_serializing_if = "Vec::is_empty", default)]
   pub params: Vec<ParamDef>,
   #[serde(skip_serializing_if = "is_false", default)]
   pub readonly: bool,
+  #[serde(skip_serializing_if = "is_false", default)]
   pub computed: bool,
+  #[serde(skip_serializing_if = "is_false", default)]
   pub optional: bool,
+  #[serde(skip_serializing_if = "Option::is_none", default)]
   pub ts_type: Option<TsTypeDef>,
+  #[serde(skip_serializing_if = "<[_]>::is_empty", default)]
   pub type_params: Box<[TsTypeParamDef]>,
 }
 
@@ -1323,7 +1336,9 @@ pub struct CallSignatureDef {
   #[serde(default)]
   pub location: Location,
   pub params: Vec<ParamDef>,
+  #[serde(skip_serializing_if = "Option::is_none", default)]
   pub ts_type: Option<TsTypeDef>,
+  #[serde(skip_serializing_if = "<[_]>::is_empty", default)]
   pub type_params: Box<[TsTypeParamDef]>,
 }
 
@@ -1350,8 +1365,10 @@ impl Display for CallSignatureDef {
 pub struct IndexSignatureDef {
   #[serde(skip_serializing_if = "JsDoc::is_empty", default)]
   pub js_doc: JsDoc,
+  #[serde(skip_serializing_if = "is_false", default)]
   pub readonly: bool,
   pub params: Vec<ParamDef>,
+  #[serde(skip_serializing_if = "Option::is_none", default)]
   pub ts_type: Option<TsTypeDef>,
   #[serde(default)]
   pub location: Location,
@@ -1383,11 +1400,15 @@ impl Display for IndexSignatureDef {
 #[derive(Debug, Default, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "camelCase")]
 pub struct TsTypeLiteralDef {
-  #[serde(default)]
+  #[serde(skip_serializing_if = "Vec::is_empty", default)]
   pub constructors: Vec<ConstructorDef>,
+  #[serde(skip_serializing_if = "Vec::is_empty", default)]
   pub methods: Vec<MethodDef>,
+  #[serde(skip_serializing_if = "Vec::is_empty", default)]
   pub properties: Vec<PropertyDef>,
+  #[serde(skip_serializing_if = "Vec::is_empty", default)]
   pub call_signatures: Vec<CallSignatureDef>,
+  #[serde(skip_serializing_if = "Vec::is_empty", default)]
   pub index_signatures: Vec<IndexSignatureDef>,
 }
 
@@ -1421,6 +1442,7 @@ pub enum TsTypeDefKind {
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 #[serde(rename_all = "camelCase")]
 pub struct TsTypeDef {
+  #[serde(skip_serializing_if = "String::is_empty", default)]
   pub repr: String,
   #[serde(flatten)]
   pub kind: TsTypeDefKind,
@@ -1454,12 +1476,14 @@ impl From<&TsThisTypeOrIdent> for ThisOrIdent {
 #[serde(rename_all = "camelCase")]
 pub struct TsTypePredicateDef {
   /// (1) Whether the predicate includes `asserts` keyword or not
+  #[serde(skip_serializing_if = "is_false", default)]
   pub asserts: bool,
 
   /// (2) The term of predicate
   pub param: ThisOrIdent,
 
   /// (3) The type against which the parameter is checked
+  #[serde(skip_serializing_if = "Option::is_none", default)]
   pub r#type: Option<Box<TsTypeDef>>,
 }
 

@@ -13,6 +13,5 @@ export class A {}
 
 # output.json
 {
-  "imports": [],
   "symbols": []
 }

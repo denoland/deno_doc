@@ -29,10 +29,7 @@ export function bar() {}
                   "kind": "keyword",
                   "value": "void"
                 },
-                "hasBody": true,
-                "isAsync": false,
-                "isGenerator": false,
-                "typeParams": []
+                "hasBody": true
               }
             }
           ]

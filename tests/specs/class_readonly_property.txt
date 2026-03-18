@@ -27,7 +27,6 @@ class Class
 
 # output.json
 {
-  "imports": [],
   "symbols": [
     {
       "name": "Class",
@@ -42,8 +41,6 @@ class Class
           "declarationKind": "export",
           "kind": "class",
           "def": {
-            "isAbstract": false,
-            "constructors": [],
             "properties": [
               {
                 "tsType": {
@@ -52,10 +49,6 @@ class Class
                   "value": "string"
                 },
                 "readonly": true,
-                "accessibility": null,
-                "optional": false,
-                "isAbstract": false,
-                "isStatic": false,
                 "name": "property",
                 "location": {
                   "filename": "file:///mod.ts",
@@ -64,13 +57,7 @@ class Class
                   "byteIndex": 23
                 }
               }
-            ],
-            "indexSignatures": [],
-            "methods": [],
-            "extends": null,
-            "implements": [],
-            "typeParams": [],
-            "superTypeParams": []
+            ]
           }
         }
       ]

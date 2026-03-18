@@ -42,7 +42,6 @@ private interface AssignOpts
 
 # output.json
 {
-  "imports": [],
   "symbols": [
     {
       "name": "foo",
@@ -64,30 +63,25 @@ private interface AssignOpts
                   {
                     "kind": "identifier",
                     "name": "e",
-                    "optional": false,
-                    "tsType": null
+                    "optional": false
                   },
                   null,
                   {
                     "kind": "identifier",
                     "name": "f",
-                    "optional": false,
-                    "tsType": null
+                    "optional": false
                   },
                   {
                     "kind": "rest",
                     "arg": {
                       "kind": "identifier",
                       "name": "g",
-                      "optional": false,
-                      "tsType": null
-                    },
-                    "tsType": null
+                      "optional": false
+                    }
                   }
                 ],
                 "optional": false,
                 "tsType": {
-                  "repr": "",
                   "kind": "array",
                   "value": {
                     "repr": "number",
@@ -110,8 +104,7 @@ private interface AssignOpts
                     "value": {
                       "kind": "identifier",
                       "name": "asdf",
-                      "optional": false,
-                      "tsType": null
+                      "optional": false
                     }
                   },
                   {
@@ -124,13 +117,11 @@ private interface AssignOpts
                     "arg": {
                       "kind": "identifier",
                       "name": "rest",
-                      "optional": false,
-                      "tsType": null
+                      "optional": false
                     }
                   }
                 ],
-                "optional": false,
-                "tsType": null
+                "optional": false
               },
               {
                 "kind": "assign",
@@ -142,7 +133,6 @@ private interface AssignOpts
                     "repr": "AssignOpts",
                     "kind": "typeRef",
                     "value": {
-                      "typeParams": null,
                       "typeName": "AssignOpts",
                       "resolution": {
                         "kind": "local"
@@ -150,8 +140,7 @@ private interface AssignOpts
                     }
                   }
                 },
-                "right": "[UNSUPPORTED]",
-                "tsType": null
+                "right": "[UNSUPPORTED]"
               }
             ],
             "returnType": {
@@ -159,10 +148,7 @@ private interface AssignOpts
               "kind": "keyword",
               "value": "void"
             },
-            "hasBody": true,
-            "isAsync": false,
-            "isGenerator": false,
-            "typeParams": []
+            "hasBody": true
           }
         }
       ]
@@ -180,9 +166,6 @@ private interface AssignOpts
           "declarationKind": "private",
           "kind": "interface",
           "def": {
-            "extends": [],
-            "constructors": [],
-            "methods": [],
             "properties": [
               {
                 "name": "a",
@@ -192,20 +175,13 @@ private interface AssignOpts
                   "col": 2,
                   "byteIndex": 25
                 },
-                "params": [],
-                "computed": false,
-                "optional": false,
                 "tsType": {
                   "repr": "string",
                   "kind": "keyword",
                   "value": "string"
-                },
-                "typeParams": []
+                }
               }
-            ],
-            "callSignatures": [],
-            "indexSignatures": [],
-            "typeParams": []
+            ]
           }
         }
       ]

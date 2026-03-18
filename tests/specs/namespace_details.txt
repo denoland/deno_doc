@@ -38,7 +38,6 @@ namespace Namespace
 
 # output.json
 {
-  "imports": [],
   "symbols": [
     {
       "name": "Namespace",
@@ -76,10 +75,7 @@ namespace Namespace
                         "kind": "keyword",
                         "value": "void"
                       },
-                      "hasBody": true,
-                      "isAsync": false,
-                      "isGenerator": false,
-                      "typeParams": []
+                      "hasBody": true
                     }
                   }
                 ]
@@ -99,17 +95,7 @@ namespace Namespace
                       "doc": "Doc comment 2\n\nDetails 2"
                     },
                     "kind": "class",
-                    "def": {
-                      "isAbstract": false,
-                      "constructors": [],
-                      "properties": [],
-                      "indexSignatures": [],
-                      "methods": [],
-                      "extends": null,
-                      "implements": [],
-                      "typeParams": [],
-                      "superTypeParams": []
-                    }
+                    "def": {}
                   }
                 ]
               }

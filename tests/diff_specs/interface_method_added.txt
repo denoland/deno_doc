@@ -34,13 +34,11 @@ export interface Foo {
                           "byteIndex": 40
                         },
                         "params": [],
-                        "optional": false,
                         "returnType": {
                           "repr": "string",
                           "kind": "keyword",
                           "value": "string"
-                        },
-                        "typeParams": []
+                        }
                       }
                     ]
                   }

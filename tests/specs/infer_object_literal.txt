@@ -34,7 +34,6 @@ const a: { d(e: string): void; h(): string; h(value: string); [[t]](u: string): 
 
 # output.json
 {
-  "imports": [],
   "symbols": [
     {
       "name": "a",
@@ -50,10 +49,8 @@ const a: { d(e: string): void; h(): string; h(value: string); [[t]](u: string): 
           "kind": "variable",
           "def": {
             "tsType": {
-              "repr": "",
               "kind": "typeLiteral",
               "value": {
-                "constructors": [],
                 "methods": [
                   {
                     "name": "d",
@@ -76,13 +73,11 @@ const a: { d(e: string): void; h(): string; h(value: string); [[t]](u: string): 
                         }
                       }
                     ],
-                    "optional": false,
                     "returnType": {
                       "repr": "void",
                       "kind": "keyword",
                       "value": "void"
-                    },
-                    "typeParams": []
+                    }
                   },
                   {
                     "name": "h",
@@ -94,13 +89,11 @@ const a: { d(e: string): void; h(): string; h(value: string); [[t]](u: string): 
                       "byteIndex": 221
                     },
                     "params": [],
-                    "optional": false,
                     "returnType": {
                       "repr": "string",
                       "kind": "keyword",
                       "value": "string"
-                    },
-                    "typeParams": []
+                    }
                   },
                   {
                     "name": "h",
@@ -122,10 +115,7 @@ const a: { d(e: string): void; h(): string; h(value: string); [[t]](u: string): 
                           "value": "string"
                         }
                       }
-                    ],
-                    "optional": false,
-                    "returnType": null,
-                    "typeParams": []
+                    ]
                   },
                   {
                     "name": "[t]",
@@ -149,13 +139,11 @@ const a: { d(e: string): void; h(): string; h(value: string); [[t]](u: string): 
                       }
                     ],
                     "computed": true,
-                    "optional": false,
                     "returnType": {
                       "repr": "void",
                       "kind": "keyword",
                       "value": "void"
-                    },
-                    "typeParams": []
+                    }
                   }
                 ],
                 "properties": [
@@ -170,15 +158,11 @@ const a: { d(e: string): void; h(): string; h(value: string); [[t]](u: string): 
                       "col": 2,
                       "byteIndex": 107
                     },
-                    "params": [],
-                    "computed": false,
-                    "optional": false,
                     "tsType": {
                       "repr": "string",
                       "kind": "keyword",
                       "value": "string"
-                    },
-                    "typeParams": []
+                    }
                   },
                   {
                     "name": "b",
@@ -188,9 +172,6 @@ const a: { d(e: string): void; h(): string; h(value: string); [[t]](u: string): 
                       "col": 2,
                       "byteIndex": 117
                     },
-                    "params": [],
-                    "computed": false,
-                    "optional": false,
                     "tsType": {
                       "repr": "Map",
                       "kind": "typeRef",
@@ -209,8 +190,7 @@ const a: { d(e: string): void; h(): string; h(value: string); [[t]](u: string): 
                         ],
                         "typeName": "Map"
                       }
-                    },
-                    "typeParams": []
+                    }
                   },
                   {
                     "name": "c",
@@ -220,15 +200,9 @@ const a: { d(e: string): void; h(): string; h(value: string); [[t]](u: string): 
                       "col": 2,
                       "byteIndex": 149
                     },
-                    "params": [],
-                    "computed": false,
-                    "optional": false,
                     "tsType": {
-                      "repr": "",
                       "kind": "typeLiteral",
                       "value": {
-                        "constructors": [],
-                        "methods": [],
                         "properties": [
                           {
                             "name": "d",
@@ -238,22 +212,15 @@ const a: { d(e: string): void; h(): string; h(value: string); [[t]](u: string): 
                               "col": 7,
                               "byteIndex": 154
                             },
-                            "params": [],
-                            "computed": false,
-                            "optional": false,
                             "tsType": {
                               "repr": "string",
                               "kind": "keyword",
                               "value": "string"
-                            },
-                            "typeParams": []
+                            }
                           }
-                        ],
-                        "callSignatures": [],
-                        "indexSignatures": []
+                        ]
                       }
-                    },
-                    "typeParams": []
+                    }
                   },
                   {
                     "name": "f",
@@ -263,11 +230,7 @@ const a: { d(e: string): void; h(): string; h(value: string); [[t]](u: string): 
                       "col": 2,
                       "byteIndex": 191
                     },
-                    "params": [],
-                    "computed": false,
-                    "optional": false,
                     "tsType": {
-                      "repr": "",
                       "kind": "fnOrConstructor",
                       "value": {
                         "constructor": false,
@@ -287,11 +250,9 @@ const a: { d(e: string): void; h(): string; h(value: string); [[t]](u: string): 
                               "value": "string"
                             }
                           }
-                        ],
-                        "typeParams": []
+                        ]
                       }
-                    },
-                    "typeParams": []
+                    }
                   },
                   {
                     "name": "[s]",
@@ -301,14 +262,10 @@ const a: { d(e: string): void; h(): string; h(value: string); [[t]](u: string): 
                       "col": 2,
                       "byteIndex": 293
                     },
-                    "params": [],
                     "computed": true,
-                    "optional": false,
                     "tsType": {
-                      "repr": "",
                       "kind": "array",
                       "value": {
-                        "repr": "",
                         "kind": "union",
                         "value": [
                           {
@@ -323,12 +280,9 @@ const a: { d(e: string): void; h(): string; h(value: string); [[t]](u: string): 
                           }
                         ]
                       }
-                    },
-                    "typeParams": []
+                    }
                   }
-                ],
-                "callSignatures": [],
-                "indexSignatures": []
+                ]
               }
             },
             "kind": "const"

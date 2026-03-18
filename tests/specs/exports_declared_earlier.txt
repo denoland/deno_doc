@@ -41,7 +41,6 @@ const hello: "world"
 
 # output.json
 {
-  "imports": [],
   "symbols": [
     {
       "name": "hello",
@@ -99,10 +98,7 @@ const hello: "world"
               "kind": "keyword",
               "value": "void"
             },
-            "hasBody": true,
-            "isAsync": false,
-            "isGenerator": false,
-            "typeParams": []
+            "hasBody": true
           }
         }
       ]
@@ -126,10 +122,7 @@ const hello: "world"
               "kind": "keyword",
               "value": "void"
             },
-            "hasBody": true,
-            "isAsync": false,
-            "isGenerator": false,
-            "typeParams": []
+            "hasBody": true
           }
         }
       ]

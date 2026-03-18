@@ -83,7 +83,6 @@ class C
 
 # output.json
 {
-  "imports": [],
   "symbols": [
     {
       "name": "f1",
@@ -104,14 +103,12 @@ class C
                 "name": "val1",
                 "optional": false,
                 "tsType": {
-                  "repr": "",
                   "kind": "union",
                   "value": [
                     {
                       "repr": "A",
                       "kind": "typeRef",
                       "value": {
-                        "typeParams": null,
                         "typeName": "A"
                       }
                     },
@@ -119,7 +116,6 @@ class C
                       "repr": "B",
                       "kind": "typeRef",
                       "value": {
-                        "typeParams": null,
                         "typeName": "B"
                       }
                     }
@@ -131,7 +127,6 @@ class C
               "repr": "val1 is A",
               "kind": "typePredicate",
               "value": {
-                "asserts": false,
                 "param": {
                   "type": "identifier",
                   "name": "val1"
@@ -140,16 +135,12 @@ class C
                   "repr": "A",
                   "kind": "typeRef",
                   "value": {
-                    "typeParams": null,
                     "typeName": "A"
                   }
                 }
               }
             },
-            "hasBody": true,
-            "isAsync": false,
-            "isGenerator": false,
-            "typeParams": []
+            "hasBody": true
           }
         }
       ]
@@ -195,10 +186,7 @@ class C
                 }
               }
             },
-            "hasBody": true,
-            "isAsync": false,
-            "isGenerator": false,
-            "typeParams": []
+            "hasBody": true
           }
         }
       ]
@@ -236,14 +224,10 @@ class C
                 "param": {
                   "type": "identifier",
                   "name": "val3"
-                },
-                "type": null
+                }
               }
             },
-            "hasBody": true,
-            "isAsync": false,
-            "isGenerator": false,
-            "typeParams": []
+            "hasBody": true
           }
         }
       ]
@@ -270,7 +254,6 @@ class C
                   "repr": "T",
                   "kind": "typeRef",
                   "value": {
-                    "typeParams": null,
                     "typeName": "T",
                     "resolution": {
                       "kind": "typeParam",
@@ -299,7 +282,6 @@ class C
                         "repr": "T",
                         "kind": "typeRef",
                         "value": {
-                          "typeParams": null,
                           "typeName": "T",
                           "resolution": {
                             "kind": "typeParam",
@@ -315,8 +297,6 @@ class C
               }
             },
             "hasBody": true,
-            "isAsync": false,
-            "isGenerator": false,
             "typeParams": [
               {
                 "name": "T"
@@ -339,16 +319,8 @@ class C
           "declarationKind": "export",
           "kind": "class",
           "def": {
-            "isAbstract": false,
-            "constructors": [],
-            "properties": [],
-            "indexSignatures": [],
             "methods": [
               {
-                "accessibility": null,
-                "optional": false,
-                "isAbstract": false,
-                "isStatic": false,
                 "name": "isSomething",
                 "kind": "method",
                 "functionDef": {
@@ -357,7 +329,6 @@ class C
                     "repr": "this is Something",
                     "kind": "typePredicate",
                     "value": {
-                      "asserts": false,
                       "param": {
                         "type": "this"
                       },
@@ -365,16 +336,12 @@ class C
                         "repr": "Something",
                         "kind": "typeRef",
                         "value": {
-                          "typeParams": null,
                           "typeName": "Something"
                         }
                       }
                     }
                   },
-                  "hasBody": true,
-                  "isAsync": false,
-                  "isGenerator": false,
-                  "typeParams": []
+                  "hasBody": true
                 },
                 "location": {
                   "filename": "file:///mod.ts",
@@ -383,11 +350,7 @@ class C
                   "byteIndex": 391
                 }
               }
-            ],
-            "extends": null,
-            "implements": [],
-            "typeParams": [],
-            "superTypeParams": []
+            ]
           }
         }
       ]

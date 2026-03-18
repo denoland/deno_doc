@@ -55,7 +55,6 @@ interface B
       }
     ]
   },
-  "imports": [],
   "symbols": [
     {
       "name": "A",
@@ -72,17 +71,7 @@ interface B
             "doc": "A is a simple class."
           },
           "kind": "class",
-          "def": {
-            "isAbstract": false,
-            "constructors": [],
-            "properties": [],
-            "indexSignatures": [],
-            "methods": [],
-            "extends": null,
-            "implements": [],
-            "typeParams": [],
-            "superTypeParams": []
-          }
+          "def": {}
         }
       ]
     },
@@ -101,15 +90,7 @@ interface B
             "doc": "B is a simple interface."
           },
           "kind": "interface",
-          "def": {
-            "extends": [],
-            "constructors": [],
-            "methods": [],
-            "properties": [],
-            "callSignatures": [],
-            "indexSignatures": [],
-            "typeParams": []
-          }
+          "def": {}
         }
       ]
     },
@@ -135,10 +116,7 @@ interface B
               "kind": "keyword",
               "value": "void"
             },
-            "hasBody": true,
-            "isAsync": false,
-            "isGenerator": false,
-            "typeParams": []
+            "hasBody": true
           }
         }
       ]
