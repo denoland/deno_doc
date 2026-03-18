@@ -204,31 +204,8 @@ pub fn docnodes_v1_to_v2(value: serde_json::Value) -> Document {
       .and_then(|v| v.as_bool())
       .unwrap_or(false);
 
-    // v1 had kind-specific def fields (e.g. "functionDef", "variableDef")
-    // at the top level. v2 uses adjacently-tagged "def" for all kinds.
-    for field in [
-      "functionDef",
-      "variableDef",
-      "enumDef",
-      "classDef",
-      "typeAliasDef",
-      "namespaceDef",
-      "interfaceDef",
-      "referenceDef",
-    ] {
-      if let Some(val) = obj.remove(field) {
-        obj.insert("def".to_string(), val);
-        break;
-      }
-    }
-
-    // v1 TsTypeDef used variant-name content keys (e.g. "keyword": "string"),
-    // v2 uses "value" as a uniform content key.
-    // v1 JsDocTag used "type": "<string>" for type refs,
-    // v2 uses "tsType": { TsTypeDef object }.
     let mut declaration = serde_json::Value::Object(obj);
-    migrate_ts_type_defs(&mut declaration);
-    migrate_js_doc_tags(&mut declaration);
+    migrate_declaration(&mut declaration);
 
     let symbol = symbols.entry(name.clone()).or_insert_with(|| Symbol {
       name,
@@ -251,6 +228,113 @@ pub fn docnodes_v1_to_v2(value: serde_json::Value) -> Document {
   }
 }
 
+/// The v1 def field names. In v1, these appear as top-level keys on a doc node
+/// (e.g. `"functionDef": {...}`). In v2, the content is moved to a `"def"` key
+/// and tagged via `"kind"`.
+const V1_DEF_FIELDS: &[&str] = &[
+  "functionDef",
+  "variableDef",
+  "enumDef",
+  "classDef",
+  "typeAliasDef",
+  "namespaceDef",
+  "interfaceDef",
+  "referenceDef",
+  "reference_def",
+];
+
+/// Migrate a single v1 doc node (JSON object) into a v2 Declaration-shaped
+/// object in-place.
+///
+/// This renames the kind-specific def field (e.g. `"functionDef"`) to `"def"`,
+/// converts namespace elements from flat v1 doc node arrays into v2
+/// `Symbol` arrays (grouped by name), and migrates TsTypeDef / JsDocTag
+/// formats.
+fn migrate_declaration(value: &mut serde_json::Value) {
+  let serde_json::Value::Object(obj) = value else {
+    return;
+  };
+
+  // v1 had kind-specific def fields (e.g. "functionDef", "variableDef")
+  // at the top level. v2 uses adjacently-tagged "def" for all kinds.
+  for field in V1_DEF_FIELDS {
+    if let Some(val) = obj.remove(*field) {
+      obj.insert("def".to_string(), val);
+      break;
+    }
+  }
+
+  // Namespace elements in v1 are flat doc node arrays (same shape as
+  // top-level nodes). In v2 they are `Vec<Symbol>` where each Symbol
+  // groups declarations by name — the same structure as the top-level
+  // Document.symbols. Convert them here.
+  if let Some(serde_json::Value::Object(def)) = obj.get_mut("def") {
+    if let Some(serde_json::Value::Array(elements)) = def.remove("elements") {
+      let symbols = v1_nodes_to_symbols(elements);
+      def.insert("elements".to_string(), symbols);
+    }
+  }
+
+  // v1 TsTypeDef used variant-name content keys (e.g. "keyword": "string"),
+  // v2 uses "value" as a uniform content key.
+  migrate_ts_type_defs(value);
+  // v1 JsDocTag used "type": "<string>" for type refs,
+  // v2 uses "tsType": { TsTypeDef object }.
+  migrate_js_doc_tags(value);
+}
+
+/// Convert a flat array of v1 doc nodes into a v2 symbols JSON array,
+/// grouping declarations by name (just like the top-level conversion).
+fn v1_nodes_to_symbols(nodes: Vec<serde_json::Value>) -> serde_json::Value {
+  let mut symbols: indexmap::IndexMap<String, serde_json::Value> =
+    indexmap::IndexMap::new();
+
+  for node in nodes {
+    let serde_json::Value::Object(mut obj) = node else {
+      continue;
+    };
+
+    // Skip import nodes inside namespaces
+    if obj.get("kind").and_then(|v| v.as_str()) == Some("import") {
+      continue;
+    }
+
+    let name = obj
+      .remove("name")
+      .and_then(|v| v.as_str().map(|s| s.to_string()))
+      .unwrap_or_default();
+
+    let is_default = obj
+      .remove("isDefault")
+      .and_then(|v| v.as_bool())
+      .unwrap_or(false);
+
+    // Migrate the node into a declaration-shaped object
+    let mut decl = serde_json::Value::Object(obj);
+    migrate_declaration(&mut decl);
+
+    let symbol = symbols.entry(name.clone()).or_insert_with(|| {
+      serde_json::json!({
+        "name": name,
+        "declarations": []
+      })
+    });
+
+    if is_default {
+      symbol["isDefault"] = serde_json::Value::Bool(true);
+    }
+
+    symbol["declarations"].as_array_mut().unwrap().push(decl);
+  }
+
+  serde_json::Value::Array(symbols.into_values().collect())
+}
+
+/// v1 TsTypeDef content key overrides: in v1, some variants used a content
+/// key name that differs from their kind name.
+const V1_TS_TYPE_CONTENT_KEY_OVERRIDES: &[(&str, &str)] =
+  &[("conditional", "conditionalType"), ("mapped", "mappedType")];
+
 /// Recursively walk JSON and convert v1 TsTypeDef objects (which use
 /// variant-name content keys like `"keyword": "string"`) to v2 format
 /// (which uses `"value"` as the content key).
@@ -258,15 +342,30 @@ fn migrate_ts_type_defs(value: &mut serde_json::Value) {
   match value {
     serde_json::Value::Object(obj) => {
       // If this looks like a v1 TsTypeDef (has "repr" and "kind"), rename
-      // the kind-named content key to "value".
+      // the content key to "value".
       if obj.contains_key("repr")
         && let Some(kind_str) = obj
           .get("kind")
           .and_then(|k| k.as_str())
           .map(|s| s.to_string())
-        && let Some(content) = obj.remove(&kind_str)
       {
-        obj.insert("value".to_string(), content);
+        // Unit variants (like "this") have a boolean content key in v1
+        // (e.g. "this": true) that should simply be removed — v2 expects
+        // no content for unit variants.
+        if kind_str == "this" || kind_str == "unsupported" {
+          obj.remove(&kind_str);
+        } else {
+          // Find the content key: either an override or the kind name itself
+          let content_key = V1_TS_TYPE_CONTENT_KEY_OVERRIDES
+            .iter()
+            .find(|(k, _)| *k == kind_str)
+            .map(|(_, v)| *v)
+            .unwrap_or(&kind_str);
+
+          if let Some(content) = obj.remove(content_key) {
+            obj.insert("value".to_string(), content);
+          }
+        }
       }
 
       for val in obj.values_mut() {
@@ -844,6 +943,35 @@ mod v1_to_v2_tests {
         assert_eq!(rt.repr, "string[]");
       }
       other => panic!("expected Function, got {:?}", other),
+    }
+  }
+
+  #[test]
+  fn zod_v1_fixture() {
+    let raw = std::fs::read_to_string(
+      std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("tests/testdata/@zod_zod_4.3.6_raw.json"),
+    )
+    .unwrap();
+    let fixture: serde_json::Map<String, serde_json::Value> =
+      serde_json::from_str(&raw).unwrap();
+
+    for (url, v1_nodes) in fixture {
+      let doc = docnodes_v1_to_v2(v1_nodes);
+      assert!(
+        !doc.symbols.is_empty(),
+        "{url}: expected at least one symbol"
+      );
+      for symbol in &doc.symbols {
+        assert!(
+          !symbol.declarations.is_empty(),
+          "{url}: symbol '{}' has no declarations",
+          symbol.name
+        );
+      }
+      // Round-trip: serializing and deserializing should not lose data
+      let json = serde_json::to_value(&doc).unwrap();
+      let _: Document = serde_json::from_value(json).unwrap();
     }
   }
 }
