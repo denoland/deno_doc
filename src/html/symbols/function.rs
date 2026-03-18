@@ -12,6 +12,7 @@ use crate::html::types::type_params_summary;
 use crate::html::util::*;
 use crate::js_doc::JsDocTag;
 use crate::params::ParamPatternDef;
+use crate::ts_type::TsTypeDef;
 use indexmap::IndexSet;
 use serde::Deserialize;
 use serde::Serialize;
@@ -419,20 +420,20 @@ fn render_single_function(
     .tags
     .iter()
     .filter_map(|tag| {
-      if let JsDocTag::Throws { type_ref, doc } = tag
-        && (type_ref.is_some() || doc.is_some())
+      if let JsDocTag::Throws { ts_type, doc, .. } = tag
+        && (ts_type.is_some() || doc.is_some())
       {
-        return Some((type_ref, doc));
+        return Some((ts_type, doc));
       }
 
       None
     })
     .enumerate()
-    .map(|(i, (type_ref, doc))| {
+    .map(|(i, (ts_type, doc))| {
       render_function_throws(
         ctx,
         decl,
-        type_ref,
+        ts_type,
         doc,
         overload_id.clone(),
         i,
@@ -444,8 +445,8 @@ fn render_single_function(
   // Inject removed throws entries
   if let Some(td) = &throws_tags_diff {
     for removed_tag in &td.removed {
-      if let JsDocTag::Throws { type_ref, doc } = removed_tag
-        && (type_ref.is_some() || doc.is_some())
+      if let JsDocTag::Throws { ts_type, doc, .. } = removed_tag
+        && (ts_type.is_some() || doc.is_some())
       {
         let id = IdBuilder::new_with_parent(ctx, &overload_id)
           .kind(IdKind::Throws)
@@ -457,7 +458,10 @@ fn render_single_function(
           id,
           None,
           None,
-          type_ref.as_ref().map(|t| t.as_ref()).unwrap_or_default(),
+          ts_type
+            .as_ref()
+            .map(|t| t.repr.as_str())
+            .unwrap_or_default(),
           IndexSet::new(),
           doc.as_ref().map(|d| d.as_ref()),
           &decl.location,
@@ -660,38 +664,37 @@ fn inject_removed_params(
 fn render_function_throws(
   render_ctx: &RenderContext,
   decl: &Declaration,
-  type_ref: &Option<Box<str>>,
+  ts_type: &Option<TsTypeDef>,
   doc: &Option<Box<str>>,
   overload_id: Id,
   throws_id: usize,
   diff: &Option<crate::diff::TagsDiff>,
 ) -> DocEntryCtx {
-  let (diff_status, old_content) = if let Some(td) = diff {
-    if let Some(tag_diff) = td.modified.iter().find(|m| {
-      matches!(&m.new, JsDocTag::Throws { type_ref: t, .. } if t == type_ref)
+  let (diff_status, old_content) =
+    if let Some(td) = diff {
+      if let Some(tag_diff) = td.modified.iter().find(|m| {
+      matches!(&m.new, JsDocTag::Throws { ts_type: t, .. } if t == ts_type)
     }) {
       let old = if let JsDocTag::Throws {
-        type_ref: old_type_ref,
+        ts_type: old_ts_type,
         ..
       } = &tag_diff.old
       {
-        old_type_ref
-          .as_ref()
-          .map(|t| t.to_string())
+        old_ts_type.as_ref().map(|t| t.repr.clone())
       } else {
         None
       };
       (Some(DiffStatus::Modified), old)
     } else if td.added.iter().any(|a| {
-      matches!(a, JsDocTag::Throws { type_ref: t, .. } if t == type_ref)
+      matches!(a, JsDocTag::Throws { ts_type: t, .. } if t == ts_type)
     }) {
       (Some(DiffStatus::Added), None)
     } else {
       (None, None)
     }
-  } else {
-    (None, None)
-  };
+    } else {
+      (None, None)
+    };
 
   let id = IdBuilder::new_with_parent(render_ctx, &overload_id)
     .kind(IdKind::Throws)
@@ -703,9 +706,9 @@ fn render_function_throws(
     id,
     None,
     None,
-    type_ref
+    ts_type
       .as_ref()
-      .map(|doc| doc.as_ref())
+      .map(|t| t.repr.as_str())
       .unwrap_or_default(),
     IndexSet::new(),
     doc.as_ref().map(|doc| doc.as_ref()),

@@ -28,14 +28,34 @@ export function foo(x: number): void {}
                     "added": [
                       {
                         "kind": "throws",
-                        "type": "SyntaxError",
+                        "ts_type": {
+                          "repr": "SyntaxError",
+                          "kind": "typeRef",
+                          "value": {
+                            "typeParams": null,
+                            "typeName": "SyntaxError",
+                            "resolution": {
+                              "kind": "typeParam"
+                            }
+                          }
+                        },
                         "doc": "bad syntax"
                       }
                     ],
                     "removed": [
                       {
                         "kind": "throws",
-                        "type": "TypeError",
+                        "ts_type": {
+                          "repr": "TypeError",
+                          "kind": "typeRef",
+                          "value": {
+                            "typeParams": null,
+                            "typeName": "TypeError",
+                            "resolution": {
+                              "kind": "typeParam"
+                            }
+                          }
+                        },
                         "doc": "wrong type"
                       }
                     ],
@@ -43,12 +63,32 @@ export function foo(x: number): void {}
                       {
                         "old": {
                           "kind": "throws",
-                          "type": "RangeError",
+                          "ts_type": {
+                            "repr": "RangeError",
+                            "kind": "typeRef",
+                            "value": {
+                              "typeParams": null,
+                              "typeName": "RangeError",
+                              "resolution": {
+                                "kind": "typeParam"
+                              }
+                            }
+                          },
                           "doc": "value out of range"
                         },
                         "new": {
                           "kind": "throws",
-                          "type": "RangeError",
+                          "ts_type": {
+                            "repr": "RangeError",
+                            "kind": "typeRef",
+                            "value": {
+                              "typeParams": null,
+                              "typeName": "RangeError",
+                              "resolution": {
+                                "kind": "typeParam"
+                              }
+                            }
+                          },
                           "doc": "updated message"
                         }
                       }
