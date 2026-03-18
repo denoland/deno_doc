@@ -268,11 +268,11 @@ fn migrate_declaration(value: &mut serde_json::Value) {
   // top-level nodes). In v2 they are `Vec<Symbol>` where each Symbol
   // groups declarations by name — the same structure as the top-level
   // Document.symbols. Convert them here.
-  if let Some(serde_json::Value::Object(def)) = obj.get_mut("def") {
-    if let Some(serde_json::Value::Array(elements)) = def.remove("elements") {
-      let symbols = v1_nodes_to_symbols(elements);
-      def.insert("elements".to_string(), symbols);
-    }
+  if let Some(serde_json::Value::Object(def)) = obj.get_mut("def")
+    && let Some(serde_json::Value::Array(elements)) = def.remove("elements")
+  {
+    let symbols = v1_nodes_to_symbols(elements);
+    def.insert("elements".to_string(), symbols);
   }
 
   // v1 TsTypeDef used variant-name content keys (e.g. "keyword": "string"),
