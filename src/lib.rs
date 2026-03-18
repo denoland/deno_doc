@@ -345,3 +345,508 @@ fn migrate_js_doc_tags(value: &mut serde_json::Value) {
     _ => {}
   }
 }
+
+#[cfg(test)]
+mod v1_to_v2_tests {
+  use super::*;
+  use serde_json::json;
+
+  #[test]
+  fn non_array_returns_default() {
+    let doc = docnodes_v1_to_v2(json!({}));
+    assert!(doc.symbols.is_empty());
+    assert!(doc.imports.is_empty());
+    assert!(doc.module_doc.is_empty());
+  }
+
+  #[test]
+  fn empty_array() {
+    let doc = docnodes_v1_to_v2(json!([]));
+    assert!(doc.symbols.is_empty());
+  }
+
+  #[test]
+  fn module_doc() {
+    let doc = docnodes_v1_to_v2(json!([
+      {
+        "kind": "moduleDoc",
+        "jsDoc": {
+          "doc": "Module documentation"
+        }
+      }
+    ]));
+    assert_eq!(doc.module_doc.doc.as_deref(), Some("Module documentation"));
+    assert!(doc.symbols.is_empty());
+  }
+
+  #[test]
+  fn import_node() {
+    let doc = docnodes_v1_to_v2(json!([
+      {
+        "kind": "import",
+        "name": "Foo",
+        "importDef": {
+          "src": "./foo.ts",
+          "imported": "Foo"
+        }
+      }
+    ]));
+    assert_eq!(doc.imports.len(), 1);
+    assert_eq!(&*doc.imports[0].imported_name, "Foo");
+    assert_eq!(doc.imports[0].src, "./foo.ts");
+    assert_eq!(doc.imports[0].original_name.as_deref(), Some("Foo"));
+  }
+
+  #[test]
+  fn variable_declaration() {
+    let doc = docnodes_v1_to_v2(json!([
+      {
+        "name": "myVar",
+        "kind": "variable",
+        "location": { "filename": "test.ts", "line": 1, "col": 0, "byteIndex": 0 },
+        "declarationKind": "export",
+        "variableDef": {
+          "kind": "const"
+        }
+      }
+    ]));
+    assert_eq!(doc.symbols.len(), 1);
+    assert_eq!(&*doc.symbols[0].name, "myVar");
+    assert_eq!(doc.symbols[0].declarations.len(), 1);
+    assert!(matches!(
+      doc.symbols[0].declarations[0].def,
+      node::DeclarationDef::Variable(_)
+    ));
+  }
+
+  #[test]
+  fn function_declaration() {
+    let doc = docnodes_v1_to_v2(json!([
+      {
+        "name": "myFunc",
+        "kind": "function",
+        "location": { "filename": "test.ts", "line": 1, "col": 0, "byteIndex": 0 },
+        "declarationKind": "export",
+        "functionDef": {
+          "params": [],
+          "returnType": {
+            "repr": "string",
+            "kind": "keyword",
+            "keyword": "string"
+          }
+        }
+      }
+    ]));
+    assert_eq!(doc.symbols.len(), 1);
+    assert_eq!(&*doc.symbols[0].name, "myFunc");
+    let decl = &doc.symbols[0].declarations[0];
+    match &decl.def {
+      node::DeclarationDef::Function(f) => {
+        let rt = f.return_type.as_ref().unwrap();
+        assert_eq!(rt.repr, "string");
+      }
+      other => panic!("expected Function, got {:?}", other),
+    }
+  }
+
+  #[test]
+  fn ts_type_def_migration() {
+    // v1 uses kind-named content key, v2 uses "value"
+    let doc = docnodes_v1_to_v2(json!([
+      {
+        "name": "x",
+        "kind": "variable",
+        "location": { "filename": "test.ts", "line": 1, "col": 0, "byteIndex": 0 },
+        "declarationKind": "export",
+        "variableDef": {
+          "kind": "const",
+          "tsType": {
+            "repr": "string",
+            "kind": "keyword",
+            "keyword": "string"
+          }
+        }
+      }
+    ]));
+    let decl = &doc.symbols[0].declarations[0];
+    match &decl.def {
+      node::DeclarationDef::Variable(v) => {
+        let ts_type = v.ts_type.as_ref().unwrap();
+        assert_eq!(ts_type.repr, "string");
+      }
+      other => panic!("expected Variable, got {:?}", other),
+    }
+  }
+
+  #[test]
+  fn is_default_flag() {
+    let doc = docnodes_v1_to_v2(json!([
+      {
+        "name": "default",
+        "isDefault": true,
+        "kind": "variable",
+        "location": { "filename": "test.ts", "line": 1, "col": 0, "byteIndex": 0 },
+        "declarationKind": "export",
+        "variableDef": { "kind": "const" }
+      }
+    ]));
+    assert!(doc.symbols[0].is_default);
+  }
+
+  #[test]
+  fn multiple_declarations_same_name() {
+    let doc = docnodes_v1_to_v2(json!([
+      {
+        "name": "myFunc",
+        "kind": "function",
+        "location": { "filename": "test.ts", "line": 1, "col": 0, "byteIndex": 0 },
+        "declarationKind": "export",
+        "functionDef": { "params": [] }
+      },
+      {
+        "name": "myFunc",
+        "kind": "function",
+        "location": { "filename": "test.ts", "line": 3, "col": 0, "byteIndex": 20 },
+        "declarationKind": "export",
+        "functionDef": { "params": [] }
+      }
+    ]));
+    assert_eq!(doc.symbols.len(), 1);
+    assert_eq!(doc.symbols[0].declarations.len(), 2);
+  }
+
+  #[test]
+  fn jsdoc_tag_type_to_ts_type_param() {
+    let doc = docnodes_v1_to_v2(json!([
+      {
+        "name": "myFunc",
+        "kind": "function",
+        "location": { "filename": "test.ts", "line": 1, "col": 0, "byteIndex": 0 },
+        "declarationKind": "export",
+        "jsDoc": {
+          "tags": [
+            { "kind": "param", "name": "x", "type": "string", "doc": "a param" }
+          ]
+        },
+        "functionDef": { "params": [] }
+      }
+    ]));
+    let decl = &doc.symbols[0].declarations[0];
+    let tag = &decl.js_doc.tags[0];
+    match tag {
+      js_doc::JsDocTag::Param { ts_type, name, .. } => {
+        assert_eq!(&**name, "x");
+        let ts = ts_type.as_ref().unwrap();
+        assert_eq!(ts.repr, "string");
+      }
+      other => panic!("expected Param, got {:?}", other),
+    }
+  }
+
+  #[test]
+  fn jsdoc_tag_type_to_ts_type_return() {
+    let doc = docnodes_v1_to_v2(json!([
+      {
+        "name": "myFunc",
+        "kind": "function",
+        "location": { "filename": "test.ts", "line": 1, "col": 0, "byteIndex": 0 },
+        "declarationKind": "export",
+        "jsDoc": {
+          "tags": [
+            { "kind": "return", "type": "number" }
+          ]
+        },
+        "functionDef": { "params": [] }
+      }
+    ]));
+    let tag = &doc.symbols[0].declarations[0].js_doc.tags[0];
+    match tag {
+      js_doc::JsDocTag::Return { ts_type, .. } => {
+        let ts = ts_type.as_ref().unwrap();
+        assert_eq!(ts.repr, "number");
+      }
+      other => panic!("expected Return, got {:?}", other),
+    }
+  }
+
+  #[test]
+  fn jsdoc_tag_type_to_ts_type_enum() {
+    let doc = docnodes_v1_to_v2(json!([
+      {
+        "name": "x",
+        "kind": "variable",
+        "location": { "filename": "test.ts", "line": 1, "col": 0, "byteIndex": 0 },
+        "declarationKind": "export",
+        "jsDoc": {
+          "tags": [
+            { "kind": "enum", "type": "number" }
+          ]
+        },
+        "variableDef": { "kind": "const" }
+      }
+    ]));
+    let tag = &doc.symbols[0].declarations[0].js_doc.tags[0];
+    match tag {
+      js_doc::JsDocTag::Enum { ts_type, .. } => {
+        assert_eq!(ts_type.repr, "number");
+      }
+      other => panic!("expected Enum, got {:?}", other),
+    }
+  }
+
+  #[test]
+  fn jsdoc_tag_type_to_ts_type_extends() {
+    let doc = docnodes_v1_to_v2(json!([
+      {
+        "name": "x",
+        "kind": "variable",
+        "location": { "filename": "test.ts", "line": 1, "col": 0, "byteIndex": 0 },
+        "declarationKind": "export",
+        "jsDoc": {
+          "tags": [
+            { "kind": "extends", "type": "Foo" }
+          ]
+        },
+        "variableDef": { "kind": "const" }
+      }
+    ]));
+    let tag = &doc.symbols[0].declarations[0].js_doc.tags[0];
+    match tag {
+      js_doc::JsDocTag::Extends { ts_type, .. } => {
+        assert_eq!(ts_type.repr, "Foo");
+      }
+      other => panic!("expected Extends, got {:?}", other),
+    }
+  }
+
+  #[test]
+  fn jsdoc_tag_type_to_ts_type_this() {
+    let doc = docnodes_v1_to_v2(json!([
+      {
+        "name": "x",
+        "kind": "variable",
+        "location": { "filename": "test.ts", "line": 1, "col": 0, "byteIndex": 0 },
+        "declarationKind": "export",
+        "jsDoc": {
+          "tags": [
+            { "kind": "this", "type": "Window" }
+          ]
+        },
+        "variableDef": { "kind": "const" }
+      }
+    ]));
+    let tag = &doc.symbols[0].declarations[0].js_doc.tags[0];
+    match tag {
+      js_doc::JsDocTag::This { ts_type, .. } => {
+        assert_eq!(ts_type.repr, "Window");
+      }
+      other => panic!("expected This, got {:?}", other),
+    }
+  }
+
+  #[test]
+  fn jsdoc_tag_type_to_ts_type_throws() {
+    let doc = docnodes_v1_to_v2(json!([
+      {
+        "name": "x",
+        "kind": "function",
+        "location": { "filename": "test.ts", "line": 1, "col": 0, "byteIndex": 0 },
+        "declarationKind": "export",
+        "jsDoc": {
+          "tags": [
+            { "kind": "throws", "type": "Error" }
+          ]
+        },
+        "functionDef": { "params": [] }
+      }
+    ]));
+    let tag = &doc.symbols[0].declarations[0].js_doc.tags[0];
+    match tag {
+      js_doc::JsDocTag::Throws { ts_type, .. } => {
+        let ts = ts_type.as_ref().unwrap();
+        assert_eq!(ts.repr, "Error");
+      }
+      other => panic!("expected Throws, got {:?}", other),
+    }
+  }
+
+  #[test]
+  fn jsdoc_tag_type_to_ts_type_typedef() {
+    let doc = docnodes_v1_to_v2(json!([
+      {
+        "name": "x",
+        "kind": "variable",
+        "location": { "filename": "test.ts", "line": 1, "col": 0, "byteIndex": 0 },
+        "declarationKind": "export",
+        "jsDoc": {
+          "tags": [
+            { "kind": "typedef", "name": "MyType", "type": "object" }
+          ]
+        },
+        "variableDef": { "kind": "const" }
+      }
+    ]));
+    let tag = &doc.symbols[0].declarations[0].js_doc.tags[0];
+    match tag {
+      js_doc::JsDocTag::TypeDef { ts_type, name, .. } => {
+        assert_eq!(&**name, "MyType");
+        assert_eq!(ts_type.repr, "object");
+      }
+      other => panic!("expected TypeDef, got {:?}", other),
+    }
+  }
+
+  #[test]
+  fn jsdoc_tag_type_to_ts_type_typeref() {
+    let doc = docnodes_v1_to_v2(json!([
+      {
+        "name": "x",
+        "kind": "variable",
+        "location": { "filename": "test.ts", "line": 1, "col": 0, "byteIndex": 0 },
+        "declarationKind": "export",
+        "jsDoc": {
+          "tags": [
+            { "kind": "type", "type": "Record<string, unknown>" }
+          ]
+        },
+        "variableDef": { "kind": "const" }
+      }
+    ]));
+    let tag = &doc.symbols[0].declarations[0].js_doc.tags[0];
+    match tag {
+      js_doc::JsDocTag::TypeRef { ts_type, .. } => {
+        assert_eq!(ts_type.repr, "Record<string, unknown>");
+      }
+      other => panic!("expected TypeRef, got {:?}", other),
+    }
+  }
+
+  #[test]
+  fn jsdoc_tag_type_to_ts_type_property() {
+    let doc = docnodes_v1_to_v2(json!([
+      {
+        "name": "x",
+        "kind": "variable",
+        "location": { "filename": "test.ts", "line": 1, "col": 0, "byteIndex": 0 },
+        "declarationKind": "export",
+        "jsDoc": {
+          "tags": [
+            { "kind": "property", "name": "foo", "type": "string" }
+          ]
+        },
+        "variableDef": { "kind": "const" }
+      }
+    ]));
+    let tag = &doc.symbols[0].declarations[0].js_doc.tags[0];
+    match tag {
+      js_doc::JsDocTag::Property { ts_type, name, .. } => {
+        assert_eq!(&**name, "foo");
+        assert_eq!(ts_type.repr, "string");
+      }
+      other => panic!("expected Property, got {:?}", other),
+    }
+  }
+
+  #[test]
+  fn jsdoc_tag_null_type_becomes_none() {
+    let doc = docnodes_v1_to_v2(json!([
+      {
+        "name": "myFunc",
+        "kind": "function",
+        "location": { "filename": "test.ts", "line": 1, "col": 0, "byteIndex": 0 },
+        "declarationKind": "export",
+        "jsDoc": {
+          "tags": [
+            { "kind": "return", "type": null }
+          ]
+        },
+        "functionDef": { "params": [] }
+      }
+    ]));
+    let tag = &doc.symbols[0].declarations[0].js_doc.tags[0];
+    match tag {
+      js_doc::JsDocTag::Return { ts_type, .. } => {
+        assert!(ts_type.is_none());
+      }
+      other => panic!("expected Return, got {:?}", other),
+    }
+  }
+
+  #[test]
+  fn module_doc_jsdoc_tags_migrated() {
+    let doc = docnodes_v1_to_v2(json!([
+      {
+        "kind": "moduleDoc",
+        "jsDoc": {
+          "doc": "Module docs",
+          "tags": [
+            { "kind": "type", "type": "module" }
+          ]
+        }
+      }
+    ]));
+    let tag = &doc.module_doc.tags[0];
+    match tag {
+      js_doc::JsDocTag::TypeRef { ts_type, .. } => {
+        assert_eq!(ts_type.repr, "module");
+      }
+      other => panic!("expected TypeRef, got {:?}", other),
+    }
+  }
+
+  #[test]
+  fn import_jsdoc_tags_migrated() {
+    let doc = docnodes_v1_to_v2(json!([
+      {
+        "kind": "import",
+        "name": "Foo",
+        "importDef": { "src": "./foo.ts" },
+        "jsDoc": {
+          "tags": [
+            { "kind": "type", "type": "Foo" }
+          ]
+        }
+      }
+    ]));
+    let tag = &doc.imports[0].js_doc.tags[0];
+    match tag {
+      js_doc::JsDocTag::TypeRef { ts_type, .. } => {
+        assert_eq!(ts_type.repr, "Foo");
+      }
+      other => panic!("expected TypeRef, got {:?}", other),
+    }
+  }
+
+  #[test]
+  fn migrate_ts_type_defs_nested() {
+    // Ensure nested TsTypeDef objects in v1 format are migrated
+    let doc = docnodes_v1_to_v2(json!([
+      {
+        "name": "myFunc",
+        "kind": "function",
+        "location": { "filename": "test.ts", "line": 1, "col": 0, "byteIndex": 0 },
+        "declarationKind": "export",
+        "functionDef": {
+          "params": [],
+          "returnType": {
+            "repr": "string[]",
+            "kind": "array",
+            "array": {
+              "repr": "string",
+              "kind": "keyword",
+              "keyword": "string"
+            }
+          }
+        }
+      }
+    ]));
+    let decl = &doc.symbols[0].declarations[0];
+    match &decl.def {
+      node::DeclarationDef::Function(f) => {
+        let rt = f.return_type.as_ref().unwrap();
+        assert_eq!(rt.repr, "string[]");
+      }
+      other => panic!("expected Function, got {:?}", other),
+    }
+  }
+}
