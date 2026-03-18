@@ -59,7 +59,6 @@ namespace RootNs
 
 # output.json
 {
-  "imports": [],
   "symbols": [
     {
       "name": "RootNs",
@@ -222,17 +221,7 @@ namespace RootNs
                               },
                               "declarationKind": "export",
                               "kind": "class",
-                              "def": {
-                                "isAbstract": false,
-                                "constructors": [],
-                                "properties": [],
-                                "indexSignatures": [],
-                                "methods": [],
-                                "extends": null,
-                                "implements": [],
-                                "typeParams": [],
-                                "superTypeParams": []
-                              }
+                              "def": {}
                             }
                           ]
                         }

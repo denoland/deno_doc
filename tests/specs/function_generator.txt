@@ -23,7 +23,6 @@ function* g()
 
 # output.json
 {
-  "imports": [],
   "symbols": [
     {
       "name": "g",
@@ -39,11 +38,8 @@ function* g()
           "kind": "function",
           "def": {
             "params": [],
-            "returnType": null,
             "hasBody": true,
-            "isAsync": false,
-            "isGenerator": true,
-            "typeParams": []
+            "isGenerator": true
           }
         }
       ]

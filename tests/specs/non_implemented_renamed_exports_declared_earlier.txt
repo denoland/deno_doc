@@ -17,7 +17,6 @@ function bar(): void
 
 # output.json
 {
-  "imports": [],
   "symbols": [
     {
       "name": "bar",
@@ -37,10 +36,7 @@ function bar(): void
               "repr": "void",
               "kind": "keyword",
               "value": "void"
-            },
-            "isAsync": false,
-            "isGenerator": false,
-            "typeParams": []
+            }
           }
         }
       ]

@@ -27,7 +27,6 @@ interface TypedIface<T>
 
 # output.json
 {
-  "imports": [],
   "symbols": [
     {
       "name": "TypedIface",
@@ -42,8 +41,6 @@ interface TypedIface<T>
           "declarationKind": "export",
           "kind": "interface",
           "def": {
-            "extends": [],
-            "constructors": [],
             "methods": [
               {
                 "name": "something",
@@ -55,12 +52,10 @@ interface TypedIface<T>
                   "byteIndex": 37
                 },
                 "params": [],
-                "optional": false,
                 "returnType": {
                   "repr": "T",
                   "kind": "typeRef",
                   "value": {
-                    "typeParams": null,
                     "typeName": "T",
                     "resolution": {
                       "kind": "typeParam",
@@ -68,13 +63,9 @@ interface TypedIface<T>
                       "declaringKind": "interface"
                     }
                   }
-                },
-                "typeParams": []
+                }
               }
             ],
-            "properties": [],
-            "callSignatures": [],
-            "indexSignatures": [],
             "typeParams": [
               {
                 "name": "T"

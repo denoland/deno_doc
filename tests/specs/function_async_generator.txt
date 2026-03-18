@@ -23,7 +23,6 @@ async function* ag()
 
 # output.json
 {
-  "imports": [],
   "symbols": [
     {
       "name": "ag",
@@ -39,11 +38,9 @@ async function* ag()
           "kind": "function",
           "def": {
             "params": [],
-            "returnType": null,
             "hasBody": true,
             "isAsync": true,
-            "isGenerator": true,
-            "typeParams": []
+            "isGenerator": true
           }
         }
       ]

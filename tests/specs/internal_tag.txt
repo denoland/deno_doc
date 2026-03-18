@@ -77,7 +77,6 @@ type Test = OtherPrivateType
 
 # output.json
 {
-  "imports": [],
   "symbols": [
     {
       "name": "MyClass",
@@ -99,16 +98,8 @@ type Test = OtherPrivateType
           },
           "kind": "class",
           "def": {
-            "isAbstract": false,
-            "constructors": [],
             "properties": [
               {
-                "tsType": null,
-                "readonly": false,
-                "accessibility": null,
-                "optional": false,
-                "isAbstract": false,
-                "isStatic": false,
                 "name": "test",
                 "location": {
                   "filename": "file:///mod.ts",
@@ -122,18 +113,12 @@ type Test = OtherPrivateType
                   "repr": "PrivateType",
                   "kind": "typeRef",
                   "value": {
-                    "typeParams": null,
                     "typeName": "PrivateType",
                     "resolution": {
                       "kind": "local"
                     }
                   }
                 },
-                "readonly": false,
-                "accessibility": null,
-                "optional": false,
-                "isAbstract": false,
-                "isStatic": false,
                 "name": "privateTypeUse",
                 "location": {
                   "filename": "file:///mod.ts",
@@ -143,22 +128,13 @@ type Test = OtherPrivateType
                 }
               }
             ],
-            "indexSignatures": [],
             "methods": [
               {
-                "accessibility": null,
-                "optional": false,
-                "isAbstract": false,
-                "isStatic": false,
                 "name": "method",
                 "kind": "method",
                 "functionDef": {
                   "params": [],
-                  "returnType": null,
-                  "hasBody": true,
-                  "isAsync": false,
-                  "isGenerator": false,
-                  "typeParams": []
+                  "hasBody": true
                 },
                 "location": {
                   "filename": "file:///mod.ts",
@@ -167,11 +143,7 @@ type Test = OtherPrivateType
                   "byteIndex": 196
                 }
               }
-            ],
-            "extends": null,
-            "implements": [],
-            "typeParams": [],
-            "superTypeParams": []
+            ]
           }
         }
       ]
@@ -192,8 +164,6 @@ type Test = OtherPrivateType
           },
           "kind": "class",
           "def": {
-            "isAbstract": false,
-            "constructors": [],
             "properties": [
               {
                 "jsDoc": {
@@ -203,12 +173,6 @@ type Test = OtherPrivateType
                     }
                   ]
                 },
-                "tsType": null,
-                "readonly": false,
-                "accessibility": null,
-                "optional": false,
-                "isAbstract": false,
-                "isStatic": false,
                 "name": "test",
                 "location": {
                   "filename": "file:///mod.ts",
@@ -218,7 +182,6 @@ type Test = OtherPrivateType
                 }
               }
             ],
-            "indexSignatures": [],
             "methods": [
               {
                 "jsDoc": {
@@ -228,19 +191,11 @@ type Test = OtherPrivateType
                     }
                   ]
                 },
-                "accessibility": null,
-                "optional": false,
-                "isAbstract": false,
-                "isStatic": false,
                 "name": "method",
                 "kind": "method",
                 "functionDef": {
                   "params": [],
-                  "returnType": null,
-                  "hasBody": true,
-                  "isAsync": false,
-                  "isGenerator": false,
-                  "typeParams": []
+                  "hasBody": true
                 },
                 "location": {
                   "filename": "file:///mod.ts",
@@ -249,11 +204,7 @@ type Test = OtherPrivateType
                   "byteIndex": 354
                 }
               }
-            ],
-            "extends": null,
-            "implements": [],
-            "typeParams": [],
-            "superTypeParams": []
+            ]
           }
         }
       ]
@@ -275,14 +226,12 @@ type Test = OtherPrivateType
               "repr": "OtherPrivateType",
               "kind": "typeRef",
               "value": {
-                "typeParams": null,
                 "typeName": "OtherPrivateType",
                 "resolution": {
                   "kind": "local"
                 }
               }
-            },
-            "typeParams": []
+            }
           }
         }
       ]
@@ -311,8 +260,7 @@ type Test = OtherPrivateType
               "repr": "string",
               "kind": "keyword",
               "value": "string"
-            },
-            "typeParams": []
+            }
           }
         }
       ]

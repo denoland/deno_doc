@@ -319,11 +319,7 @@ export function fooFn(a: number) {
                 },
               }
           ],
-          "typeParams": [],
-          "returnType": null,
-          "hasBody": true,
-          "isAsync": false,
-          "isGenerator": false
+          "hasBody": true
         },
       }]
     },
@@ -394,15 +390,7 @@ export { Hello } from "./reexport.ts";
           },
           "declarationKind": "export",
           "kind": "interface",
-          "def": {
-            "extends": [],
-            "constructors": [],
-            "methods": [],
-            "properties": [],
-            "callSignatures": [],
-            "indexSignatures": [],
-            "typeParams": []
-          }
+          "def": {}
         },
         {
           "location": {
@@ -413,17 +401,7 @@ export { Hello } from "./reexport.ts";
           },
           "declarationKind": "export",
           "kind": "class",
-          "def": {
-            "isAbstract": false,
-            "constructors": [],
-            "properties": [],
-            "indexSignatures": [],
-            "methods": [],
-            "extends": null,
-            "implements": [],
-            "typeParams": [],
-            "superTypeParams": []
-          }
+          "def": {}
         }
       ]
     }
@@ -1042,11 +1020,8 @@ async fn json_module() {
         "declarationKind": "export",
         "def": {
         "tsType": {
-          "repr": "",
           "kind": "typeLiteral",
           "value": {
-            "constructors": [],
-            "methods": [],
             "properties": [{
               "name": "a",
               "location": {
@@ -1055,9 +1030,6 @@ async fn json_module() {
                 "col": 0,
                 "byteIndex": 0,
               },
-              "params": [],
-              "computed": false,
-              "optional": false,
               "tsType": {
                 "repr": "5",
                 "kind": "literal",
@@ -1066,7 +1038,6 @@ async fn json_module() {
                   "number": 5.0,
                 },
               },
-              "typeParams": []
             }, {
               "name": "b",
               "location": {
@@ -1075,9 +1046,6 @@ async fn json_module() {
                 "col": 0,
                 "byteIndex": 0,
               },
-              "params": [],
-              "computed": false,
-              "optional": false,
               "tsType": {
                 "repr": "text",
                 "kind": "literal",
@@ -1086,7 +1054,6 @@ async fn json_module() {
                   "string": "text",
                 },
               },
-              "typeParams": []
             }, {
               "name": "c",
               "location": {
@@ -1095,15 +1062,11 @@ async fn json_module() {
                 "col": 0,
                 "byteIndex": 0,
               },
-              "params": [],
-              "computed": false,
-              "optional": false,
               "tsType": {
                 "repr": "null",
                 "kind": "keyword",
                 "value": "null",
               },
-              "typeParams": []
             }, {
               "name": "d",
               "location": {
@@ -1112,9 +1075,6 @@ async fn json_module() {
                 "col": 0,
                 "byteIndex": 0,
               },
-              "params": [],
-              "computed": false,
-              "optional": false,
               "tsType": {
                 "repr": "unknown[]",
                 "kind": "array",
@@ -1124,24 +1084,17 @@ async fn json_module() {
                   "value": "unknown",
                 },
               },
-              "typeParams": []
             }, {
               "name": "e",
-              "params": [],
               "location": {
                 "filename": "",
                 "line": 0,
                 "col": 0,
                 "byteIndex": 0,
               },
-              "computed": false,
-              "optional": false,
               "tsType": {
-                "repr": "",
                 "kind": "typeLiteral",
                 "value": {
-                  "constructors": [],
-                  "methods": [],
                   "properties": [{
                     "name": "a",
                     "location": {
@@ -1150,9 +1103,6 @@ async fn json_module() {
                       "col": 0,
                       "byteIndex": 0,
                     },
-                    "params": [],
-                    "computed": false,
-                    "optional": false,
                     "tsType": {
                       "repr": "1",
                       "kind": "literal",
@@ -1161,16 +1111,10 @@ async fn json_module() {
                         "number": 1.0,
                       },
                     },
-                    "typeParams": []
                   }],
-                  "callSignatures": [],
-                  "indexSignatures": [],
                 },
               },
-              "typeParams": []
             }],
-            "callSignatures": [],
-            "indexSignatures": [],
           },
         },
         "kind": "var",

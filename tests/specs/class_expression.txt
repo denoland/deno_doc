@@ -47,7 +47,6 @@ class Foo
 
 # output.json
 {
-  "imports": [],
   "symbols": [
     {
       "name": "Foo",
@@ -65,19 +64,11 @@ class Foo
           },
           "kind": "class",
           "def": {
-            "isAbstract": false,
-            "constructors": [],
-            "properties": [],
-            "indexSignatures": [],
             "methods": [
               {
                 "jsDoc": {
                   "doc": "A method"
                 },
-                "accessibility": null,
-                "optional": false,
-                "isAbstract": false,
-                "isStatic": false,
                 "name": "bar",
                 "kind": "method",
                 "functionDef": {
@@ -87,10 +78,7 @@ class Foo
                     "kind": "keyword",
                     "value": "void"
                   },
-                  "hasBody": true,
-                  "isAsync": false,
-                  "isGenerator": false,
-                  "typeParams": []
+                  "hasBody": true
                 },
                 "location": {
                   "filename": "file:///mod.ts",
@@ -99,11 +87,7 @@ class Foo
                   "byteIndex": 80
                 }
               }
-            ],
-            "extends": null,
-            "implements": [],
-            "typeParams": [],
-            "superTypeParams": []
+            ]
           }
         }
       ]
@@ -124,13 +108,11 @@ class Foo
           },
           "kind": "class",
           "def": {
-            "isAbstract": false,
             "constructors": [
               {
                 "jsDoc": {
                   "doc": "A constructor"
                 },
-                "accessibility": null,
                 "hasBody": true,
                 "name": "constructor",
                 "params": [
@@ -154,13 +136,7 @@ class Foo
                 }
               }
             ],
-            "properties": [],
-            "indexSignatures": [],
-            "methods": [],
-            "extends": "Foo",
-            "implements": [],
-            "typeParams": [],
-            "superTypeParams": []
+            "extends": "Foo"
           }
         }
       ]
@@ -182,8 +158,6 @@ class Foo
           "kind": "class",
           "def": {
             "defName": "MyClass",
-            "isAbstract": false,
-            "constructors": [],
             "properties": [
               {
                 "jsDoc": {
@@ -194,11 +168,6 @@ class Foo
                   "kind": "keyword",
                   "value": "string"
                 },
-                "readonly": false,
-                "accessibility": null,
-                "optional": false,
-                "isAbstract": false,
-                "isStatic": false,
                 "name": "prop",
                 "location": {
                   "filename": "file:///mod.ts",
@@ -207,13 +176,7 @@ class Foo
                   "byteIndex": 352
                 }
               }
-            ],
-            "indexSignatures": [],
-            "methods": [],
-            "extends": null,
-            "implements": [],
-            "typeParams": [],
-            "superTypeParams": []
+            ]
           }
         }
       ]

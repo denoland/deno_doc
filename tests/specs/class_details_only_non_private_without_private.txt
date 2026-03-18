@@ -44,7 +44,6 @@ class Class
 
 # output.json
 {
-  "imports": [],
   "symbols": [
     {
       "name": "Class",
@@ -59,16 +58,9 @@ class Class
           "declarationKind": "export",
           "kind": "class",
           "def": {
-            "isAbstract": false,
-            "constructors": [],
-            "properties": [],
-            "indexSignatures": [],
             "methods": [
               {
                 "accessibility": "private",
-                "optional": false,
-                "isAbstract": false,
-                "isStatic": false,
                 "name": "pri",
                 "kind": "method",
                 "functionDef": {
@@ -78,10 +70,7 @@ class Class
                     "kind": "keyword",
                     "value": "void"
                   },
-                  "hasBody": true,
-                  "isAsync": false,
-                  "isGenerator": false,
-                  "typeParams": []
+                  "hasBody": true
                 },
                 "location": {
                   "filename": "file:///mod.ts",
@@ -92,9 +81,6 @@ class Class
               },
               {
                 "accessibility": "protected",
-                "optional": false,
-                "isAbstract": false,
-                "isStatic": false,
                 "name": "pro",
                 "kind": "method",
                 "functionDef": {
@@ -104,10 +90,7 @@ class Class
                     "kind": "keyword",
                     "value": "void"
                   },
-                  "hasBody": true,
-                  "isAsync": false,
-                  "isGenerator": false,
-                  "typeParams": []
+                  "hasBody": true
                 },
                 "location": {
                   "filename": "file:///mod.ts",
@@ -118,9 +101,6 @@ class Class
               },
               {
                 "accessibility": "public",
-                "optional": false,
-                "isAbstract": false,
-                "isStatic": false,
                 "name": "pub",
                 "kind": "method",
                 "functionDef": {
@@ -130,10 +110,7 @@ class Class
                     "kind": "keyword",
                     "value": "void"
                   },
-                  "hasBody": true,
-                  "isAsync": false,
-                  "isGenerator": false,
-                  "typeParams": []
+                  "hasBody": true
                 },
                 "location": {
                   "filename": "file:///mod.ts",
@@ -142,11 +119,7 @@ class Class
                   "byteIndex": 63
                 }
               }
-            ],
-            "extends": null,
-            "implements": [],
-            "typeParams": [],
-            "superTypeParams": []
+            ]
           }
         }
       ]

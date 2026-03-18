@@ -17,7 +17,6 @@ interface Interface extends Iterator, Iterable
 
 # output.json
 {
-  "imports": [],
   "symbols": [
     {
       "name": "Interface",
@@ -37,7 +36,6 @@ interface Interface extends Iterator, Iterable
                 "repr": "Iterator",
                 "kind": "typeRef",
                 "value": {
-                  "typeParams": null,
                   "typeName": "Iterator"
                 }
               },
@@ -45,17 +43,10 @@ interface Interface extends Iterator, Iterable
                 "repr": "Iterable",
                 "kind": "typeRef",
                 "value": {
-                  "typeParams": null,
                   "typeName": "Iterable"
                 }
               }
-            ],
-            "constructors": [],
-            "methods": [],
-            "properties": [],
-            "callSignatures": [],
-            "indexSignatures": [],
-            "typeParams": []
+            ]
           }
         }
       ]

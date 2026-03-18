@@ -18,7 +18,6 @@ namespace other
 
 # output.json
 {
-  "imports": [],
   "symbols": [
     {
       "name": "other",
@@ -59,10 +58,7 @@ namespace other
                         "kind": "keyword",
                         "value": "void"
                       },
-                      "hasBody": true,
-                      "isAsync": false,
-                      "isGenerator": false,
-                      "typeParams": []
+                      "hasBody": true
                     }
                   }
                 ]

@@ -76,7 +76,6 @@ private interface YesDiagnostic2
 
 # output.json
 {
-  "imports": [],
   "symbols": [
     {
       "name": "SameName",
@@ -115,17 +114,13 @@ private interface YesDiagnostic2
               "repr": "YesDiagnostic1",
               "kind": "typeRef",
               "value": {
-                "typeParams": null,
                 "typeName": "YesDiagnostic1",
                 "resolution": {
                   "kind": "local"
                 }
               }
             },
-            "hasBody": true,
-            "isAsync": false,
-            "isGenerator": false,
-            "typeParams": []
+            "hasBody": true
           }
         }
       ]
@@ -151,16 +146,12 @@ private interface YesDiagnostic2
               "repr": "YesDiagnostic2",
               "kind": "typeRef",
               "value": {
-                "typeParams": null,
                 "typeName": "YesDiagnostic2",
                 "resolution": {
                   "kind": "local"
                 }
               }
-            },
-            "isAsync": false,
-            "isGenerator": false,
-            "typeParams": []
+            }
           }
         },
         {
@@ -178,17 +169,13 @@ private interface YesDiagnostic2
               "repr": "NoDiagnostic",
               "kind": "typeRef",
               "value": {
-                "typeParams": null,
                 "typeName": "NoDiagnostic",
                 "resolution": {
                   "kind": "local"
                 }
               }
             },
-            "hasBody": true,
-            "isAsync": false,
-            "isGenerator": false,
-            "typeParams": []
+            "hasBody": true
           }
         }
       ]
@@ -205,15 +192,7 @@ private interface YesDiagnostic2
           },
           "declarationKind": "private",
           "kind": "interface",
-          "def": {
-            "extends": [],
-            "constructors": [],
-            "methods": [],
-            "properties": [],
-            "callSignatures": [],
-            "indexSignatures": [],
-            "typeParams": []
-          }
+          "def": {}
         }
       ]
     },
@@ -229,15 +208,7 @@ private interface YesDiagnostic2
           },
           "declarationKind": "private",
           "kind": "interface",
-          "def": {
-            "extends": [],
-            "constructors": [],
-            "methods": [],
-            "properties": [],
-            "callSignatures": [],
-            "indexSignatures": [],
-            "typeParams": []
-          }
+          "def": {}
         }
       ]
     }

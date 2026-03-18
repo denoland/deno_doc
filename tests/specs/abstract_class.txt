@@ -17,7 +17,6 @@ abstract class Class
 
 # output.json
 {
-  "imports": [],
   "symbols": [
     {
       "name": "Class",
@@ -32,15 +31,7 @@ abstract class Class
           "declarationKind": "export",
           "kind": "class",
           "def": {
-            "isAbstract": true,
-            "constructors": [],
-            "properties": [],
-            "indexSignatures": [],
-            "methods": [],
-            "extends": null,
-            "implements": [],
-            "typeParams": [],
-            "superTypeParams": []
+            "isAbstract": true
           }
         }
       ]

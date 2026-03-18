@@ -17,7 +17,6 @@ class Class implements Iterator
 
 # output.json
 {
-  "imports": [],
   "symbols": [
     {
       "name": "Class",
@@ -32,24 +31,15 @@ class Class implements Iterator
           "declarationKind": "export",
           "kind": "class",
           "def": {
-            "isAbstract": false,
-            "constructors": [],
-            "properties": [],
-            "indexSignatures": [],
-            "methods": [],
-            "extends": null,
             "implements": [
               {
                 "repr": "Iterator",
                 "kind": "typeRef",
                 "value": {
-                  "typeParams": null,
                   "typeName": "Iterator"
                 }
               }
-            ],
-            "typeParams": [],
-            "superTypeParams": []
+            ]
           }
         }
       ]

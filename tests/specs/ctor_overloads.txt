@@ -39,7 +39,6 @@ class A
 
 # output.json
 {
-  "imports": [],
   "symbols": [
     {
       "name": "A",
@@ -54,10 +53,8 @@ class A
           "declarationKind": "export",
           "kind": "class",
           "def": {
-            "isAbstract": false,
             "constructors": [
               {
-                "accessibility": null,
                 "name": "constructor",
                 "params": [
                   {
@@ -79,7 +76,6 @@ class A
                 }
               },
               {
-                "accessibility": null,
                 "name": "constructor",
                 "params": [
                   {
@@ -101,7 +97,6 @@ class A
                 }
               },
               {
-                "accessibility": null,
                 "hasBody": true,
                 "name": "constructor",
                 "params": [
@@ -110,7 +105,6 @@ class A
                     "name": "a",
                     "optional": false,
                     "tsType": {
-                      "repr": "",
                       "kind": "union",
                       "value": [
                         {
@@ -134,14 +128,7 @@ class A
                   "byteIndex": 73
                 }
               }
-            ],
-            "properties": [],
-            "indexSignatures": [],
-            "methods": [],
-            "extends": null,
-            "implements": [],
-            "typeParams": [],
-            "superTypeParams": []
+            ]
           }
         }
       ]

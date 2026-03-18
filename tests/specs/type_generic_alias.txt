@@ -16,7 +16,6 @@ type A<T> = T
 
 # output.json
 {
-  "imports": [],
   "symbols": [
     {
       "name": "A",
@@ -35,7 +34,6 @@ type A<T> = T
               "repr": "T",
               "kind": "typeRef",
               "value": {
-                "typeParams": null,
                 "typeName": "T",
                 "resolution": {
                   "kind": "typeParam",

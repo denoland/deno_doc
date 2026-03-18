@@ -32,15 +32,11 @@ export interface Foo {
                           "col": 2,
                           "byteIndex": 40
                         },
-                        "params": [],
-                        "computed": false,
-                        "optional": false,
                         "tsType": {
                           "repr": "number",
                           "kind": "keyword",
                           "value": "number"
-                        },
-                        "typeParams": []
+                        }
                       }
                     ]
                   }

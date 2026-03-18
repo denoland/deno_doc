@@ -63,7 +63,6 @@ class B
 
 # output.json
 {
-  "imports": [],
   "symbols": [
     {
       "name": "A",
@@ -91,17 +90,7 @@ class B
             ]
           },
           "kind": "class",
-          "def": {
-            "isAbstract": false,
-            "constructors": [],
-            "properties": [],
-            "indexSignatures": [],
-            "methods": [],
-            "extends": null,
-            "implements": [],
-            "typeParams": [],
-            "superTypeParams": []
-          }
+          "def": {}
         }
       ]
     },
@@ -120,17 +109,7 @@ class B
             "doc": "Decorator in doc codeblock\n\n```ts\n@decorator\nclass Foo {}\n```"
           },
           "kind": "class",
-          "def": {
-            "isAbstract": false,
-            "constructors": [],
-            "properties": [],
-            "indexSignatures": [],
-            "methods": [],
-            "extends": null,
-            "implements": [],
-            "typeParams": [],
-            "superTypeParams": []
-          }
+          "def": {}
         }
       ]
     }

@@ -30,11 +30,6 @@ export class Foo {
                           "kind": "keyword",
                           "value": "number"
                         },
-                        "readonly": false,
-                        "accessibility": null,
-                        "optional": false,
-                        "isAbstract": false,
-                        "isStatic": false,
                         "name": "age",
                         "location": {
                           "filename": "file:///mod.ts",

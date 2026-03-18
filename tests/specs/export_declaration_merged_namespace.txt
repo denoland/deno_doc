@@ -40,7 +40,6 @@ namespace Namespace1
 
 # output.json
 {
-  "imports": [],
   "symbols": [
     {
       "name": "Namespace1",
@@ -68,17 +67,7 @@ namespace Namespace1
                     },
                     "declarationKind": "export",
                     "kind": "class",
-                    "def": {
-                      "isAbstract": false,
-                      "constructors": [],
-                      "properties": [],
-                      "indexSignatures": [],
-                      "methods": [],
-                      "extends": null,
-                      "implements": [],
-                      "typeParams": [],
-                      "superTypeParams": []
-                    }
+                    "def": {}
                   }
                 ]
               },
@@ -94,17 +83,7 @@ namespace Namespace1
                     },
                     "declarationKind": "export",
                     "kind": "class",
-                    "def": {
-                      "isAbstract": false,
-                      "constructors": [],
-                      "properties": [],
-                      "indexSignatures": [],
-                      "methods": [],
-                      "extends": null,
-                      "implements": [],
-                      "typeParams": [],
-                      "superTypeParams": []
-                    }
+                    "def": {}
                   }
                 ]
               }

@@ -57,7 +57,6 @@ class Class3
 
 # output.json
 {
-  "imports": [],
   "symbols": [
     {
       "name": "Class",
@@ -72,10 +71,8 @@ class Class3
           "declarationKind": "export",
           "kind": "class",
           "def": {
-            "isAbstract": false,
             "constructors": [
               {
-                "accessibility": null,
                 "hasBody": true,
                 "name": "constructor",
                 "params": [
@@ -83,14 +80,12 @@ class Class3
                     "accessibility": "public",
                     "kind": "identifier",
                     "name": "a",
-                    "optional": false,
-                    "tsType": null
+                    "optional": false
                   },
                   {
                     "kind": "identifier",
                     "name": "b",
                     "optional": false,
-                    "tsType": null,
                     "readonly": true
                   }
                 ],
@@ -101,14 +96,7 @@ class Class3
                   "byteIndex": 23
                 }
               }
-            ],
-            "properties": [],
-            "indexSignatures": [],
-            "methods": [],
-            "extends": null,
-            "implements": [],
-            "typeParams": [],
-            "superTypeParams": []
+            ]
           }
         }
       ]
@@ -129,10 +117,8 @@ class Class3
           },
           "kind": "class",
           "def": {
-            "isAbstract": false,
             "constructors": [
               {
-                "accessibility": null,
                 "hasBody": true,
                 "name": "constructor",
                 "params": [],
@@ -143,14 +129,7 @@ class Class3
                   "byteIndex": 148
                 }
               }
-            ],
-            "properties": [],
-            "indexSignatures": [],
-            "methods": [],
-            "extends": null,
-            "implements": [],
-            "typeParams": [],
-            "superTypeParams": []
+            ]
           }
         }
       ]
@@ -171,7 +150,6 @@ class Class3
           },
           "kind": "class",
           "def": {
-            "isAbstract": false,
             "constructors": [
               {
                 "accessibility": "private",
@@ -196,14 +174,7 @@ class Class3
                   "byteIndex": 262
                 }
               }
-            ],
-            "properties": [],
-            "indexSignatures": [],
-            "methods": [],
-            "extends": null,
-            "implements": [],
-            "typeParams": [],
-            "superTypeParams": []
+            ]
           }
         }
       ]

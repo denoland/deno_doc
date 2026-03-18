@@ -26,8 +26,6 @@ export class Foo implements Runnable {
               "declarationKind": "private",
               "kind": "interface",
               "def": {
-                "extends": [],
-                "constructors": [],
                 "methods": [
                   {
                     "name": "run",
@@ -39,19 +37,13 @@ export class Foo implements Runnable {
                       "byteIndex": 21
                     },
                     "params": [],
-                    "optional": false,
                     "returnType": {
                       "repr": "void",
                       "kind": "keyword",
                       "value": "void"
-                    },
-                    "typeParams": []
+                    }
                   }
-                ],
-                "properties": [],
-                "callSignatures": [],
-                "indexSignatures": [],
-                "typeParams": []
+                ]
               }
             }
           ]
@@ -72,7 +64,6 @@ export class Foo implements Runnable {
                         "repr": "Runnable",
                         "kind": "typeRef",
                         "value": {
-                          "typeParams": null,
                           "typeName": "Runnable",
                           "resolution": {
                             "kind": "local"
@@ -84,10 +75,6 @@ export class Foo implements Runnable {
                   "methodChanges": {
                     "added": [
                       {
-                        "accessibility": null,
-                        "optional": false,
-                        "isAbstract": false,
-                        "isStatic": false,
                         "name": "run",
                         "kind": "method",
                         "functionDef": {
@@ -97,10 +84,7 @@ export class Foo implements Runnable {
                             "kind": "keyword",
                             "value": "void"
                           },
-                          "hasBody": true,
-                          "isAsync": false,
-                          "isGenerator": false,
-                          "typeParams": []
+                          "hasBody": true
                         },
                         "location": {
                           "filename": "file:///mod.ts",

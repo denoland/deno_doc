@@ -28,16 +28,8 @@ export class Bar {
               "declarationKind": "export",
               "kind": "class",
               "def": {
-                "isAbstract": false,
-                "constructors": [],
-                "properties": [],
-                "indexSignatures": [],
                 "methods": [
                   {
-                    "accessibility": null,
-                    "optional": false,
-                    "isAbstract": false,
-                    "isStatic": false,
                     "name": "a",
                     "kind": "method",
                     "functionDef": {
@@ -47,10 +39,7 @@ export class Bar {
                         "kind": "keyword",
                         "value": "void"
                       },
-                      "hasBody": true,
-                      "isAsync": false,
-                      "isGenerator": false,
-                      "typeParams": []
+                      "hasBody": true
                     },
                     "location": {
                       "filename": "file:///mod.ts",
@@ -60,10 +49,6 @@ export class Bar {
                     }
                   },
                   {
-                    "accessibility": null,
-                    "optional": false,
-                    "isAbstract": false,
-                    "isStatic": false,
                     "name": "c",
                     "kind": "method",
                     "functionDef": {
@@ -73,10 +58,7 @@ export class Bar {
                         "kind": "keyword",
                         "value": "void"
                       },
-                      "hasBody": true,
-                      "isAsync": false,
-                      "isGenerator": false,
-                      "typeParams": []
+                      "hasBody": true
                     },
                     "location": {
                       "filename": "file:///mod.ts",
@@ -85,11 +67,7 @@ export class Bar {
                       "byteIndex": 36
                     }
                   }
-                ],
-                "extends": null,
-                "implements": [],
-                "typeParams": [],
-                "superTypeParams": []
+                ]
               }
             }
           ]
@@ -109,16 +87,8 @@ export class Bar {
               "declarationKind": "export",
               "kind": "class",
               "def": {
-                "isAbstract": false,
-                "constructors": [],
-                "properties": [],
-                "indexSignatures": [],
                 "methods": [
                   {
-                    "accessibility": null,
-                    "optional": false,
-                    "isAbstract": false,
-                    "isStatic": false,
                     "name": "a",
                     "kind": "method",
                     "functionDef": {
@@ -128,10 +98,7 @@ export class Bar {
                         "kind": "keyword",
                         "value": "void"
                       },
-                      "hasBody": true,
-                      "isAsync": false,
-                      "isGenerator": false,
-                      "typeParams": []
+                      "hasBody": true
                     },
                     "location": {
                       "filename": "file:///mod.ts",
@@ -141,10 +108,6 @@ export class Bar {
                     }
                   },
                   {
-                    "accessibility": null,
-                    "optional": false,
-                    "isAbstract": false,
-                    "isStatic": false,
                     "name": "b",
                     "kind": "method",
                     "functionDef": {
@@ -154,10 +117,7 @@ export class Bar {
                         "kind": "keyword",
                         "value": "void"
                       },
-                      "hasBody": true,
-                      "isAsync": false,
-                      "isGenerator": false,
-                      "typeParams": []
+                      "hasBody": true
                     },
                     "location": {
                       "filename": "file:///mod.ts",
@@ -166,11 +126,7 @@ export class Bar {
                       "byteIndex": 36
                     }
                   }
-                ],
-                "extends": null,
-                "implements": [],
-                "typeParams": [],
-                "superTypeParams": []
+                ]
               }
             }
           ]

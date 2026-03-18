@@ -16,7 +16,6 @@ const tpl: `test${number}`
 
 # output.json
 {
-  "imports": [],
   "symbols": [
     {
       "name": "tpl",
@@ -51,7 +50,6 @@ const tpl: `test${number}`
                     "value": "number"
                   },
                   {
-                    "repr": "",
                     "kind": "literal",
                     "value": {
                       "kind": "string",

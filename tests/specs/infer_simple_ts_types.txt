@@ -184,7 +184,6 @@ const tpl: `foobar`
 
 # output.json
 {
-  "imports": [],
   "symbols": [
     {
       "name": "s",
@@ -307,7 +306,6 @@ const tpl: `foobar`
               "repr": "hello",
               "kind": "typeRef",
               "value": {
-                "typeParams": null,
                 "typeName": "RegExp"
               }
             },
@@ -368,7 +366,6 @@ const tpl: `foobar`
               "repr": "Date",
               "kind": "typeRef",
               "value": {
-                "typeParams": null,
                 "typeName": "Date"
               }
             },
@@ -536,10 +533,7 @@ const tpl: `foobar`
               "kind": "keyword",
               "value": "void"
             },
-            "hasBody": true,
-            "isAsync": false,
-            "isGenerator": false,
-            "typeParams": []
+            "hasBody": true
           }
         }
       ]
@@ -574,10 +568,7 @@ const tpl: `foobar`
               "kind": "keyword",
               "value": "void"
             },
-            "hasBody": true,
-            "isAsync": false,
-            "isGenerator": false,
-            "typeParams": []
+            "hasBody": true
           }
         }
       ]

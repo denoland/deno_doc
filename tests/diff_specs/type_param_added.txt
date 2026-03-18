@@ -31,7 +31,6 @@ export function identity<T>(value: T): T { return value; }
                             "repr": "T",
                             "kind": "typeRef",
                             "value": {
-                              "typeParams": null,
                               "typeName": "T",
                               "resolution": {
                                 "kind": "typeParam",
@@ -54,7 +53,6 @@ export function identity<T>(value: T): T { return value; }
                       "repr": "T",
                       "kind": "typeRef",
                       "value": {
-                        "typeParams": null,
                         "typeName": "T",
                         "resolution": {
                           "kind": "typeParam",

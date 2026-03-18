@@ -54,7 +54,6 @@ interface I
 
 # output.json
 {
-  "imports": [],
   "symbols": [
     {
       "name": "I",
@@ -69,9 +68,6 @@ interface I
           "declarationKind": "export",
           "kind": "interface",
           "def": {
-            "extends": [],
-            "constructors": [],
-            "methods": [],
             "properties": [
               {
                 "name": "p",
@@ -81,15 +77,11 @@ interface I
                   "col": 2,
                   "byteIndex": 23
                 },
-                "params": [],
-                "computed": false,
-                "optional": false,
                 "tsType": {
                   "repr": "string",
                   "kind": "keyword",
                   "value": "string"
-                },
-                "typeParams": []
+                }
               },
               {
                 "name": "po",
@@ -99,15 +91,12 @@ interface I
                   "col": 2,
                   "byteIndex": 36
                 },
-                "params": [],
-                "computed": false,
                 "optional": true,
                 "tsType": {
                   "repr": "number",
                   "kind": "keyword",
                   "value": "number"
-                },
-                "typeParams": []
+                }
               },
               {
                 "name": "pro",
@@ -117,16 +106,12 @@ interface I
                   "col": 2,
                   "byteIndex": 51
                 },
-                "params": [],
                 "readonly": true,
-                "computed": false,
-                "optional": false,
                 "tsType": {
                   "repr": "string",
                   "kind": "keyword",
                   "value": "string"
-                },
-                "typeParams": []
+                }
               },
               {
                 "name": "pc",
@@ -136,20 +121,14 @@ interface I
                   "col": 2,
                   "byteIndex": 75
                 },
-                "params": [],
                 "computed": true,
-                "optional": false,
                 "tsType": {
                   "repr": "string",
                   "kind": "keyword",
                   "value": "string"
-                },
-                "typeParams": []
+                }
               }
-            ],
-            "callSignatures": [],
-            "indexSignatures": [],
-            "typeParams": []
+            ]
           }
         }
       ]

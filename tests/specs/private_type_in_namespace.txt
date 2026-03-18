@@ -65,7 +65,6 @@ private namespace Test
 
 # output.json
 {
-  "imports": [],
   "symbols": [
     {
       "name": "Output",
@@ -80,9 +79,6 @@ private namespace Test
           "declarationKind": "export",
           "kind": "interface",
           "def": {
-            "extends": [],
-            "constructors": [],
-            "methods": [],
             "properties": [
               {
                 "name": "other",
@@ -92,26 +88,18 @@ private namespace Test
                   "col": 2,
                   "byteIndex": 72
                 },
-                "params": [],
-                "computed": false,
-                "optional": false,
                 "tsType": {
                   "repr": "Test.Other",
                   "kind": "typeRef",
                   "value": {
-                    "typeParams": null,
                     "typeName": "Test.Other",
                     "resolution": {
                       "kind": "local"
                     }
                   }
-                },
-                "typeParams": []
+                }
               }
-            ],
-            "callSignatures": [],
-            "indexSignatures": [],
-            "typeParams": []
+            ]
           }
         }
       ]
@@ -142,17 +130,7 @@ private namespace Test
                     },
                     "declarationKind": "export",
                     "kind": "class",
-                    "def": {
-                      "isAbstract": false,
-                      "constructors": [],
-                      "properties": [],
-                      "indexSignatures": [],
-                      "methods": [],
-                      "extends": null,
-                      "implements": [],
-                      "typeParams": [],
-                      "superTypeParams": []
-                    }
+                    "def": {}
                   }
                 ]
               }

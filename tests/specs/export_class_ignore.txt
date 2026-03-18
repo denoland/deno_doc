@@ -85,7 +85,6 @@ class Foobar extends Fizz implements Buzz, Aldrin
 
 # output.json
 {
-  "imports": [],
   "symbols": [
     {
       "name": "Foobar",
@@ -103,8 +102,6 @@ class Foobar extends Fizz implements Buzz, Aldrin
           },
           "kind": "class",
           "def": {
-            "isAbstract": false,
-            "constructors": [],
             "properties": [
               {
                 "tsType": {
@@ -112,11 +109,7 @@ class Foobar extends Fizz implements Buzz, Aldrin
                   "kind": "keyword",
                   "value": "number"
                 },
-                "readonly": false,
                 "accessibility": "protected",
-                "optional": false,
-                "isAbstract": false,
-                "isStatic": false,
                 "name": "protected1",
                 "location": {
                   "filename": "file:///mod.ts",
@@ -131,11 +124,6 @@ class Foobar extends Fizz implements Buzz, Aldrin
                   "kind": "keyword",
                   "value": "number"
                 },
-                "readonly": false,
-                "accessibility": null,
-                "optional": false,
-                "isAbstract": false,
-                "isStatic": false,
                 "name": "public2",
                 "location": {
                   "filename": "file:///mod.ts",
@@ -150,11 +138,6 @@ class Foobar extends Fizz implements Buzz, Aldrin
                   "kind": "keyword",
                   "value": "string"
                 },
-                "readonly": false,
-                "accessibility": null,
-                "optional": false,
-                "isAbstract": false,
-                "isStatic": false,
                 "name": "s",
                 "location": {
                   "filename": "file:///mod.ts",
@@ -165,10 +148,8 @@ class Foobar extends Fizz implements Buzz, Aldrin
               },
               {
                 "tsType": {
-                  "repr": "",
                   "kind": "array",
                   "value": {
-                    "repr": "",
                     "kind": "union",
                     "value": [
                       {
@@ -184,11 +165,6 @@ class Foobar extends Fizz implements Buzz, Aldrin
                     ]
                   }
                 },
-                "readonly": false,
-                "accessibility": null,
-                "optional": false,
-                "isAbstract": false,
-                "isStatic": false,
                 "name": "a",
                 "location": {
                   "filename": "file:///mod.ts",
@@ -199,7 +175,6 @@ class Foobar extends Fizz implements Buzz, Aldrin
               },
               {
                 "tsType": {
-                  "repr": "",
                   "kind": "fnOrConstructor",
                   "value": {
                     "constructor": false,
@@ -219,15 +194,9 @@ class Foobar extends Fizz implements Buzz, Aldrin
                           "value": "string"
                         }
                       }
-                    ],
-                    "typeParams": []
+                    ]
                   }
                 },
-                "readonly": false,
-                "accessibility": null,
-                "optional": false,
-                "isAbstract": false,
-                "isStatic": false,
                 "name": "fn",
                 "location": {
                   "filename": "file:///mod.ts",
@@ -237,15 +206,12 @@ class Foobar extends Fizz implements Buzz, Aldrin
                 }
               }
             ],
-            "indexSignatures": [],
-            "methods": [],
             "extends": "Fizz",
             "implements": [
               {
                 "repr": "Buzz",
                 "kind": "typeRef",
                 "value": {
-                  "typeParams": null,
                   "typeName": "Buzz"
                 }
               },
@@ -253,13 +219,10 @@ class Foobar extends Fizz implements Buzz, Aldrin
                 "repr": "Aldrin",
                 "kind": "typeRef",
                 "value": {
-                  "typeParams": null,
                   "typeName": "Aldrin"
                 }
               }
-            ],
-            "typeParams": [],
-            "superTypeParams": []
+            ]
           }
         }
       ]

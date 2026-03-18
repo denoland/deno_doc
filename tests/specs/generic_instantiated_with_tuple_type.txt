@@ -29,7 +29,6 @@ interface Generic<T>
 
 # output.json
 {
-  "imports": [],
   "symbols": [
     {
       "name": "Generic",
@@ -44,12 +43,6 @@ interface Generic<T>
           "declarationKind": "export",
           "kind": "interface",
           "def": {
-            "extends": [],
-            "constructors": [],
-            "methods": [],
-            "properties": [],
-            "callSignatures": [],
-            "indexSignatures": [],
             "typeParams": [
               {
                 "name": "T"
@@ -79,7 +72,6 @@ interface Generic<T>
               "value": {
                 "typeParams": [
                   {
-                    "repr": "",
                     "kind": "tuple",
                     "value": [
                       {
@@ -101,10 +93,7 @@ interface Generic<T>
                 }
               }
             },
-            "hasBody": true,
-            "isAsync": false,
-            "isGenerator": false,
-            "typeParams": []
+            "hasBody": true
           }
         }
       ]

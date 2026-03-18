@@ -39,7 +39,6 @@ async function qux(a: string): Promise<string>
 
 # output.json
 {
-  "imports": [],
   "symbols": [
     {
       "name": "foo",
@@ -74,10 +73,7 @@ async function qux(a: string): Promise<string>
               "kind": "keyword",
               "value": "void"
             },
-            "hasBody": true,
-            "isAsync": false,
-            "isGenerator": false,
-            "typeParams": []
+            "hasBody": true
           }
         }
       ]
@@ -126,10 +122,7 @@ async function qux(a: string): Promise<string>
               "kind": "keyword",
               "value": "string"
             },
-            "hasBody": true,
-            "isAsync": false,
-            "isGenerator": false,
-            "typeParams": []
+            "hasBody": true
           }
         }
       ]
@@ -167,10 +160,7 @@ async function qux(a: string): Promise<string>
               "kind": "keyword",
               "value": "void"
             },
-            "hasBody": true,
-            "isAsync": false,
-            "isGenerator": false,
-            "typeParams": []
+            "hasBody": true
           }
         }
       ]
@@ -218,9 +208,7 @@ async function qux(a: string): Promise<string>
               }
             },
             "hasBody": true,
-            "isAsync": true,
-            "isGenerator": false,
-            "typeParams": []
+            "isAsync": true
           }
         }
       ]

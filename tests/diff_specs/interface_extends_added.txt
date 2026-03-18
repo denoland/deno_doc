@@ -28,9 +28,6 @@ export interface Foo extends Base {
               "declarationKind": "private",
               "kind": "interface",
               "def": {
-                "extends": [],
-                "constructors": [],
-                "methods": [],
                 "properties": [
                   {
                     "name": "id",
@@ -40,20 +37,13 @@ export interface Foo extends Base {
                       "col": 17,
                       "byteIndex": 17
                     },
-                    "params": [],
-                    "computed": false,
-                    "optional": false,
                     "tsType": {
                       "repr": "number",
                       "kind": "keyword",
                       "value": "number"
-                    },
-                    "typeParams": []
+                    }
                   }
-                ],
-                "callSignatures": [],
-                "indexSignatures": [],
-                "typeParams": []
+                ]
               }
             }
           ]
@@ -74,7 +64,6 @@ export interface Foo extends Base {
                         "repr": "Base",
                         "kind": "typeRef",
                         "value": {
-                          "typeParams": null,
                           "typeName": "Base",
                           "resolution": {
                             "kind": "local"

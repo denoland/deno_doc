@@ -23,7 +23,6 @@ function add<T>(a: T, b: T)
 
 # output.json
 {
-  "imports": [],
   "symbols": [
     {
       "name": "add",
@@ -47,7 +46,6 @@ function add<T>(a: T, b: T)
                   "repr": "T",
                   "kind": "typeRef",
                   "value": {
-                    "typeParams": null,
                     "typeName": "T",
                     "resolution": {
                       "kind": "typeParam",
@@ -65,7 +63,6 @@ function add<T>(a: T, b: T)
                   "repr": "T",
                   "kind": "typeRef",
                   "value": {
-                    "typeParams": null,
                     "typeName": "T",
                     "resolution": {
                       "kind": "typeParam",
@@ -76,10 +73,7 @@ function add<T>(a: T, b: T)
                 }
               }
             ],
-            "returnType": null,
             "hasBody": true,
-            "isAsync": false,
-            "isGenerator": false,
             "typeParams": [
               {
                 "name": "T"

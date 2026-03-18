@@ -37,7 +37,6 @@ class A
 
 # output.json
 {
-  "imports": [],
   "symbols": [
     {
       "name": "A",
@@ -52,16 +51,8 @@ class A
           "declarationKind": "export",
           "kind": "class",
           "def": {
-            "isAbstract": false,
-            "constructors": [],
-            "properties": [],
-            "indexSignatures": [],
             "methods": [
               {
-                "accessibility": null,
-                "optional": false,
-                "isAbstract": false,
-                "isStatic": false,
                 "name": "a",
                 "kind": "method",
                 "functionDef": {
@@ -81,10 +72,7 @@ class A
                     "repr": "string",
                     "kind": "keyword",
                     "value": "string"
-                  },
-                  "isAsync": false,
-                  "isGenerator": false,
-                  "typeParams": []
+                  }
                 },
                 "location": {
                   "filename": "file:///mod.ts",
@@ -94,10 +82,6 @@ class A
                 }
               },
               {
-                "accessibility": null,
-                "optional": false,
-                "isAbstract": false,
-                "isStatic": false,
                 "name": "a",
                 "kind": "method",
                 "functionDef": {
@@ -117,10 +101,7 @@ class A
                     "repr": "number",
                     "kind": "keyword",
                     "value": "number"
-                  },
-                  "isAsync": false,
-                  "isGenerator": false,
-                  "typeParams": []
+                  }
                 },
                 "location": {
                   "filename": "file:///mod.ts",
@@ -130,10 +111,6 @@ class A
                 }
               },
               {
-                "accessibility": null,
-                "optional": false,
-                "isAbstract": false,
-                "isStatic": false,
                 "name": "a",
                 "kind": "method",
                 "functionDef": {
@@ -143,7 +120,6 @@ class A
                       "name": "b",
                       "optional": false,
                       "tsType": {
-                        "repr": "",
                         "kind": "union",
                         "value": [
                           {
@@ -161,7 +137,6 @@ class A
                     }
                   ],
                   "returnType": {
-                    "repr": "",
                     "kind": "union",
                     "value": [
                       {
@@ -176,10 +151,7 @@ class A
                       }
                     ]
                   },
-                  "hasBody": true,
-                  "isAsync": false,
-                  "isGenerator": false,
-                  "typeParams": []
+                  "hasBody": true
                 },
                 "location": {
                   "filename": "file:///mod.ts",
@@ -188,11 +160,7 @@ class A
                   "byteIndex": 79
                 }
               }
-            ],
-            "extends": null,
-            "implements": [],
-            "typeParams": [],
-            "superTypeParams": []
+            ]
           }
         }
       ]

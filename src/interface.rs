@@ -23,13 +23,19 @@ pub struct InterfaceDef {
   #[serde(skip_serializing_if = "Option::is_none", default)]
   /// set when the interface is a default export
   pub def_name: Option<String>,
+  #[serde(skip_serializing_if = "Vec::is_empty", default)]
   pub extends: Vec<TsTypeDef>,
-  #[serde(default)]
+  #[serde(skip_serializing_if = "Vec::is_empty", default)]
   pub constructors: Vec<ConstructorDef>,
+  #[serde(skip_serializing_if = "Vec::is_empty", default)]
   pub methods: Vec<MethodDef>,
+  #[serde(skip_serializing_if = "Vec::is_empty", default)]
   pub properties: Vec<PropertyDef>,
+  #[serde(skip_serializing_if = "Vec::is_empty", default)]
   pub call_signatures: Vec<CallSignatureDef>,
+  #[serde(skip_serializing_if = "Vec::is_empty", default)]
   pub index_signatures: Vec<IndexSignatureDef>,
+  #[serde(skip_serializing_if = "<[_]>::is_empty", default)]
   pub type_params: Box<[TsTypeParamDef]>,
 }
 

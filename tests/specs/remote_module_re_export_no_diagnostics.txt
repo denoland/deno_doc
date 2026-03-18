@@ -50,7 +50,6 @@ class PublicType2
 
 # output.json
 {
-  "imports": [],
   "symbols": [
     {
       "name": "myFunction",
@@ -66,11 +65,7 @@ class PublicType2
           "kind": "function",
           "def": {
             "params": [],
-            "returnType": null,
-            "hasBody": true,
-            "isAsync": false,
-            "isGenerator": false,
-            "typeParams": []
+            "hasBody": true
           }
         }
       ]
@@ -88,26 +83,18 @@ class PublicType2
           "declarationKind": "export",
           "kind": "class",
           "def": {
-            "isAbstract": false,
-            "constructors": [],
             "properties": [
               {
                 "tsType": {
                   "repr": "NonExportedType",
                   "kind": "typeRef",
                   "value": {
-                    "typeParams": null,
                     "typeName": "NonExportedType",
                     "resolution": {
                       "kind": "local"
                     }
                   }
                 },
-                "readonly": false,
-                "accessibility": null,
-                "optional": false,
-                "isAbstract": false,
-                "isStatic": false,
                 "name": "prop",
                 "location": {
                   "filename": "https://localhost/mod.ts",
@@ -116,13 +103,7 @@ class PublicType2
                   "byteIndex": 86
                 }
               }
-            ],
-            "indexSignatures": [],
-            "methods": [],
-            "extends": null,
-            "implements": [],
-            "typeParams": [],
-            "superTypeParams": []
+            ]
           }
         }
       ]
@@ -141,11 +122,7 @@ class PublicType2
           "kind": "function",
           "def": {
             "params": [],
-            "returnType": null,
-            "hasBody": true,
-            "isAsync": false,
-            "isGenerator": false,
-            "typeParams": []
+            "hasBody": true
           }
         }
       ]
@@ -163,26 +140,18 @@ class PublicType2
           "declarationKind": "export",
           "kind": "class",
           "def": {
-            "isAbstract": false,
-            "constructors": [],
             "properties": [
               {
                 "tsType": {
                   "repr": "NonExportedType2",
                   "kind": "typeRef",
                   "value": {
-                    "typeParams": null,
                     "typeName": "NonExportedType2",
                     "resolution": {
                       "kind": "local"
                     }
                   }
                 },
-                "readonly": false,
-                "accessibility": null,
-                "optional": false,
-                "isAbstract": false,
-                "isStatic": false,
                 "name": "prop",
                 "location": {
                   "filename": "http://localhost/mod.ts",
@@ -191,13 +160,7 @@ class PublicType2
                   "byteIndex": 88
                 }
               }
-            ],
-            "indexSignatures": [],
-            "methods": [],
-            "extends": null,
-            "implements": [],
-            "typeParams": [],
-            "superTypeParams": []
+            ]
           }
         }
       ]

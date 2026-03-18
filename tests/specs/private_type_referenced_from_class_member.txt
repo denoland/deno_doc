@@ -38,7 +38,6 @@ private class YesDiagnostic
 
 # output.json
 {
-  "imports": [],
   "symbols": [
     {
       "name": "Other",
@@ -56,8 +55,6 @@ private class YesDiagnostic
           },
           "kind": "class",
           "def": {
-            "isAbstract": false,
-            "constructors": [],
             "properties": [
               {
                 "jsDoc": {
@@ -67,18 +64,12 @@ private class YesDiagnostic
                   "repr": "YesDiagnostic",
                   "kind": "typeRef",
                   "value": {
-                    "typeParams": null,
                     "typeName": "YesDiagnostic",
                     "resolution": {
                       "kind": "local"
                     }
                   }
                 },
-                "readonly": false,
-                "accessibility": null,
-                "optional": false,
-                "isAbstract": false,
-                "isStatic": false,
                 "name": "prop",
                 "location": {
                   "filename": "file:///mod.ts",
@@ -87,13 +78,7 @@ private class YesDiagnostic
                   "byteIndex": 55
                 }
               }
-            ],
-            "indexSignatures": [],
-            "methods": [],
-            "extends": null,
-            "implements": [],
-            "typeParams": [],
-            "superTypeParams": []
+            ]
           }
         }
       ]
@@ -110,17 +95,7 @@ private class YesDiagnostic
           },
           "declarationKind": "private",
           "kind": "class",
-          "def": {
-            "isAbstract": false,
-            "constructors": [],
-            "properties": [],
-            "indexSignatures": [],
-            "methods": [],
-            "extends": null,
-            "implements": [],
-            "typeParams": [],
-            "superTypeParams": []
-          }
+          "def": {}
         }
       ]
     }

@@ -68,7 +68,6 @@ class Data
 
 # output.json
 {
-  "imports": [],
   "symbols": [
     {
       "name": "Data",
@@ -86,8 +85,6 @@ class Data
           },
           "kind": "class",
           "def": {
-            "isAbstract": false,
-            "constructors": [],
             "properties": [
               {
                 "jsDoc": {
@@ -97,18 +94,12 @@ class Data
                   "repr": "PrivateNotExported",
                   "kind": "typeRef",
                   "value": {
-                    "typeParams": null,
                     "typeName": "PrivateNotExported",
                     "resolution": {
                       "kind": "local"
                     }
                   }
                 },
-                "readonly": false,
-                "accessibility": null,
-                "optional": false,
-                "isAbstract": false,
-                "isStatic": false,
                 "name": "prop",
                 "location": {
                   "filename": "file:///data.ts",
@@ -125,18 +116,12 @@ class Data
                   "repr": "PrivateExportedButNotFromModTs",
                   "kind": "typeRef",
                   "value": {
-                    "typeParams": null,
                     "typeName": "PrivateExportedButNotFromModTs",
                     "resolution": {
                       "kind": "local"
                     }
                   }
                 },
-                "readonly": false,
-                "accessibility": null,
-                "optional": false,
-                "isAbstract": false,
-                "isStatic": false,
                 "name": "prop2",
                 "location": {
                   "filename": "file:///data.ts",
@@ -157,18 +142,12 @@ class Data
                   "repr": "PrivateReferencedInInternal",
                   "kind": "typeRef",
                   "value": {
-                    "typeParams": null,
                     "typeName": "PrivateReferencedInInternal",
                     "resolution": {
                       "kind": "local"
                     }
                   }
                 },
-                "readonly": false,
-                "accessibility": null,
-                "optional": false,
-                "isAbstract": false,
-                "isStatic": false,
                 "name": "prop3",
                 "location": {
                   "filename": "file:///data.ts",
@@ -177,13 +156,7 @@ class Data
                   "byteIndex": 234
                 }
               }
-            ],
-            "indexSignatures": [],
-            "methods": [],
-            "extends": null,
-            "implements": [],
-            "typeParams": [],
-            "superTypeParams": []
+            ]
           }
         }
       ]

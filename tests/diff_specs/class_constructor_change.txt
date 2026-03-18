@@ -24,7 +24,6 @@ export class Foo {
                   "constructorChanges": {
                     "added": [
                       {
-                        "accessibility": null,
                         "hasBody": true,
                         "name": "constructor",
                         "params": [
@@ -59,7 +58,6 @@ export class Foo {
                     ],
                     "removed": [
                       {
-                        "accessibility": null,
                         "hasBody": true,
                         "name": "constructor",
                         "params": [

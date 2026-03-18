@@ -31,10 +31,6 @@ export class Widget {
                   "methodChanges": {
                     "added": [
                       {
-                        "accessibility": null,
-                        "optional": false,
-                        "isAbstract": false,
-                        "isStatic": false,
                         "name": "count",
                         "kind": "setter",
                         "functionDef": {
@@ -55,10 +51,7 @@ export class Widget {
                             "kind": "keyword",
                             "value": "void"
                           },
-                          "hasBody": true,
-                          "isAsync": false,
-                          "isGenerator": false,
-                          "typeParams": []
+                          "hasBody": true
                         },
                         "location": {
                           "filename": "file:///mod.ts",

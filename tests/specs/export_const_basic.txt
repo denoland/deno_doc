@@ -117,7 +117,6 @@ const tpl2: string
 
 # output.json
 {
-  "imports": [],
   "symbols": [
     {
       "name": "fizzBuzz",
@@ -162,10 +161,8 @@ const tpl2: string
           "kind": "variable",
           "def": {
             "tsType": {
-              "repr": "",
               "kind": "typeLiteral",
               "value": {
-                "constructors": [],
                 "methods": [
                   {
                     "name": "get",
@@ -191,9 +188,7 @@ const tpl2: string
                         }
                       }
                     ],
-                    "optional": false,
                     "returnType": {
-                      "repr": "",
                       "kind": "union",
                       "value": [
                         {
@@ -207,8 +202,7 @@ const tpl2: string
                           "value": "undefined"
                         }
                       ]
-                    },
-                    "typeParams": []
+                    }
                   },
                   {
                     "name": "set",
@@ -244,18 +238,13 @@ const tpl2: string
                         }
                       }
                     ],
-                    "optional": false,
                     "returnType": {
                       "repr": "void",
                       "kind": "keyword",
                       "value": "void"
-                    },
-                    "typeParams": []
+                    }
                   }
-                ],
-                "properties": [],
-                "callSignatures": [],
-                "indexSignatures": []
+                ]
               }
             },
             "kind": "const"
@@ -358,7 +347,6 @@ const tpl2: string
               "repr": "hello",
               "kind": "typeRef",
               "value": {
-                "typeParams": null,
                 "typeName": "RegExp"
               }
             },
@@ -384,7 +372,6 @@ const tpl2: string
               "repr": "Date",
               "kind": "typeRef",
               "value": {
-                "typeParams": null,
                 "typeName": "Date"
               }
             },

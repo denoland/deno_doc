@@ -16,7 +16,6 @@ type T = { readonly [key: string]: number; }
 
 # output.json
 {
-  "imports": [],
   "symbols": [
     {
       "name": "T",
@@ -32,13 +31,8 @@ type T = { readonly [key: string]: number; }
           "kind": "typeAlias",
           "def": {
             "tsType": {
-              "repr": "",
               "kind": "typeLiteral",
               "value": {
-                "constructors": [],
-                "methods": [],
-                "properties": [],
-                "callSignatures": [],
                 "indexSignatures": [
                   {
                     "readonly": true,
@@ -68,8 +62,7 @@ type T = { readonly [key: string]: number; }
                   }
                 ]
               }
-            },
-            "typeParams": []
+            }
           }
         }
       ]

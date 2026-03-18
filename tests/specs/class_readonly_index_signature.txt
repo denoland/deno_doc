@@ -27,7 +27,6 @@ class C
 
 # output.json
 {
-  "imports": [],
   "symbols": [
     {
       "name": "C",
@@ -42,9 +41,6 @@ class C
           "declarationKind": "export",
           "kind": "class",
           "def": {
-            "isAbstract": false,
-            "constructors": [],
-            "properties": [],
             "indexSignatures": [
               {
                 "readonly": true,
@@ -72,12 +68,7 @@ class C
                   "byteIndex": 19
                 }
               }
-            ],
-            "methods": [],
-            "extends": null,
-            "implements": [],
-            "typeParams": [],
-            "superTypeParams": []
+            ]
           }
         }
       ]

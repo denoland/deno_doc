@@ -115,15 +115,12 @@ class MyClass extends YesDiagnostic2
           "declarationKind": "export",
           "kind": "class",
           "def": {
-            "isAbstract": false,
-            "constructors": [],
             "properties": [
               {
                 "tsType": {
                   "repr": "MyNamespace.YesDiagnostic",
                   "kind": "typeRef",
                   "value": {
-                    "typeParams": null,
                     "typeName": "MyNamespace.YesDiagnostic",
                     "resolution": {
                       "kind": "import",
@@ -132,11 +129,6 @@ class MyClass extends YesDiagnostic2
                     }
                   }
                 },
-                "readonly": false,
-                "accessibility": null,
-                "optional": false,
-                "isAbstract": false,
-                "isStatic": false,
                 "name": "prop",
                 "location": {
                   "filename": "file:///mod.ts",
@@ -150,15 +142,9 @@ class MyClass extends YesDiagnostic2
                   "repr": "Uint8Array",
                   "kind": "typeRef",
                   "value": {
-                    "typeParams": null,
                     "typeName": "Uint8Array"
                   }
                 },
-                "readonly": false,
-                "accessibility": null,
-                "optional": false,
-                "isAbstract": false,
-                "isStatic": false,
                 "name": "other",
                 "location": {
                   "filename": "file:///mod.ts",
@@ -168,12 +154,7 @@ class MyClass extends YesDiagnostic2
                 }
               }
             ],
-            "indexSignatures": [],
-            "methods": [],
-            "extends": "YesDiagnostic2",
-            "implements": [],
-            "typeParams": [],
-            "superTypeParams": []
+            "extends": "YesDiagnostic2"
           }
         }
       ]

@@ -42,7 +42,6 @@ interface 插件描述
 
 # output.json
 {
-  "imports": [],
   "symbols": [
     {
       "name": "插件描述",
@@ -57,9 +56,6 @@ interface 插件描述
           "declarationKind": "export",
           "kind": "interface",
           "def": {
-            "extends": [],
-            "constructors": [],
-            "methods": [],
             "properties": [
               {
                 "name": "pmim_version",
@@ -69,15 +65,11 @@ interface 插件描述
                   "col": 2,
                   "byteIndex": 69
                 },
-                "params": [],
-                "computed": false,
-                "optional": false,
                 "tsType": {
                   "repr": "string",
                   "kind": "keyword",
                   "value": "string"
-                },
-                "typeParams": []
+                }
               },
               {
                 "name": "插件信息",
@@ -87,15 +79,9 @@ interface 插件描述
                   "col": 2,
                   "byteIndex": 93
                 },
-                "params": [],
-                "computed": false,
-                "optional": false,
                 "tsType": {
-                  "repr": "",
                   "kind": "typeLiteral",
                   "value": {
-                    "constructors": [],
-                    "methods": [],
                     "properties": [
                       {
                         "name": "名称",
@@ -105,15 +91,11 @@ interface 插件描述
                           "col": 4,
                           "byteIndex": 113
                         },
-                        "params": [],
-                        "computed": false,
-                        "optional": false,
                         "tsType": {
                           "repr": "string",
                           "kind": "keyword",
                           "value": "string"
-                        },
-                        "typeParams": []
+                        }
                       },
                       {
                         "name": "描述",
@@ -123,15 +105,11 @@ interface 插件描述
                           "col": 4,
                           "byteIndex": 133
                         },
-                        "params": [],
-                        "computed": false,
-                        "optional": false,
                         "tsType": {
                           "repr": "string",
                           "kind": "keyword",
                           "value": "string"
-                        },
-                        "typeParams": []
+                        }
                       },
                       {
                         "name": "版本",
@@ -141,15 +119,11 @@ interface 插件描述
                           "col": 4,
                           "byteIndex": 153
                         },
-                        "params": [],
-                        "computed": false,
-                        "optional": false,
                         "tsType": {
                           "repr": "string",
                           "kind": "keyword",
                           "value": "string"
-                        },
-                        "typeParams": []
+                        }
                       },
                       {
                         "name": "URL",
@@ -159,27 +133,17 @@ interface 插件描述
                           "col": 4,
                           "byteIndex": 173
                         },
-                        "params": [],
-                        "computed": false,
-                        "optional": false,
                         "tsType": {
                           "repr": "string",
                           "kind": "keyword",
                           "value": "string"
-                        },
-                        "typeParams": []
+                        }
                       }
-                    ],
-                    "callSignatures": [],
-                    "indexSignatures": []
+                    ]
                   }
-                },
-                "typeParams": []
+                }
               }
-            ],
-            "callSignatures": [],
-            "indexSignatures": [],
-            "typeParams": []
+            ]
           }
         }
       ]

@@ -85,7 +85,6 @@ class A
 
 # output.json
 {
-  "imports": [],
   "symbols": [
     {
       "name": "A",
@@ -100,8 +99,6 @@ class A
           "declarationKind": "export",
           "kind": "class",
           "def": {
-            "isAbstract": false,
-            "constructors": [],
             "properties": [
               {
                 "tsType": {
@@ -109,8 +106,6 @@ class A
                   "kind": "keyword",
                   "value": "string"
                 },
-                "readonly": false,
-                "accessibility": null,
                 "decorators": [
                   {
                     "name": "format",
@@ -125,9 +120,6 @@ class A
                     }
                   }
                 ],
-                "optional": false,
-                "isAbstract": false,
-                "isStatic": false,
                 "name": "greeting",
                 "location": {
                   "filename": "file:///mod.ts",
@@ -137,22 +129,13 @@ class A
                 }
               }
             ],
-            "indexSignatures": [],
             "methods": [
               {
-                "accessibility": null,
-                "optional": false,
-                "isAbstract": false,
-                "isStatic": false,
                 "name": "x",
                 "kind": "getter",
                 "functionDef": {
                   "params": [],
-                  "returnType": null,
                   "hasBody": true,
-                  "isAsync": false,
-                  "isGenerator": false,
-                  "typeParams": [],
                   "decorators": [
                     {
                       "name": "configurable",
@@ -176,19 +159,11 @@ class A
                 }
               },
               {
-                "accessibility": null,
-                "optional": false,
-                "isAbstract": false,
-                "isStatic": false,
                 "name": "greet",
                 "kind": "method",
                 "functionDef": {
                   "params": [],
-                  "returnType": null,
                   "hasBody": true,
-                  "isAsync": false,
-                  "isGenerator": false,
-                  "typeParams": [],
                   "decorators": [
                     {
                       "name": "enumerable",
@@ -212,10 +187,6 @@ class A
                 }
               },
               {
-                "accessibility": null,
-                "optional": false,
-                "isAbstract": false,
-                "isStatic": false,
                 "name": "method",
                 "kind": "method",
                 "functionDef": {
@@ -247,10 +218,7 @@ class A
                     "kind": "keyword",
                     "value": "void"
                   },
-                  "hasBody": true,
-                  "isAsync": false,
-                  "isGenerator": false,
-                  "typeParams": []
+                  "hasBody": true
                 },
                 "location": {
                   "filename": "file:///mod.ts",
@@ -260,10 +228,6 @@ class A
                 }
               }
             ],
-            "extends": null,
-            "implements": [],
-            "typeParams": [],
-            "superTypeParams": [],
             "decorators": [
               {
                 "name": "sealed",

@@ -17,7 +17,6 @@ interface Interface<V> extends Iterable<V>
 
 # output.json
 {
-  "imports": [],
   "symbols": [
     {
       "name": "Interface",
@@ -42,7 +41,6 @@ interface Interface<V> extends Iterable<V>
                       "repr": "V",
                       "kind": "typeRef",
                       "value": {
-                        "typeParams": null,
                         "typeName": "V",
                         "resolution": {
                           "kind": "typeParam",
@@ -56,11 +54,6 @@ interface Interface<V> extends Iterable<V>
                 }
               }
             ],
-            "constructors": [],
-            "methods": [],
-            "properties": [],
-            "callSignatures": [],
-            "indexSignatures": [],
             "typeParams": [
               {
                 "name": "V"

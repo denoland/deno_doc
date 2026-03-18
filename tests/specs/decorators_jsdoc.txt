@@ -24,7 +24,6 @@ class A
 
 # output.json
 {
-  "imports": [],
   "symbols": [
     {
       "name": "A",
@@ -42,8 +41,6 @@ class A
           },
           "kind": "class",
           "def": {
-            "isAbstract": false,
-            "constructors": [],
             "properties": [
               {
                 "tsType": {
@@ -51,11 +48,6 @@ class A
                   "kind": "keyword",
                   "value": "string"
                 },
-                "readonly": false,
-                "accessibility": null,
-                "optional": false,
-                "isAbstract": false,
-                "isStatic": false,
                 "name": "a",
                 "location": {
                   "filename": "file:///mod.ts",
@@ -65,12 +57,6 @@ class A
                 }
               }
             ],
-            "indexSignatures": [],
-            "methods": [],
-            "extends": null,
-            "implements": [],
-            "typeParams": [],
-            "superTypeParams": [],
             "decorators": [
               {
                 "name": "sealed",

@@ -27,11 +27,8 @@ export const config: {
                       "value": "string"
                     },
                     "new": {
-                      "repr": "",
                       "kind": "typeLiteral",
                       "value": {
-                        "constructors": [],
-                        "methods": [],
                         "properties": [
                           {
                             "name": "debug",
@@ -41,15 +38,11 @@ export const config: {
                               "col": 2,
                               "byteIndex": 25
                             },
-                            "params": [],
-                            "computed": false,
-                            "optional": false,
                             "tsType": {
                               "repr": "boolean",
                               "kind": "keyword",
                               "value": "boolean"
-                            },
-                            "typeParams": []
+                            }
                           },
                           {
                             "name": "verbose",
@@ -59,19 +52,13 @@ export const config: {
                               "col": 2,
                               "byteIndex": 43
                             },
-                            "params": [],
-                            "computed": false,
-                            "optional": false,
                             "tsType": {
                               "repr": "boolean",
                               "kind": "keyword",
                               "value": "boolean"
-                            },
-                            "typeParams": []
+                            }
                           }
-                        ],
-                        "callSignatures": [],
-                        "indexSignatures": []
+                        ]
                       }
                     }
                   }

@@ -38,7 +38,6 @@ class Bar extends obj.Foo
 
 # output.json
 {
-  "imports": [],
   "symbols": [
     {
       "name": "Bar",
@@ -53,15 +52,7 @@ class Bar extends obj.Foo
           "declarationKind": "export",
           "kind": "class",
           "def": {
-            "isAbstract": false,
-            "constructors": [],
-            "properties": [],
-            "indexSignatures": [],
-            "methods": [],
-            "extends": "obj.Foo",
-            "implements": [],
-            "typeParams": [],
-            "superTypeParams": []
+            "extends": "obj.Foo"
           }
         }
       ]
@@ -80,11 +71,8 @@ class Bar extends obj.Foo
           "kind": "variable",
           "def": {
             "tsType": {
-              "repr": "",
               "kind": "typeLiteral",
               "value": {
-                "constructors": [],
-                "methods": [],
                 "properties": [
                   {
                     "name": "Foo",
@@ -93,16 +81,9 @@ class Bar extends obj.Foo
                       "line": 1,
                       "col": 14,
                       "byteIndex": 27
-                    },
-                    "params": [],
-                    "computed": false,
-                    "optional": false,
-                    "tsType": null,
-                    "typeParams": []
+                    }
                   }
-                ],
-                "callSignatures": [],
-                "indexSignatures": []
+                ]
               }
             },
             "kind": "const"

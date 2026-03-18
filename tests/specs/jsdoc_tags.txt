@@ -43,7 +43,6 @@ function a(b, c, d): void
 
 # output.json
 {
-  "imports": [],
   "symbols": [
     {
       "name": "a",
@@ -62,7 +61,7 @@ function a(b, c, d): void
               {
                 "kind": "param",
                 "name": "b",
-                "ts_type": {
+                "tsType": {
                   "repr": "string",
                   "kind": "keyword",
                   "value": "string"
@@ -83,7 +82,7 @@ function a(b, c, d): void
               },
               {
                 "kind": "return",
-                "ts_type": {
+                "tsType": {
                   "repr": "string",
                   "kind": "keyword",
                   "value": "string"
@@ -92,7 +91,7 @@ function a(b, c, d): void
               },
               {
                 "kind": "throws",
-                "ts_type": {
+                "tsType": {
                   "repr": "number",
                   "kind": "keyword",
                   "value": "number"
@@ -117,20 +116,17 @@ function a(b, c, d): void
               {
                 "kind": "identifier",
                 "name": "b",
-                "optional": false,
-                "tsType": null
+                "optional": false
               },
               {
                 "kind": "identifier",
                 "name": "c",
-                "optional": false,
-                "tsType": null
+                "optional": false
               },
               {
                 "kind": "identifier",
                 "name": "d",
-                "optional": false,
-                "tsType": null
+                "optional": false
               }
             ],
             "returnType": {
@@ -138,10 +134,7 @@ function a(b, c, d): void
               "kind": "keyword",
               "value": "void"
             },
-            "hasBody": true,
-            "isAsync": false,
-            "isGenerator": false,
-            "typeParams": []
+            "hasBody": true
           }
         }
       ]

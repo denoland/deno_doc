@@ -28,7 +28,6 @@ export class Builder {
                   "constructorChanges": {
                     "added": [
                       {
-                        "accessibility": null,
                         "name": "constructor",
                         "params": [
                           {
@@ -70,7 +69,6 @@ export class Builder {
                         }
                       },
                       {
-                        "accessibility": null,
                         "hasBody": true,
                         "name": "constructor",
                         "params": [
@@ -115,7 +113,6 @@ export class Builder {
                     ],
                     "removed": [
                       {
-                        "accessibility": null,
                         "name": "constructor",
                         "params": [
                           {
@@ -147,7 +144,6 @@ export class Builder {
                         }
                       },
                       {
-                        "accessibility": null,
                         "hasBody": true,
                         "name": "constructor",
                         "params": [

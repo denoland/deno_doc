@@ -16,7 +16,6 @@ type T = { [key: string]: number; }
 
 # output.json
 {
-  "imports": [],
   "symbols": [
     {
       "name": "T",
@@ -32,16 +31,10 @@ type T = { [key: string]: number; }
           "kind": "typeAlias",
           "def": {
             "tsType": {
-              "repr": "",
               "kind": "typeLiteral",
               "value": {
-                "constructors": [],
-                "methods": [],
-                "properties": [],
-                "callSignatures": [],
                 "indexSignatures": [
                   {
-                    "readonly": false,
                     "params": [
                       {
                         "kind": "identifier",
@@ -68,8 +61,7 @@ type T = { [key: string]: number; }
                   }
                 ]
               }
-            },
-            "typeParams": []
+            }
           }
         }
       ]

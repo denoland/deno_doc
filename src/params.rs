@@ -49,6 +49,7 @@ pub struct ParamDef {
   pub pattern: ParamPatternDef,
   #[serde(skip_serializing_if = "<[_]>::is_empty", default)]
   pub decorators: Box<[DecoratorDef]>,
+  #[serde(skip_serializing_if = "Option::is_none", default)]
   pub ts_type: Option<TsTypeDef>,
 }
 

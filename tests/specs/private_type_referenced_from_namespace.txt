@@ -53,7 +53,6 @@ namespace Test
 
 # output.json
 {
-  "imports": [],
   "symbols": [
     {
       "name": "Test",
@@ -82,15 +81,7 @@ namespace Test
                     "declarationKind": "export",
                     "kind": "class",
                     "def": {
-                      "isAbstract": false,
-                      "constructors": [],
-                      "properties": [],
-                      "indexSignatures": [],
-                      "methods": [],
-                      "extends": "YesDiagnostic",
-                      "implements": [],
-                      "typeParams": [],
-                      "superTypeParams": []
+                      "extends": "YesDiagnostic"
                     }
                   }
                 ]
@@ -112,17 +103,7 @@ namespace Test
           },
           "declarationKind": "private",
           "kind": "class",
-          "def": {
-            "isAbstract": false,
-            "constructors": [],
-            "properties": [],
-            "indexSignatures": [],
-            "methods": [],
-            "extends": null,
-            "implements": [],
-            "typeParams": [],
-            "superTypeParams": []
-          }
+          "def": {}
         }
       ]
     }

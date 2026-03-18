@@ -16,7 +16,6 @@ function f({a, b, ...c}): void
 
 # output.json
 {
-  "imports": [],
   "symbols": [
     {
       "name": "f",
@@ -50,13 +49,11 @@ function f({a, b, ...c}): void
                     "arg": {
                       "kind": "identifier",
                       "name": "c",
-                      "optional": false,
-                      "tsType": null
+                      "optional": false
                     }
                   }
                 ],
-                "optional": false,
-                "tsType": null
+                "optional": false
               }
             ],
             "returnType": {
@@ -64,10 +61,7 @@ function f({a, b, ...c}): void
               "kind": "keyword",
               "value": "void"
             },
-            "hasBody": true,
-            "isAsync": false,
-            "isGenerator": false,
-            "typeParams": []
+            "hasBody": true
           }
         }
       ]

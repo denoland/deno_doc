@@ -27,7 +27,6 @@ abstract class Class
 
 # output.json
 {
-  "imports": [],
   "symbols": [
     {
       "name": "Class",
@@ -43,15 +42,9 @@ abstract class Class
           "kind": "class",
           "def": {
             "isAbstract": true,
-            "constructors": [],
-            "properties": [],
-            "indexSignatures": [],
             "methods": [
               {
-                "accessibility": null,
-                "optional": false,
                 "isAbstract": true,
-                "isStatic": false,
                 "name": "method",
                 "kind": "method",
                 "functionDef": {
@@ -61,10 +54,7 @@ abstract class Class
                     "kind": "keyword",
                     "value": "void"
                   },
-                  "hasBody": true,
-                  "isAsync": false,
-                  "isGenerator": false,
-                  "typeParams": []
+                  "hasBody": true
                 },
                 "location": {
                   "filename": "file:///mod.ts",
@@ -73,11 +63,7 @@ abstract class Class
                   "byteIndex": 32
                 }
               }
-            ],
-            "extends": null,
-            "implements": [],
-            "typeParams": [],
-            "superTypeParams": []
+            ]
           }
         }
       ]

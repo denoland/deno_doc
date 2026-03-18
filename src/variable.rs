@@ -14,6 +14,7 @@ use crate::ts_type::infer_simple_ts_type_from_init;
 #[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct VariableDef {
+  #[serde(skip_serializing_if = "Option::is_none", default)]
   pub ts_type: Option<TsTypeDef>,
   pub kind: VarDeclKind,
 }

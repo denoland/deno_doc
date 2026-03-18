@@ -36,7 +36,6 @@ class C extends B
 
 # output.json
 {
-  "imports": [],
   "symbols": [
     {
       "name": "C",
@@ -51,8 +50,6 @@ class C extends B
           "declarationKind": "export",
           "kind": "class",
           "def": {
-            "isAbstract": false,
-            "constructors": [],
             "properties": [
               {
                 "tsType": {
@@ -60,11 +57,6 @@ class C extends B
                   "kind": "keyword",
                   "value": "string"
                 },
-                "readonly": false,
-                "accessibility": null,
-                "optional": false,
-                "isAbstract": false,
-                "isStatic": false,
                 "isOverride": true,
                 "name": "b",
                 "location": {
@@ -75,13 +67,8 @@ class C extends B
                 }
               }
             ],
-            "indexSignatures": [],
             "methods": [
               {
-                "accessibility": null,
-                "optional": false,
-                "isAbstract": false,
-                "isStatic": false,
                 "isOverride": true,
                 "name": "a",
                 "kind": "method",
@@ -92,10 +79,7 @@ class C extends B
                     "kind": "keyword",
                     "value": "void"
                   },
-                  "hasBody": true,
-                  "isAsync": false,
-                  "isGenerator": false,
-                  "typeParams": []
+                  "hasBody": true
                 },
                 "location": {
                   "filename": "file:///mod.ts",
@@ -105,10 +89,7 @@ class C extends B
                 }
               }
             ],
-            "extends": "B",
-            "implements": [],
-            "typeParams": [],
-            "superTypeParams": []
+            "extends": "B"
           }
         }
       ]

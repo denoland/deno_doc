@@ -18,7 +18,6 @@ async function a(): Promise<void>
 
 # output.json
 {
-  "imports": [],
   "symbols": [
     {
       "name": "a",
@@ -49,9 +48,7 @@ async function a(): Promise<void>
               }
             },
             "hasBody": true,
-            "isAsync": true,
-            "isGenerator": false,
-            "typeParams": []
+            "isAsync": true
           }
         }
       ]

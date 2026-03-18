@@ -94,8 +94,6 @@ namespace default
           },
           "kind": "class",
           "def": {
-            "isAbstract": false,
-            "constructors": [],
             "properties": [
               {
                 "jsDoc": {
@@ -105,7 +103,6 @@ namespace default
                   "repr": "Chat",
                   "kind": "typeRef",
                   "value": {
-                    "typeParams": null,
                     "typeName": "Chat",
                     "resolution": {
                       "kind": "import",
@@ -114,11 +111,6 @@ namespace default
                     }
                   }
                 },
-                "readonly": false,
-                "accessibility": null,
-                "optional": false,
-                "isAbstract": false,
-                "isStatic": false,
                 "name": "completions",
                 "location": {
                   "filename": "file:///mod.ts",
@@ -127,13 +119,7 @@ namespace default
                   "byteIndex": 82
                 }
               }
-            ],
-            "indexSignatures": [],
-            "methods": [],
-            "extends": null,
-            "implements": [],
-            "typeParams": [],
-            "superTypeParams": []
+            ]
           }
         },
         {
@@ -165,17 +151,7 @@ namespace default
                       "doc": "Doc"
                     },
                     "kind": "class",
-                    "def": {
-                      "isAbstract": false,
-                      "constructors": [],
-                      "properties": [],
-                      "indexSignatures": [],
-                      "methods": [],
-                      "extends": null,
-                      "implements": [],
-                      "typeParams": [],
-                      "superTypeParams": []
-                    }
+                    "def": {}
                   },
                   {
                     "location": {
@@ -217,8 +193,6 @@ namespace default
           },
           "kind": "class",
           "def": {
-            "isAbstract": false,
-            "constructors": [],
             "properties": [
               {
                 "jsDoc": {
@@ -228,7 +202,6 @@ namespace default
                   "repr": "Chat",
                   "kind": "typeRef",
                   "value": {
-                    "typeParams": null,
                     "typeName": "Chat",
                     "resolution": {
                       "kind": "import",
@@ -237,11 +210,6 @@ namespace default
                     }
                   }
                 },
-                "readonly": false,
-                "accessibility": null,
-                "optional": false,
-                "isAbstract": false,
-                "isStatic": false,
                 "name": "completions",
                 "location": {
                   "filename": "file:///mod.ts",
@@ -250,13 +218,7 @@ namespace default
                   "byteIndex": 82
                 }
               }
-            ],
-            "indexSignatures": [],
-            "methods": [],
-            "extends": null,
-            "implements": [],
-            "typeParams": [],
-            "superTypeParams": []
+            ]
           }
         },
         {

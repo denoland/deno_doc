@@ -16,7 +16,6 @@ function adopt<T>(p: import("./module.ts").Pet<T>): void
 
 # output.json
 {
-  "imports": [],
   "symbols": [
     {
       "name": "adopt",
@@ -37,7 +36,6 @@ function adopt<T>(p: import("./module.ts").Pet<T>): void
                 "name": "p",
                 "optional": false,
                 "tsType": {
-                  "repr": "",
                   "kind": "importType",
                   "value": {
                     "specifier": "./module.ts",
@@ -47,7 +45,6 @@ function adopt<T>(p: import("./module.ts").Pet<T>): void
                         "repr": "T",
                         "kind": "typeRef",
                         "value": {
-                          "typeParams": null,
                           "typeName": "T",
                           "resolution": {
                             "kind": "typeParam",
@@ -67,8 +64,6 @@ function adopt<T>(p: import("./module.ts").Pet<T>): void
               "value": "void"
             },
             "hasBody": true,
-            "isAsync": false,
-            "isGenerator": false,
             "typeParams": [
               {
                 "name": "T"

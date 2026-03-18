@@ -52,7 +52,6 @@ const h: number
 
 # output.json
 {
-  "imports": [],
   "symbols": [
     {
       "name": "a",

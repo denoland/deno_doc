@@ -312,7 +312,6 @@ namespace MyNamespace
 
 # output.json
 {
-  "imports": [],
   "symbols": [
     {
       "name": "s",
@@ -423,7 +422,6 @@ namespace MyNamespace
               "repr": "hello",
               "kind": "typeRef",
               "value": {
-                "typeParams": null,
                 "typeName": "RegExp"
               }
             },
@@ -495,7 +493,6 @@ namespace MyNamespace
                     }
                   },
                   {
-                    "repr": "",
                     "kind": "union",
                     "value": [
                       {
@@ -511,7 +508,6 @@ namespace MyNamespace
                     ]
                   },
                   {
-                    "repr": "",
                     "kind": "literal",
                     "value": {
                       "kind": "string",
@@ -519,7 +515,6 @@ namespace MyNamespace
                     }
                   },
                   {
-                    "repr": "",
                     "kind": "union",
                     "value": [
                       {
@@ -548,7 +543,6 @@ namespace MyNamespace
                     "value": "string"
                   },
                   {
-                    "repr": "",
                     "kind": "literal",
                     "value": {
                       "kind": "string",
@@ -595,10 +589,7 @@ namespace MyNamespace
               "kind": "keyword",
               "value": "void"
             },
-            "hasBody": true,
-            "isAsync": false,
-            "isGenerator": false,
-            "typeParams": []
+            "hasBody": true
           }
         }
       ]
@@ -632,9 +623,7 @@ namespace MyNamespace
               }
             },
             "hasBody": true,
-            "isAsync": true,
-            "isGenerator": false,
-            "typeParams": []
+            "isAsync": true
           }
         }
       ]
@@ -653,11 +642,7 @@ namespace MyNamespace
           "kind": "function",
           "def": {
             "params": [],
-            "returnType": null,
-            "hasBody": true,
-            "isAsync": false,
-            "isGenerator": false,
-            "typeParams": []
+            "hasBody": true
           }
         }
       ]
@@ -676,11 +661,8 @@ namespace MyNamespace
           "kind": "function",
           "def": {
             "params": [],
-            "returnType": null,
             "hasBody": true,
-            "isAsync": true,
-            "isGenerator": false,
-            "typeParams": []
+            "isAsync": true
           }
         }
       ]
@@ -699,11 +681,8 @@ namespace MyNamespace
           "kind": "function",
           "def": {
             "params": [],
-            "returnType": null,
             "hasBody": true,
-            "isAsync": false,
-            "isGenerator": true,
-            "typeParams": []
+            "isGenerator": true
           }
         }
       ]
@@ -721,16 +700,8 @@ namespace MyNamespace
           "declarationKind": "export",
           "kind": "class",
           "def": {
-            "isAbstract": false,
-            "constructors": [],
-            "properties": [],
-            "indexSignatures": [],
             "methods": [
               {
-                "accessibility": null,
-                "optional": false,
-                "isAbstract": false,
-                "isStatic": false,
                 "name": "infer",
                 "kind": "method",
                 "functionDef": {
@@ -740,10 +711,7 @@ namespace MyNamespace
                     "kind": "keyword",
                     "value": "void"
                   },
-                  "hasBody": true,
-                  "isAsync": false,
-                  "isGenerator": false,
-                  "typeParams": []
+                  "hasBody": true
                 },
                 "location": {
                   "filename": "file:///mod.ts",
@@ -753,10 +721,6 @@ namespace MyNamespace
                 }
               },
               {
-                "accessibility": null,
-                "optional": false,
-                "isAbstract": false,
-                "isStatic": false,
                 "name": "inferAync",
                 "kind": "method",
                 "functionDef": {
@@ -776,9 +740,7 @@ namespace MyNamespace
                     }
                   },
                   "hasBody": true,
-                  "isAsync": true,
-                  "isGenerator": false,
-                  "typeParams": []
+                  "isAsync": true
                 },
                 "location": {
                   "filename": "file:///mod.ts",
@@ -788,19 +750,11 @@ namespace MyNamespace
                 }
               },
               {
-                "accessibility": null,
-                "optional": false,
-                "isAbstract": false,
-                "isStatic": false,
                 "name": "cannotInfer",
                 "kind": "method",
                 "functionDef": {
                   "params": [],
-                  "returnType": null,
-                  "hasBody": true,
-                  "isAsync": false,
-                  "isGenerator": false,
-                  "typeParams": []
+                  "hasBody": true
                 },
                 "location": {
                   "filename": "file:///mod.ts",
@@ -810,19 +764,12 @@ namespace MyNamespace
                 }
               },
               {
-                "accessibility": null,
-                "optional": false,
-                "isAbstract": false,
-                "isStatic": false,
                 "name": "cannotInferAsync",
                 "kind": "method",
                 "functionDef": {
                   "params": [],
-                  "returnType": null,
                   "hasBody": true,
-                  "isAsync": true,
-                  "isGenerator": false,
-                  "typeParams": []
+                  "isAsync": true
                 },
                 "location": {
                   "filename": "file:///mod.ts",
@@ -832,19 +779,12 @@ namespace MyNamespace
                 }
               },
               {
-                "accessibility": null,
-                "optional": false,
-                "isAbstract": false,
-                "isStatic": false,
                 "name": "cannotInferGenerator",
                 "kind": "method",
                 "functionDef": {
                   "params": [],
-                  "returnType": null,
                   "hasBody": true,
-                  "isAsync": false,
-                  "isGenerator": true,
-                  "typeParams": []
+                  "isGenerator": true
                 },
                 "location": {
                   "filename": "file:///mod.ts",
@@ -853,11 +793,7 @@ namespace MyNamespace
                   "byteIndex": 792
                 }
               }
-            ],
-            "extends": null,
-            "implements": [],
-            "typeParams": [],
-            "superTypeParams": []
+            ]
           }
         }
       ]
@@ -889,11 +825,7 @@ namespace MyNamespace
                     "declarationKind": "declare",
                     "kind": "function",
                     "def": {
-                      "params": [],
-                      "returnType": null,
-                      "isAsync": false,
-                      "isGenerator": false,
-                      "typeParams": []
+                      "params": []
                     }
                   }
                 ]
