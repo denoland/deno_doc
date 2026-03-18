@@ -152,11 +152,13 @@ pub fn docnodes_v1_to_v2(value: serde_json::Value) -> Document {
 
     // v1 moduleDoc nodes become Document.module_doc
     if kind.as_deref() == Some("moduleDoc") {
-      if let Some(js_doc_val) = obj
-        .remove("jsDoc")
-        .and_then(|v| serde_json::from_value::<js_doc::JsDoc>(v).ok())
-      {
-        module_doc = js_doc_val;
+      if let Some(mut js_doc_val) = obj.remove("jsDoc") {
+        migrate_js_doc_tags(&mut js_doc_val);
+        if let Ok(js_doc) =
+          serde_json::from_value::<js_doc::JsDoc>(js_doc_val)
+        {
+          module_doc = js_doc;
+        }
       }
       continue;
     }
@@ -179,7 +181,10 @@ pub fn docnodes_v1_to_v2(value: serde_json::Value) -> Document {
         .map(|s| s.to_string());
       let js_doc = obj
         .remove("jsDoc")
-        .and_then(|v| serde_json::from_value::<js_doc::JsDoc>(v).ok())
+        .and_then(|mut v| {
+          migrate_js_doc_tags(&mut v);
+          serde_json::from_value::<js_doc::JsDoc>(v).ok()
+        })
         .unwrap_or_default();
       imports.push(node::Import {
         imported_name,
@@ -220,8 +225,11 @@ pub fn docnodes_v1_to_v2(value: serde_json::Value) -> Document {
 
     // v1 TsTypeDef used variant-name content keys (e.g. "keyword": "string"),
     // v2 uses "value" as a uniform content key.
+    // v1 JsDocTag used "type": "<string>" for type refs,
+    // v2 uses "tsType": { TsTypeDef object }.
     let mut declaration = serde_json::Value::Object(obj);
     migrate_ts_type_defs(&mut declaration);
+    migrate_js_doc_tags(&mut declaration);
 
     let symbol = symbols.entry(name.clone()).or_insert_with(|| Symbol {
       name,
@@ -269,6 +277,69 @@ fn migrate_ts_type_defs(value: &mut serde_json::Value) {
     serde_json::Value::Array(arr) => {
       for val in arr.iter_mut() {
         migrate_ts_type_defs(val);
+      }
+    }
+    _ => {}
+  }
+}
+
+/// Recursively walk JSON and convert v1 JsDocTag objects that had
+/// `"type": "<string>"` (the old `type_ref` field) to v2 format
+/// with `"tsType": { "repr": "<string>", "kind": "unsupported" }`.
+fn migrate_js_doc_tags(value: &mut serde_json::Value) {
+  match value {
+    serde_json::Value::Object(obj) => {
+      // Check if this looks like a v1 JsDocTag with a "type" field that
+      // should be migrated to "tsType". We distinguish from TsTypeDef
+      // objects (which also have "kind") by checking that "repr" is absent.
+      if !obj.contains_key("repr") {
+        let dominated_kind = obj
+          .get("kind")
+          .and_then(|k| k.as_str())
+          .is_some_and(|s| {
+            matches!(
+              s,
+              "enum"
+                | "extends"
+                | "param"
+                | "property"
+                | "return"
+                | "this"
+                | "throws"
+                | "typedef"
+                | "type"
+            )
+          });
+
+        if dominated_kind && let Some(type_val) = obj.remove("type") {
+          match type_val {
+            serde_json::Value::String(s) => {
+              obj.insert(
+                "tsType".to_string(),
+                serde_json::json!({
+                  "repr": s,
+                  "kind": "unsupported"
+                }),
+              );
+            }
+            serde_json::Value::Null => {
+              // Optional type that was null - leave tsType absent
+            }
+            other => {
+              // Unexpected value, preserve it
+              obj.insert("type".to_string(), other);
+            }
+          }
+        }
+      }
+
+      for val in obj.values_mut() {
+        migrate_js_doc_tags(val);
+      }
+    }
+    serde_json::Value::Array(arr) => {
+      for val in arr.iter_mut() {
+        migrate_js_doc_tags(val);
       }
     }
     _ => {}
