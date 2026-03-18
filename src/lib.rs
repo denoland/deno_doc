@@ -154,8 +154,7 @@ pub fn docnodes_v1_to_v2(value: serde_json::Value) -> Document {
     if kind.as_deref() == Some("moduleDoc") {
       if let Some(mut js_doc_val) = obj.remove("jsDoc") {
         migrate_js_doc_tags(&mut js_doc_val);
-        if let Ok(js_doc) =
-          serde_json::from_value::<js_doc::JsDoc>(js_doc_val)
+        if let Ok(js_doc) = serde_json::from_value::<js_doc::JsDoc>(js_doc_val)
         {
           module_doc = js_doc;
         }
@@ -293,10 +292,8 @@ fn migrate_js_doc_tags(value: &mut serde_json::Value) {
       // should be migrated to "tsType". We distinguish from TsTypeDef
       // objects (which also have "kind") by checking that "repr" is absent.
       if !obj.contains_key("repr") {
-        let dominated_kind = obj
-          .get("kind")
-          .and_then(|k| k.as_str())
-          .is_some_and(|s| {
+        let dominated_kind =
+          obj.get("kind").and_then(|k| k.as_str()).is_some_and(|s| {
             matches!(
               s,
               "enum"
