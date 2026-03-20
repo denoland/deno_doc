@@ -151,9 +151,25 @@ fn main() {
   );
 
   let num_modules = doc_nodes_by_url.len();
-  let num_symbols: usize =
+  let num_top_symbols: usize =
     doc_nodes_by_url.values().map(|d| d.symbols.len()).sum();
-  eprintln!("  modules={num_modules}, symbols={num_symbols}");
+
+  fn count_recursive(symbols: &[std::sync::Arc<deno_doc::Symbol>]) -> usize {
+    let mut count = symbols.len();
+    for symbol in symbols {
+      for decl in &symbol.declarations {
+        if let Some(ns) = decl.namespace_def() {
+          count += count_recursive(&ns.elements);
+        }
+      }
+    }
+    count
+  }
+  let num_recursive: usize = doc_nodes_by_url
+    .values()
+    .map(|d| count_recursive(&d.symbols))
+    .sum();
+  eprintln!("  modules={num_modules}, top_level_symbols={num_top_symbols}, total_recursive={num_recursive}");
 
   // === JSR-like pattern: create GenerateCtx + render single page ===
   eprintln!("\n--- JSR-like single page rendering ---");
