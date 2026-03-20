@@ -23,7 +23,7 @@ use std::borrow::Cow;
 use std::collections::HashMap;
 use std::fmt::Display;
 use std::fmt::Formatter;
-use std::rc::Rc;
+use std::sync::Arc;
 
 lazy_static! {
   static ref TARGET_RE: Regex = Regex::new(r"\s*\* ?|\.").unwrap();
@@ -188,7 +188,7 @@ fn sanitize_id_part(part: &str) -> String {
 /// ["Deno", "errors", "HttpError"]
 #[derive(Clone, Debug)]
 pub(crate) struct NamespacedSymbols(
-  Rc<HashMap<Vec<String>, Option<Rc<ShortPath>>>>,
+  Arc<HashMap<Vec<String>, Option<Arc<ShortPath>>>>,
 );
 
 impl NamespacedSymbols {
@@ -200,10 +200,10 @@ impl NamespacedSymbols {
       ctx,
       Box::new(doc_nodes.iter().map(Cow::Borrowed)),
     );
-    Self(Rc::new(symbols))
+    Self(Arc::new(symbols))
   }
 
-  pub(crate) fn get(&self, path: &[String]) -> Option<&Option<Rc<ShortPath>>> {
+  pub(crate) fn get(&self, path: &[String]) -> Option<&Option<Arc<ShortPath>>> {
     self.0.get(path)
   }
 }
@@ -211,15 +211,15 @@ impl NamespacedSymbols {
 pub fn compute_namespaced_symbols<'a>(
   ctx: &'a GenerateCtx,
   symbols: Box<dyn Iterator<Item = Cow<'a, DocNodeWithContext>> + 'a>,
-) -> HashMap<Vec<String>, Option<Rc<ShortPath>>> {
+) -> HashMap<Vec<String>, Option<Arc<ShortPath>>> {
   let mut namespaced_symbols =
-    HashMap::<Vec<String>, Option<Rc<ShortPath>>>::new();
+    HashMap::<Vec<String>, Option<Arc<ShortPath>>>::new();
 
   // Reusable buffer for building drilldown paths
   let mut path_buf = Vec::new();
 
   for symbol in symbols {
-    let name_path: Rc<[String]> = symbol.sub_qualifier().into();
+    let name_path: Arc<[String]> = symbol.sub_qualifier().into();
     // Precompute prefix (ns_qualifiers) once per symbol
     let ns_prefix = &*symbol.ns_qualifiers;
     let origin = Some(symbol.origin.clone());
@@ -329,11 +329,11 @@ pub fn compute_namespaced_symbols<'a>(
 }
 
 #[derive(Clone, Default)]
-pub struct NamespacedGlobalSymbols(Rc<HashMap<Vec<String>, String>>);
+pub struct NamespacedGlobalSymbols(Arc<HashMap<Vec<String>, String>>);
 
 impl NamespacedGlobalSymbols {
   pub fn new(symbols: HashMap<Vec<String>, String>) -> Self {
-    Self(Rc::new(symbols))
+    Self(Arc::new(symbols))
   }
 
   pub fn get(&self, path: &[String]) -> Option<&String> {
@@ -412,7 +412,7 @@ pub fn href_path_resolve(
 }
 
 /// A trait used to define various functions used to resolve urls.
-pub trait HrefResolver {
+pub trait HrefResolver: Send + Sync {
   fn resolve_path(
     &self,
     current: UrlResolveKind,

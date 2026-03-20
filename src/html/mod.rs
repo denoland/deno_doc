@@ -11,7 +11,6 @@ use std::borrow::Cow;
 use std::cmp::Ordering;
 use std::collections::HashMap;
 use std::path::PathBuf;
-use std::rc::Rc;
 use std::sync::Arc;
 
 pub mod diff;
@@ -258,7 +257,7 @@ lazy_static! {
   pub static ref HANDLEBARS: Handlebars<'static> = setup_hbs().unwrap();
 }
 
-pub type HeadInject = Rc<dyn Fn(&str) -> String>;
+pub type HeadInject = Arc<dyn Fn(&str) -> String + Send + Sync>;
 
 #[derive(Clone)]
 pub struct GenerateOptions {
@@ -268,8 +267,8 @@ pub struct GenerateOptions {
   /// If only a single file is specified during generation, this will always
   /// default to that file.
   pub main_entrypoint: Option<ModuleSpecifier>,
-  pub href_resolver: Rc<dyn HrefResolver>,
-  pub usage_composer: Option<Rc<dyn UsageComposer>>,
+  pub href_resolver: Arc<dyn HrefResolver>,
+  pub usage_composer: Option<Arc<dyn UsageComposer>>,
   pub rewrite_map: Option<IndexMap<ModuleSpecifier, String>>,
   pub category_docs: Option<IndexMap<String, Option<String>>>,
   pub disable_search: bool,
@@ -286,13 +285,13 @@ pub struct GenerateOptions {
 pub struct GenerateCtx {
   pub package_name: Option<String>,
   pub common_ancestor: Option<PathBuf>,
-  pub module_docs: IndexMap<Rc<ShortPath>, crate::js_doc::JsDoc>,
-  pub imports: IndexMap<Rc<ShortPath>, Vec<crate::node::Import>>,
-  pub doc_nodes: IndexMap<Rc<ShortPath>, Vec<DocNodeWithContext>>,
-  pub href_resolver: Rc<dyn HrefResolver>,
-  pub usage_composer: Option<Rc<dyn UsageComposer>>,
+  pub module_docs: IndexMap<Arc<ShortPath>, crate::js_doc::JsDoc>,
+  pub imports: IndexMap<Arc<ShortPath>, Vec<crate::node::Import>>,
+  pub doc_nodes: IndexMap<Arc<ShortPath>, Vec<DocNodeWithContext>>,
+  pub href_resolver: Arc<dyn HrefResolver>,
+  pub usage_composer: Option<Arc<dyn UsageComposer>>,
   pub rewrite_map: Option<IndexMap<ModuleSpecifier, String>>,
-  pub main_entrypoint: Option<Rc<ShortPath>>,
+  pub main_entrypoint: Option<Arc<ShortPath>>,
   pub file_mode: FileMode,
   pub category_docs: Option<IndexMap<String, Option<String>>>,
   pub disable_search: bool,
@@ -305,7 +304,7 @@ pub struct GenerateCtx {
   pub diff_only: bool,
   /// Index from Location to (depth, node) for fast reference resolution.
   /// Built lazily on first access to avoid the cost when not needed.
-  reference_index: std::cell::OnceCell<
+  reference_index: std::sync::OnceLock<
     HashMap<crate::Location, Vec<(usize, DocNodeWithContext)>>,
   >,
   /// Optional diff index for annotating rendered output with diff status.
@@ -329,7 +328,7 @@ impl GenerateCtx {
     let mut doc_nodes = doc_nodes_by_url
       .into_iter()
       .map(|(specifier, document)| {
-        let short_path = Rc::new(ShortPath::new(
+        let short_path = Arc::new(ShortPath::new(
           specifier,
           options.main_entrypoint.as_ref(),
           options.rewrite_map.as_ref(),
@@ -406,13 +405,13 @@ impl GenerateCtx {
 
             DocNodeWithContext {
               origin: short_path.clone(),
-              ns_qualifiers: Rc::new([]),
+              ns_qualifiers: Arc::new([]),
               inner: symbol,
               drilldown_name: None,
               drilldown_kind: None,
               parent: None,
               namespace_children: None,
-              qualified_name: std::cell::OnceCell::new(),
+              qualified_name: std::sync::OnceLock::new(),
               diff_status,
             }
           })
@@ -423,7 +422,7 @@ impl GenerateCtx {
                 .iter()
                 .find_map(|decl| decl.namespace_def())
               {
-                let subqualifier: Rc<[String]> = node.sub_qualifier().into();
+                let subqualifier: Arc<[String]> = node.sub_qualifier().into();
                 Some(
                   ns.elements
                     .iter()
@@ -441,7 +440,7 @@ impl GenerateCtx {
                 None
               };
 
-              node.namespace_children = children.map(Rc::new);
+              node.namespace_children = children.map(Arc::new);
             }
 
             handle_node(&mut node);
@@ -467,13 +466,13 @@ impl GenerateCtx {
           for node in removed {
             nodes.push(DocNodeWithContext {
               origin: short_path.clone(),
-              ns_qualifiers: Rc::new([]),
+              ns_qualifiers: Arc::new([]),
               inner: Arc::new(node.clone()),
               drilldown_name: None,
               drilldown_kind: None,
               parent: None,
               namespace_children: None,
-              qualified_name: std::cell::OnceCell::new(),
+              qualified_name: std::sync::OnceLock::new(),
               diff_status: Some(DiffStatus::Removed),
             });
           }
@@ -536,7 +535,7 @@ impl GenerateCtx {
       head_inject: options.head_inject,
       id_prefix: options.id_prefix,
       diff_only: options.diff_only,
-      reference_index: std::cell::OnceCell::new(),
+      reference_index: std::sync::OnceLock::new(),
       diff,
     })
   }
@@ -643,10 +642,10 @@ impl GenerateCtx {
     fn strip_qualifiers(node: &mut DocNodeWithContext, depth: usize) {
       let ns_qualifiers = node.ns_qualifiers.to_vec();
       node.ns_qualifiers = ns_qualifiers[depth..].to_vec().into();
-      node.qualified_name = std::cell::OnceCell::new();
+      node.qualified_name = std::sync::OnceLock::new();
 
       if let Some(children_rc) = &mut node.namespace_children {
-        for child in Rc::make_mut(children_rc) {
+        for child in Arc::make_mut(children_rc) {
           strip_qualifiers(child, depth);
         }
       }
@@ -682,7 +681,7 @@ impl GenerateCtx {
             ns_qualifiers: Vec<String>,
           ) {
             if let Some(children_rc) = &mut node.namespace_children {
-              for node in Rc::make_mut(children_rc) {
+              for node in Arc::make_mut(children_rc) {
                 handle_node(node, ns_qualifiers.clone());
               }
             }
@@ -690,7 +689,7 @@ impl GenerateCtx {
             let mut new_ns_qualifiers = ns_qualifiers;
             new_ns_qualifiers.extend(node.ns_qualifiers.iter().cloned());
             node.ns_qualifiers = new_ns_qualifiers.into();
-            node.qualified_name = std::cell::OnceCell::new();
+            node.qualified_name = std::sync::OnceLock::new();
           }
 
           handle_node(&mut node, ns_qualifiers);
@@ -706,19 +705,19 @@ impl GenerateCtx {
 fn apply_namespace_diff_inner(
   node: &mut DocNodeWithContext,
   ns_diff: &crate::diff::NamespaceDiff,
-  short_path: &Rc<ShortPath>,
+  short_path: &Arc<ShortPath>,
 ) {
   // Only clone when we need to inject removed elements
   let removed_ctx = if !ns_diff.removed_elements.is_empty() {
-    let subqualifier: Rc<[String]> = node.sub_qualifier().into();
-    let node_snapshot = Rc::new(node.clone());
+    let subqualifier: Arc<[String]> = node.sub_qualifier().into();
+    let node_snapshot = Arc::new(node.clone());
     Some((subqualifier, node_snapshot))
   } else {
     None
   };
 
   if let Some(children_rc) = &mut node.namespace_children {
-    let children = Rc::make_mut(children_rc);
+    let children = Arc::make_mut(children_rc);
 
     // Build lookup sets for added and modified elements
     let added_names: std::collections::HashSet<String> = ns_diff
@@ -786,7 +785,7 @@ fn apply_namespace_diff_inner(
           drilldown_kind: None,
           parent: Some(node_snapshot.clone()),
           namespace_children: None,
-          qualified_name: std::cell::OnceCell::new(),
+          qualified_name: std::sync::OnceLock::new(),
           diff_status: Some(DiffStatus::Removed),
         });
       }
@@ -937,23 +936,23 @@ pub enum DrilldownKind {
 
 /// A wrapper around [`Symbol`] with additional fields to track information
 /// about the inner [`Symbol`].
-/// This is cheap to clone since all fields use [`Rc`]/[`Arc`] reference counting.
+/// This is cheap to clone since all fields use [`Arc`] reference counting.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct DocNodeWithContext {
-  pub origin: Rc<ShortPath>,
-  pub ns_qualifiers: Rc<[String]>,
+  pub origin: Arc<ShortPath>,
+  pub ns_qualifiers: Arc<[String]>,
   pub inner: Arc<Symbol>,
   pub drilldown_name: Option<Box<str>>,
   /// For drilldown symbols (methods/properties), overrides the kind derived
   /// from declarations. `None` for regular symbols.
   pub drilldown_kind: Option<DrilldownKind>,
   #[serde(skip, default)]
-  pub parent: Option<Rc<DocNodeWithContext>>,
+  pub parent: Option<Arc<DocNodeWithContext>>,
   #[serde(skip, default)]
-  pub namespace_children: Option<Rc<Vec<DocNodeWithContext>>>,
+  pub namespace_children: Option<Arc<Vec<DocNodeWithContext>>>,
   #[serde(skip, default)]
-  qualified_name: std::cell::OnceCell<String>,
+  qualified_name: std::sync::OnceLock<String>,
   #[serde(skip_serializing_if = "Option::is_none")]
   pub diff_status: Option<DiffStatus>,
 }
@@ -982,15 +981,15 @@ impl DocNodeWithContext {
       inner: doc_node,
       drilldown_name: None,
       drilldown_kind: None,
-      parent: Some(Rc::new(self.clone())),
+      parent: Some(Arc::new(self.clone())),
       namespace_children: None,
-      qualified_name: std::cell::OnceCell::new(),
+      qualified_name: std::sync::OnceLock::new(),
       diff_status: None,
     }
   }
 
   fn create_child_with_parent(
-    parent: Rc<DocNodeWithContext>,
+    parent: Arc<DocNodeWithContext>,
     doc_node: Arc<Symbol>,
   ) -> Self {
     DocNodeWithContext {
@@ -1001,7 +1000,7 @@ impl DocNodeWithContext {
       drilldown_kind: None,
       parent: Some(parent),
       namespace_children: None,
-      qualified_name: std::cell::OnceCell::new(),
+      qualified_name: std::sync::OnceLock::new(),
       diff_status: None,
     }
   }
@@ -1009,7 +1008,7 @@ impl DocNodeWithContext {
   pub fn create_namespace_child(
     &self,
     doc_node: Arc<Symbol>,
-    qualifiers: Rc<[String]>,
+    qualifiers: Arc<[String]>,
   ) -> Self {
     let mut child = self.create_child(doc_node);
     child.ns_qualifiers = qualifiers;
@@ -1038,7 +1037,7 @@ impl DocNodeWithContext {
   }
 
   fn create_child_method_with_parent(
-    parent: &Rc<DocNodeWithContext>,
+    parent: &Arc<DocNodeWithContext>,
     mut method_doc_node: Symbol,
     is_static: bool,
     method_kind: deno_ast::swc::ast::MethodKind,
@@ -1086,7 +1085,7 @@ impl DocNodeWithContext {
   }
 
   fn create_child_property_with_parent(
-    parent: &Rc<DocNodeWithContext>,
+    parent: &Arc<DocNodeWithContext>,
     mut property_doc_node: Symbol,
     is_static: bool,
   ) -> Self {
@@ -1152,8 +1151,8 @@ impl DocNodeWithContext {
   fn get_drilldown_symbols(&self) -> Option<Vec<DocNodeWithContext>> {
     let declaration_kind = self.inner.declarations[0].declaration_kind;
     let mut symbols = Vec::new();
-    // Create a single Rc for the parent, shared across all drilldown children
-    let parent_rc = Rc::new(self.clone());
+    // Create a single Arc for the parent, shared across all drilldown children
+    let parent_rc = Arc::new(self.clone());
 
     for decl in &self.inner.declarations {
       match &decl.def {

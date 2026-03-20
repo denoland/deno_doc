@@ -351,7 +351,7 @@ pub struct UsageComposerEntry {
   pub icon: Option<Cow<'static, str>>,
 }
 
-pub trait UsageComposer {
+pub trait UsageComposer: Send + Sync {
   fn is_single_mode(&self) -> bool;
 
   fn compose(

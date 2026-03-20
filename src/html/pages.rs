@@ -13,7 +13,7 @@ use super::util::AnchorCtx;
 use super::util::BreadcrumbsCtx;
 use super::util::SectionHeaderCtx;
 use std::borrow::Cow;
-use std::rc::Rc;
+use std::sync::Arc;
 
 use super::DARKMODE_TOGGLE_FILENAME;
 use super::FUSE_FILENAME;
@@ -204,7 +204,7 @@ impl IndexCtx {
   /// short_path is None in the case this is a root index page but there is no main entrypoint
   pub fn new(
     ctx: &GenerateCtx,
-    short_path: Option<Rc<ShortPath>>,
+    short_path: Option<Arc<ShortPath>>,
     partitions: partition::Partitions<String>,
     uses_categories: bool,
   ) -> Self {

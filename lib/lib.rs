@@ -27,10 +27,23 @@ use indexmap::IndexMap;
 use serde::Serialize;
 use serde_wasm_bindgen::Serializer;
 use std::ffi::c_void;
-use std::rc::Rc;
 use std::sync::Arc;
 use wasm_bindgen::prelude::*;
 use wasm_bindgen_futures::JsFuture;
+
+/// Wrapper to make a value `Send + Sync` in WASM (which is single-threaded).
+struct UnsafeSendSync<T>(T);
+
+// SAFETY: WASM is single-threaded, so Send + Sync is safe.
+unsafe impl<T> Send for UnsafeSendSync<T> {}
+unsafe impl<T> Sync for UnsafeSendSync<T> {}
+
+impl<T> std::ops::Deref for UnsafeSendSync<T> {
+  type Target = T;
+  fn deref(&self) -> &T {
+    &self.0
+  }
+}
 
 #[wasm_bindgen]
 extern "C" {
@@ -348,6 +361,10 @@ struct JsHrefResolver {
   resolve_external_jsdoc_module: js_sys::Function,
 }
 
+// SAFETY: WASM is single-threaded, so Send + Sync is safe.
+unsafe impl Send for JsHrefResolver {}
+unsafe impl Sync for JsHrefResolver {}
+
 impl deno_doc::html::HrefResolver for JsHrefResolver {
   fn resolve_path(
     &self,
@@ -501,6 +518,10 @@ struct JsUsageComposer {
   compose: js_sys::Function,
 }
 
+// SAFETY: WASM is single-threaded, so Send + Sync is safe.
+unsafe impl Send for JsUsageComposer {}
+unsafe impl Sync for JsUsageComposer {}
+
 impl deno_doc::html::UsageComposer for JsUsageComposer {
   fn is_single_mode(&self) -> bool {
     self.single_mode
@@ -584,7 +605,12 @@ fn generate_html_inner(
     serde_wasm_bindgen::from_value(doc_nodes_by_url)
       .map_err(|err| anyhow!("docNodesByUrl: {}", err))?;
 
-  let markdown_renderer = Rc::new(
+  let markdown_renderer = UnsafeSendSync(markdown_renderer);
+  let markdown_renderer: Arc<
+    dyn Fn(&str, bool, Option<deno_doc::html::ShortPath>, deno_doc::html::jsdoc::Anchorizer) -> Option<String>
+      + Send
+      + Sync,
+  > = Arc::new(
     move |md: &str,
           title_only: bool,
           file_path: Option<deno_doc::html::ShortPath>,
@@ -597,7 +623,7 @@ fn generate_html_inner(
       let html = markdown_renderer
         .apply(
           &this,
-          &js_sys::Array::of4(&md, &title_only, &file_path, &anchorizer),
+          &js_sys::Array::of4(&md, &title_only, &file_path, anchorizer),
         )
         .expect("markdown_renderer errored");
 
@@ -606,31 +632,35 @@ fn generate_html_inner(
     },
   );
 
-  let markdown_stripper = Rc::new(move |md: &str| {
-    let this = JsValue::null();
-    let md = serde_wasm_bindgen::to_value(md).unwrap();
+  let markdown_stripper = UnsafeSendSync(markdown_stripper);
+  let markdown_stripper: Arc<dyn Fn(&str) -> String + Send + Sync> =
+    Arc::new(move |md: &str| {
+      let this = JsValue::null();
+      let md = serde_wasm_bindgen::to_value(md).unwrap();
 
-    let stripped = markdown_stripper
-      .call1(&this, &md)
-      .expect("markdown_stripper errored");
+      let stripped = markdown_stripper
+        .call1(&this, &md)
+        .expect("markdown_stripper errored");
 
-    serde_wasm_bindgen::from_value(stripped)
-      .expect("markdown_stripper returned an invalid value")
-  });
+      serde_wasm_bindgen::from_value(stripped)
+        .expect("markdown_stripper returned an invalid value")
+    });
 
-  let head_inject: Option<Rc<dyn Fn(&str) -> String + 'static>> =
+  let head_inject: Option<Arc<dyn Fn(&str) -> String + Send + Sync + 'static>> =
     if let Some(head_inject) = head_inject {
-      let head_inject = Rc::new(move |root: &str| {
-        let this = JsValue::null();
-        let root = serde_wasm_bindgen::to_value(root).unwrap();
+      let head_inject = UnsafeSendSync(head_inject);
+      let head_inject: Arc<dyn Fn(&str) -> String + Send + Sync> =
+        Arc::new(move |root: &str| {
+          let this = JsValue::null();
+          let root = serde_wasm_bindgen::to_value(root).unwrap();
 
-        let inject = head_inject
-          .call1(&this, &root)
-          .expect("head_inject errored");
+          let inject = head_inject
+            .call1(&this, &root)
+            .expect("head_inject errored");
 
-        serde_wasm_bindgen::from_value::<String>(inject)
-          .expect("head_inject returned an invalid value")
-      });
+          serde_wasm_bindgen::from_value::<String>(inject)
+            .expect("head_inject returned an invalid value")
+        });
 
       Some(head_inject)
     } else {
@@ -641,14 +671,14 @@ fn generate_html_inner(
     deno_doc::html::GenerateOptions {
       package_name,
       main_entrypoint,
-      href_resolver: Rc::new(JsHrefResolver {
+      href_resolver: Arc::new(JsHrefResolver {
         resolve_path,
         resolve_global_symbol,
         resolve_import_href,
         resolve_source,
         resolve_external_jsdoc_module,
       }),
-      usage_composer: Some(Rc::new(JsUsageComposer {
+      usage_composer: Some(Arc::new(JsUsageComposer {
         single_mode: usage_composer_single_mode,
         compose: usage_composer_compose,
       })),

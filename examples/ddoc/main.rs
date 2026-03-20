@@ -26,7 +26,7 @@ use futures::future;
 use indexmap::IndexMap;
 use std::env::current_dir;
 use std::path::PathBuf;
-use std::rc::Rc;
+use std::sync::Arc;
 
 #[derive(Parser)]
 #[command(name = "ddoc")]
@@ -398,8 +398,8 @@ fn generate_docs_directory(
   let options = deno_doc::html::GenerateOptions {
     package_name,
     main_entrypoint,
-    href_resolver: Rc::new(EmptyResolver),
-    usage_composer: Some(Rc::new(EmptyResolver)),
+    href_resolver: Arc::new(EmptyResolver),
+    usage_composer: Some(Arc::new(EmptyResolver)),
     rewrite_map: Some(index_map),
     category_docs: None,
     disable_search: false,
@@ -408,8 +408,8 @@ fn generate_docs_directory(
     markdown_renderer: deno_doc::html::comrak::create_renderer(
       None, None, None,
     ),
-    markdown_stripper: Rc::new(deno_doc::html::comrak::strip),
-    head_inject: Some(Rc::new(|root| {
+    markdown_stripper: Arc::new(deno_doc::html::comrak::strip),
+    head_inject: Some(Arc::new(|root| {
       format!(
         r#"<link rel="stylesheet" href="{root}{}">"#,
         deno_doc::html::comrak::COMRAK_STYLESHEET_FILENAME

@@ -6,7 +6,6 @@ use comrak::nodes::NodeValue;
 use std::collections::HashMap;
 use std::io::BufWriter;
 use std::io::Write;
-use std::rc::Rc;
 use std::sync::Arc;
 
 pub const COMRAK_STYLESHEET: &str = include_str!("./templates/comrak.gen.css");
@@ -14,11 +13,12 @@ pub const COMRAK_STYLESHEET_FILENAME: &str = "comrak.css";
 
 pub type NodeHook = Box<
   dyn for<'a> Fn(
-    &'a Arena<AstNode<'a>>,
-    &'a AstNode<'a>,
-    &comrak::Options,
-    &comrak::Plugins,
-  ),
+      &'a Arena<AstNode<'a>>,
+      &'a AstNode<'a>,
+      &comrak::Options,
+      &comrak::Plugins,
+    ) + Send
+    + Sync,
 >;
 
 fn walk_node<'a>(
@@ -116,22 +116,24 @@ pub fn strip(md: &str) -> String {
   String::from_utf8(bw.into_inner().unwrap()).unwrap()
 }
 
-pub type HtmlClean = Box<dyn Fn(String) -> String>;
+pub type HtmlClean = Box<dyn Fn(String) -> String + Send + Sync>;
 
 pub fn create_renderer(
   syntax_highlighter: Option<Arc<dyn SyntaxHighlighterAdapter>>,
   node_hook: Option<NodeHook>,
   clean: Option<HtmlClean>,
 ) -> super::jsdoc::MarkdownRenderer {
-  let mut options = default_options();
-  options.render.escape = clean.is_none();
-  options.render.unsafe_ = clean.is_some(); // its fine because we run the cleaner afterwards
+  let has_clean = clean.is_some();
 
   let renderer = move |md: &str,
                        title_only: bool,
                        _file_path: Option<ShortPath>,
                        anchorizer: super::jsdoc::Anchorizer|
         -> Option<String> {
+    let mut options = default_options();
+    options.render.escape = !has_clean;
+    options.render.unsafe_ = has_clean; // its fine because we run the cleaner afterwards
+
     let mut plugins = comrak::Plugins::default();
     let heading_adapter = ComrakHeadingAdapter(anchorizer);
     let highlight_adapter =
@@ -172,7 +174,7 @@ pub fn create_renderer(
     Some(html)
   };
 
-  Rc::new(renderer)
+  Arc::new(renderer)
 }
 
 pub struct ComrakHeadingAdapter(super::jsdoc::Anchorizer);

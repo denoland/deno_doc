@@ -2,7 +2,7 @@ use deno_doc::html::pages::SymbolPage;
 use deno_doc::html::*;
 use indexmap::IndexMap;
 use std::alloc::{GlobalAlloc, Layout, System};
-use std::rc::Rc;
+use std::sync::Arc;
 use std::sync::atomic::{AtomicUsize, Ordering};
 use std::time::Instant;
 
@@ -98,15 +98,15 @@ fn make_options() -> GenerateOptions {
   GenerateOptions {
     package_name: Some("@zod/zod".to_string()),
     main_entrypoint: None,
-    href_resolver: Rc::new(EmptyResolver),
-    usage_composer: Some(Rc::new(EmptyResolver)),
+    href_resolver: Arc::new(EmptyResolver),
+    usage_composer: Some(Arc::new(EmptyResolver)),
     rewrite_map: None,
     category_docs: None,
     disable_search: false,
     symbol_redirect_map: None,
     default_symbol_map: None,
     markdown_renderer: comrak::create_renderer(None, None, None),
-    markdown_stripper: Rc::new(comrak::strip),
+    markdown_stripper: Arc::new(comrak::strip),
     head_inject: None,
     id_prefix: None,
     diff_only: false,
