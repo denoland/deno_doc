@@ -128,6 +128,18 @@ export async function doc(
   );
 }
 
+/**
+ * Convert a v1 doc nodes array (flat array of doc nodes) to the v2
+ * {@linkcode Document} format.
+ */
+export async function docnodesV1ToV2(
+  // deno-lint-ignore no-explicit-any
+  v1Nodes: any[],
+): Promise<Document> {
+  const wasm = await instantiate();
+  return wasm.docnodes_v1_to_v2(v1Nodes);
+}
+
 export interface ShortPath {
   /** Name identifier for the path. */
   path: string;

@@ -19,6 +19,7 @@ deno_graph = { workspace = true }
 deno_doc = { path = "../", default-features = false }
 import_map.workspace = true
 serde.workspace = true
+serde_json.workspace = true
 indexmap = "2.6.0"
 deno_error = { version = "0.7.0", features = ["url"] }
 
