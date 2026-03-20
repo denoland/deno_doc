@@ -391,7 +391,7 @@ fn migrate_js_doc_tags(value: &mut serde_json::Value) {
       // should be migrated to "tsType". We distinguish from TsTypeDef
       // objects (which also have "kind") by checking that "repr" is absent.
       if !obj.contains_key("repr") {
-        let dominated_kind =
+        let is_type_bearing_tag =
           obj.get("kind").and_then(|k| k.as_str()).is_some_and(|s| {
             matches!(
               s,
@@ -407,7 +407,7 @@ fn migrate_js_doc_tags(value: &mut serde_json::Value) {
             )
           });
 
-        if dominated_kind && let Some(type_val) = obj.remove("type") {
+        if is_type_bearing_tag && let Some(type_val) = obj.remove("type") {
           match type_val {
             serde_json::Value::String(s) => {
               obj.insert(
@@ -421,9 +421,10 @@ fn migrate_js_doc_tags(value: &mut serde_json::Value) {
             serde_json::Value::Null => {
               // Optional type that was null - leave tsType absent
             }
-            other => {
-              // Unexpected value, preserve it
-              obj.insert("type".to_string(), other);
+            _ => {
+              // Non-string, non-null "type" values can't be migrated;
+              // drop them so deserialization doesn't fail on an
+              // unexpected "type" key.
             }
           }
         }
