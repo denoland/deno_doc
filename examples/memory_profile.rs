@@ -169,7 +169,9 @@ fn main() {
     .values()
     .map(|d| count_recursive(&d.symbols))
     .sum();
-  eprintln!("  modules={num_modules}, top_level_symbols={num_top_symbols}, total_recursive={num_recursive}");
+  eprintln!(
+    "  modules={num_modules}, top_level_symbols={num_top_symbols}, total_recursive={num_recursive}"
+  );
 
   // === JSR-like pattern: create GenerateCtx + render single page ===
   eprintln!("\n--- JSR-like single page rendering ---");
