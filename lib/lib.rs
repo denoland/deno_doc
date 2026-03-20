@@ -607,7 +607,12 @@ fn generate_html_inner(
 
   let markdown_renderer = UnsafeSendSync(markdown_renderer);
   let markdown_renderer: Arc<
-    dyn Fn(&str, bool, Option<deno_doc::html::ShortPath>, deno_doc::html::jsdoc::Anchorizer) -> Option<String>
+    dyn Fn(
+        &str,
+        bool,
+        Option<deno_doc::html::ShortPath>,
+        deno_doc::html::jsdoc::Anchorizer,
+      ) -> Option<String>
       + Send
       + Sync,
   > = Arc::new(
