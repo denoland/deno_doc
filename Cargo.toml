@@ -1,6 +1,6 @@
 [package]
 name = "deno_doc"
-version = "0.194.0"
+version = "0.194.1"
 edition = "2024"
 description = "doc generation for deno"
 authors = ["the Deno authors"]
@@ -21,7 +21,6 @@ serde = { version = "1.0.204", features = ["derive"] }
 serde_json = { version = "1.0.122", features = ["preserve_order"] }
 
 [lib]
-crate-type = ["cdylib", "rlib"]
 name = "deno_doc"
 
 [[example]]
