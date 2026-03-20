@@ -324,7 +324,10 @@ fn try_detect_rename(old: &Symbol, new: &Symbol) -> Option<SymbolDiff> {
 }
 
 fn build_name_map(nodes: &[Arc<Symbol>]) -> IndexMap<&str, &Symbol> {
-  nodes.iter().map(|n| (n.name.as_ref(), n.as_ref())).collect()
+  nodes
+    .iter()
+    .map(|n| (n.name.as_ref(), n.as_ref()))
+    .collect()
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

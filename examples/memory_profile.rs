@@ -1,11 +1,13 @@
-use deno_doc::html::*;
 use deno_doc::html::pages::SymbolPage;
+use deno_doc::html::*;
 use indexmap::IndexMap;
 use std::alloc::{GlobalAlloc, Layout, System};
 use std::rc::Rc;
 use std::sync::atomic::{AtomicUsize, Ordering};
 use std::time::Instant;
 
+/// Simple tracking allocator for single-threaded memory profiling.
+/// Uses Relaxed ordering — not accurate under multi-threaded contention.
 struct TrackingAllocator;
 
 static ALLOCATED: AtomicUsize = AtomicUsize::new(0);
@@ -118,9 +120,7 @@ fn main() {
   )
   .unwrap();
 
-  eprintln!(
-    "=== Memory Profile: deno_doc HTML generator (zod fixture) ===\n"
-  );
+  eprintln!("=== Memory Profile: deno_doc HTML generator (zod fixture) ===\n");
 
   let baseline = current_allocated();
   eprintln!("Baseline allocation: {:.2} MB", mb(baseline));
@@ -176,8 +176,7 @@ fn main() {
   let t1 = Instant::now();
 
   let mut options = make_options();
-  options.main_entrypoint =
-    Some(cached_output.keys().next().unwrap().clone());
+  options.main_entrypoint = Some(cached_output.keys().next().unwrap().clone());
 
   let ctx = GenerateCtx::create_basic(options, cached_output, None).unwrap();
 
@@ -224,9 +223,7 @@ fn main() {
       SymbolPage::Redirect { .. } => redirect_count += 1,
     }
   }
-  eprintln!(
-    "  symbols: {symbol_count}, redirects: {redirect_count}"
-  );
+  eprintln!("  symbols: {symbol_count}, redirects: {redirect_count}");
 
   // Drop everything and show cleanup
   drop(symbol_pages);
@@ -236,21 +233,12 @@ fn main() {
   let after_drop_ctx = current_allocated();
 
   eprintln!("\n--- Cleanup ---");
-  eprintln!(
-    "After drop symbol_pages: {:.2} MB",
-    mb(after_drop_pages)
-  );
-  eprintln!(
-    "After drop GenerateCtx: {:.2} MB",
-    mb(after_drop_ctx)
-  );
+  eprintln!("After drop symbol_pages: {:.2} MB", mb(after_drop_pages));
+  eprintln!("After drop GenerateCtx: {:.2} MB", mb(after_drop_ctx));
 
   // Drop everything from previous test to get clean baseline
   drop(doc_nodes_by_url);
-  eprintln!(
-    "After cleanup: {:.2} MB\n",
-    mb(current_allocated())
-  );
+  eprintln!("After cleanup: {:.2} MB\n", mb(current_allocated()));
 
   // === generate_json_with (streaming) — fresh run ===
   eprintln!("--- generate_json_with (streaming) ---");
@@ -274,10 +262,8 @@ fn main() {
   let t4 = Instant::now();
 
   let mut options2 = make_options();
-  options2.main_entrypoint =
-    Some(doc_nodes2.keys().next().unwrap().clone());
-  let ctx2 =
-    GenerateCtx::create_basic(options2, doc_nodes2, None).unwrap();
+  options2.main_entrypoint = Some(doc_nodes2.keys().next().unwrap().clone());
+  let ctx2 = GenerateCtx::create_basic(options2, doc_nodes2, None).unwrap();
 
   let mut file_count = 0usize;
   let mut total_json_size = 0usize;
@@ -305,7 +291,10 @@ fn main() {
     mb(peak_full - before_full),
     full_time.as_secs_f64() * 1000.0
   );
-  eprintln!("  output files={file_count} (unique={}, dups={dup_count})", seen.len());
+  eprintln!(
+    "  output files={file_count} (unique={}, dups={dup_count})",
+    seen.len()
+  );
   eprintln!("  total JSON output size={:.2} MB", mb(total_json_size));
   eprintln!(
     "  largest file: {:.1} MB  {}",

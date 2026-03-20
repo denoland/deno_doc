@@ -247,8 +247,7 @@ pub fn compute_namespaced_symbols<'a>(
             namespaced_symbols.insert(path, origin.clone());
           }
           for property in &class_def.properties {
-            let path =
-              build_drilldown_path(&property.name, property.is_static);
+            let path = build_drilldown_path(&property.name, property.is_static);
             namespaced_symbols.insert(path, origin.clone());
           }
         }

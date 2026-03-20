@@ -353,8 +353,7 @@ impl GenerateCtx {
                   |default_symbol_map| default_symbol_map.get(&short_path.path),
                 )
             {
-              Arc::make_mut(&mut symbol).name =
-                default_rename.as_str().into();
+              Arc::make_mut(&mut symbol).name = default_rename.as_str().into();
             }
 
             // Only mutate if there's actually a FnOrConstructor to convert
@@ -374,14 +373,11 @@ impl GenerateCtx {
               });
 
               if needs_mutation {
-                for declaration in
-                  &mut Arc::make_mut(&mut symbol).declarations
+                for declaration in &mut Arc::make_mut(&mut symbol).declarations
                 {
-                  if let Some(
-                    crate::ts_type::TsTypeDefKind::FnOrConstructor(
-                      fn_or_constructor,
-                    ),
-                  ) = declaration
+                  if let Some(crate::ts_type::TsTypeDefKind::FnOrConstructor(
+                    fn_or_constructor,
+                  )) = declaration
                     .variable_def()
                     .as_ref()
                     .and_then(|def| def.ts_type.as_ref())
@@ -606,13 +602,12 @@ impl GenerateCtx {
     &self,
   ) -> &HashMap<crate::Location, Vec<(usize, DocNodeWithContext)>> {
     self.reference_index.get_or_init(|| {
-      let mut index: HashMap<crate::Location, Vec<(usize, DocNodeWithContext)>> =
-        HashMap::new();
+      let mut index: HashMap<
+        crate::Location,
+        Vec<(usize, DocNodeWithContext)>,
+      > = HashMap::new();
       fn index_node(
-        index: &mut HashMap<
-          crate::Location,
-          Vec<(usize, DocNodeWithContext)>,
-        >,
+        index: &mut HashMap<crate::Location, Vec<(usize, DocNodeWithContext)>>,
         node: &DocNodeWithContext,
         depth: usize,
       ) {
@@ -953,7 +948,9 @@ pub struct DocNodeWithContext {
   /// For drilldown symbols (methods/properties), overrides the kind derived
   /// from declarations. `None` for regular symbols.
   pub drilldown_kind: Option<DrilldownKind>,
+  #[serde(skip, default)]
   pub parent: Option<Rc<DocNodeWithContext>>,
+  #[serde(skip, default)]
   pub namespace_children: Option<Rc<Vec<DocNodeWithContext>>>,
   #[serde(skip, default)]
   qualified_name: std::cell::OnceCell<String>,
@@ -1152,9 +1149,7 @@ impl DocNodeWithContext {
     }
   }
 
-  fn get_drilldown_symbols(
-    &self,
-  ) -> Option<Vec<DocNodeWithContext>> {
+  fn get_drilldown_symbols(&self) -> Option<Vec<DocNodeWithContext>> {
     let declaration_kind = self.inner.declarations[0].declaration_kind;
     let mut symbols = Vec::new();
     // Create a single Rc for the parent, shared across all drilldown children
@@ -1487,7 +1482,9 @@ where
   F: FnMut(String, String),
 {
   let diff_only = ctx.diff_only;
-  let mut emitted_keys = std::collections::HashSet::new();
+  let approx_pages: usize = ctx.doc_nodes.values().map(|v| v.len()).sum();
+  let mut emitted_keys =
+    std::collections::HashSet::with_capacity(approx_pages * 2);
 
   // Index page
   {
@@ -1533,10 +1530,7 @@ where
         .as_ref()
         .is_some_and(|md| !md.sections.sections.is_empty())
     {
-      emit(
-        "./index.json".to_string(),
-        serde_json::to_string(&index)?,
-      );
+      emit("./index.json".to_string(), serde_json::to_string(&index)?);
     }
   }
 
@@ -1623,10 +1617,8 @@ where
               continue;
             }
 
-            let file_name = format!(
-              "{}/~/{}.json",
-              short_path.path, symbol_group_ctx.name
-            );
+            let file_name =
+              format!("{}/~/{}.json", short_path.path, symbol_group_ctx.name);
             if !emitted_keys.insert(file_name.clone()) {
               continue;
             }
@@ -1720,10 +1712,7 @@ where
   // Skip search index in diff_only mode
   if !diff_only {
     let search_index = generate_search_index(&ctx);
-    emit(
-      "search.json".into(),
-      serde_json::to_string(&search_index)?,
-    );
+    emit("search.json".into(), serde_json::to_string(&search_index)?);
   }
 
   Ok(())

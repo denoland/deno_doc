@@ -13,7 +13,6 @@ use crate::util::symbol::symbol_has_ignorable_js_doc_tag;
 use crate::variable::VariableDef;
 
 use deno_ast::ModuleSpecifier;
-use std::sync::Arc;
 use deno_ast::SourceRange;
 use deno_ast::SourceTextInfo;
 use deno_ast::diagnostics::Diagnostic;
@@ -29,6 +28,7 @@ use deno_graph::symbols::ModuleInfoRef;
 use deno_graph::symbols::RootSymbol;
 use deno_graph::symbols::Symbol as GraphSymbol;
 use deno_graph::symbols::UniqueSymbolId;
+use std::sync::Arc;
 
 use std::borrow::Cow;
 use std::collections::HashSet;
