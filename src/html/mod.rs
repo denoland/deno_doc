@@ -304,9 +304,9 @@ pub struct GenerateCtx {
   pub id_prefix: Option<String>,
   pub diff_only: bool,
   /// Index from Location to (depth, node) for fast reference resolution.
-  reference_index: std::collections::HashMap<
-    crate::Location,
-    Vec<(usize, DocNodeWithContext)>,
+  /// Built lazily on first access to avoid the cost when not needed.
+  reference_index: std::cell::OnceCell<
+    HashMap<crate::Location, Vec<(usize, DocNodeWithContext)>>,
   >,
   /// Optional diff index for annotating rendered output with diff status.
   pub diff: Option<DiffIndex>,
@@ -353,30 +353,53 @@ impl GenerateCtx {
                   |default_symbol_map| default_symbol_map.get(&short_path.path),
                 )
             {
-              symbol.name = default_rename.as_str().into();
+              Arc::make_mut(&mut symbol).name =
+                default_rename.as_str().into();
             }
 
-            for declaration in &mut symbol.declarations {
-              // TODO(@crowlKats): support this in namespaces
-              if let Some(crate::ts_type::TsTypeDefKind::FnOrConstructor(
-                fn_or_constructor,
-              )) = declaration
-                .variable_def()
-                .as_ref()
-                .and_then(|def| def.ts_type.as_ref())
-                .map(|ts_type| ts_type.kind.clone())
-              {
-                declaration.def =
-                  DeclarationDef::Function(crate::function::FunctionDef {
-                    def_name: None,
-                    params: fn_or_constructor.params,
-                    return_type: Some(fn_or_constructor.ts_type),
-                    has_body: false,
-                    is_async: false,
-                    is_generator: false,
-                    type_params: fn_or_constructor.type_params,
-                    decorators: Box::new([]),
-                  });
+            // Only mutate if there's actually a FnOrConstructor to convert
+            {
+              let needs_mutation = symbol.declarations.iter().any(|decl| {
+                // TODO(@crowlKats): support this in namespaces
+                decl
+                  .variable_def()
+                  .as_ref()
+                  .and_then(|def| def.ts_type.as_ref())
+                  .is_some_and(|ts_type| {
+                    matches!(
+                      ts_type.kind,
+                      crate::ts_type::TsTypeDefKind::FnOrConstructor(_)
+                    )
+                  })
+              });
+
+              if needs_mutation {
+                for declaration in
+                  &mut Arc::make_mut(&mut symbol).declarations
+                {
+                  if let Some(
+                    crate::ts_type::TsTypeDefKind::FnOrConstructor(
+                      fn_or_constructor,
+                    ),
+                  ) = declaration
+                    .variable_def()
+                    .as_ref()
+                    .and_then(|def| def.ts_type.as_ref())
+                    .map(|ts_type| ts_type.kind.clone())
+                  {
+                    declaration.def =
+                      DeclarationDef::Function(crate::function::FunctionDef {
+                        def_name: None,
+                        params: fn_or_constructor.params,
+                        return_type: Some(fn_or_constructor.ts_type),
+                        has_body: false,
+                        is_async: false,
+                        is_generator: false,
+                        type_params: fn_or_constructor.type_params,
+                        decorators: Box::new([]),
+                      });
+                  }
+                }
               }
             }
 
@@ -388,7 +411,7 @@ impl GenerateCtx {
             DocNodeWithContext {
               origin: short_path.clone(),
               ns_qualifiers: Rc::new([]),
-              inner: Arc::new(symbol),
+              inner: symbol,
               drilldown_name: None,
               drilldown_kind: None,
               parent: None,
@@ -422,7 +445,7 @@ impl GenerateCtx {
                 None
               };
 
-              node.namespace_children = children;
+              node.namespace_children = children.map(Rc::new);
             }
 
             handle_node(&mut node);
@@ -497,37 +520,6 @@ impl GenerateCtx {
       }
     }
 
-    let mut reference_index: HashMap<
-      crate::Location,
-      Vec<(usize, DocNodeWithContext)>,
-    > = HashMap::new();
-    {
-      fn index_node(
-        index: &mut HashMap<crate::Location, Vec<(usize, DocNodeWithContext)>>,
-        node: &DocNodeWithContext,
-        depth: usize,
-      ) {
-        for decl in &node.declarations {
-          index
-            .entry(decl.location.clone())
-            .or_default()
-            .push((depth, node.clone()));
-          if matches!(decl.def, DeclarationDef::Namespace(..))
-            && let Some(children) = &node.namespace_children
-          {
-            for child in children {
-              index_node(index, child, depth + 1);
-            }
-          }
-        }
-      }
-      for nodes in doc_nodes.values() {
-        for node in nodes {
-          index_node(&mut reference_index, node, 0);
-        }
-      }
-    }
-
     Ok(Self {
       package_name: options.package_name,
       common_ancestor,
@@ -548,7 +540,7 @@ impl GenerateCtx {
       head_inject: options.head_inject,
       id_prefix: options.id_prefix,
       diff_only: options.diff_only,
-      reference_index,
+      reference_index: std::cell::OnceCell::new(),
       diff,
     })
   }
@@ -610,6 +602,43 @@ impl GenerateCtx {
     self.href_resolver.resolve_path(current, target)
   }
 
+  fn get_reference_index(
+    &self,
+  ) -> &HashMap<crate::Location, Vec<(usize, DocNodeWithContext)>> {
+    self.reference_index.get_or_init(|| {
+      let mut index: HashMap<crate::Location, Vec<(usize, DocNodeWithContext)>> =
+        HashMap::new();
+      fn index_node(
+        index: &mut HashMap<
+          crate::Location,
+          Vec<(usize, DocNodeWithContext)>,
+        >,
+        node: &DocNodeWithContext,
+        depth: usize,
+      ) {
+        for decl in &node.declarations {
+          index
+            .entry(decl.location.clone())
+            .or_default()
+            .push((depth, node.clone()));
+          if matches!(decl.def, DeclarationDef::Namespace(..))
+            && let Some(children) = &node.namespace_children
+          {
+            for child in children.iter() {
+              index_node(index, child, depth + 1);
+            }
+          }
+        }
+      }
+      for nodes in self.doc_nodes.values() {
+        for node in nodes {
+          index_node(&mut index, node, 0);
+        }
+      }
+      index
+    })
+  }
+
   // TODO(@crowlKats): don't reference to another node, but redirect to it instead
   pub fn resolve_reference<'a>(
     &'a self,
@@ -621,15 +650,15 @@ impl GenerateCtx {
       node.ns_qualifiers = ns_qualifiers[depth..].to_vec().into();
       node.qualified_name = std::cell::OnceCell::new();
 
-      if let Some(children) = &mut node.namespace_children {
-        for child in children {
+      if let Some(children_rc) = &mut node.namespace_children {
+        for child in Rc::make_mut(children_rc) {
           strip_qualifiers(child, depth);
         }
       }
     }
 
     let entries = self
-      .reference_index
+      .get_reference_index()
       .get(reference)
       .map(|v| v.as_slice())
       .unwrap_or(&[]);
@@ -657,8 +686,8 @@ impl GenerateCtx {
             node: &mut DocNodeWithContext,
             ns_qualifiers: Vec<String>,
           ) {
-            if let Some(children) = &mut node.namespace_children {
-              for node in children {
+            if let Some(children_rc) = &mut node.namespace_children {
+              for node in Rc::make_mut(children_rc) {
                 handle_node(node, ns_qualifiers.clone());
               }
             }
@@ -687,13 +716,15 @@ fn apply_namespace_diff_inner(
   // Only clone when we need to inject removed elements
   let removed_ctx = if !ns_diff.removed_elements.is_empty() {
     let subqualifier: Rc<[String]> = node.sub_qualifier().into();
-    let node_snapshot = node.clone();
+    let node_snapshot = Rc::new(node.clone());
     Some((subqualifier, node_snapshot))
   } else {
     None
   };
 
-  if let Some(children) = &mut node.namespace_children {
+  if let Some(children_rc) = &mut node.namespace_children {
+    let children = Rc::make_mut(children_rc);
+
     // Build lookup sets for added and modified elements
     let added_names: std::collections::HashSet<String> = ns_diff
       .added_elements
@@ -758,7 +789,7 @@ fn apply_namespace_diff_inner(
           inner: removed_node.clone(),
           drilldown_name: None,
           drilldown_kind: None,
-          parent: Some(Box::new(node_snapshot.clone())),
+          parent: Some(node_snapshot.clone()),
           namespace_children: None,
           qualified_name: std::cell::OnceCell::new(),
           diff_status: Some(DiffStatus::Removed),
@@ -911,7 +942,7 @@ pub enum DrilldownKind {
 
 /// A wrapper around [`Symbol`] with additional fields to track information
 /// about the inner [`Symbol`].
-/// This is cheap to clone since all fields are [`Rc`]s.
+/// This is cheap to clone since all fields use [`Rc`]/[`Arc`] reference counting.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct DocNodeWithContext {
@@ -922,8 +953,8 @@ pub struct DocNodeWithContext {
   /// For drilldown symbols (methods/properties), overrides the kind derived
   /// from declarations. `None` for regular symbols.
   pub drilldown_kind: Option<DrilldownKind>,
-  pub parent: Option<Box<DocNodeWithContext>>,
-  pub namespace_children: Option<Vec<DocNodeWithContext>>,
+  pub parent: Option<Rc<DocNodeWithContext>>,
+  pub namespace_children: Option<Rc<Vec<DocNodeWithContext>>>,
   #[serde(skip, default)]
   qualified_name: std::cell::OnceCell<String>,
   #[serde(skip_serializing_if = "Option::is_none")]
@@ -954,7 +985,24 @@ impl DocNodeWithContext {
       inner: doc_node,
       drilldown_name: None,
       drilldown_kind: None,
-      parent: Some(Box::new(self.clone())),
+      parent: Some(Rc::new(self.clone())),
+      namespace_children: None,
+      qualified_name: std::cell::OnceCell::new(),
+      diff_status: None,
+    }
+  }
+
+  fn create_child_with_parent(
+    parent: Rc<DocNodeWithContext>,
+    doc_node: Arc<Symbol>,
+  ) -> Self {
+    DocNodeWithContext {
+      origin: parent.origin.clone(),
+      ns_qualifiers: parent.ns_qualifiers.clone(),
+      inner: doc_node,
+      drilldown_name: None,
+      drilldown_kind: None,
+      parent: Some(parent),
       namespace_children: None,
       qualified_name: std::cell::OnceCell::new(),
       diff_status: None,
@@ -992,6 +1040,31 @@ impl DocNodeWithContext {
     new_node
   }
 
+  fn create_child_method_with_parent(
+    parent: &Rc<DocNodeWithContext>,
+    mut method_doc_node: Symbol,
+    is_static: bool,
+    method_kind: deno_ast::swc::ast::MethodKind,
+  ) -> Self {
+    let original_name = method_doc_node.name.clone();
+    method_doc_node.name = qualify_drilldown_name(
+      parent.get_name(),
+      &method_doc_node.name,
+      is_static,
+    )
+    .into_boxed_str();
+    for decl in &mut method_doc_node.declarations {
+      decl.declaration_kind = parent.inner.declarations[0].declaration_kind;
+    }
+
+    let mut new_node =
+      Self::create_child_with_parent(parent.clone(), Arc::new(method_doc_node));
+    new_node.drilldown_name = Some(original_name);
+    new_node.drilldown_kind = Some(DrilldownKind::Method(method_kind.into()));
+    new_node.diff_status = parent.diff_status.clone();
+    new_node
+  }
+
   pub fn create_child_property(
     &self,
     mut property_doc_node: Symbol,
@@ -1012,6 +1085,32 @@ impl DocNodeWithContext {
     new_node.drilldown_name = Some(original_name);
     new_node.drilldown_kind = Some(DrilldownKind::Property);
     new_node.diff_status = self.diff_status.clone();
+    new_node
+  }
+
+  fn create_child_property_with_parent(
+    parent: &Rc<DocNodeWithContext>,
+    mut property_doc_node: Symbol,
+    is_static: bool,
+  ) -> Self {
+    let original_name = property_doc_node.name.clone();
+    property_doc_node.name = qualify_drilldown_name(
+      parent.get_name(),
+      &property_doc_node.name,
+      is_static,
+    )
+    .into_boxed_str();
+    for decl in &mut property_doc_node.declarations {
+      decl.declaration_kind = parent.inner.declarations[0].declaration_kind;
+    }
+
+    let mut new_node = Self::create_child_with_parent(
+      parent.clone(),
+      Arc::new(property_doc_node),
+    );
+    new_node.drilldown_name = Some(original_name);
+    new_node.drilldown_kind = Some(DrilldownKind::Property);
+    new_node.diff_status = parent.diff_status.clone();
     new_node
   }
 
@@ -1053,17 +1152,20 @@ impl DocNodeWithContext {
     }
   }
 
-  fn get_drilldown_symbols<'a>(
-    &'a self,
-  ) -> Option<Box<dyn Iterator<Item = DocNodeWithContext> + 'a>> {
+  fn get_drilldown_symbols(
+    &self,
+  ) -> Option<Vec<DocNodeWithContext>> {
     let declaration_kind = self.inner.declarations[0].declaration_kind;
     let mut symbols = Vec::new();
+    // Create a single Rc for the parent, shared across all drilldown children
+    let parent_rc = Rc::new(self.clone());
 
     for decl in &self.inner.declarations {
       match &decl.def {
         DeclarationDef::Class(class_def) => {
           symbols.extend(class_def.methods.iter().map(|method| {
-            self.create_child_method(
+            Self::create_child_method_with_parent(
+              &parent_rc,
               Symbol::function(
                 method.name.clone(),
                 false,
@@ -1077,7 +1179,8 @@ impl DocNodeWithContext {
             )
           }));
           symbols.extend(class_def.properties.iter().map(|property| {
-            self.create_child_property(
+            Self::create_child_property_with_parent(
+              &parent_rc,
               Symbol::from(property.clone()),
               property.is_static,
             )
@@ -1085,14 +1188,19 @@ impl DocNodeWithContext {
         }
         DeclarationDef::Interface(interface_def) => {
           symbols.extend(interface_def.methods.iter().map(|method| {
-            self.create_child_method(
+            Self::create_child_method_with_parent(
+              &parent_rc,
               Symbol::from(method.clone()),
               true,
               method.kind,
             )
           }));
           symbols.extend(interface_def.properties.iter().map(|property| {
-            self.create_child_property(Symbol::from(property.clone()), true)
+            Self::create_child_property_with_parent(
+              &parent_rc,
+              Symbol::from(property.clone()),
+              true,
+            )
           }));
         }
         DeclarationDef::TypeAlias(type_alias_def) => {
@@ -1100,14 +1208,19 @@ impl DocNodeWithContext {
             &type_alias_def.ts_type.kind
           {
             symbols.extend(ts_type_literal.methods.iter().map(|method| {
-              self.create_child_method(
+              Self::create_child_method_with_parent(
+                &parent_rc,
                 Symbol::from(method.clone()),
                 true,
                 method.kind,
               )
             }));
             symbols.extend(ts_type_literal.properties.iter().map(|property| {
-              self.create_child_property(Symbol::from(property.clone()), true)
+              Self::create_child_property_with_parent(
+                &parent_rc,
+                Symbol::from(property.clone()),
+                true,
+              )
             }));
           }
         }
@@ -1117,14 +1230,19 @@ impl DocNodeWithContext {
           )) = variable_def.ts_type.as_ref().map(|ts_type| &ts_type.kind)
           {
             symbols.extend(ts_type_literal.methods.iter().map(|method| {
-              self.create_child_method(
+              Self::create_child_method_with_parent(
+                &parent_rc,
                 Symbol::from(method.clone()),
                 true,
                 method.kind,
               )
             }));
             symbols.extend(ts_type_literal.properties.iter().map(|property| {
-              self.create_child_property(Symbol::from(property.clone()), true)
+              Self::create_child_property_with_parent(
+                &parent_rc,
+                Symbol::from(property.clone()),
+                true,
+              )
             }));
           }
         }
@@ -1135,7 +1253,7 @@ impl DocNodeWithContext {
     if symbols.is_empty() {
       None
     } else {
-      Some(Box::new(symbols.into_iter()))
+      Some(symbols)
     }
   }
 }
@@ -1359,12 +1477,17 @@ pub fn generate(
   Ok(files)
 }
 
-pub fn generate_json(
+/// Generate JSON output for all pages, streaming each file through the
+/// provided callback. This avoids holding all pages in memory at once.
+pub fn generate_json_with<F>(
   ctx: GenerateCtx,
-) -> Result<HashMap<String, serde_json::Value>, anyhow::Error> {
-  let mut files = HashMap::new();
-
+  mut emit: F,
+) -> Result<(), anyhow::Error>
+where
+  F: FnMut(String, String),
+{
   let diff_only = ctx.diff_only;
+  let mut emitted_keys = std::collections::HashSet::new();
 
   // Index page
   {
@@ -1410,31 +1533,34 @@ pub fn generate_json(
         .as_ref()
         .is_some_and(|md| !md.sections.sections.is_empty())
     {
-      files.insert("./index.json".to_string(), serde_json::to_value(index)?);
+      emit(
+        "./index.json".to_string(),
+        serde_json::to_string(&index)?,
+      );
     }
   }
-
-  let all_doc_nodes = ctx
-    .doc_nodes
-    .values()
-    .flatten()
-    .cloned()
-    .collect::<Vec<DocNodeWithContext>>();
 
   // All symbols (list of all symbols in all files)
   {
     let all_symbols = pages::AllSymbolsPageCtx::new(&ctx);
 
     if !diff_only || !all_symbols.content.entrypoints.is_empty() {
-      files.insert(
+      emit(
         "./all_symbols.json".to_string(),
-        serde_json::to_value(all_symbols)?,
+        serde_json::to_string(&all_symbols)?,
       );
     }
   }
 
   // Category pages
   if ctx.file_mode == FileMode::SingleDts {
+    let all_doc_nodes = ctx
+      .doc_nodes
+      .values()
+      .flatten()
+      .cloned()
+      .collect::<Vec<DocNodeWithContext>>();
+
     let categories = partition::partition_nodes_by_category(
       &ctx,
       all_doc_nodes.iter().map(Cow::Borrowed),
@@ -1465,9 +1591,9 @@ pub fn generate_json(
           continue;
         }
 
-        files.insert(
+        emit(
           format!("{}.json", util::slugify(category)),
-          serde_json::to_value(index)?,
+          serde_json::to_string(&index)?,
         );
       }
     }
@@ -1485,7 +1611,7 @@ pub fn generate_json(
       let symbol_pages =
         generate_symbol_pages_for_module(&ctx, short_path, doc_nodes);
 
-      files.extend(symbol_pages.into_iter().flat_map(|symbol_page| {
+      for symbol_page in symbol_pages {
         match symbol_page {
           SymbolPage::Symbol {
             breadcrumbs_ctx,
@@ -1494,7 +1620,15 @@ pub fn generate_json(
             categories_panel,
           } => {
             if diff_only && symbol_group_ctx.diff_status.is_none() {
-              return vec![];
+              continue;
+            }
+
+            let file_name = format!(
+              "{}/~/{}.json",
+              short_path.path, symbol_group_ctx.name
+            );
+            if !emitted_keys.insert(file_name.clone()) {
+              continue;
             }
 
             let mut symbol_group_ctx = symbol_group_ctx;
@@ -1522,9 +1656,6 @@ pub fn generate_json(
               Some(short_path),
             );
 
-            let file_name =
-              format!("{}/~/{}.json", short_path.path, symbol_group_ctx.name);
-
             let page_ctx = pages::SymbolPageCtx {
               html_head_ctx,
               symbol_group_ctx,
@@ -1534,7 +1665,7 @@ pub fn generate_json(
               categories_panel,
             };
 
-            vec![(file_name, serde_json::to_value(page_ctx).unwrap())]
+            emit(file_name, serde_json::to_string(&page_ctx)?);
           }
           SymbolPage::Redirect {
             current_symbol,
@@ -1542,18 +1673,20 @@ pub fn generate_json(
             diff_status,
           } => {
             if diff_only && diff_status.is_none() {
-              return vec![];
+              continue;
             }
-
-            let redirect = serde_json::json!({ "path": href });
 
             let file_name =
               format!("{}/~/{}.json", short_path.path, current_symbol);
+            if !emitted_keys.insert(file_name.clone()) {
+              continue;
+            }
 
-            vec![(file_name, redirect)]
+            let redirect = serde_json::json!({ "path": href });
+            emit(file_name, serde_json::to_string(&redirect)?);
           }
         }
-      }));
+      }
 
       if !short_path.is_main {
         let index = pages::IndexCtx::new(
@@ -1576,9 +1709,9 @@ pub fn generate_json(
           continue;
         }
 
-        files.insert(
+        emit(
           format!("{}/index.json", short_path.path),
-          serde_json::to_value(index)?,
+          serde_json::to_string(&index)?,
         );
       }
     }
@@ -1586,9 +1719,26 @@ pub fn generate_json(
 
   // Skip search index in diff_only mode
   if !diff_only {
-    files.insert("search.json".into(), generate_search_index(&ctx));
+    let search_index = generate_search_index(&ctx);
+    emit(
+      "search.json".into(),
+      serde_json::to_string(&search_index)?,
+    );
   }
 
+  Ok(())
+}
+
+/// Generate JSON output for all pages, collecting into a HashMap.
+/// For lower memory usage with large packages, use [`generate_json_with`]
+/// which streams pages through a callback.
+pub fn generate_json(
+  ctx: GenerateCtx,
+) -> Result<HashMap<String, String>, anyhow::Error> {
+  let mut files = HashMap::new();
+  generate_json_with(ctx, |name, content| {
+    files.insert(name, content);
+  })?;
   Ok(files)
 }
 

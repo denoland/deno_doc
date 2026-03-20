@@ -228,7 +228,7 @@ impl<'a> DocParser<'a> {
   fn resolve_references_for_nodes(
     &self,
     specifier: &ModuleSpecifier,
-    symbols: &mut Vec<Symbol>,
+    symbols: &mut Vec<Arc<Symbol>>,
     name_path: &[String],
     all_locations: &mut HashSet<Location>,
   ) -> Result<(), DocError> {
@@ -236,28 +236,19 @@ impl<'a> DocParser<'a> {
     'outer: while i < symbols.len() {
       let name = symbols[i].name.to_string();
 
-      for decl in &mut symbols[i].declarations {
+      for decl in &mut Arc::make_mut(&mut symbols[i]).declarations {
         match &mut decl.def {
           DeclarationDef::Namespace(namespace_def) => {
-            let mut namespace_elements = namespace_def
-              .elements
-              .iter()
-              .map(|node| node.as_ref().clone())
-              .collect::<Vec<_>>();
-
             let mut new_name_path = Vec::with_capacity(name_path.len() + 1);
             new_name_path.extend_from_slice(name_path);
             new_name_path.push(name.clone());
 
             self.resolve_references_for_nodes(
               specifier,
-              &mut namespace_elements,
+              &mut namespace_def.elements,
               &new_name_path,
               all_locations,
             )?;
-
-            namespace_def.elements =
-              namespace_elements.into_iter().map(Arc::new).collect();
           }
           DeclarationDef::Reference(reference_def) => {
             let mut new_name_path = Vec::with_capacity(name_path.len() + 1);
@@ -273,7 +264,7 @@ impl<'a> DocParser<'a> {
               )?
             {
               if let Some(new_symbol) = new_symbol {
-                symbols[i] = new_symbol;
+                symbols[i] = Arc::new(new_symbol);
                 all_locations.extend(symbols.iter().flat_map(|symbol| {
                   symbol.declarations.iter().map(|decl| decl.location.clone())
                 }));
@@ -432,7 +423,7 @@ impl<'a> DocParser<'a> {
     }
   }
 
-  fn collect_diagnostics_for_symbols(&self, nodes: &[Symbol]) {
+  fn collect_diagnostics_for_symbols(&self, nodes: &[Arc<Symbol>]) {
     if let Some(diagnostics) = &self.diagnostics {
       let mut diagnostics = diagnostics.borrow_mut();
       diagnostics.analyze_doc_nodes(nodes);
@@ -506,13 +497,14 @@ impl<'a> DocParser<'a> {
                     .symbols
                     .into_iter()
                     .map(|mut node| {
-                      let decl = &mut node.declarations[0];
+                      let sym = Arc::make_mut(&mut node);
+                      let decl = &mut sym.declarations[0];
                       let target = decl.location.clone();
                       decl.def =
                         DeclarationDef::Reference(ReferenceDef { target });
                       decl.location = def_location.clone();
 
-                      Arc::new(node)
+                      node
                     })
                     .collect(),
                 };
@@ -524,7 +516,7 @@ impl<'a> DocParser<'a> {
                   js_doc,
                   ns_def,
                 );
-                document.symbols.push(ns_symbol);
+                document.symbols.push(Arc::new(ns_symbol));
               }
               DefinitionKind::Definition => {}
             }
@@ -1150,11 +1142,11 @@ impl<'a> DocParser<'a> {
       }
 
       if !declarations.is_empty() {
-        symbols.push(Symbol {
+        symbols.push(Arc::new(Symbol {
           name: export_name.as_str().into(),
           is_default: export_name == "default",
           declarations,
-        });
+        }));
       }
     }
 
@@ -1174,7 +1166,7 @@ impl<'a> DocParser<'a> {
           ModuleInfoRef::Esm(module_info),
           child_symbol,
         ) {
-          symbols.push(symbol);
+          symbols.push(Arc::new(symbol));
         }
       }
     }
@@ -1206,7 +1198,7 @@ impl<'a> DocParser<'a> {
           module_info.text_info().text_str(),
         ) {
           for symbol in document.symbols {
-            decls.extend(symbol.declarations);
+            decls.extend(symbol.declarations.clone());
           }
         }
         return decls;
@@ -1602,7 +1594,7 @@ fn parse_json_module_symbol(
     Some(Document {
       module_doc: Default::default(),
       imports: vec![],
-      symbols: vec![Symbol::variable(
+      symbols: vec![Arc::new(Symbol::variable(
         "default".into(),
         true,
         Location {
@@ -1617,7 +1609,7 @@ fn parse_json_module_symbol(
           kind: VarDeclKind::Var,
           ts_type: Some(parse_json_module_type(&value)),
         },
-      )],
+      ))],
     })
   } else {
     // no doc nodes

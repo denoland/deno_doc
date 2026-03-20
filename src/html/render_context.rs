@@ -112,13 +112,18 @@ impl<'ctx> RenderContext<'ctx> {
       .collect::<Vec<_>>();
 
     if !self.namespace_parts.is_empty() {
-      // TODO: clean this up to not clone and to_vec
-      let mut parts = self.namespace_parts.to_vec();
-      while !parts.is_empty() {
-        let mut current_parts = parts.clone();
-        current_parts.extend_from_slice(&target_symbol_parts);
+      let ns_len = self.namespace_parts.len();
+      let target_len = target_symbol_parts.len();
+      // Reusable buffer: [ns_prefix..., target_parts...]
+      let mut lookup = Vec::with_capacity(ns_len + target_len);
 
-        if let Some(origin) = self.scoped_symbols.get(&current_parts) {
+      // Try progressively shorter namespace prefixes: ns_len, ns_len-1, ..., 1
+      for prefix_len in (1..=ns_len).rev() {
+        lookup.clear();
+        lookup.extend(self.namespace_parts[..prefix_len].iter().cloned());
+        lookup.extend_from_slice(&target_symbol_parts);
+
+        if let Some(origin) = self.scoped_symbols.get(&lookup) {
           return Some(
             self.ctx.resolve_path(
               self.get_current_resolve(),
@@ -128,13 +133,11 @@ impl<'ctx> RenderContext<'ctx> {
                   .get_file()
                   .or_else(|| origin.as_ref().map(|origin| &**origin))
                   .unwrap(),
-                symbol: &current_parts.join("."),
+                symbol: &lookup.join("."),
               },
             ),
           );
         }
-
-        parts.pop();
       }
     }
 

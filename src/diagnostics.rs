@@ -13,6 +13,7 @@ use crate::util::symbol::symbol_has_ignorable_js_doc_tag;
 use crate::variable::VariableDef;
 
 use deno_ast::ModuleSpecifier;
+use std::sync::Arc;
 use deno_ast::SourceRange;
 use deno_ast::SourceTextInfo;
 use deno_ast::diagnostics::Diagnostic;
@@ -270,9 +271,9 @@ impl<'a> DiagnosticsCollector<'a> {
     inner
   }
 
-  pub fn analyze_doc_nodes(&mut self, doc_nodes: &[Symbol]) {
+  pub fn analyze_doc_nodes(&mut self, doc_nodes: &[Arc<Symbol>]) {
     DiagnosticDocNodeVisitor { diagnostics: self }
-      .visit_doc_nodes(doc_nodes.iter())
+      .visit_doc_nodes(doc_nodes.iter().map(|s| &**s))
   }
 
   fn check_missing_js_doc(&mut self, js_doc: &JsDoc, location: &Location) {

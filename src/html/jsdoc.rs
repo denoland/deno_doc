@@ -884,6 +884,7 @@ mod test {
   use deno_ast::ModuleSpecifier;
   use indexmap::IndexMap;
   use std::rc::Rc;
+  use std::sync::Arc;
 
   use crate::html::RenderContext;
   use crate::html::UrlResolveKind;
@@ -984,7 +985,7 @@ mod test {
             module_doc: Default::default(),
             imports: vec![],
             symbols: vec![
-              Symbol::interface(
+              Arc::new(Symbol::interface(
                 "foo".into(),
                 false,
                 Location::default(),
@@ -1000,8 +1001,8 @@ mod test {
                   index_signatures: vec![],
                   type_params: Box::new([]),
                 },
-              ),
-              Symbol::interface(
+              )),
+              Arc::new(Symbol::interface(
                 "bar".into(),
                 false,
                 Location::default(),
@@ -1017,7 +1018,7 @@ mod test {
                   index_signatures: vec![],
                   type_params: Box::new([]),
                 },
-              ),
+              )),
             ],
           },
         ),
@@ -1026,7 +1027,7 @@ mod test {
           Document {
             module_doc: Default::default(),
             imports: vec![],
-            symbols: vec![Symbol::interface(
+            symbols: vec![Arc::new(Symbol::interface(
               "baz".into(),
               false,
               Location::default(),
@@ -1042,7 +1043,7 @@ mod test {
                 index_signatures: vec![],
                 type_params: Box::new([]),
               },
-            )],
+            ))],
           },
         ),
       ]),

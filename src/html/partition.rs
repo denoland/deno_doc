@@ -221,7 +221,7 @@ pub fn flatten_namespace<'a>(
       for decl in &node.declarations {
         if matches!(decl.def, DeclarationDef::Namespace(..)) {
           let children: Vec<_> =
-            node.namespace_children.as_ref().unwrap().clone();
+            node.namespace_children.as_ref().unwrap().iter().cloned().collect();
           partitioner_inner(
             ctx,
             out,

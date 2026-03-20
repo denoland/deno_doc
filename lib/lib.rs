@@ -673,6 +673,7 @@ fn generate_html_inner(
     let serializer =
       serde_wasm_bindgen::Serializer::new().serialize_maps_as_objects(true);
 
+    // files is HashMap<String, String> where values are pre-serialized JSON
     files
       .serialize(&serializer)
       .map_err(|err| anyhow!("{}", err))

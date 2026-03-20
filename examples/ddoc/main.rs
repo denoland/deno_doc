@@ -212,7 +212,10 @@ async fn run() -> anyhow::Result<()> {
       for (_, doc) in &mut doc_nodes_by_url {
         if let Some(filter) = &filter {
           let symbols = std::mem::take(&mut doc.symbols);
-          doc.symbols = find_nodes_by_name_recursively(symbols, filter);
+          doc.symbols = find_nodes_by_name_recursively(symbols, filter)
+            .into_iter()
+            .map(std::sync::Arc::new)
+            .collect();
         }
       }
 

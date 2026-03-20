@@ -509,7 +509,8 @@ pub fn generate_symbol_pages_for_module(
   let mut drilldown_partitions = vec![];
   for symbol in &symbols {
     if let Some(drilldown_symbols) = symbol.get_drilldown_symbols() {
-      drilldown_partitions.extend(drilldown_symbols.map(Cow::Owned));
+      drilldown_partitions
+        .extend(drilldown_symbols.into_iter().map(Cow::Owned));
     }
   }
   symbols.extend(drilldown_partitions);
