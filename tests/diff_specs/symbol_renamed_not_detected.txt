@@ -11,75 +11,75 @@ export function bar(a: number) {}
       "added": [
         {
           "name": "bar",
-          "isDefault": false,
-          "location": {
-            "filename": "file:///mod.ts",
-            "line": 1,
-            "col": 0,
-            "byteIndex": 0
-          },
-          "declarationKind": "export",
-          "kind": "function",
-          "functionDef": {
-            "params": [
-              {
-                "kind": "identifier",
-                "name": "a",
-                "optional": false,
-                "tsType": {
-                  "repr": "number",
+          "declarations": [
+            {
+              "location": {
+                "filename": "file:///mod.ts",
+                "line": 0,
+                "col": 0,
+                "byteIndex": 0
+              },
+              "declarationKind": "export",
+              "kind": "function",
+              "def": {
+                "params": [
+                  {
+                    "kind": "identifier",
+                    "name": "a",
+                    "optional": false,
+                    "tsType": {
+                      "repr": "number",
+                      "kind": "keyword",
+                      "value": "number"
+                    }
+                  }
+                ],
+                "returnType": {
+                  "repr": "void",
                   "kind": "keyword",
-                  "keyword": "number"
-                }
+                  "value": "void"
+                },
+                "hasBody": true
               }
-            ],
-            "returnType": {
-              "repr": "void",
-              "kind": "keyword",
-              "keyword": "void"
-            },
-            "hasBody": true,
-            "isAsync": false,
-            "isGenerator": false,
-            "typeParams": []
-          }
+            }
+          ]
         }
       ],
       "removed": [
         {
           "name": "foo",
-          "isDefault": false,
-          "location": {
-            "filename": "file:///mod.ts",
-            "line": 1,
-            "col": 0,
-            "byteIndex": 0
-          },
-          "declarationKind": "export",
-          "kind": "function",
-          "functionDef": {
-            "params": [
-              {
-                "kind": "identifier",
-                "name": "a",
-                "optional": false,
-                "tsType": {
-                  "repr": "string",
+          "declarations": [
+            {
+              "location": {
+                "filename": "file:///mod.ts",
+                "line": 0,
+                "col": 0,
+                "byteIndex": 0
+              },
+              "declarationKind": "export",
+              "kind": "function",
+              "def": {
+                "params": [
+                  {
+                    "kind": "identifier",
+                    "name": "a",
+                    "optional": false,
+                    "tsType": {
+                      "repr": "string",
+                      "kind": "keyword",
+                      "value": "string"
+                    }
+                  }
+                ],
+                "returnType": {
+                  "repr": "void",
                   "kind": "keyword",
-                  "keyword": "string"
-                }
+                  "value": "void"
+                },
+                "hasBody": true
               }
-            ],
-            "returnType": {
-              "repr": "void",
-              "kind": "keyword",
-              "keyword": "void"
-            },
-            "hasBody": true,
-            "isAsync": false,
-            "isGenerator": false,
-            "typeParams": []
-          }
+            }
+          ]
         }
       ]
     }

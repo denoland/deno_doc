@@ -10,7 +10,11 @@
   "workspace": ["js"],
   "exclude": ["target", "benches/fixtures"],
   "fmt": {
-    "exclude": ["**/*.gen.css", "generated_docs"]
+    "exclude": [
+      "**/*.gen.css",
+      "generated_docs",
+      "tests/testdata/@zod_zod_4.3.6_raw.json"
+    ]
   },
   "lint": {
     "exclude": ["src/html", "tests/testdata"]

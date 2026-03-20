@@ -19,38 +19,80 @@ export function foo(x: number): void {}
       "modified": [
         {
           "name": "foo",
-          "kind": "function",
-          "jsDocChanges": {
-            "tagsChange": {
-              "added": [
-                {
-                  "kind": "throws",
-                  "type": "SyntaxError",
-                  "doc": "bad syntax"
-                }
-              ],
-              "removed": [
-                {
-                  "kind": "throws",
-                  "type": "TypeError",
-                  "doc": "wrong type"
-                }
-              ],
-              "modified": [
-                {
-                  "old": {
-                    "kind": "throws",
-                    "type": "RangeError",
-                    "doc": "value out of range"
-                  },
-                  "new": {
-                    "kind": "throws",
-                    "type": "RangeError",
-                    "doc": "updated message"
+          "declarations": {
+            "modified": [
+              {
+                "kind": "function",
+                "jsDocChanges": {
+                  "tagsChange": {
+                    "added": [
+                      {
+                        "kind": "throws",
+                        "tsType": {
+                          "repr": "SyntaxError",
+                          "kind": "typeRef",
+                          "value": {
+                            "typeName": "SyntaxError",
+                            "resolution": {
+                              "kind": "typeParam"
+                            }
+                          }
+                        },
+                        "doc": "bad syntax"
+                      }
+                    ],
+                    "removed": [
+                      {
+                        "kind": "throws",
+                        "tsType": {
+                          "repr": "TypeError",
+                          "kind": "typeRef",
+                          "value": {
+                            "typeName": "TypeError",
+                            "resolution": {
+                              "kind": "typeParam"
+                            }
+                          }
+                        },
+                        "doc": "wrong type"
+                      }
+                    ],
+                    "modified": [
+                      {
+                        "old": {
+                          "kind": "throws",
+                          "tsType": {
+                            "repr": "RangeError",
+                            "kind": "typeRef",
+                            "value": {
+                              "typeName": "RangeError",
+                              "resolution": {
+                                "kind": "typeParam"
+                              }
+                            }
+                          },
+                          "doc": "value out of range"
+                        },
+                        "new": {
+                          "kind": "throws",
+                          "tsType": {
+                            "repr": "RangeError",
+                            "kind": "typeRef",
+                            "value": {
+                              "typeName": "RangeError",
+                              "resolution": {
+                                "kind": "typeParam"
+                              }
+                            }
+                          },
+                          "doc": "updated message"
+                        }
+                      }
+                    ]
                   }
                 }
-              ]
-            }
+              }
+            ]
           }
         }
       ]

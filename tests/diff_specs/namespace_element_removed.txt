@@ -16,32 +16,38 @@ export namespace Utils {
       "modified": [
         {
           "name": "Utils",
-          "kind": "namespace",
-          "defChanges": {
-            "type": "namespace",
-            "removedElements": [
+          "declarations": {
+            "modified": [
               {
-                "name": "bar",
-                "isDefault": false,
-                "location": {
-                  "filename": "file:///mod.ts",
-                  "line": 3,
-                  "col": 2,
-                  "byteIndex": 54
-                },
-                "declarationKind": "export",
-                "kind": "function",
-                "functionDef": {
-                  "params": [],
-                  "returnType": {
-                    "repr": "void",
-                    "kind": "keyword",
-                    "keyword": "void"
-                  },
-                  "hasBody": true,
-                  "isAsync": false,
-                  "isGenerator": false,
-                  "typeParams": []
+                "kind": "namespace",
+                "defChanges": {
+                  "type": "namespace",
+                  "removedElements": [
+                    {
+                      "name": "bar",
+                      "declarations": [
+                        {
+                          "location": {
+                            "filename": "file:///mod.ts",
+                            "line": 2,
+                            "col": 2,
+                            "byteIndex": 54
+                          },
+                          "declarationKind": "export",
+                          "kind": "function",
+                          "def": {
+                            "params": [],
+                            "returnType": {
+                              "repr": "void",
+                              "kind": "keyword",
+                              "value": "void"
+                            },
+                            "hasBody": true
+                          }
+                        }
+                      ]
+                    }
+                  ]
                 }
               }
             ]

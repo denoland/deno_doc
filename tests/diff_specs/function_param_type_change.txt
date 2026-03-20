@@ -11,28 +11,34 @@ export function foo(str: string) {}
       "modified": [
         {
           "name": "foo",
-          "kind": "function",
-          "defChanges": {
-            "type": "function",
-            "paramsChange": {
-              "modified": [
-                {
-                  "index": 0,
-                  "typeChange": {
-                    "old": {
-                      "repr": "number",
-                      "kind": "keyword",
-                      "keyword": "number"
-                    },
-                    "new": {
-                      "repr": "string",
-                      "kind": "keyword",
-                      "keyword": "string"
-                    }
+          "declarations": {
+            "modified": [
+              {
+                "kind": "function",
+                "defChanges": {
+                  "type": "function",
+                  "paramsChange": {
+                    "modified": [
+                      {
+                        "index": 0,
+                        "typeChange": {
+                          "old": {
+                            "repr": "number",
+                            "kind": "keyword",
+                            "value": "number"
+                          },
+                          "new": {
+                            "repr": "string",
+                            "kind": "keyword",
+                            "value": "string"
+                          }
+                        }
+                      }
+                    ]
                   }
                 }
-              ]
-            }
+              }
+            ]
           }
         }
       ]

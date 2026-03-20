@@ -5,7 +5,7 @@ export default class Foobar {
     constructor(name: string, private private2: number, protected protected2: number) {}
 }
 # output.txt
-Defined in file:///mod.ts:2:1
+Defined in file:///mod.ts:1:1
 
 class default
   Class doc
@@ -15,81 +15,78 @@ class default
 
 
 # output.json
-[
-  {
-    "name": "default",
-    "isDefault": true,
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 2,
-      "col": 0,
-      "byteIndex": 17
-    },
-    "declarationKind": "export",
-    "jsDoc": {
-      "doc": "Class doc"
-    },
-    "kind": "class",
-    "classDef": {
-      "defName": "Foobar",
-      "isAbstract": false,
-      "constructors": [
+{
+  "symbols": [
+    {
+      "name": "default",
+      "isDefault": true,
+      "declarations": [
         {
-          "jsDoc": {
-            "doc": "Constructor js doc"
-          },
-          "accessibility": null,
-          "hasBody": true,
-          "name": "constructor",
-          "params": [
-            {
-              "kind": "identifier",
-              "name": "name",
-              "optional": false,
-              "tsType": {
-                "repr": "string",
-                "kind": "keyword",
-                "keyword": "string"
-              }
-            },
-            {
-              "accessibility": "private",
-              "kind": "identifier",
-              "name": "private2",
-              "optional": false,
-              "tsType": {
-                "repr": "number",
-                "kind": "keyword",
-                "keyword": "number"
-              }
-            },
-            {
-              "accessibility": "protected",
-              "kind": "identifier",
-              "name": "protected2",
-              "optional": false,
-              "tsType": {
-                "repr": "number",
-                "kind": "keyword",
-                "keyword": "number"
-              }
-            }
-          ],
           "location": {
             "filename": "file:///mod.ts",
-            "line": 4,
-            "col": 4,
-            "byteIndex": 81
+            "line": 1,
+            "col": 0,
+            "byteIndex": 17
+          },
+          "declarationKind": "export",
+          "jsDoc": {
+            "doc": "Class doc"
+          },
+          "kind": "class",
+          "def": {
+            "defName": "Foobar",
+            "constructors": [
+              {
+                "jsDoc": {
+                  "doc": "Constructor js doc"
+                },
+                "hasBody": true,
+                "name": "constructor",
+                "params": [
+                  {
+                    "kind": "identifier",
+                    "name": "name",
+                    "optional": false,
+                    "tsType": {
+                      "repr": "string",
+                      "kind": "keyword",
+                      "value": "string"
+                    }
+                  },
+                  {
+                    "accessibility": "private",
+                    "kind": "identifier",
+                    "name": "private2",
+                    "optional": false,
+                    "tsType": {
+                      "repr": "number",
+                      "kind": "keyword",
+                      "value": "number"
+                    }
+                  },
+                  {
+                    "accessibility": "protected",
+                    "kind": "identifier",
+                    "name": "protected2",
+                    "optional": false,
+                    "tsType": {
+                      "repr": "number",
+                      "kind": "keyword",
+                      "value": "number"
+                    }
+                  }
+                ],
+                "location": {
+                  "filename": "file:///mod.ts",
+                  "line": 3,
+                  "col": 4,
+                  "byteIndex": 81
+                }
+              }
+            ]
           }
         }
-      ],
-      "properties": [],
-      "indexSignatures": [],
-      "methods": [],
-      "extends": null,
-      "implements": [],
-      "typeParams": [],
-      "superTypeParams": []
+      ]
     }
-  }
-]
+  ]
+}

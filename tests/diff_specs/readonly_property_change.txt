@@ -15,20 +15,26 @@ export interface Foo {
       "modified": [
         {
           "name": "Foo",
-          "kind": "interface",
-          "defChanges": {
-            "type": "interface",
-            "propertyChanges": {
-              "modified": [
-                {
-                  "name": "name",
-                  "readonlyChange": {
-                    "old": false,
-                    "new": true
+          "declarations": {
+            "modified": [
+              {
+                "kind": "interface",
+                "defChanges": {
+                  "type": "interface",
+                  "propertyChanges": {
+                    "modified": [
+                      {
+                        "name": "name",
+                        "readonlyChange": {
+                          "old": false,
+                          "new": true
+                        }
+                      }
+                    ]
                   }
                 }
-              ]
-            }
+              }
+            ]
           }
         }
       ]

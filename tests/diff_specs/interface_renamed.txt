@@ -15,7 +15,6 @@ export interface Baz {
       "modified": [
         {
           "name": "Baz",
-          "kind": "interface",
           "nameChange": {
             "old": "Foo",
             "new": "Baz"

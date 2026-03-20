@@ -15,28 +15,34 @@ export interface Foo {
       "modified": [
         {
           "name": "Foo",
-          "kind": "interface",
-          "defChanges": {
-            "type": "interface",
-            "propertyChanges": {
-              "modified": [
-                {
-                  "name": "value",
-                  "typeChange": {
-                    "old": {
-                      "repr": "string",
-                      "kind": "keyword",
-                      "keyword": "string"
-                    },
-                    "new": {
-                      "repr": "number",
-                      "kind": "keyword",
-                      "keyword": "number"
-                    }
+          "declarations": {
+            "modified": [
+              {
+                "kind": "interface",
+                "defChanges": {
+                  "type": "interface",
+                  "propertyChanges": {
+                    "modified": [
+                      {
+                        "name": "value",
+                        "typeChange": {
+                          "old": {
+                            "repr": "string",
+                            "kind": "keyword",
+                            "value": "string"
+                          },
+                          "new": {
+                            "repr": "number",
+                            "kind": "keyword",
+                            "value": "number"
+                          }
+                        }
+                      }
+                    ]
                   }
                 }
-              ]
-            }
+              }
+            ]
           }
         }
       ]

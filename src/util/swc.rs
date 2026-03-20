@@ -1,6 +1,5 @@
 // Copyright 2018-2024 the Deno authors. All rights reserved. MIT license.
 
-use deno_ast::ParsedSource;
 use deno_ast::SourcePos;
 use deno_ast::SourceRange;
 use deno_ast::SourceRangedForSpanned;
@@ -23,8 +22,8 @@ pub(crate) fn is_false(b: &bool) -> bool {
   !b
 }
 
-fn parse_js_doc(js_doc_comment: &Comment) -> JsDoc {
-  remove_stars_from_js_doc(&js_doc_comment.text).into()
+fn parse_js_doc(js_doc_comment: &Comment, module_info: &EsModuleInfo) -> JsDoc {
+  JsDoc::new(remove_stars_from_js_doc(&js_doc_comment.text), module_info)
 }
 
 fn remove_stars_from_js_doc(text: &str) -> String {
@@ -38,16 +37,17 @@ fn remove_stars_from_js_doc(text: &str) -> String {
 }
 
 pub(crate) fn js_doc_for_range_include_ignore(
-  parsed_source: &ParsedSource,
+  module_info: &EsModuleInfo,
   range: &SourceRange,
 ) -> JsDoc {
-  let Some(comments) = parsed_source.comments().get_leading(range.start) else {
+  let Some(comments) = module_info.source().comments().get_leading(range.start)
+  else {
     return JsDoc::default();
   };
   if let Some(js_doc_comment) = comments.iter().rev().find(|comment| {
     comment.kind == CommentKind::Block && comment.text.starts_with('*')
   }) {
-    parse_js_doc(js_doc_comment)
+    parse_js_doc(js_doc_comment, module_info)
   } else {
     JsDoc::default()
   }
@@ -57,7 +57,7 @@ pub(crate) fn js_doc_for_range(
   module_info: &EsModuleInfo,
   range: &SourceRange,
 ) -> Option<JsDoc> {
-  let js_doc = js_doc_for_range_include_ignore(module_info.source(), range);
+  let js_doc = js_doc_for_range_include_ignore(module_info, range);
   if js_doc.tags.contains(&JsDocTag::Ignore) {
     None
   } else {
@@ -69,40 +69,33 @@ pub(crate) fn js_doc_for_range(
 /// with a `@module` tag along with its associated range, otherwise returns
 /// `None`.
 pub(crate) fn module_js_doc_for_source(
-  parsed_source: &ParsedSource,
+  module_info: &EsModuleInfo,
 ) -> Option<Option<(JsDoc, SourceRange)>> {
-  let shebang_length = parsed_source
-    .program_ref()
-    .shebang()
-    .map_or(0, |shebang| shebang.len());
-  let pos_leading_comment =
-    parsed_source.comments().leading_map().keys().min()?;
-
-  let comments = if shebang_length > 0 {
-    parsed_source
-      .comments()
-      .get_leading(SourcePos::unsafely_from_byte_pos(*pos_leading_comment))
-  } else {
-    parsed_source.get_leading_comments()
-  };
-  if let Some(js_doc_comment) = comments.and_then(|comments| {
-    comments.iter().find(|comment| {
+  module_info
+    .source()
+    .comments()
+    .get_vec()
+    .into_iter()
+    .filter(|comment| {
       comment.kind == CommentKind::Block && comment.text.starts_with('*')
     })
-  }) {
-    let js_doc = parse_js_doc(js_doc_comment);
-    if js_doc
-      .tags
-      .iter()
-      .any(|tag| matches!(tag, JsDocTag::Module { .. }))
-    {
-      if js_doc.tags.contains(&JsDocTag::Ignore) {
-        return Some(None);
+    .find_map(|comment| {
+      let js_doc = parse_js_doc(&comment, module_info);
+
+      if js_doc
+        .tags
+        .iter()
+        .any(|tag| matches!(tag, JsDocTag::Module { .. }))
+      {
+        if js_doc.tags.contains(&JsDocTag::Ignore) {
+          Some(None)
+        } else {
+          Some(Some((js_doc, comment.range())))
+        }
+      } else {
+        None
       }
-      return Some(Some((js_doc, js_doc_comment.range())));
-    }
-  }
-  None
+    })
 }
 
 pub fn get_location(module_info: &EsModuleInfo, pos: SourcePos) -> Location {
@@ -118,14 +111,12 @@ pub fn get_text_info_location(
   text_info: &SourceTextInfo,
   pos: SourcePos,
 ) -> Location {
-  // todo(#150): for some reason we're using a display indent width of 4
   let line_and_column_index =
-    text_info.line_and_column_display_with_indent_width(pos, 4);
+    text_info.line_and_column_display_with_indent_width(pos, 2);
   let byte_index = pos.as_byte_index(text_info.range().start);
   Location {
     filename: specifier.into(),
-    // todo(#150): make 0-indexed
-    line: line_and_column_index.line_number,
+    line: line_and_column_index.line_number - 1,
     col: line_and_column_index.column_number - 1,
     byte_index,
   }

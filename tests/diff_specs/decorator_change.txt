@@ -23,51 +23,57 @@ export class Foo {
       "modified": [
         {
           "name": "Foo",
-          "kind": "class",
-          "defChanges": {
-            "type": "class",
-            "methodChanges": {
-              "modified": [
-                {
-                  "name": "greet",
-                  "functionDiff": {
-                    "decoratorsChange": {
-                      "added": [
-                        {
-                          "name": "memoize",
-                          "location": {
-                            "filename": "file:///mod.ts",
-                            "line": 3,
-                            "col": 3,
-                            "byteIndex": 29
+          "declarations": {
+            "modified": [
+              {
+                "kind": "class",
+                "defChanges": {
+                  "type": "class",
+                  "methodChanges": {
+                    "modified": [
+                      {
+                        "name": "greet",
+                        "functionDiff": {
+                          "decoratorsChange": {
+                            "added": [
+                              {
+                                "name": "memoize",
+                                "location": {
+                                  "filename": "file:///mod.ts",
+                                  "line": 2,
+                                  "col": 3,
+                                  "byteIndex": 29
+                                }
+                              }
+                            ]
                           }
                         }
-                      ]
-                    }
-                  }
-                }
-              ]
-            },
-            "propertyChanges": {
-              "modified": [
-                {
-                  "name": "name",
-                  "decoratorsChange": {
-                    "removed": [
+                      }
+                    ]
+                  },
+                  "propertyChanges": {
+                    "modified": [
                       {
-                        "name": "deprecated",
-                        "location": {
-                          "filename": "file:///mod.ts",
-                          "line": 5,
-                          "col": 3,
-                          "byteIndex": 49
+                        "name": "name",
+                        "decoratorsChange": {
+                          "removed": [
+                            {
+                              "name": "deprecated",
+                              "location": {
+                                "filename": "file:///mod.ts",
+                                "line": 4,
+                                "col": 3,
+                                "byteIndex": 49
+                              }
+                            }
+                          ]
                         }
                       }
                     ]
                   }
                 }
-              ]
-            }
+              }
+            ]
           }
         }
       ]

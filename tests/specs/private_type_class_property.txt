@@ -79,23 +79,23 @@ error[missing-jsdoc]: exported symbol is missing JSDoc documentation
   | ^
 
 # output.txt
-Defined in file:///mod.ts:1:1
+Defined in file:///mod.ts:0:1
 
 type PrivatePropThroughNamespaceRef = typeof MyNamespace.Export.someProp
 
-Defined in file:///mod.ts:3:1
+Defined in file:///mod.ts:2:1
 
 private namespace MyNamespace
 
   class Export
 
-Defined in file:///mod.ts:7:1
+Defined in file:///mod.ts:6:1
 
 private namespace MyNamespace2
 
   class MyClass
 
-Defined in file:///mod.ts:11:1
+Defined in file:///mod.ts:10:1
 
 private namespace MyNamespace3
 
@@ -103,202 +103,188 @@ private namespace MyNamespace3
 
 
 # output.json
-[
-  {
-    "name": "PrivatePropThroughNamespaceRef",
-    "isDefault": false,
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 1,
-      "col": 0,
-      "byteIndex": 0
-    },
-    "declarationKind": "export",
-    "kind": "typeAlias",
-    "typeAliasDef": {
-      "tsType": {
-        "repr": "MyNamespace.Export.someProp",
-        "kind": "typeQuery",
-        "typeQuery": "MyNamespace.Export.someProp"
-      },
-      "typeParams": []
-    }
-  },
-  {
-    "name": "MyNamespace",
-    "isDefault": false,
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 3,
-      "col": 0,
-      "byteIndex": 82
-    },
-    "declarationKind": "private",
-    "kind": "namespace",
-    "namespaceDef": {
-      "elements": [
+{
+  "symbols": [
+    {
+      "name": "PrivatePropThroughNamespaceRef",
+      "declarations": [
         {
-          "name": "Export",
-          "isDefault": false,
           "location": {
             "filename": "file:///mod.ts",
-            "line": 12,
-            "col": 2,
-            "byteIndex": 259
+            "line": 0,
+            "col": 0,
+            "byteIndex": 0
           },
           "declarationKind": "export",
-          "kind": "class",
-          "classDef": {
-            "isAbstract": false,
-            "constructors": [],
-            "properties": [
+          "kind": "typeAlias",
+          "def": {
+            "tsType": {
+              "repr": "MyNamespace.Export.someProp",
+              "kind": "typeQuery",
+              "value": "MyNamespace.Export.someProp"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "MyNamespace",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 2,
+            "col": 0,
+            "byteIndex": 82
+          },
+          "declarationKind": "private",
+          "kind": "namespace",
+          "def": {
+            "elements": [
               {
-                "tsType": {
-                  "repr": "string",
-                  "kind": "keyword",
-                  "keyword": "string"
-                },
-                "readonly": false,
-                "accessibility": null,
-                "optional": false,
-                "isAbstract": false,
-                "isStatic": true,
-                "name": "someProp",
-                "location": {
-                  "filename": "file:///mod.ts",
-                  "line": 13,
-                  "col": 4,
-                  "byteIndex": 286
-                }
+                "name": "Export",
+                "declarations": [
+                  {
+                    "location": {
+                      "filename": "file:///mod.ts",
+                      "line": 11,
+                      "col": 2,
+                      "byteIndex": 259
+                    },
+                    "declarationKind": "export",
+                    "kind": "class",
+                    "def": {
+                      "properties": [
+                        {
+                          "tsType": {
+                            "repr": "string",
+                            "kind": "keyword",
+                            "value": "string"
+                          },
+                          "isStatic": true,
+                          "name": "someProp",
+                          "location": {
+                            "filename": "file:///mod.ts",
+                            "line": 12,
+                            "col": 4,
+                            "byteIndex": 286
+                          }
+                        }
+                      ]
+                    }
+                  }
+                ]
               }
-            ],
-            "indexSignatures": [],
-            "methods": [],
-            "extends": null,
-            "implements": [],
-            "typeParams": [],
-            "superTypeParams": []
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "MyNamespace2",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 6,
+            "col": 0,
+            "byteIndex": 156
+          },
+          "declarationKind": "private",
+          "kind": "namespace",
+          "def": {
+            "elements": [
+              {
+                "name": "MyClass",
+                "declarations": [
+                  {
+                    "location": {
+                      "filename": "file:///mod.ts",
+                      "line": 11,
+                      "col": 2,
+                      "byteIndex": 259
+                    },
+                    "declarationKind": "export",
+                    "kind": "class",
+                    "def": {
+                      "properties": [
+                        {
+                          "tsType": {
+                            "repr": "string",
+                            "kind": "keyword",
+                            "value": "string"
+                          },
+                          "isStatic": true,
+                          "name": "someProp",
+                          "location": {
+                            "filename": "file:///mod.ts",
+                            "line": 12,
+                            "col": 4,
+                            "byteIndex": 286
+                          }
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "MyNamespace3",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 10,
+            "col": 0,
+            "byteIndex": 232
+          },
+          "declarationKind": "private",
+          "kind": "namespace",
+          "def": {
+            "elements": [
+              {
+                "name": "MyClass",
+                "declarations": [
+                  {
+                    "location": {
+                      "filename": "file:///mod.ts",
+                      "line": 11,
+                      "col": 2,
+                      "byteIndex": 259
+                    },
+                    "declarationKind": "export",
+                    "kind": "class",
+                    "def": {
+                      "properties": [
+                        {
+                          "tsType": {
+                            "repr": "string",
+                            "kind": "keyword",
+                            "value": "string"
+                          },
+                          "isStatic": true,
+                          "name": "someProp",
+                          "location": {
+                            "filename": "file:///mod.ts",
+                            "line": 12,
+                            "col": 4,
+                            "byteIndex": 286
+                          }
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            ]
           }
         }
       ]
     }
-  },
-  {
-    "name": "MyNamespace2",
-    "isDefault": false,
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 7,
-      "col": 0,
-      "byteIndex": 156
-    },
-    "declarationKind": "private",
-    "kind": "namespace",
-    "namespaceDef": {
-      "elements": [
-        {
-          "name": "MyClass",
-          "isDefault": false,
-          "location": {
-            "filename": "file:///mod.ts",
-            "line": 12,
-            "col": 2,
-            "byteIndex": 259
-          },
-          "declarationKind": "export",
-          "kind": "class",
-          "classDef": {
-            "isAbstract": false,
-            "constructors": [],
-            "properties": [
-              {
-                "tsType": {
-                  "repr": "string",
-                  "kind": "keyword",
-                  "keyword": "string"
-                },
-                "readonly": false,
-                "accessibility": null,
-                "optional": false,
-                "isAbstract": false,
-                "isStatic": true,
-                "name": "someProp",
-                "location": {
-                  "filename": "file:///mod.ts",
-                  "line": 13,
-                  "col": 4,
-                  "byteIndex": 286
-                }
-              }
-            ],
-            "indexSignatures": [],
-            "methods": [],
-            "extends": null,
-            "implements": [],
-            "typeParams": [],
-            "superTypeParams": []
-          }
-        }
-      ]
-    }
-  },
-  {
-    "name": "MyNamespace3",
-    "isDefault": false,
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 11,
-      "col": 0,
-      "byteIndex": 232
-    },
-    "declarationKind": "private",
-    "kind": "namespace",
-    "namespaceDef": {
-      "elements": [
-        {
-          "name": "MyClass",
-          "isDefault": false,
-          "location": {
-            "filename": "file:///mod.ts",
-            "line": 12,
-            "col": 2,
-            "byteIndex": 259
-          },
-          "declarationKind": "export",
-          "kind": "class",
-          "classDef": {
-            "isAbstract": false,
-            "constructors": [],
-            "properties": [
-              {
-                "tsType": {
-                  "repr": "string",
-                  "kind": "keyword",
-                  "keyword": "string"
-                },
-                "readonly": false,
-                "accessibility": null,
-                "optional": false,
-                "isAbstract": false,
-                "isStatic": true,
-                "name": "someProp",
-                "location": {
-                  "filename": "file:///mod.ts",
-                  "line": 13,
-                  "col": 4,
-                  "byteIndex": 286
-                }
-              }
-            ],
-            "indexSignatures": [],
-            "methods": [],
-            "extends": null,
-            "implements": [],
-            "typeParams": [],
-            "superTypeParams": []
-          }
-        }
-      ]
-    }
-  }
-]
+  ]
+}

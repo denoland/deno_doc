@@ -18,7 +18,7 @@ error[missing-jsdoc]: exported symbol is missing JSDoc documentation
   |     ^
 
 # output.txt
-Defined in file:///mod.ts:1:1
+Defined in file:///mod.ts:0:1
 
 interface TypedIface<T>
 
@@ -26,52 +26,54 @@ interface TypedIface<T>
 
 
 # output.json
-[
-  {
-    "name": "TypedIface",
-    "isDefault": false,
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 1,
-      "col": 0,
-      "byteIndex": 0
-    },
-    "declarationKind": "export",
-    "kind": "interface",
-    "interfaceDef": {
-      "extends": [],
-      "constructors": [],
-      "methods": [
+{
+  "symbols": [
+    {
+      "name": "TypedIface",
+      "declarations": [
         {
-          "name": "something",
-          "kind": "method",
           "location": {
             "filename": "file:///mod.ts",
-            "line": 2,
-            "col": 4,
-            "byteIndex": 37
+            "line": 0,
+            "col": 0,
+            "byteIndex": 0
           },
-          "params": [],
-          "optional": false,
-          "returnType": {
-            "repr": "T",
-            "kind": "typeRef",
-            "typeRef": {
-              "typeParams": null,
-              "typeName": "T"
-            }
-          },
-          "typeParams": []
-        }
-      ],
-      "properties": [],
-      "callSignatures": [],
-      "indexSignatures": [],
-      "typeParams": [
-        {
-          "name": "T"
+          "declarationKind": "export",
+          "kind": "interface",
+          "def": {
+            "methods": [
+              {
+                "name": "something",
+                "kind": "method",
+                "location": {
+                  "filename": "file:///mod.ts",
+                  "line": 1,
+                  "col": 4,
+                  "byteIndex": 37
+                },
+                "params": [],
+                "returnType": {
+                  "repr": "T",
+                  "kind": "typeRef",
+                  "value": {
+                    "typeName": "T",
+                    "resolution": {
+                      "kind": "typeParam",
+                      "declaringName": "TypedIface",
+                      "declaringKind": "interface"
+                    }
+                  }
+                }
+              }
+            ],
+            "typeParams": [
+              {
+                "name": "T"
+              }
+            ]
+          }
         }
       ]
     }
-  }
-]
+  ]
+}

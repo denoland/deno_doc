@@ -14,7 +14,7 @@ error[missing-jsdoc]: exported symbol is missing JSDoc documentation
   | ^
 
 # output.txt
-Defined in file:///mod.ts:5:1
+Defined in file:///mod.ts:4:1
 
 function noop(): void
 
@@ -23,41 +23,43 @@ function noop(): void
 
 
 # output.json
-[
-  {
-    "name": "noop",
-    "isDefault": false,
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 5,
-      "col": 0,
-      "byteIndex": 48
-    },
-    "declarationKind": "export",
-    "jsDoc": {
-      "tags": [
+{
+  "symbols": [
+    {
+      "name": "noop",
+      "declarations": [
         {
-          "kind": "unsupported",
-          "value": "@customtagone"
-        },
-        {
-          "kind": "unsupported",
-          "value": "@customtagtwo value"
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 4,
+            "col": 0,
+            "byteIndex": 48
+          },
+          "declarationKind": "export",
+          "jsDoc": {
+            "tags": [
+              {
+                "kind": "unsupported",
+                "value": "@customtagone"
+              },
+              {
+                "kind": "unsupported",
+                "value": "@customtagtwo value"
+              }
+            ]
+          },
+          "kind": "function",
+          "def": {
+            "params": [],
+            "returnType": {
+              "repr": "void",
+              "kind": "keyword",
+              "value": "void"
+            },
+            "hasBody": true
+          }
         }
       ]
-    },
-    "kind": "function",
-    "functionDef": {
-      "params": [],
-      "returnType": {
-        "repr": "void",
-        "kind": "keyword",
-        "keyword": "void"
-      },
-      "hasBody": true,
-      "isAsync": false,
-      "isGenerator": false,
-      "typeParams": []
     }
-  }
-]
+  ]
+}

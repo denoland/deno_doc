@@ -11,21 +11,27 @@ export function foo(): number { return 0; }
       "modified": [
         {
           "name": "foo",
-          "kind": "function",
-          "defChanges": {
-            "type": "function",
-            "returnTypeChange": {
-              "old": {
-                "repr": "string",
-                "kind": "keyword",
-                "keyword": "string"
-              },
-              "new": {
-                "repr": "number",
-                "kind": "keyword",
-                "keyword": "number"
+          "declarations": {
+            "modified": [
+              {
+                "kind": "function",
+                "defChanges": {
+                  "type": "function",
+                  "returnTypeChange": {
+                    "old": {
+                      "repr": "string",
+                      "kind": "keyword",
+                      "value": "string"
+                    },
+                    "new": {
+                      "repr": "number",
+                      "kind": "keyword",
+                      "value": "number"
+                    }
+                  }
+                }
               }
-            }
+            ]
           }
         }
       ]

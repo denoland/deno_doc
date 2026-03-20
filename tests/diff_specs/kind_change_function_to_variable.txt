@@ -11,21 +11,27 @@ export const foo = () => {};
       "modified": [
         {
           "name": "foo",
-          "kind": "function",
-          "defChanges": {
-            "type": "function",
-            "returnTypeChange": {
-              "old": {
-                "repr": "void",
-                "kind": "keyword",
-                "keyword": "void"
-              },
-              "new": {
-                "repr": "void",
-                "kind": "keyword",
-                "keyword": "void"
+          "declarations": {
+            "modified": [
+              {
+                "kind": "function",
+                "defChanges": {
+                  "type": "function",
+                  "returnTypeChange": {
+                    "old": {
+                      "repr": "void",
+                      "kind": "keyword",
+                      "value": "void"
+                    },
+                    "new": {
+                      "repr": "void",
+                      "kind": "keyword",
+                      "value": "void"
+                    }
+                  }
+                }
               }
-            }
+            ]
           }
         }
       ]

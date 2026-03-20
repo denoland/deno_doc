@@ -18,7 +18,7 @@ error[missing-jsdoc]: exported symbol is missing JSDoc documentation
   |   ^
 
 # output.txt
-Defined in file:///mod.ts:1:1
+Defined in file:///mod.ts:0:1
 
 class Class
 
@@ -26,71 +26,61 @@ class Class
 
 
 # output.json
-[
-  {
-    "name": "Class",
-    "isDefault": false,
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 1,
-      "col": 0,
-      "byteIndex": 0
-    },
-    "declarationKind": "export",
-    "kind": "class",
-    "classDef": {
-      "isAbstract": false,
-      "constructors": [],
-      "properties": [],
-      "indexSignatures": [],
-      "methods": [
+{
+  "symbols": [
+    {
+      "name": "Class",
+      "declarations": [
         {
-          "accessibility": null,
-          "optional": false,
-          "isAbstract": false,
-          "isStatic": false,
-          "name": "amethod",
-          "kind": "method",
-          "functionDef": {
-            "params": [
-              {
-                "kind": "identifier",
-                "name": "v",
-                "optional": false,
-                "tsType": null
-              }
-            ],
-            "returnType": {
-              "repr": "Promise",
-              "kind": "typeRef",
-              "typeRef": {
-                "typeParams": [
-                  {
-                    "repr": "void",
-                    "kind": "keyword",
-                    "keyword": "void"
-                  }
-                ],
-                "typeName": "Promise"
-              }
-            },
-            "hasBody": true,
-            "isAsync": true,
-            "isGenerator": false,
-            "typeParams": []
-          },
           "location": {
             "filename": "file:///mod.ts",
-            "line": 2,
-            "col": 2,
-            "byteIndex": 23
+            "line": 0,
+            "col": 0,
+            "byteIndex": 0
+          },
+          "declarationKind": "export",
+          "kind": "class",
+          "def": {
+            "methods": [
+              {
+                "name": "amethod",
+                "kind": "method",
+                "functionDef": {
+                  "params": [
+                    {
+                      "kind": "identifier",
+                      "name": "v",
+                      "optional": false
+                    }
+                  ],
+                  "returnType": {
+                    "repr": "Promise",
+                    "kind": "typeRef",
+                    "value": {
+                      "typeParams": [
+                        {
+                          "repr": "void",
+                          "kind": "keyword",
+                          "value": "void"
+                        }
+                      ],
+                      "typeName": "Promise"
+                    }
+                  },
+                  "hasBody": true,
+                  "isAsync": true
+                },
+                "location": {
+                  "filename": "file:///mod.ts",
+                  "line": 1,
+                  "col": 2,
+                  "byteIndex": 23
+                }
+              }
+            ]
           }
         }
-      ],
-      "extends": null,
-      "implements": [],
-      "typeParams": [],
-      "superTypeParams": []
+      ]
     }
-  }
-]
+  ]
+}

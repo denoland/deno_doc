@@ -16,32 +16,33 @@ export class Foo {
       "modified": [
         {
           "name": "Foo",
-          "kind": "class",
-          "defChanges": {
-            "type": "class",
-            "propertyChanges": {
-              "removed": [
-                {
-                  "tsType": {
-                    "repr": "number",
-                    "kind": "keyword",
-                    "keyword": "number"
-                  },
-                  "readonly": false,
-                  "accessibility": null,
-                  "optional": false,
-                  "isAbstract": false,
-                  "isStatic": false,
-                  "name": "age",
-                  "location": {
-                    "filename": "file:///mod.ts",
-                    "line": 3,
-                    "col": 2,
-                    "byteIndex": 42
+          "declarations": {
+            "modified": [
+              {
+                "kind": "class",
+                "defChanges": {
+                  "type": "class",
+                  "propertyChanges": {
+                    "removed": [
+                      {
+                        "tsType": {
+                          "repr": "number",
+                          "kind": "keyword",
+                          "value": "number"
+                        },
+                        "name": "age",
+                        "location": {
+                          "filename": "file:///mod.ts",
+                          "line": 2,
+                          "col": 2,
+                          "byteIndex": 42
+                        }
+                      }
+                    ]
                   }
                 }
-              ]
-            }
+              }
+            ]
           }
         }
       ]

@@ -32,8 +32,7 @@ pub struct EnumDef {
 pub fn get_doc_for_ts_enum_decl(
   module_info: &EsModuleInfo,
   enum_decl: &deno_ast::swc::ast::TsEnumDecl,
-) -> (String, EnumDef) {
-  let enum_name = enum_decl.id.sym.to_string();
+) -> EnumDef {
   let mut members = vec![];
 
   for enum_member in &enum_decl.members {
@@ -60,7 +59,5 @@ pub fn get_doc_for_ts_enum_decl(
     }
   }
 
-  let enum_def = EnumDef { members };
-
-  (enum_name, enum_def)
+  EnumDef { members }
 }

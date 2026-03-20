@@ -9,55 +9,59 @@ error[missing-jsdoc]: exported symbol is missing JSDoc documentation
   | ^
 
 # output.txt
-Defined in file:///mod.ts:1:1
+Defined in file:///mod.ts:0:1
 
 interface Interface<V> extends Iterable<V>
 
 
 
 # output.json
-[
-  {
-    "name": "Interface",
-    "isDefault": false,
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 1,
-      "col": 0,
-      "byteIndex": 0
-    },
-    "declarationKind": "export",
-    "kind": "interface",
-    "interfaceDef": {
-      "extends": [
+{
+  "symbols": [
+    {
+      "name": "Interface",
+      "declarations": [
         {
-          "repr": "Iterable",
-          "kind": "typeRef",
-          "typeRef": {
-            "typeParams": [
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 0,
+            "col": 0,
+            "byteIndex": 0
+          },
+          "declarationKind": "export",
+          "kind": "interface",
+          "def": {
+            "extends": [
               {
-                "repr": "V",
+                "repr": "Iterable",
                 "kind": "typeRef",
-                "typeRef": {
-                  "typeParams": null,
-                  "typeName": "V"
+                "value": {
+                  "typeParams": [
+                    {
+                      "repr": "V",
+                      "kind": "typeRef",
+                      "value": {
+                        "typeName": "V",
+                        "resolution": {
+                          "kind": "typeParam",
+                          "declaringName": "Interface",
+                          "declaringKind": "interface"
+                        }
+                      }
+                    }
+                  ],
+                  "typeName": "Iterable"
                 }
               }
             ],
-            "typeName": "Iterable"
+            "typeParams": [
+              {
+                "name": "V"
+              }
+            ]
           }
-        }
-      ],
-      "constructors": [],
-      "methods": [],
-      "properties": [],
-      "callSignatures": [],
-      "indexSignatures": [],
-      "typeParams": [
-        {
-          "name": "V"
         }
       ]
     }
-  }
-]
+  ]
+}

@@ -11,13 +11,19 @@ export const VERSION: string = "1.0.0";
       "modified": [
         {
           "name": "VERSION",
-          "kind": "variable",
-          "defChanges": {
-            "type": "variable",
-            "kindChange": {
-              "old": "let",
-              "new": "const"
-            }
+          "declarations": {
+            "modified": [
+              {
+                "kind": "variable",
+                "defChanges": {
+                  "type": "variable",
+                  "kindChange": {
+                    "old": "let",
+                    "new": "const"
+                  }
+                }
+              }
+            ]
           }
         }
       ]

@@ -17,63 +17,64 @@ export interface Foo extends Base {
       "added": [
         {
           "name": "Base",
-          "isDefault": false,
-          "location": {
-            "filename": "file:///mod.ts",
-            "line": 1,
-            "col": 0,
-            "byteIndex": 0
-          },
-          "declarationKind": "private",
-          "kind": "interface",
-          "interfaceDef": {
-            "extends": [],
-            "constructors": [],
-            "methods": [],
-            "properties": [
-              {
-                "name": "id",
-                "location": {
-                  "filename": "file:///mod.ts",
-                  "line": 1,
-                  "col": 17,
-                  "byteIndex": 17
-                },
-                "params": [],
-                "computed": false,
-                "optional": false,
-                "tsType": {
-                  "repr": "number",
-                  "kind": "keyword",
-                  "keyword": "number"
-                },
-                "typeParams": []
+          "declarations": [
+            {
+              "location": {
+                "filename": "file:///mod.ts",
+                "line": 0,
+                "col": 0,
+                "byteIndex": 0
+              },
+              "declarationKind": "private",
+              "kind": "interface",
+              "def": {
+                "properties": [
+                  {
+                    "name": "id",
+                    "location": {
+                      "filename": "file:///mod.ts",
+                      "line": 0,
+                      "col": 17,
+                      "byteIndex": 17
+                    },
+                    "tsType": {
+                      "repr": "number",
+                      "kind": "keyword",
+                      "value": "number"
+                    }
+                  }
+                ]
               }
-            ],
-            "callSignatures": [],
-            "indexSignatures": [],
-            "typeParams": []
-          }
+            }
+          ]
         }
       ],
       "modified": [
         {
           "name": "Foo",
-          "kind": "interface",
-          "defChanges": {
-            "type": "interface",
-            "extendsChange": {
-              "added": [
-                {
-                  "repr": "Base",
-                  "kind": "typeRef",
-                  "typeRef": {
-                    "typeParams": null,
-                    "typeName": "Base"
+          "declarations": {
+            "modified": [
+              {
+                "kind": "interface",
+                "defChanges": {
+                  "type": "interface",
+                  "extendsChange": {
+                    "added": [
+                      {
+                        "repr": "Base",
+                        "kind": "typeRef",
+                        "value": {
+                          "typeName": "Base",
+                          "resolution": {
+                            "kind": "local"
+                          }
+                        }
+                      }
+                    ]
                   }
                 }
-              ]
-            }
+              }
+            ]
           }
         }
       ]

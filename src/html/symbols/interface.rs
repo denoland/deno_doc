@@ -1,3 +1,4 @@
+use crate::Declaration;
 use crate::html::DiffStatus;
 use crate::html::DocNodeWithContext;
 use crate::html::parameters::render_params;
@@ -8,10 +9,11 @@ use crate::html::util::*;
 
 pub(crate) fn render_interface(
   ctx: &RenderContext,
-  doc_node: &DocNodeWithContext,
-  name: &str,
+  symbol: &DocNodeWithContext,
+  decl: &Declaration,
 ) -> Vec<SectionCtx> {
-  let interface_def = doc_node.interface_def().unwrap();
+  let interface_def = decl.interface_def().unwrap();
+  let name = symbol.get_qualified_name();
 
   let current_type_params = interface_def
     .type_params
@@ -23,9 +25,9 @@ pub(crate) fn render_interface(
   let interface_diff = ctx.ctx.diff.as_ref().and_then(|diff_index| {
     diff_index
       .get_def_diff(
-        &doc_node.origin.specifier,
-        doc_node.get_name(),
-        doc_node.def.to_kind(),
+        &symbol.origin.specifier,
+        symbol.get_name(),
+        decl.def.to_kind(),
       )
       .and_then(|d| d.as_interface())
   });
@@ -34,9 +36,9 @@ pub(crate) fn render_interface(
 
   if let Some(type_params) = crate::html::types::render_type_params(
     ctx,
-    &doc_node.js_doc,
+    &decl.js_doc,
     &interface_def.type_params,
-    &doc_node.location,
+    &decl.location,
     interface_diff.and_then(|d| d.type_params_change.as_ref()),
   ) {
     sections.push(type_params);

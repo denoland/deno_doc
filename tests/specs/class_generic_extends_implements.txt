@@ -9,94 +9,110 @@ error[missing-jsdoc]: exported symbol is missing JSDoc documentation
   | ^
 
 # output.txt
-Defined in file:///mod.ts:1:1
+Defined in file:///mod.ts:0:1
 
 class Class<A, B> extends Map<A, B> implements Iterator<A>, Iterable<B>
 
 
 
 # output.json
-[
-  {
-    "name": "Class",
-    "isDefault": false,
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 1,
-      "col": 0,
-      "byteIndex": 0
-    },
-    "declarationKind": "export",
-    "kind": "class",
-    "classDef": {
-      "isAbstract": false,
-      "constructors": [],
-      "properties": [],
-      "indexSignatures": [],
-      "methods": [],
-      "extends": "Map",
-      "implements": [
+{
+  "symbols": [
+    {
+      "name": "Class",
+      "declarations": [
         {
-          "repr": "Iterator",
-          "kind": "typeRef",
-          "typeRef": {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 0,
+            "col": 0,
+            "byteIndex": 0
+          },
+          "declarationKind": "export",
+          "kind": "class",
+          "def": {
+            "extends": "Map",
+            "implements": [
+              {
+                "repr": "Iterator",
+                "kind": "typeRef",
+                "value": {
+                  "typeParams": [
+                    {
+                      "repr": "A",
+                      "kind": "typeRef",
+                      "value": {
+                        "typeName": "A",
+                        "resolution": {
+                          "kind": "typeParam",
+                          "declaringName": "Class",
+                          "declaringKind": "class"
+                        }
+                      }
+                    }
+                  ],
+                  "typeName": "Iterator"
+                }
+              },
+              {
+                "repr": "Iterable",
+                "kind": "typeRef",
+                "value": {
+                  "typeParams": [
+                    {
+                      "repr": "B",
+                      "kind": "typeRef",
+                      "value": {
+                        "typeName": "B",
+                        "resolution": {
+                          "kind": "typeParam",
+                          "declaringName": "Class",
+                          "declaringKind": "class"
+                        }
+                      }
+                    }
+                  ],
+                  "typeName": "Iterable"
+                }
+              }
+            ],
             "typeParams": [
+              {
+                "name": "A"
+              },
+              {
+                "name": "B"
+              }
+            ],
+            "superTypeParams": [
               {
                 "repr": "A",
                 "kind": "typeRef",
-                "typeRef": {
-                  "typeParams": null,
-                  "typeName": "A"
+                "value": {
+                  "typeName": "A",
+                  "resolution": {
+                    "kind": "typeParam",
+                    "declaringName": "Class",
+                    "declaringKind": "class"
+                  }
                 }
-              }
-            ],
-            "typeName": "Iterator"
-          }
-        },
-        {
-          "repr": "Iterable",
-          "kind": "typeRef",
-          "typeRef": {
-            "typeParams": [
+              },
               {
                 "repr": "B",
                 "kind": "typeRef",
-                "typeRef": {
-                  "typeParams": null,
-                  "typeName": "B"
+                "value": {
+                  "typeName": "B",
+                  "resolution": {
+                    "kind": "typeParam",
+                    "declaringName": "Class",
+                    "declaringKind": "class"
+                  }
                 }
               }
-            ],
-            "typeName": "Iterable"
-          }
-        }
-      ],
-      "typeParams": [
-        {
-          "name": "A"
-        },
-        {
-          "name": "B"
-        }
-      ],
-      "superTypeParams": [
-        {
-          "repr": "A",
-          "kind": "typeRef",
-          "typeRef": {
-            "typeParams": null,
-            "typeName": "A"
-          }
-        },
-        {
-          "repr": "B",
-          "kind": "typeRef",
-          "typeRef": {
-            "typeParams": null,
-            "typeName": "B"
+            ]
           }
         }
       ]
     }
-  }
-]
+  ]
+}

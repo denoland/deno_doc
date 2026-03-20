@@ -33,34 +33,40 @@ export class Bar {
       "modified": [
         {
           "name": "Bar",
-          "kind": "class",
           "nameChange": {
             "old": "Foo",
             "new": "Bar"
           },
-          "defChanges": {
-            "type": "class",
-            "methodChanges": {
-              "modified": [
-                {
-                  "name": "j",
-                  "functionDiff": {
-                    "returnTypeChange": {
-                      "old": {
-                        "repr": "void",
-                        "kind": "keyword",
-                        "keyword": "void"
-                      },
-                      "new": {
-                        "repr": "string",
-                        "kind": "keyword",
-                        "keyword": "string"
+          "declarations": {
+            "modified": [
+              {
+                "kind": "class",
+                "defChanges": {
+                  "type": "class",
+                  "methodChanges": {
+                    "modified": [
+                      {
+                        "name": "j",
+                        "functionDiff": {
+                          "returnTypeChange": {
+                            "old": {
+                              "repr": "void",
+                              "kind": "keyword",
+                              "value": "void"
+                            },
+                            "new": {
+                              "repr": "string",
+                              "kind": "keyword",
+                              "value": "string"
+                            }
+                          }
+                        }
                       }
-                    }
+                    ]
                   }
                 }
-              ]
-            }
+              }
+            ]
           }
         }
       ]

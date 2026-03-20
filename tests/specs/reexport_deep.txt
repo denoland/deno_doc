@@ -51,52 +51,49 @@ error[missing-jsdoc]: exported symbol is missing JSDoc documentation
   | ^
 
 # output.txt
-Defined in file:///mod.ts:2:1
+Defined in file:///mod.ts:1:1
 
 type UrlMessageEntity = MessageEntity.TextLinkMessageEntity
 
-Defined in file:///mod.ts:1:1
-
-
 
 # output.json
-[
-  {
-    "name": "UrlMessageEntity",
-    "isDefault": false,
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 2,
-      "col": 0,
-      "byteIndex": 45
-    },
-    "declarationKind": "export",
-    "kind": "typeAlias",
-    "typeAliasDef": {
-      "tsType": {
-        "repr": "MessageEntity.TextLinkMessageEntity",
-        "kind": "typeRef",
-        "typeRef": {
-          "typeParams": null,
-          "typeName": "MessageEntity.TextLinkMessageEntity"
+{
+  "imports": [
+    {
+      "importedName": "MessageEntity",
+      "originalName": "MessageEntity",
+      "src": "file:///a.ts"
+    }
+  ],
+  "symbols": [
+    {
+      "name": "UrlMessageEntity",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 1,
+            "col": 0,
+            "byteIndex": 45
+          },
+          "declarationKind": "export",
+          "kind": "typeAlias",
+          "def": {
+            "tsType": {
+              "repr": "MessageEntity.TextLinkMessageEntity",
+              "kind": "typeRef",
+              "value": {
+                "typeName": "MessageEntity.TextLinkMessageEntity",
+                "resolution": {
+                  "kind": "import",
+                  "specifier": "./a.ts",
+                  "name": "MessageEntity"
+                }
+              }
+            }
+          }
         }
-      },
-      "typeParams": []
+      ]
     }
-  },
-  {
-    "name": "MessageEntity",
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 1,
-      "col": 0,
-      "byteIndex": 0
-    },
-    "declarationKind": "private",
-    "kind": "import",
-    "importDef": {
-      "src": "file:///a.ts",
-      "imported": "MessageEntity"
-    }
-  }
-]
+  ]
+}

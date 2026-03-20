@@ -11,7 +11,6 @@ export function greet(): void {}
       "modified": [
         {
           "name": "greet",
-          "kind": "function",
           "nameChange": {
             "old": "default",
             "new": "greet"

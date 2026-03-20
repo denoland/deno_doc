@@ -11,7 +11,6 @@ export type Bar = string | number;
       "modified": [
         {
           "name": "Bar",
-          "kind": "typeAlias",
           "nameChange": {
             "old": "Foo",
             "new": "Bar"

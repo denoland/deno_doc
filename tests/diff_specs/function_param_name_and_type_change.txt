@@ -11,35 +11,41 @@ export function foo(qaz: number): string { return ''; }
       "modified": [
         {
           "name": "foo",
-          "kind": "function",
-          "defChanges": {
-            "type": "function",
-            "paramsChange": {
-              "added": [
-                {
-                  "kind": "identifier",
-                  "name": "qaz",
-                  "optional": false,
-                  "tsType": {
-                    "repr": "number",
-                    "kind": "keyword",
-                    "keyword": "number"
+          "declarations": {
+            "modified": [
+              {
+                "kind": "function",
+                "defChanges": {
+                  "type": "function",
+                  "paramsChange": {
+                    "added": [
+                      {
+                        "kind": "identifier",
+                        "name": "qaz",
+                        "optional": false,
+                        "tsType": {
+                          "repr": "number",
+                          "kind": "keyword",
+                          "value": "number"
+                        }
+                      }
+                    ],
+                    "removed": [
+                      {
+                        "kind": "identifier",
+                        "name": "bar",
+                        "optional": false,
+                        "tsType": {
+                          "repr": "string",
+                          "kind": "keyword",
+                          "value": "string"
+                        }
+                      }
+                    ]
                   }
                 }
-              ],
-              "removed": [
-                {
-                  "kind": "identifier",
-                  "name": "bar",
-                  "optional": false,
-                  "tsType": {
-                    "repr": "string",
-                    "kind": "keyword",
-                    "keyword": "string"
-                  }
-                }
-              ]
-            }
+              }
+            ]
           }
         }
       ]

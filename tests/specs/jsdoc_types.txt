@@ -1,0 +1,783 @@
+# mod.ts
+/**
+ * Process items with complex types.
+ *
+ * @param {Map<string, Set<number>>} lookup the lookup map
+ * @param {(item: string) => boolean} predicate filter function
+ * @param {[string, number, boolean]} triple a tuple
+ * @param {string | number | null} value nullable union
+ * @param {Record<string, unknown>} person an object
+ * @returns {Promise<Array<string>>} the results
+ * @throws {RangeError} if out of range
+ * @throws {TypeError} if wrong type
+ */
+export function process(
+  lookup: Map<string, Set<number>>,
+  predicate: (item: string) => boolean,
+  triple: [string, number, boolean],
+  value: string | number | null,
+  person: Record<string, unknown>,
+): Promise<Array<string>> {}
+
+/**
+ * @type {ReadonlyArray<string>}
+ */
+export const items: ReadonlyArray<string> = [];
+
+/**
+ * @typedef {Record<number, string>} LabeledItem
+ */
+
+/**
+ * @enum {number}
+ */
+export const Status = {};
+
+/**
+ * @this {HTMLElement}
+ */
+export function handler() {}
+
+/**
+ * @extends {Array<string>}
+ */
+export class StringList {}
+
+/**
+ * @property {string} name the name
+ * @property {number} age the age
+ * @property {string[]} tags the tags
+ */
+export class Config {}
+
+# diagnostics
+error[missing-jsdoc]: exported symbol is missing JSDoc documentation
+  --> /mod.ts:24:14
+   | 
+24 | export const items: ReadonlyArray<string> = [];
+   |              ^
+
+
+error[missing-jsdoc]: exported symbol is missing JSDoc documentation
+  --> /mod.ts:33:14
+   | 
+33 | export const Status = {};
+   |              ^
+
+
+error[missing-explicit-type]: exported symbol is missing an explicit type annotation
+  --> /mod.ts:33:14
+   | 
+33 | export const Status = {};
+   |              ^
+
+
+error[missing-jsdoc]: exported symbol is missing JSDoc documentation
+  --> /mod.ts:38:1
+   | 
+38 | export function handler() {}
+   | ^
+
+
+error[missing-jsdoc]: exported symbol is missing JSDoc documentation
+  --> /mod.ts:43:1
+   | 
+43 | export class StringList {}
+   | ^
+
+
+error[missing-jsdoc]: exported symbol is missing JSDoc documentation
+  --> /mod.ts:50:1
+   | 
+50 | export class Config {}
+   | ^
+
+# output.txt
+Defined in file:///mod.ts:37:1
+
+function handler(): void
+
+  @this {HTMLElement}
+
+Defined in file:///mod.ts:12:1
+
+function process(lookup: Map<string, Set<number>>, predicate: (item: string) => boolean, triple: [string, number, boolean], value: string | number | null, person: Record<string, unknown>): Promise<Array<string>>
+  Process items with complex types.
+
+  @param {Map<string, Set<number>>} lookup
+      the lookup map
+
+  @param {(item: string) => boolean} predicate
+      filter function
+
+  @param {[string, number, boolean]} triple
+      a tuple
+
+  @param {string | number | null} value
+      nullable union
+
+  @param {Record<string, unknown>} person
+      an object
+
+  @return {Promise<Array<string>>}
+      the results
+
+  @throws {RangeError}
+      if out of range
+
+  @throws {TypeError}
+      if wrong type
+
+
+Defined in file:///mod.ts:32:14
+
+const Status
+
+  @enum {number}
+
+Defined in file:///mod.ts:23:14
+
+const items: ReadonlyArray<string>
+
+  @typeref {ReadonlyArray<string>}
+
+Defined in file:///mod.ts:49:1
+
+class Config
+
+  @property {string} name
+      the name
+
+  @property {number} age
+      the age
+
+  @property {string[]} tags
+      the tags
+
+
+
+Defined in file:///mod.ts:42:1
+
+class StringList
+
+  @extends {Array<string>}
+
+
+
+# output.json
+{
+  "symbols": [
+    {
+      "name": "process",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 12,
+            "col": 0,
+            "byteIndex": 459
+          },
+          "declarationKind": "export",
+          "jsDoc": {
+            "doc": "Process items with complex types.\n",
+            "tags": [
+              {
+                "kind": "param",
+                "name": "lookup",
+                "tsType": {
+                  "repr": "Map<string, Set<number>>",
+                  "kind": "typeRef",
+                  "value": {
+                    "typeParams": [
+                      {
+                        "repr": "string",
+                        "kind": "keyword",
+                        "value": "string"
+                      },
+                      {
+                        "repr": "Set",
+                        "kind": "typeRef",
+                        "value": {
+                          "typeParams": [
+                            {
+                              "repr": "number",
+                              "kind": "keyword",
+                              "value": "number"
+                            }
+                          ],
+                          "typeName": "Set",
+                          "resolution": {
+                            "kind": "typeParam"
+                          }
+                        }
+                      }
+                    ],
+                    "typeName": "Map",
+                    "resolution": {
+                      "kind": "typeParam"
+                    }
+                  }
+                },
+                "doc": "the lookup map"
+              },
+              {
+                "kind": "param",
+                "name": "predicate",
+                "tsType": {
+                  "repr": "(item: string) => boolean",
+                  "kind": "fnOrConstructor",
+                  "value": {
+                    "constructor": false,
+                    "tsType": {
+                      "repr": "boolean",
+                      "kind": "keyword",
+                      "value": "boolean"
+                    },
+                    "params": [
+                      {
+                        "kind": "identifier",
+                        "name": "item",
+                        "optional": false,
+                        "tsType": {
+                          "repr": "string",
+                          "kind": "keyword",
+                          "value": "string"
+                        }
+                      }
+                    ]
+                  }
+                },
+                "doc": "filter function"
+              },
+              {
+                "kind": "param",
+                "name": "triple",
+                "tsType": {
+                  "repr": "[string, number, boolean]",
+                  "kind": "tuple",
+                  "value": [
+                    {
+                      "repr": "string",
+                      "kind": "keyword",
+                      "value": "string"
+                    },
+                    {
+                      "repr": "number",
+                      "kind": "keyword",
+                      "value": "number"
+                    },
+                    {
+                      "repr": "boolean",
+                      "kind": "keyword",
+                      "value": "boolean"
+                    }
+                  ]
+                },
+                "doc": "a tuple"
+              },
+              {
+                "kind": "param",
+                "name": "value",
+                "tsType": {
+                  "repr": "string | number | null",
+                  "kind": "union",
+                  "value": [
+                    {
+                      "repr": "string",
+                      "kind": "keyword",
+                      "value": "string"
+                    },
+                    {
+                      "repr": "number",
+                      "kind": "keyword",
+                      "value": "number"
+                    },
+                    {
+                      "repr": "null",
+                      "kind": "keyword",
+                      "value": "null"
+                    }
+                  ]
+                },
+                "doc": "nullable union"
+              },
+              {
+                "kind": "param",
+                "name": "person",
+                "tsType": {
+                  "repr": "Record<string, unknown>",
+                  "kind": "typeRef",
+                  "value": {
+                    "typeParams": [
+                      {
+                        "repr": "string",
+                        "kind": "keyword",
+                        "value": "string"
+                      },
+                      {
+                        "repr": "unknown",
+                        "kind": "keyword",
+                        "value": "unknown"
+                      }
+                    ],
+                    "typeName": "Record",
+                    "resolution": {
+                      "kind": "typeParam"
+                    }
+                  }
+                },
+                "doc": "an object"
+              },
+              {
+                "kind": "return",
+                "tsType": {
+                  "repr": "Promise<Array<string>>",
+                  "kind": "typeRef",
+                  "value": {
+                    "typeParams": [
+                      {
+                        "repr": "Array",
+                        "kind": "typeRef",
+                        "value": {
+                          "typeParams": [
+                            {
+                              "repr": "string",
+                              "kind": "keyword",
+                              "value": "string"
+                            }
+                          ],
+                          "typeName": "Array",
+                          "resolution": {
+                            "kind": "typeParam"
+                          }
+                        }
+                      }
+                    ],
+                    "typeName": "Promise",
+                    "resolution": {
+                      "kind": "typeParam"
+                    }
+                  }
+                },
+                "doc": "the results"
+              },
+              {
+                "kind": "throws",
+                "tsType": {
+                  "repr": "RangeError",
+                  "kind": "typeRef",
+                  "value": {
+                    "typeName": "RangeError",
+                    "resolution": {
+                      "kind": "typeParam"
+                    }
+                  }
+                },
+                "doc": "if out of range"
+              },
+              {
+                "kind": "throws",
+                "tsType": {
+                  "repr": "TypeError",
+                  "kind": "typeRef",
+                  "value": {
+                    "typeName": "TypeError",
+                    "resolution": {
+                      "kind": "typeParam"
+                    }
+                  }
+                },
+                "doc": "if wrong type"
+              }
+            ]
+          },
+          "kind": "function",
+          "def": {
+            "params": [
+              {
+                "kind": "identifier",
+                "name": "lookup",
+                "optional": false,
+                "tsType": {
+                  "repr": "Map",
+                  "kind": "typeRef",
+                  "value": {
+                    "typeParams": [
+                      {
+                        "repr": "string",
+                        "kind": "keyword",
+                        "value": "string"
+                      },
+                      {
+                        "repr": "Set",
+                        "kind": "typeRef",
+                        "value": {
+                          "typeParams": [
+                            {
+                              "repr": "number",
+                              "kind": "keyword",
+                              "value": "number"
+                            }
+                          ],
+                          "typeName": "Set"
+                        }
+                      }
+                    ],
+                    "typeName": "Map"
+                  }
+                }
+              },
+              {
+                "kind": "identifier",
+                "name": "predicate",
+                "optional": false,
+                "tsType": {
+                  "kind": "fnOrConstructor",
+                  "value": {
+                    "constructor": false,
+                    "tsType": {
+                      "repr": "boolean",
+                      "kind": "keyword",
+                      "value": "boolean"
+                    },
+                    "params": [
+                      {
+                        "kind": "identifier",
+                        "name": "item",
+                        "optional": false,
+                        "tsType": {
+                          "repr": "string",
+                          "kind": "keyword",
+                          "value": "string"
+                        }
+                      }
+                    ]
+                  }
+                }
+              },
+              {
+                "kind": "identifier",
+                "name": "triple",
+                "optional": false,
+                "tsType": {
+                  "kind": "tuple",
+                  "value": [
+                    {
+                      "repr": "string",
+                      "kind": "keyword",
+                      "value": "string"
+                    },
+                    {
+                      "repr": "number",
+                      "kind": "keyword",
+                      "value": "number"
+                    },
+                    {
+                      "repr": "boolean",
+                      "kind": "keyword",
+                      "value": "boolean"
+                    }
+                  ]
+                }
+              },
+              {
+                "kind": "identifier",
+                "name": "value",
+                "optional": false,
+                "tsType": {
+                  "kind": "union",
+                  "value": [
+                    {
+                      "repr": "string",
+                      "kind": "keyword",
+                      "value": "string"
+                    },
+                    {
+                      "repr": "number",
+                      "kind": "keyword",
+                      "value": "number"
+                    },
+                    {
+                      "repr": "null",
+                      "kind": "keyword",
+                      "value": "null"
+                    }
+                  ]
+                }
+              },
+              {
+                "kind": "identifier",
+                "name": "person",
+                "optional": false,
+                "tsType": {
+                  "repr": "Record",
+                  "kind": "typeRef",
+                  "value": {
+                    "typeParams": [
+                      {
+                        "repr": "string",
+                        "kind": "keyword",
+                        "value": "string"
+                      },
+                      {
+                        "repr": "unknown",
+                        "kind": "keyword",
+                        "value": "unknown"
+                      }
+                    ],
+                    "typeName": "Record"
+                  }
+                }
+              }
+            ],
+            "returnType": {
+              "repr": "Promise",
+              "kind": "typeRef",
+              "value": {
+                "typeParams": [
+                  {
+                    "repr": "Array",
+                    "kind": "typeRef",
+                    "value": {
+                      "typeParams": [
+                        {
+                          "repr": "string",
+                          "kind": "keyword",
+                          "value": "string"
+                        }
+                      ],
+                      "typeName": "Array"
+                    }
+                  }
+                ],
+                "typeName": "Promise"
+              }
+            },
+            "hasBody": true
+          }
+        }
+      ]
+    },
+    {
+      "name": "items",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 23,
+            "col": 13,
+            "byteIndex": 749
+          },
+          "declarationKind": "export",
+          "jsDoc": {
+            "tags": [
+              {
+                "kind": "type",
+                "tsType": {
+                  "repr": "ReadonlyArray<string>",
+                  "kind": "typeRef",
+                  "value": {
+                    "typeParams": [
+                      {
+                        "repr": "string",
+                        "kind": "keyword",
+                        "value": "string"
+                      }
+                    ],
+                    "typeName": "ReadonlyArray",
+                    "resolution": {
+                      "kind": "typeParam"
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "kind": "variable",
+          "def": {
+            "tsType": {
+              "repr": "ReadonlyArray",
+              "kind": "typeRef",
+              "value": {
+                "typeParams": [
+                  {
+                    "repr": "string",
+                    "kind": "keyword",
+                    "value": "string"
+                  }
+                ],
+                "typeName": "ReadonlyArray"
+              }
+            },
+            "kind": "const"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Status",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 32,
+            "col": 13,
+            "byteIndex": 882
+          },
+          "declarationKind": "export",
+          "jsDoc": {
+            "tags": [
+              {
+                "kind": "enum",
+                "tsType": {
+                  "repr": "number",
+                  "kind": "keyword",
+                  "value": "number"
+                }
+              }
+            ]
+          },
+          "kind": "variable",
+          "def": {
+            "kind": "const"
+          }
+        }
+      ]
+    },
+    {
+      "name": "handler",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 37,
+            "col": 0,
+            "byteIndex": 927
+          },
+          "declarationKind": "export",
+          "jsDoc": {
+            "tags": [
+              {
+                "kind": "this",
+                "tsType": {
+                  "repr": "HTMLElement",
+                  "kind": "typeRef",
+                  "value": {
+                    "typeName": "HTMLElement",
+                    "resolution": {
+                      "kind": "typeParam"
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "kind": "function",
+          "def": {
+            "params": [],
+            "returnType": {
+              "repr": "void",
+              "kind": "keyword",
+              "value": "void"
+            },
+            "hasBody": true
+          }
+        }
+      ]
+    },
+    {
+      "name": "StringList",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 42,
+            "col": 0,
+            "byteIndex": 993
+          },
+          "declarationKind": "export",
+          "jsDoc": {
+            "tags": [
+              {
+                "kind": "extends",
+                "tsType": {
+                  "repr": "Array<string>",
+                  "kind": "typeRef",
+                  "value": {
+                    "typeParams": [
+                      {
+                        "repr": "string",
+                        "kind": "keyword",
+                        "value": "string"
+                      }
+                    ],
+                    "typeName": "Array",
+                    "resolution": {
+                      "kind": "typeParam"
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "kind": "class",
+          "def": {}
+        }
+      ]
+    },
+    {
+      "name": "Config",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 49,
+            "col": 0,
+            "byteIndex": 1137
+          },
+          "declarationKind": "export",
+          "jsDoc": {
+            "tags": [
+              {
+                "kind": "property",
+                "name": "name",
+                "tsType": {
+                  "repr": "string",
+                  "kind": "keyword",
+                  "value": "string"
+                },
+                "doc": "the name"
+              },
+              {
+                "kind": "property",
+                "name": "age",
+                "tsType": {
+                  "repr": "number",
+                  "kind": "keyword",
+                  "value": "number"
+                },
+                "doc": "the age"
+              },
+              {
+                "kind": "property",
+                "name": "tags",
+                "tsType": {
+                  "repr": "string[]",
+                  "kind": "array",
+                  "value": {
+                    "repr": "string",
+                    "kind": "keyword",
+                    "value": "string"
+                  }
+                },
+                "doc": "the tags"
+              }
+            ]
+          },
+          "kind": "class",
+          "def": {}
+        }
+      ]
+    }
+  ]
+}

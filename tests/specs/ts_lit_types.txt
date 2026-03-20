@@ -41,173 +41,184 @@ error[missing-jsdoc]: exported symbol is missing JSDoc documentation
   | ^
 
 # output.txt
-Defined in file:///mod.ts:1:1
+Defined in file:///mod.ts:0:1
 
 type boolLit = false
 
-Defined in file:///mod.ts:5:1
+Defined in file:///mod.ts:4:1
 
 type numLit = 5
 
-Defined in file:///mod.ts:2:1
+Defined in file:///mod.ts:1:1
 
 type strLit = "text"
 
-Defined in file:///mod.ts:3:1
+Defined in file:///mod.ts:2:1
 
 type tplLit = `text`
 
-Defined in file:///mod.ts:4:1
+Defined in file:///mod.ts:3:1
 
 type tplLitArg = `test${number}`
 
 
 # output.json
-[
-  {
-    "name": "boolLit",
-    "isDefault": false,
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 1,
-      "col": 0,
-      "byteIndex": 0
-    },
-    "declarationKind": "export",
-    "kind": "typeAlias",
-    "typeAliasDef": {
-      "tsType": {
-        "repr": "false",
-        "kind": "literal",
-        "literal": {
-          "kind": "boolean",
-          "boolean": false
+{
+  "symbols": [
+    {
+      "name": "boolLit",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 0,
+            "col": 0,
+            "byteIndex": 0
+          },
+          "declarationKind": "export",
+          "kind": "typeAlias",
+          "def": {
+            "tsType": {
+              "repr": "false",
+              "kind": "literal",
+              "value": {
+                "kind": "boolean",
+                "boolean": false
+              }
+            }
+          }
         }
-      },
-      "typeParams": []
-    }
-  },
-  {
-    "name": "strLit",
-    "isDefault": false,
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 2,
-      "col": 0,
-      "byteIndex": 29
+      ]
     },
-    "declarationKind": "export",
-    "kind": "typeAlias",
-    "typeAliasDef": {
-      "tsType": {
-        "repr": "text",
-        "kind": "literal",
-        "literal": {
-          "kind": "string",
-          "string": "text"
-        }
-      },
-      "typeParams": []
-    }
-  },
-  {
-    "name": "tplLit",
-    "isDefault": false,
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 3,
-      "col": 0,
-      "byteIndex": 58
-    },
-    "declarationKind": "export",
-    "kind": "typeAlias",
-    "typeAliasDef": {
-      "tsType": {
-        "repr": "text",
-        "kind": "literal",
-        "literal": {
-          "kind": "template",
-          "tsTypes": [
-            {
+    {
+      "name": "strLit",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 1,
+            "col": 0,
+            "byteIndex": 29
+          },
+          "declarationKind": "export",
+          "kind": "typeAlias",
+          "def": {
+            "tsType": {
               "repr": "text",
               "kind": "literal",
-              "literal": {
+              "value": {
                 "kind": "string",
                 "string": "text"
               }
             }
-          ]
+          }
         }
-      },
-      "typeParams": []
-    }
-  },
-  {
-    "name": "tplLitArg",
-    "isDefault": false,
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 4,
-      "col": 0,
-      "byteIndex": 87
+      ]
     },
-    "declarationKind": "export",
-    "kind": "typeAlias",
-    "typeAliasDef": {
-      "tsType": {
-        "repr": "test${number}",
-        "kind": "literal",
-        "literal": {
-          "kind": "template",
-          "tsTypes": [
-            {
-              "repr": "test",
+    {
+      "name": "tplLit",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 2,
+            "col": 0,
+            "byteIndex": 58
+          },
+          "declarationKind": "export",
+          "kind": "typeAlias",
+          "def": {
+            "tsType": {
+              "repr": "text",
               "kind": "literal",
-              "literal": {
-                "kind": "string",
-                "string": "test"
-              }
-            },
-            {
-              "repr": "number",
-              "kind": "keyword",
-              "keyword": "number"
-            },
-            {
-              "repr": "",
-              "kind": "literal",
-              "literal": {
-                "kind": "string",
-                "string": ""
+              "value": {
+                "kind": "template",
+                "tsTypes": [
+                  {
+                    "repr": "text",
+                    "kind": "literal",
+                    "value": {
+                      "kind": "string",
+                      "string": "text"
+                    }
+                  }
+                ]
               }
             }
-          ]
+          }
         }
-      },
-      "typeParams": []
-    }
-  },
-  {
-    "name": "numLit",
-    "isDefault": false,
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 5,
-      "col": 0,
-      "byteIndex": 128
+      ]
     },
-    "declarationKind": "export",
-    "kind": "typeAlias",
-    "typeAliasDef": {
-      "tsType": {
-        "repr": "5",
-        "kind": "literal",
-        "literal": {
-          "kind": "number",
-          "number": 5.0
+    {
+      "name": "tplLitArg",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 3,
+            "col": 0,
+            "byteIndex": 87
+          },
+          "declarationKind": "export",
+          "kind": "typeAlias",
+          "def": {
+            "tsType": {
+              "repr": "test${number}",
+              "kind": "literal",
+              "value": {
+                "kind": "template",
+                "tsTypes": [
+                  {
+                    "repr": "test",
+                    "kind": "literal",
+                    "value": {
+                      "kind": "string",
+                      "string": "test"
+                    }
+                  },
+                  {
+                    "repr": "number",
+                    "kind": "keyword",
+                    "value": "number"
+                  },
+                  {
+                    "kind": "literal",
+                    "value": {
+                      "kind": "string",
+                      "string": ""
+                    }
+                  }
+                ]
+              }
+            }
+          }
         }
-      },
-      "typeParams": []
+      ]
+    },
+    {
+      "name": "numLit",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 4,
+            "col": 0,
+            "byteIndex": 128
+          },
+          "declarationKind": "export",
+          "kind": "typeAlias",
+          "def": {
+            "tsType": {
+              "repr": "5",
+              "kind": "literal",
+              "value": {
+                "kind": "number",
+                "number": 5.0
+              }
+            }
+          }
+        }
+      ]
     }
-  }
-]
+  ]
+}

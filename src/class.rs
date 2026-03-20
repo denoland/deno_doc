@@ -5,7 +5,6 @@ use deno_graph::symbols::EsModuleInfo;
 use serde::Deserialize;
 use serde::Serialize;
 
-use crate::DocNode;
 use crate::Location;
 use crate::ParamDef;
 use crate::decorators::DecoratorDef;
@@ -14,6 +13,7 @@ use crate::function::FunctionDef;
 use crate::function::function_to_function_def;
 use crate::js_doc::JsDoc;
 use crate::node::DeclarationKind;
+use crate::node::Symbol;
 use crate::params::assign_pat_to_param_def;
 use crate::params::ident_to_param_def;
 use crate::params::param_to_param_def;
@@ -82,6 +82,7 @@ impl Display for ClassConstructorParamDef {
 pub struct ClassConstructorDef {
   #[serde(skip_serializing_if = "JsDoc::is_empty", default)]
   pub js_doc: JsDoc,
+  #[serde(skip_serializing_if = "Option::is_none", default)]
   pub accessibility: Option<deno_ast::swc::ast::Accessibility>,
   #[serde(skip_serializing_if = "is_false", default)]
   pub is_optional: bool,
@@ -110,13 +111,19 @@ impl Display for ClassConstructorDef {
 pub struct ClassPropertyDef {
   #[serde(skip_serializing_if = "JsDoc::is_empty", default)]
   pub js_doc: JsDoc,
+  #[serde(skip_serializing_if = "Option::is_none", default)]
   pub ts_type: Option<TsTypeDef>,
+  #[serde(skip_serializing_if = "is_false", default)]
   pub readonly: bool,
+  #[serde(skip_serializing_if = "Option::is_none", default)]
   pub accessibility: Option<deno_ast::swc::ast::Accessibility>,
   #[serde(skip_serializing_if = "<[_]>::is_empty", default)]
   pub decorators: Box<[DecoratorDef]>,
+  #[serde(skip_serializing_if = "is_false", default)]
   pub optional: bool,
+  #[serde(skip_serializing_if = "is_false", default)]
   pub is_abstract: bool,
+  #[serde(skip_serializing_if = "is_false", default)]
   pub is_static: bool,
   #[serde(skip_serializing_if = "is_false", default)]
   pub is_override: bool,
@@ -124,9 +131,9 @@ pub struct ClassPropertyDef {
   pub location: Location,
 }
 
-impl From<ClassPropertyDef> for DocNode {
-  fn from(def: ClassPropertyDef) -> DocNode {
-    DocNode::variable(
+impl From<ClassPropertyDef> for Symbol {
+  fn from(def: ClassPropertyDef) -> Symbol {
+    Symbol::variable(
       def.name,
       false,
       def.location,
@@ -166,9 +173,13 @@ impl Display for ClassPropertyDef {
 pub struct ClassMethodDef {
   #[serde(skip_serializing_if = "JsDoc::is_empty", default)]
   pub js_doc: JsDoc,
+  #[serde(skip_serializing_if = "Option::is_none", default)]
   pub accessibility: Option<deno_ast::swc::ast::Accessibility>,
+  #[serde(skip_serializing_if = "is_false", default)]
   pub optional: bool,
+  #[serde(skip_serializing_if = "is_false", default)]
   pub is_abstract: bool,
+  #[serde(skip_serializing_if = "is_false", default)]
   pub is_static: bool,
   #[serde(skip_serializing_if = "is_false", default)]
   pub is_override: bool,
@@ -178,9 +189,9 @@ pub struct ClassMethodDef {
   pub location: Location,
 }
 
-impl From<ClassMethodDef> for DocNode {
-  fn from(def: ClassMethodDef) -> DocNode {
-    DocNode::function(
+impl From<ClassMethodDef> for Symbol {
+  fn from(def: ClassMethodDef) -> Symbol {
+    Symbol::function(
       def.name,
       false,
       def.location,
@@ -221,14 +232,23 @@ pub struct ClassDef {
   #[serde(skip_serializing_if = "Option::is_none", default)]
   /// set when the class is a default export or a class expression, and has a name in its declaration
   pub def_name: Option<Box<str>>,
+  #[serde(skip_serializing_if = "is_false", default)]
   pub is_abstract: bool,
+  #[serde(skip_serializing_if = "<[_]>::is_empty", default)]
   pub constructors: Box<[ClassConstructorDef]>,
+  #[serde(skip_serializing_if = "<[_]>::is_empty", default)]
   pub properties: Box<[ClassPropertyDef]>,
+  #[serde(skip_serializing_if = "<[_]>::is_empty", default)]
   pub index_signatures: Box<[IndexSignatureDef]>,
+  #[serde(skip_serializing_if = "<[_]>::is_empty", default)]
   pub methods: Box<[ClassMethodDef]>,
+  #[serde(skip_serializing_if = "Option::is_none", default)]
   pub extends: Option<Box<str>>,
+  #[serde(skip_serializing_if = "<[_]>::is_empty", default)]
   pub implements: Box<[TsTypeDef]>,
+  #[serde(skip_serializing_if = "<[_]>::is_empty", default)]
   pub type_params: Box<[TsTypeParamDef]>,
+  #[serde(skip_serializing_if = "<[_]>::is_empty", default)]
   pub super_type_params: Box<[TsTypeDef]>,
   #[serde(skip_serializing_if = "<[_]>::is_empty", default)]
   pub decorators: Box<[DecoratorDef]>,
@@ -463,10 +483,6 @@ pub fn class_to_class_def(
 pub fn get_doc_for_class_decl(
   module_info: &EsModuleInfo,
   class_decl: &deno_ast::swc::ast::ClassDecl,
-) -> (String, ClassDef, JsDoc) {
-  let class_name = class_decl.ident.sym.to_string();
-  let (class_def, js_doc) =
-    class_to_class_def(module_info, &class_decl.class, None);
-
-  (class_name, class_def, js_doc)
+) -> (ClassDef, JsDoc) {
+  class_to_class_def(module_info, &class_decl.class, None)
 }

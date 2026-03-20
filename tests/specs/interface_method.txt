@@ -55,7 +55,7 @@ error[missing-return-type]: exported function is missing an explicit return type
   |   ^
 
 # output.txt
-Defined in file:///mod.ts:1:1
+Defined in file:///mod.ts:0:1
 
 interface I
 
@@ -65,97 +65,84 @@ interface I
 
 
 # output.json
-[
-  {
-    "name": "I",
-    "isDefault": false,
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 1,
-      "col": 0,
-      "byteIndex": 0
-    },
-    "declarationKind": "export",
-    "kind": "interface",
-    "interfaceDef": {
-      "extends": [],
-      "constructors": [],
-      "methods": [
+{
+  "symbols": [
+    {
+      "name": "I",
+      "declarations": [
         {
-          "name": "m",
-          "kind": "method",
           "location": {
             "filename": "file:///mod.ts",
-            "line": 2,
-            "col": 2,
-            "byteIndex": 23
+            "line": 0,
+            "col": 0,
+            "byteIndex": 0
           },
-          "params": [
-            {
-              "kind": "identifier",
-              "name": "a",
-              "optional": false,
-              "tsType": null
-            },
-            {
-              "kind": "identifier",
-              "name": "b",
-              "optional": false,
-              "tsType": null
-            }
-          ],
-          "optional": false,
-          "returnType": null,
-          "typeParams": []
-        },
-        {
-          "name": "mo",
-          "kind": "method",
-          "location": {
-            "filename": "file:///mod.ts",
-            "line": 3,
-            "col": 2,
-            "byteIndex": 34
-          },
-          "params": [
-            {
-              "kind": "identifier",
-              "name": "c",
-              "optional": false,
-              "tsType": null
-            }
-          ],
-          "optional": true,
-          "returnType": null,
-          "typeParams": []
-        },
-        {
-          "name": "mc",
-          "kind": "method",
-          "location": {
-            "filename": "file:///mod.ts",
-            "line": 4,
-            "col": 2,
-            "byteIndex": 44
-          },
-          "params": [
-            {
-              "kind": "identifier",
-              "name": "d",
-              "optional": false,
-              "tsType": null
-            }
-          ],
-          "computed": true,
-          "optional": false,
-          "returnType": null,
-          "typeParams": []
+          "declarationKind": "export",
+          "kind": "interface",
+          "def": {
+            "methods": [
+              {
+                "name": "m",
+                "kind": "method",
+                "location": {
+                  "filename": "file:///mod.ts",
+                  "line": 1,
+                  "col": 2,
+                  "byteIndex": 23
+                },
+                "params": [
+                  {
+                    "kind": "identifier",
+                    "name": "a",
+                    "optional": false
+                  },
+                  {
+                    "kind": "identifier",
+                    "name": "b",
+                    "optional": false
+                  }
+                ]
+              },
+              {
+                "name": "mo",
+                "kind": "method",
+                "location": {
+                  "filename": "file:///mod.ts",
+                  "line": 2,
+                  "col": 2,
+                  "byteIndex": 34
+                },
+                "params": [
+                  {
+                    "kind": "identifier",
+                    "name": "c",
+                    "optional": false
+                  }
+                ],
+                "optional": true
+              },
+              {
+                "name": "mc",
+                "kind": "method",
+                "location": {
+                  "filename": "file:///mod.ts",
+                  "line": 3,
+                  "col": 2,
+                  "byteIndex": 44
+                },
+                "params": [
+                  {
+                    "kind": "identifier",
+                    "name": "d",
+                    "optional": false
+                  }
+                ],
+                "computed": true
+              }
+            ]
+          }
         }
-      ],
-      "properties": [],
-      "callSignatures": [],
-      "indexSignatures": [],
-      "typeParams": []
+      ]
     }
-  }
-]
+  ]
+}

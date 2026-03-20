@@ -28,7 +28,7 @@ export class A {}
 export class B {}
 
 # output.txt
-Defined in file:///mod.ts:17:1
+Defined in file:///mod.ts:16:1
 
 class A
   A migration registry
@@ -49,7 +49,7 @@ class A
 
 
 
-Defined in file:///mod.ts:27:1
+Defined in file:///mod.ts:26:1
 
 class B
   Decorator in doc codeblock
@@ -62,68 +62,56 @@ class B
 
 
 # output.json
-[
-  {
-    "name": "A",
-    "isDefault": false,
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 17,
-      "col": 0,
-      "byteIndex": 219
-    },
-    "declarationKind": "export",
-    "jsDoc": {
-      "doc": "A migration registry\n",
-      "tags": [
+{
+  "symbols": [
+    {
+      "name": "A",
+      "declarations": [
         {
-          "kind": "example",
-          "doc": "```ts\nconst migrations = new MigrationRegistry();\n\n@migrations.register()\nclass MyMigration {\n  up() {}\n  down() {}\n}\n```\n"
-        },
-        {
-          "kind": "param",
-          "name": "T",
-          "doc": "the type"
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 16,
+            "col": 0,
+            "byteIndex": 219
+          },
+          "declarationKind": "export",
+          "jsDoc": {
+            "doc": "A migration registry\n",
+            "tags": [
+              {
+                "kind": "example",
+                "doc": "```ts\nconst migrations = new MigrationRegistry();\n\n@migrations.register()\nclass MyMigration {\n  up() {}\n  down() {}\n}\n```\n"
+              },
+              {
+                "kind": "param",
+                "name": "T",
+                "doc": "the type"
+              }
+            ]
+          },
+          "kind": "class",
+          "def": {}
         }
       ]
     },
-    "kind": "class",
-    "classDef": {
-      "isAbstract": false,
-      "constructors": [],
-      "properties": [],
-      "indexSignatures": [],
-      "methods": [],
-      "extends": null,
-      "implements": [],
-      "typeParams": [],
-      "superTypeParams": []
+    {
+      "name": "B",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 26,
+            "col": 0,
+            "byteIndex": 325
+          },
+          "declarationKind": "export",
+          "jsDoc": {
+            "doc": "Decorator in doc codeblock\n\n```ts\n@decorator\nclass Foo {}\n```"
+          },
+          "kind": "class",
+          "def": {}
+        }
+      ]
     }
-  },
-  {
-    "name": "B",
-    "isDefault": false,
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 27,
-      "col": 0,
-      "byteIndex": 325
-    },
-    "declarationKind": "export",
-    "jsDoc": {
-      "doc": "Decorator in doc codeblock\n\n```ts\n@decorator\nclass Foo {}\n```"
-    },
-    "kind": "class",
-    "classDef": {
-      "isAbstract": false,
-      "constructors": [],
-      "properties": [],
-      "indexSignatures": [],
-      "methods": [],
-      "extends": null,
-      "implements": [],
-      "typeParams": [],
-      "superTypeParams": []
-    }
-  }
-]
+  ]
+}

@@ -7,9 +7,10 @@ use crate::display::display_async;
 use crate::display::display_generator;
 use crate::js_doc::JsDoc;
 use crate::js_doc::JsDocTag;
+use crate::node::DeclarationDef;
 use crate::node::DeclarationKind;
-use crate::node::DocNode;
-use crate::node::DocNodeDef;
+use crate::node::Document;
+use crate::node::Symbol;
 
 use deno_terminal::colors;
 use deno_terminal::colors::Style;
@@ -23,32 +24,43 @@ fn italic_cyan<'a, S: Display + 'a>(s: S) -> Style<Style<S>> {
 }
 
 pub struct DocPrinter<'a> {
-  doc_nodes: &'a [DocNode],
+  document: &'a Document,
   use_color: bool,
   private: bool,
 }
 
 impl DocPrinter<'_> {
   pub fn new(
-    doc_nodes: &[DocNode],
+    document: &Document,
     use_color: bool,
     private: bool,
   ) -> DocPrinter<'_> {
     DocPrinter {
-      doc_nodes,
+      document,
       use_color,
       private,
     }
   }
 
   pub fn format(&self, w: &mut Formatter<'_>) -> FmtResult {
-    self.format_with_indent(w, self.doc_nodes, 0)
+    colors::set_use_color(self.use_color);
+    if !self.document.module_doc.is_empty() {
+      if let Some(doc) = &self.document.module_doc.doc {
+        render_markdown(w, doc, 0)?;
+      }
+      for tag in &self.document.module_doc.tags {
+        self.format_jsdoc_tag(w, tag, 0)?;
+      }
+      writeln!(w)?;
+    }
+
+    self.format_with_indent(w, &self.document.symbols, 0)
   }
 
   fn format_with_indent(
     &self,
     w: &mut Formatter<'_>,
-    doc_nodes: &[DocNode],
+    doc_nodes: &[Symbol],
     indent: i64,
   ) -> FmtResult {
     colors::set_use_color(self.use_color);
@@ -64,45 +76,41 @@ impl DocPrinter<'_> {
     });
 
     for node in &sorted {
-      let has_overloads = if matches!(node.def, DocNodeDef::Function { .. }) {
-        sorted
-          .iter()
-          .filter(|n| {
-            matches!(n.def, DocNodeDef::Function { .. }) && n.name == node.name
-          })
-          .count()
-          > 1
-      } else {
-        false
-      };
+      let fn_decl_count = node
+        .declarations
+        .iter()
+        .filter(|d| matches!(d.def, DeclarationDef::Function(..)))
+        .count();
+      let has_overloads = fn_decl_count > 1;
 
-      if !has_overloads
-        || node
-          .function_def()
-          .map(|def| !def.has_body)
-          .unwrap_or(false)
-      {
-        write!(
-          w,
-          "{}",
-          colors::italic_gray(&format!(
-            "Defined in {}\n\n",
-            get_location_string(&node.location),
-          ))
-        )?;
-      }
+      for decl in &node.declarations {
+        if !has_overloads
+          || decl
+            .function_def()
+            .map(|def| !def.has_body)
+            .unwrap_or(false)
+        {
+          write!(
+            w,
+            "{}",
+            colors::italic_gray(&format!(
+              "Defined in {}\n\n",
+              get_location_string(&decl.location),
+            ))
+          )?;
+        }
 
-      self.format_signature(w, node, indent, has_overloads)?;
+        self.format_signature_for_decl(w, node, decl, indent, has_overloads)?;
+        self.format_jsdoc(w, &decl.js_doc, indent + 1)?;
+        writeln!(w)?;
 
-      self.format_jsdoc(w, &node.js_doc, indent + 1)?;
-      writeln!(w)?;
-
-      match node.def {
-        DocNodeDef::Class { .. } => self.format_class(w, node)?,
-        DocNodeDef::Enum { .. } => self.format_enum(w, node)?,
-        DocNodeDef::Interface { .. } => self.format_interface(w, node)?,
-        DocNodeDef::Namespace { .. } => self.format_namespace(w, node)?,
-        _ => {}
+        match &decl.def {
+          DeclarationDef::Class(..) => self.format_class(w, decl)?,
+          DeclarationDef::Enum(..) => self.format_enum(w, decl)?,
+          DeclarationDef::Interface(..) => self.format_interface(w, decl)?,
+          DeclarationDef::Namespace(..) => self.format_namespace(w, decl)?,
+          _ => {}
+        }
       }
     }
 
@@ -113,50 +121,56 @@ impl DocPrinter<'_> {
     Ok(())
   }
 
-  fn kind_order(&self, node: &DocNode) -> i64 {
-    match node.def {
-      DocNodeDef::ModuleDoc => 0,
-      DocNodeDef::Function { .. } => 1,
-      DocNodeDef::Variable { .. } => 2,
-      DocNodeDef::Class { .. } => 3,
-      DocNodeDef::Enum { .. } => 4,
-      DocNodeDef::Interface { .. } => 5,
-      DocNodeDef::TypeAlias { .. } => 6,
-      DocNodeDef::Namespace { .. } => 7,
-      DocNodeDef::Import { .. } => 8,
-      DocNodeDef::Reference { .. } => 9,
-    }
+  fn kind_order(&self, node: &Symbol) -> i64 {
+    node
+      .declarations
+      .iter()
+      .map(|decl| match &decl.def {
+        DeclarationDef::Function(..) => 0,
+        DeclarationDef::Variable(..) => 1,
+        DeclarationDef::Class(..) => 2,
+        DeclarationDef::Enum(..) => 3,
+        DeclarationDef::Interface(..) => 4,
+        DeclarationDef::TypeAlias(..) => 5,
+        DeclarationDef::Namespace(..) => 6,
+        DeclarationDef::Reference(..) => 7,
+      })
+      .min()
+      .unwrap()
   }
 
-  fn format_signature(
+  fn format_signature_for_decl(
     &self,
     w: &mut Formatter<'_>,
-    node: &DocNode,
+    node: &Symbol,
+    decl: &crate::node::Declaration,
     indent: i64,
     has_overloads: bool,
   ) -> FmtResult {
-    match node.def {
-      DocNodeDef::ModuleDoc => self.format_module_doc(w, node, indent),
-      DocNodeDef::Function { .. } => {
-        self.format_function_signature(w, node, indent, has_overloads)
+    match &decl.def {
+      DeclarationDef::Function(..) => {
+        self.format_function_signature_def(w, node, decl, indent, has_overloads)
       }
-      DocNodeDef::Variable { .. } => {
-        self.format_variable_signature(w, node, indent)
+      DeclarationDef::Variable(..) => {
+        self.format_variable_signature(w, node, decl, indent)
       }
-      DocNodeDef::Class { .. } => self.format_class_signature(w, node, indent),
-      DocNodeDef::Enum { .. } => self.format_enum_signature(w, node, indent),
-      DocNodeDef::Interface { .. } => {
-        self.format_interface_signature(w, node, indent)
+      DeclarationDef::Class(..) => {
+        self.format_class_signature(w, node, decl, indent)
       }
-      DocNodeDef::TypeAlias { .. } => {
-        self.format_type_alias_signature(w, node, indent)
+      DeclarationDef::Enum(..) => {
+        self.format_enum_signature(w, node, decl, indent)
       }
-      DocNodeDef::Namespace { .. } => {
-        self.format_namespace_signature(w, node, indent)
+      DeclarationDef::Interface(..) => {
+        self.format_interface_signature(w, node, decl, indent)
       }
-      DocNodeDef::Import { .. } => Ok(()),
-      DocNodeDef::Reference { .. } => {
-        self.format_reference_signature(w, node, indent)
+      DeclarationDef::TypeAlias(..) => {
+        self.format_type_alias_signature(w, node, decl, indent)
+      }
+      DeclarationDef::Namespace(..) => {
+        self.format_namespace_signature(w, node, decl, indent)
+      }
+      DeclarationDef::Reference(..) => {
+        self.format_reference_signature(w, node, decl, indent)
       }
     }
   }
@@ -241,13 +255,13 @@ impl DocPrinter<'_> {
         writeln!(w, "{}@{}", Indent(indent), colors::magenta("deprecated"))?;
         self.format_jsdoc_tag_maybe_doc(w, doc, indent)
       }
-      JsDocTag::Enum { type_ref, doc } => {
+      JsDocTag::Enum { ts_type, doc, .. } => {
         writeln!(
           w,
           "{}@{} {{{}}}",
           Indent(indent),
           colors::magenta("enum"),
-          italic_cyan(type_ref),
+          italic_cyan(&ts_type.repr),
         )?;
         self.format_jsdoc_tag_maybe_doc(w, doc, indent)
       }
@@ -258,13 +272,13 @@ impl DocPrinter<'_> {
       JsDocTag::Experimental => {
         writeln!(w, "{}@{}", Indent(indent), colors::magenta("experimental"))
       }
-      JsDocTag::Extends { type_ref, doc } => {
+      JsDocTag::Extends { ts_type, doc, .. } => {
         writeln!(
           w,
           "{}@{} {{{}}}",
           Indent(indent),
           colors::magenta("extends"),
-          italic_cyan(type_ref)
+          italic_cyan(&ts_type.repr)
         )?;
         self.format_jsdoc_tag_maybe_doc(w, doc, indent)
       }
@@ -280,14 +294,14 @@ impl DocPrinter<'_> {
       }
       JsDocTag::Param {
         name,
-        type_ref,
+        ts_type,
         optional,
         default,
         doc,
       } => {
         write!(w, "{}@{}", Indent(indent), colors::magenta("param"))?;
-        if let Some(type_ref) = type_ref {
-          write!(w, " {{{}}}", italic_cyan(type_ref))?;
+        if let Some(ts_type) = ts_type {
+          write!(w, " {{{}}}", italic_cyan(&ts_type.repr))?;
         }
         if *optional {
           write!(w, " [?]")?;
@@ -303,17 +317,13 @@ impl DocPrinter<'_> {
       JsDocTag::Private => {
         writeln!(w, "{}@{}", Indent(indent), colors::magenta("private"))
       }
-      JsDocTag::Property {
-        name,
-        type_ref,
-        doc,
-      } => {
+      JsDocTag::Property { name, ts_type, doc } => {
         writeln!(
           w,
           "{}@{} {{{}}} {}",
           Indent(indent),
           colors::magenta("property"),
-          italic_cyan(type_ref),
+          italic_cyan(&ts_type.repr),
           colors::bold(name)
         )?;
         self.format_jsdoc_tag_maybe_doc(w, doc, indent)
@@ -324,10 +334,10 @@ impl DocPrinter<'_> {
       JsDocTag::ReadOnly => {
         writeln!(w, "{}@{}", Indent(indent), colors::magenta("readonly"))
       }
-      JsDocTag::Return { type_ref, doc } => {
+      JsDocTag::Return { ts_type, doc } => {
         write!(w, "{}@{}", Indent(indent), colors::magenta("return"))?;
-        if let Some(type_ref) = type_ref {
-          writeln!(w, " {{{}}}", italic_cyan(type_ref))?;
+        if let Some(ts_type) = ts_type {
+          writeln!(w, " {{{}}}", italic_cyan(&ts_type.repr))?;
         } else {
           writeln!(w)?;
         }
@@ -352,38 +362,36 @@ impl DocPrinter<'_> {
         )?;
         self.format_jsdoc_tag_maybe_doc(w, doc, indent)
       }
-      JsDocTag::This { type_ref, doc } => {
+      JsDocTag::This { ts_type, doc } => {
         writeln!(
           w,
           "{}@{} {{{}}}",
           Indent(indent),
           colors::magenta("this"),
-          italic_cyan(type_ref)
+          italic_cyan(&ts_type.repr)
         )?;
         self.format_jsdoc_tag_maybe_doc(w, doc, indent)
       }
       JsDocTag::TypeDef {
-        name,
-        type_ref,
-        doc,
+        name, ts_type, doc, ..
       } => {
         writeln!(
           w,
           "{}@{} {{{}}} {}",
           Indent(indent),
           colors::magenta("typedef"),
-          italic_cyan(type_ref),
+          italic_cyan(&ts_type.repr),
           colors::bold(name)
         )?;
         self.format_jsdoc_tag_maybe_doc(w, doc, indent)
       }
-      JsDocTag::TypeRef { type_ref, doc } => {
+      JsDocTag::TypeRef { ts_type, doc } => {
         writeln!(
           w,
           "{}@{} {{{}}}",
           Indent(indent),
           colors::magenta("typeref"),
-          italic_cyan(type_ref)
+          italic_cyan(&ts_type.repr)
         )?;
         self.format_jsdoc_tag_maybe_doc(w, doc, indent)
       }
@@ -419,10 +427,10 @@ impl DocPrinter<'_> {
           italic_cyan(priority),
         )
       }
-      JsDocTag::Throws { type_ref, doc } => {
-        write!(w, "{}@{}", Indent(indent), colors::magenta("return"))?;
-        if let Some(type_ref) = type_ref {
-          writeln!(w, " {{{}}}", italic_cyan(type_ref))?;
+      JsDocTag::Throws { ts_type, doc } => {
+        write!(w, "{}@{}", Indent(indent), colors::magenta("throws"))?;
+        if let Some(ts_type) = ts_type {
+          writeln!(w, " {{{}}}", italic_cyan(&ts_type.repr))?;
         } else {
           writeln!(w)?;
         }
@@ -431,8 +439,12 @@ impl DocPrinter<'_> {
     }
   }
 
-  fn format_class(&self, w: &mut Formatter<'_>, node: &DocNode) -> FmtResult {
-    let class_def = node.class_def().unwrap();
+  fn format_class(
+    &self,
+    w: &mut Formatter<'_>,
+    decl: &crate::node::Declaration,
+  ) -> FmtResult {
+    let class_def = decl.class_def().unwrap();
     let has_overloads = class_def.constructors.len() > 1;
     for node in class_def.constructors.iter() {
       if !has_overloads || !node.has_body {
@@ -480,8 +492,12 @@ impl DocPrinter<'_> {
     writeln!(w)
   }
 
-  fn format_enum(&self, w: &mut Formatter<'_>, node: &DocNode) -> FmtResult {
-    let enum_def = node.enum_def().unwrap();
+  fn format_enum(
+    &self,
+    w: &mut Formatter<'_>,
+    decl: &crate::node::Declaration,
+  ) -> FmtResult {
+    let enum_def = decl.enum_def().unwrap();
     for member in &enum_def.members {
       writeln!(w, "{}{}", Indent(1), colors::bold(&member.name))?;
       self.format_jsdoc(w, &member.js_doc, 2)?;
@@ -492,9 +508,9 @@ impl DocPrinter<'_> {
   fn format_interface(
     &self,
     w: &mut Formatter<'_>,
-    node: &DocNode,
+    decl: &crate::node::Declaration,
   ) -> FmtResult {
-    let interface_def = node.interface_def().unwrap();
+    let interface_def = decl.interface_def().unwrap();
 
     for constructor in &interface_def.constructors {
       writeln!(w, "{}{}", Indent(1), constructor)?;
@@ -517,23 +533,21 @@ impl DocPrinter<'_> {
   fn format_namespace(
     &self,
     w: &mut Formatter<'_>,
-    node: &DocNode,
+    decl: &crate::node::Declaration,
   ) -> FmtResult {
-    let elements = &node.namespace_def().unwrap().elements;
-    for node in elements {
-      let has_overloads = if matches!(node.def, DocNodeDef::Function { .. }) {
-        elements
-          .iter()
-          .filter(|n| {
-            matches!(n.def, DocNodeDef::Function { .. }) && n.name == node.name
-          })
-          .count()
-          > 1
-      } else {
-        false
-      };
-      self.format_signature(w, node, 1, has_overloads)?;
-      self.format_jsdoc(w, &node.js_doc, 2)?;
+    let elements = &decl.namespace_def().unwrap().elements;
+    for elem in elements {
+      let fn_decl_count = elem
+        .declarations
+        .iter()
+        .filter(|d| matches!(d.def, DeclarationDef::Function(..)))
+        .count();
+      let has_overloads = fn_decl_count > 1;
+
+      for decl in &elem.declarations {
+        self.format_signature_for_decl(w, elem, decl, 1, has_overloads)?;
+        self.format_jsdoc(w, &decl.js_doc, 2)?;
+      }
     }
     writeln!(w)
   }
@@ -541,18 +555,19 @@ impl DocPrinter<'_> {
   fn format_class_signature(
     &self,
     w: &mut Formatter<'_>,
-    node: &DocNode,
+    node: &Symbol,
+    decl: &crate::node::Declaration,
     indent: i64,
   ) -> FmtResult {
-    let class_def = node.class_def().unwrap();
-    for node in class_def.decorators.iter() {
-      writeln!(w, "{}{}", Indent(indent), node)?;
+    let class_def = decl.class_def().unwrap();
+    for decorator in class_def.decorators.iter() {
+      writeln!(w, "{}{}", Indent(indent), decorator)?;
     }
     write!(
       w,
       "{}{}{}{} {}",
       Indent(indent),
-      fmt_visibility(node.declaration_kind),
+      fmt_visibility(decl.declaration_kind),
       display_abstract(class_def.is_abstract),
       colors::magenta("class"),
       colors::bold(&node.name),
@@ -591,33 +606,35 @@ impl DocPrinter<'_> {
   fn format_enum_signature(
     &self,
     w: &mut Formatter<'_>,
-    node: &DocNode,
+    node: &Symbol,
+    decl: &crate::node::Declaration,
     indent: i64,
   ) -> FmtResult {
     writeln!(
       w,
       "{}{}{} {}",
       Indent(indent),
-      fmt_visibility(node.declaration_kind),
+      fmt_visibility(decl.declaration_kind),
       colors::magenta("enum"),
       colors::bold(&node.name)
     )
   }
 
-  fn format_function_signature(
+  fn format_function_signature_def(
     &self,
     w: &mut Formatter<'_>,
-    node: &DocNode,
+    node: &Symbol,
+    decl: &crate::node::Declaration,
     indent: i64,
     has_overloads: bool,
   ) -> FmtResult {
-    let function_def = node.function_def().unwrap();
+    let function_def = decl.function_def().unwrap();
     if !has_overloads || !function_def.has_body {
       write!(
         w,
         "{}{}{}{}{} {}",
         Indent(indent),
-        fmt_visibility(node.declaration_kind),
+        fmt_visibility(decl.declaration_kind),
         display_async(function_def.is_async),
         colors::magenta("function"),
         display_generator(function_def.is_generator),
@@ -646,15 +663,16 @@ impl DocPrinter<'_> {
   fn format_interface_signature(
     &self,
     w: &mut Formatter<'_>,
-    node: &DocNode,
+    node: &Symbol,
+    decl: &crate::node::Declaration,
     indent: i64,
   ) -> FmtResult {
-    let interface_def = node.interface_def().unwrap();
+    let interface_def = decl.interface_def().unwrap();
     write!(
       w,
       "{}{}{} {}",
       Indent(indent),
-      fmt_visibility(node.declaration_kind),
+      fmt_visibility(decl.declaration_kind),
       colors::magenta("interface"),
       colors::bold(&node.name)
     )?;
@@ -679,29 +697,19 @@ impl DocPrinter<'_> {
     writeln!(w)
   }
 
-  fn format_module_doc(
-    &self,
-    _w: &mut Formatter<'_>,
-    _node: &DocNode,
-    _indent: i64,
-  ) -> FmtResult {
-    // currently we do not print out JSDoc in the printer, so there is nothing
-    // to print.
-    Ok(())
-  }
-
   fn format_type_alias_signature(
     &self,
     w: &mut Formatter<'_>,
-    node: &DocNode,
+    node: &Symbol,
+    decl: &crate::node::Declaration,
     indent: i64,
   ) -> FmtResult {
-    let type_alias_def = node.type_alias_def().unwrap();
+    let type_alias_def = decl.type_alias_def().unwrap();
     write!(
       w,
       "{}{}{} {}",
       Indent(indent),
-      fmt_visibility(node.declaration_kind),
+      fmt_visibility(decl.declaration_kind),
       colors::magenta("type"),
       colors::bold(&node.name),
     )?;
@@ -720,14 +728,15 @@ impl DocPrinter<'_> {
   fn format_namespace_signature(
     &self,
     w: &mut Formatter<'_>,
-    node: &DocNode,
+    node: &Symbol,
+    decl: &crate::node::Declaration,
     indent: i64,
   ) -> FmtResult {
     writeln!(
       w,
       "{}{}{} {}",
       Indent(indent),
-      fmt_visibility(node.declaration_kind),
+      fmt_visibility(decl.declaration_kind),
       colors::magenta("namespace"),
       colors::bold(&node.name)
     )
@@ -736,16 +745,17 @@ impl DocPrinter<'_> {
   fn format_reference_signature(
     &self,
     w: &mut Formatter<'_>,
-    node: &DocNode,
+    node: &Symbol,
+    decl: &crate::node::Declaration,
     indent: i64,
   ) -> FmtResult {
-    let reference_def = node.reference_def().unwrap();
+    let reference_def = decl.reference_def().unwrap();
 
     writeln!(
       w,
       "{}{}{} {}: {}",
       Indent(indent),
-      fmt_visibility(node.declaration_kind),
+      fmt_visibility(decl.declaration_kind),
       colors::magenta("reference"),
       colors::bold(&node.name),
       colors::italic_gray(get_location_string(&reference_def.target)),
@@ -755,15 +765,16 @@ impl DocPrinter<'_> {
   fn format_variable_signature(
     &self,
     w: &mut Formatter<'_>,
-    node: &DocNode,
+    node: &Symbol,
+    decl: &crate::node::Declaration,
     indent: i64,
   ) -> FmtResult {
-    let variable_def = node.variable_def().unwrap();
+    let variable_def = decl.variable_def().unwrap();
     write!(
       w,
       "{}{}{} {}",
       Indent(indent),
-      fmt_visibility(node.declaration_kind),
+      fmt_visibility(decl.declaration_kind),
       colors::magenta(match variable_def.kind {
         deno_ast::swc::ast::VarDeclKind::Const => "const",
         deno_ast::swc::ast::VarDeclKind::Let => "let",

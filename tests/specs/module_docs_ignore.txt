@@ -12,4 +12,6 @@ export class A {}
 # output.txt
 
 # output.json
-[]
+{
+  "symbols": []
+}

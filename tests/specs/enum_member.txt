@@ -13,7 +13,7 @@ error[missing-jsdoc]: exported symbol is missing JSDoc documentation
   | ^
 
 # output.txt
-Defined in file:///mod.ts:1:1
+Defined in file:///mod.ts:0:1
 
 enum Enum
 
@@ -23,42 +23,47 @@ enum Enum
 
 
 # output.json
-[
-  {
-    "name": "Enum",
-    "isDefault": false,
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 1,
-      "col": 0,
-      "byteIndex": 0
-    },
-    "declarationKind": "export",
-    "kind": "enum",
-    "enumDef": {
-      "members": [
+{
+  "symbols": [
+    {
+      "name": "Enum",
+      "declarations": [
         {
-          "name": "First",
           "location": {
             "filename": "file:///mod.ts",
-            "line": 2,
-            "col": 2,
-            "byteIndex": 21
-          }
-        },
-        {
-          "name": "Second",
-          "jsDoc": {
-            "doc": "There is a JsDoc"
+            "line": 0,
+            "col": 0,
+            "byteIndex": 0
           },
-          "location": {
-            "filename": "file:///mod.ts",
-            "line": 4,
-            "col": 2,
-            "byteIndex": 56
+          "declarationKind": "export",
+          "kind": "enum",
+          "def": {
+            "members": [
+              {
+                "name": "First",
+                "location": {
+                  "filename": "file:///mod.ts",
+                  "line": 1,
+                  "col": 2,
+                  "byteIndex": 21
+                }
+              },
+              {
+                "name": "Second",
+                "jsDoc": {
+                  "doc": "There is a JsDoc"
+                },
+                "location": {
+                  "filename": "file:///mod.ts",
+                  "line": 3,
+                  "col": 2,
+                  "byteIndex": 56
+                }
+              }
+            ]
           }
         }
       ]
     }
-  }
-]
+  ]
+}

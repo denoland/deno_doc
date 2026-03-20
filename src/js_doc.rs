@@ -1,5 +1,13 @@
 // Copyright 2018-2024 the Deno authors. All rights reserved. MIT license.
 
+use std::sync::Arc;
+
+use crate::ts_type::TsTypeDef;
+use crate::ts_type::TsTypeDefKind;
+use deno_ast::MediaType;
+use deno_ast::ModuleSpecifier;
+use deno_ast::ParseParams;
+use deno_graph::symbols::EsModuleInfo;
 use regex::Regex;
 use serde::Deserialize;
 use serde::Serialize;
@@ -29,6 +37,64 @@ lazy_static! {
   static ref JS_DOC_TAG_WITH_TYPE_AND_MAYBE_VALUE_RE: Regex = Regex::new(r"(?s)^\s*@(enum|extends|augments|this|type|default)\s+\{([^}]+)\}(?:\s+(.+))?").unwrap();
 }
 
+fn make_ts_type(type_str: &str, module_info: &EsModuleInfo) -> TsTypeDef {
+  if let Some(mut parsed) = parse_jsdoc_type(module_info, type_str) {
+    parsed.repr = type_str.to_string();
+    parsed
+  } else {
+    TsTypeDef {
+      repr: type_str.to_string(),
+      kind: TsTypeDefKind::Unsupported,
+    }
+  }
+}
+
+fn parse_jsdoc_type_source(type_str: &str) -> Option<deno_ast::ParsedSource> {
+  let source = format!("type _temp = {type_str}");
+  let specifier = ModuleSpecifier::parse("file:///jsdoc_type.ts").unwrap();
+  let parsed = deno_ast::parse_module(ParseParams {
+    specifier,
+    text: Arc::from(source.as_str()),
+    media_type: MediaType::TypeScript,
+    capture_tokens: false,
+    scope_analysis: false,
+    maybe_syntax: None,
+  })
+  .ok()?;
+
+  let program_ref = parsed.program_ref();
+  let module = program_ref.unwrap_module();
+  let type_alias = module.body.first()?;
+  if !matches!(
+    type_alias,
+    deno_ast::swc::ast::ModuleItem::Stmt(deno_ast::swc::ast::Stmt::Decl(
+      deno_ast::swc::ast::Decl::TsTypeAlias(_),
+    ))
+  ) {
+    return None;
+  }
+
+  Some(parsed)
+}
+
+pub fn parse_jsdoc_type(
+  module_info: &EsModuleInfo,
+  type_str: &str,
+) -> Option<TsTypeDef> {
+  let parsed = parse_jsdoc_type_source(type_str)?;
+  let program_ref = parsed.program_ref();
+  let module = program_ref.unwrap_module();
+  let type_alias = module.body.first()?;
+  if let deno_ast::swc::ast::ModuleItem::Stmt(deno_ast::swc::ast::Stmt::Decl(
+    deno_ast::swc::ast::Decl::TsTypeAlias(type_alias),
+  )) = type_alias
+  {
+    Some(TsTypeDef::new(module_info, &type_alias.type_ann))
+  } else {
+    None
+  }
+}
+
 #[derive(Debug, Default, Clone, Deserialize, Serialize, PartialEq)]
 pub struct JsDoc {
   #[serde(skip_serializing_if = "Option::is_none", default)]
@@ -41,29 +107,8 @@ impl JsDoc {
   pub fn is_empty(&self) -> bool {
     self.doc.is_none() && self.tags.is_empty()
   }
-}
 
-fn handle_codeblock<'a>(
-  line: &'a str,
-  is_codeblock: &mut bool,
-) -> Option<&'a str> {
-  if *is_codeblock && line.starts_with("# ") {
-    if line.contains("```") {
-      *is_codeblock = !*is_codeblock;
-      Some("```")
-    } else {
-      None
-    }
-  } else {
-    if line.contains("```") {
-      *is_codeblock = !*is_codeblock;
-    }
-    Some(line)
-  }
-}
-
-impl From<String> for JsDoc {
-  fn from(value: String) -> Self {
+  pub fn new(value: String, module_info: &EsModuleInfo) -> Self {
     let mut tags = Vec::new();
     let mut doc_lines: Option<String> = None;
     let mut is_tag = false;
@@ -95,7 +140,7 @@ impl From<String> for JsDoc {
                 description_override = Some(m.as_str().to_string());
               }
             } else {
-              tags.push(current_tag.into());
+              tags.push(JsDocTag::new(current_tag, module_info));
             }
           }
         }
@@ -140,7 +185,7 @@ impl From<String> for JsDoc {
           }
         }
       } else {
-        tags.push(current_tag.into());
+        tags.push(JsDocTag::new(current_tag, module_info));
       }
     }
     let doc = if let Some(desc) = description_override {
@@ -155,7 +200,26 @@ impl From<String> for JsDoc {
   }
 }
 
-#[derive(Debug, Clone, Deserialize, Serialize, Eq, PartialEq)]
+fn handle_codeblock<'a>(
+  line: &'a str,
+  is_codeblock: &mut bool,
+) -> Option<&'a str> {
+  if *is_codeblock && line.starts_with("# ") {
+    if line.contains("```") {
+      *is_codeblock = !*is_codeblock;
+      Some("```")
+    } else {
+      None
+    }
+  } else {
+    if line.contains("```") {
+      *is_codeblock = !*is_codeblock;
+    }
+    Some(line)
+  }
+}
+
+#[derive(Debug, Clone, Deserialize, Serialize, PartialEq)]
 #[serde(tag = "kind", rename_all = "lowercase")]
 pub enum JsDocTag {
   /// `@callback Predicate comment`
@@ -184,9 +248,9 @@ pub enum JsDocTag {
     doc: Option<Box<str>>,
   },
   /// `@enum {type} comment`
+  #[serde(rename_all = "camelCase")]
   Enum {
-    #[serde(rename = "type")]
-    type_ref: Box<str>,
+    ts_type: TsTypeDef,
     #[serde(skip_serializing_if = "Option::is_none", default)]
     doc: Option<Box<str>>,
   },
@@ -198,9 +262,9 @@ pub enum JsDocTag {
   /// `@experimental`
   Experimental,
   /// `@extends {type} comment`
+  #[serde(rename_all = "camelCase")]
   Extends {
-    #[serde(rename = "type")]
-    type_ref: Box<str>,
+    ts_type: TsTypeDef,
     #[serde(skip_serializing_if = "Option::is_none", default)]
     doc: Option<Box<str>>,
   },
@@ -217,10 +281,11 @@ pub enum JsDocTag {
   /// `@param`, `@arg` or `argument`, in format of `@param {type} name comment`
   /// or `@param {type} [name=default] comment`
   /// or `@param {type} [name] comment`
+  #[serde(rename_all = "camelCase")]
   Param {
     name: Box<str>,
-    #[serde(rename = "type", skip_serializing_if = "Option::is_none", default)]
-    type_ref: Option<Box<str>>,
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    ts_type: Option<TsTypeDef>,
     #[serde(skip_serializing_if = "core::ops::Not::not", default)]
     optional: bool,
     #[serde(skip_serializing_if = "Option::is_none", default)]
@@ -233,10 +298,10 @@ pub enum JsDocTag {
   /// `@private`
   Private,
   /// `@property {type} name comment` or `@prop {type} name comment`
+  #[serde(rename_all = "camelCase")]
   Property {
     name: Box<str>,
-    #[serde(rename = "type", default)]
-    type_ref: Box<str>,
+    ts_type: TsTypeDef,
     #[serde(skip_serializing_if = "Option::is_none", default)]
     doc: Option<Box<str>>,
   },
@@ -245,9 +310,10 @@ pub enum JsDocTag {
   /// `@readonly`
   ReadOnly,
   /// `@return {type} comment` or `@returns {type} comment`
+  #[serde(rename_all = "camelCase")]
   Return {
-    #[serde(rename = "type", skip_serializing_if = "Option::is_none", default)]
-    type_ref: Option<Box<str>>,
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    ts_type: Option<TsTypeDef>,
     #[serde(skip_serializing_if = "Option::is_none", default)]
     doc: Option<Box<str>>,
   },
@@ -264,32 +330,32 @@ pub enum JsDocTag {
     doc: Option<Box<str>>,
   },
   /// `@this {type} comment`
+  #[serde(rename_all = "camelCase")]
   This {
-    #[serde(rename = "type")]
-    type_ref: Box<str>,
+    ts_type: TsTypeDef,
     #[serde(skip_serializing_if = "Option::is_none", default)]
     doc: Option<Box<str>>,
   },
   /// `@throws {type} comment` or `@exception {type} comment`
+  #[serde(rename_all = "camelCase")]
   Throws {
-    #[serde(rename = "type")]
-    type_ref: Option<Box<str>>,
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    ts_type: Option<TsTypeDef>,
     #[serde(skip_serializing_if = "Option::is_none", default)]
     doc: Option<Box<str>>,
   },
   /// `@typedef {type} name comment`
+  #[serde(rename_all = "camelCase")]
   TypeDef {
     name: Box<str>,
-    #[serde(rename = "type")]
-    type_ref: Box<str>,
+    ts_type: TsTypeDef,
     #[serde(skip_serializing_if = "Option::is_none", default)]
     doc: Option<Box<str>>,
   },
   /// `@type {type} comment`
-  #[serde(rename = "type")]
+  #[serde(rename = "type", rename_all = "camelCase")]
   TypeRef {
-    #[serde(rename = "type")]
-    type_ref: Box<str>,
+    ts_type: TsTypeDef,
     #[serde(skip_serializing_if = "Option::is_none", default)]
     doc: Option<Box<str>>,
   },
@@ -315,8 +381,8 @@ pub enum JsDocTag {
   },
 }
 
-impl From<String> for JsDocTag {
-  fn from(value: String) -> Self {
+impl JsDocTag {
+  pub fn new(value: String, module_info: &EsModuleInfo) -> Self {
     if let Some(caps) = JS_DOC_TAG_WITHOUT_VALUE_RE.captures(&value) {
       let kind = caps.get(1).unwrap().as_str();
       match kind {
@@ -345,33 +411,45 @@ impl From<String> for JsDocTag {
       JS_DOC_TAG_WITH_TYPE_AND_MAYBE_VALUE_RE.captures(&value)
     {
       let kind = caps.get(1).unwrap().as_str();
-      let type_ref = caps.get(2).unwrap().as_str().into();
+      let type_str = caps.get(2).unwrap().as_str();
       let doc = caps.get(3).map(|m| m.as_str().into());
       match kind {
-        "enum" => Self::Enum { type_ref, doc },
-        "extends" | "augments" => Self::Extends { type_ref, doc },
-        "this" => Self::This { type_ref, doc },
-        "type" => Self::TypeRef { type_ref, doc },
+        "enum" => Self::Enum {
+          ts_type: make_ts_type(type_str, module_info),
+          doc,
+        },
+        "extends" | "augments" => Self::Extends {
+          ts_type: make_ts_type(type_str, module_info),
+          doc,
+        },
+        "this" => Self::This {
+          ts_type: make_ts_type(type_str, module_info),
+          doc,
+        },
+        "type" => Self::TypeRef {
+          ts_type: make_ts_type(type_str, module_info),
+          doc,
+        },
         "default" => Self::Default {
-          value: type_ref,
+          value: type_str.into(),
           doc,
         },
         _ => unreachable!("kind unexpected: {}", kind),
       }
     } else if let Some(caps) = JS_DOC_TAG_NAMED_TYPED_RE.captures(&value) {
       let kind = caps.get(1).unwrap().as_str();
-      let type_ref = caps.get(2).unwrap().as_str().into();
+      let type_str = caps.get(2).unwrap().as_str();
       let name = caps.get(3).unwrap().as_str().into();
       let doc = caps.get(4).map(|m| m.as_str().into());
       match kind {
         "prop" | "property" => Self::Property {
           name,
-          type_ref,
+          ts_type: make_ts_type(type_str, module_info),
           doc,
         },
         "typedef" => Self::TypeDef {
           name,
-          type_ref,
+          ts_type: make_ts_type(type_str, module_info),
           doc,
         },
         _ => unreachable!("kind unexpected: {}", kind),
@@ -415,12 +493,14 @@ impl From<String> for JsDocTag {
         .unwrap()
         .as_str()
         .into();
-      let type_ref = caps.name("type").map(|m| m.as_str().into());
+      let ts_type = caps
+        .name("type")
+        .map(|m| make_ts_type(m.as_str(), module_info));
       let default = caps.name("default").map(|m| m.as_str().into());
       let doc = caps.name("doc").map(|m| m.as_str().into());
       Self::Param {
         name,
-        type_ref,
+        ts_type,
         optional: name_with_maybe_default.is_some() && default.is_none(),
         default,
         doc,
@@ -429,11 +509,11 @@ impl From<String> for JsDocTag {
       JS_DOC_TAG_WITH_MAYBE_TYPE_AND_MAYBE_VALUE_RE.captures(&value)
     {
       let kind = caps.get(1).unwrap().as_str();
-      let type_ref = caps.get(2).map(|m| m.as_str().into());
+      let ts_type = caps.get(2).map(|m| make_ts_type(m.as_str(), module_info));
       let doc = caps.get(3).map(|m| m.as_str().into());
       match kind {
-        "return" | "returns" => Self::Return { type_ref, doc },
-        "throws" | "exception" => Self::Throws { type_ref, doc },
+        "return" | "returns" => Self::Return { ts_type, doc },
+        "throws" | "exception" => Self::Throws { ts_type, doc },
         _ => unreachable!("kind unexpected: {}", kind),
       }
     } else {
@@ -448,48 +528,104 @@ impl From<String> for JsDocTag {
 mod tests {
   use super::*;
 
+  fn parse_jsdoc(input: &str) -> JsDoc {
+    let rt = tokio::runtime::Runtime::new().unwrap();
+    rt.block_on(async {
+      let specifier =
+        deno_ast::ModuleSpecifier::parse("file:///test.ts").unwrap();
+      let mut loader = deno_graph::source::MemoryLoader::default();
+      loader.add_source_with_text(specifier.as_str(), "export {};");
+      let analyzer = deno_graph::ast::CapturingModuleAnalyzer::default();
+      let mut graph =
+        deno_graph::ModuleGraph::new(deno_graph::GraphKind::TypesOnly);
+      graph
+        .build(
+          vec![specifier.clone()],
+          Vec::new(),
+          &loader,
+          deno_graph::BuildOptions {
+            module_analyzer: &analyzer,
+            ..Default::default()
+          },
+        )
+        .await;
+      let root_symbol = deno_graph::symbols::RootSymbol::new(&graph, &analyzer);
+      let module_info = root_symbol.module_from_specifier(&specifier).unwrap();
+      let esm = match module_info {
+        deno_graph::symbols::ModuleInfoRef::Esm(esm) => esm,
+        _ => panic!("expected esm module"),
+      };
+      JsDoc::new(input.to_string(), esm)
+    })
+  }
+
+  fn ts_keyword(name: &str) -> serde_json::Value {
+    serde_json::json!({
+      "repr": name,
+      "kind": "keyword",
+      "value": name,
+    })
+  }
+
+  fn ts_type_ref(
+    name: &str,
+    repr: &str,
+    type_params: Option<Vec<serde_json::Value>>,
+  ) -> serde_json::Value {
+    let mut value = serde_json::json!({
+      "typeName": name,
+      "resolution": { "kind": "typeParam" },
+    });
+    if let Some(tp) = type_params {
+      value["typeParams"] = serde_json::json!(tp);
+    }
+    serde_json::json!({
+      "repr": repr,
+      "kind": "typeRef",
+      "value": value,
+    })
+  }
+
   #[test]
   fn test_js_doc_tag_only() {
     assert_eq!(
-      serde_json::to_value(JsDoc::from("@constructor more".to_string()))
-        .unwrap(),
-      json!({ "tags": [ { "kind": "constructor" } ] }),
+      serde_json::to_value(parse_jsdoc("@constructor more")).unwrap(),
+      serde_json::json!({ "tags": [ { "kind": "constructor" } ] }),
     );
     assert_eq!(
-      serde_json::to_value(JsDoc::from("@class more".to_string())).unwrap(),
-      json!({ "tags": [ { "kind": "constructor" } ] }),
+      serde_json::to_value(parse_jsdoc("@class more")).unwrap(),
+      serde_json::json!({ "tags": [ { "kind": "constructor" } ] }),
     );
     assert_eq!(
-      serde_json::to_value(JsDoc::from("@experimental more".to_string()))
-        .unwrap(),
-      json!({ "tags": [ { "kind": "experimental" } ] }),
+      serde_json::to_value(parse_jsdoc("@experimental more")).unwrap(),
+      serde_json::json!({ "tags": [ { "kind": "experimental" } ] }),
     );
     assert_eq!(
-      serde_json::to_value(JsDoc::from("@ignore more".to_string())).unwrap(),
-      json!({ "tags": [ { "kind": "ignore" } ] }),
+      serde_json::to_value(parse_jsdoc("@ignore more")).unwrap(),
+      serde_json::json!({ "tags": [ { "kind": "ignore" } ] }),
     );
     assert_eq!(
-      serde_json::to_value(JsDoc::from("@public more".to_string())).unwrap(),
-      json!({ "tags": [ { "kind": "public" } ] }),
+      serde_json::to_value(parse_jsdoc("@public more")).unwrap(),
+      serde_json::json!({ "tags": [ { "kind": "public" } ] }),
     );
     assert_eq!(
-      serde_json::to_value(JsDoc::from("@private more".to_string())).unwrap(),
-      json!({ "tags": [ { "kind": "private" } ] }),
+      serde_json::to_value(parse_jsdoc("@private more")).unwrap(),
+      serde_json::json!({ "tags": [ { "kind": "private" } ] }),
     );
     assert_eq!(
-      serde_json::to_value(JsDoc::from("@protected more".to_string())).unwrap(),
-      json!({ "tags": [ { "kind": "protected" } ] }),
+      serde_json::to_value(parse_jsdoc("@protected more")).unwrap(),
+      serde_json::json!({ "tags": [ { "kind": "protected" } ] }),
     );
     assert_eq!(
-      serde_json::to_value(JsDoc::from("@readonly more".to_string())).unwrap(),
-      json!({ "tags": [ { "kind": "readonly" } ] }),
+      serde_json::to_value(parse_jsdoc("@readonly more")).unwrap(),
+      serde_json::json!({ "tags": [ { "kind": "readonly" } ] }),
     );
   }
 
   #[test]
   fn test_js_doc_preserves_leading_whitespace() {
     assert_eq!(
-      serde_json::to_value(JsDoc::from(
+      serde_json::to_value(parse_jsdoc(
         r#"
 Some JSDoc goes here
 
@@ -507,10 +643,9 @@ if (true) {
          indented comment
 @returns nothing
 "#
-        .to_string()
       ))
       .unwrap(),
-      json!({
+      serde_json::json!({
         "doc": "\nSome JSDoc goes here\n",
         "tags": [
           {
@@ -534,7 +669,7 @@ if (true) {
   #[test]
   fn test_js_doc_example_with_decorator() {
     assert_eq!(
-      serde_json::to_value(JsDoc::from(
+      serde_json::to_value(parse_jsdoc(
         r#"
 Some JSDoc goes here
 
@@ -551,10 +686,9 @@ class MyMigration {
 
 @param a some param
 "#
-        .to_string()
       ))
       .unwrap(),
-      json!({
+      serde_json::json!({
         "doc": "\nSome JSDoc goes here\n",
         "tags": [
           {
@@ -574,7 +708,7 @@ class MyMigration {
   #[test]
   fn test_js_doc_doc_codeblock_with_at_symbol() {
     assert_eq!(
-      serde_json::to_value(JsDoc::from(
+      serde_json::to_value(parse_jsdoc(
         r#"
 Some description
 
@@ -585,10 +719,9 @@ class Foo {}
 
 @param a some param
 "#
-        .to_string()
       ))
       .unwrap(),
-      json!({
+      serde_json::json!({
         "doc": "\nSome description\n\n```ts\n@decorator\nclass Foo {}\n```\n",
         "tags": [
           {
@@ -604,11 +737,11 @@ class Foo {}
   #[test]
   fn test_js_doc_tag_named() {
     assert_eq!(
-      serde_json::to_value(JsDoc::from(
-        "@callback name more docs\n\nnew paragraph".to_string()
+      serde_json::to_value(parse_jsdoc(
+        "@callback name more docs\n\nnew paragraph"
       ))
       .unwrap(),
-      json!({
+      serde_json::json!({
         "tags": [
           {
             "kind": "callback",
@@ -619,11 +752,11 @@ class Foo {}
       })
     );
     assert_eq!(
-      serde_json::to_value(JsDoc::from(
-        "@template T more docs\n\nnew paragraph".to_string()
+      serde_json::to_value(parse_jsdoc(
+        "@template T more docs\n\nnew paragraph"
       ))
       .unwrap(),
-      json!({
+      serde_json::json!({
         "tags": [
           {
             "kind": "template",
@@ -638,11 +771,11 @@ class Foo {}
   #[test]
   fn test_js_doc_tag_typed() {
     assert_eq!(
-      serde_json::to_value(JsDoc::from(
-        "@default {true} more doc\n\nnew paragraph".to_string()
+      serde_json::to_value(parse_jsdoc(
+        "@default {true} more doc\n\nnew paragraph"
       ))
       .unwrap(),
-      json!({
+      serde_json::json!({
         "tags": [{
           "kind": "default",
           "value": "true",
@@ -651,66 +784,66 @@ class Foo {}
       })
     );
     assert_eq!(
-      serde_json::to_value(JsDoc::from(
-        "@enum {string} more doc\n\nnew paragraph".to_string()
+      serde_json::to_value(parse_jsdoc(
+        "@enum {string} more doc\n\nnew paragraph"
       ))
       .unwrap(),
-      json!({
+      serde_json::json!({
         "tags": [{
           "kind": "enum",
-          "type": "string",
+          "tsType": ts_keyword("string"),
           "doc": "more doc\n\nnew paragraph"
         }]
       })
     );
     assert_eq!(
-      serde_json::to_value(JsDoc::from(
-        "@extends {string} more doc\n\nnew paragraph".to_string()
+      serde_json::to_value(parse_jsdoc(
+        "@extends {string} more doc\n\nnew paragraph"
       ))
       .unwrap(),
-      json!({
+      serde_json::json!({
         "tags": [{
           "kind": "extends",
-          "type": "string",
+          "tsType": ts_keyword("string"),
           "doc": "more doc\n\nnew paragraph"
         }]
       })
     );
     assert_eq!(
-      serde_json::to_value(JsDoc::from(
-        "@augments {string} more doc\n\nnew paragraph".to_string()
+      serde_json::to_value(parse_jsdoc(
+        "@augments {string} more doc\n\nnew paragraph"
       ))
       .unwrap(),
-      json!({
+      serde_json::json!({
         "tags": [{
           "kind": "extends",
-          "type": "string",
+          "tsType": ts_keyword("string"),
           "doc": "more doc\n\nnew paragraph"
         }]
       })
     );
     assert_eq!(
-      serde_json::to_value(JsDoc::from(
-        "@this {string} more doc\n\nnew paragraph".to_string()
+      serde_json::to_value(parse_jsdoc(
+        "@this {string} more doc\n\nnew paragraph"
       ))
       .unwrap(),
-      json!({
+      serde_json::json!({
         "tags": [{
           "kind": "this",
-          "type": "string",
+          "tsType": ts_keyword("string"),
           "doc": "more doc\n\nnew paragraph"
         }]
       })
     );
     assert_eq!(
-      serde_json::to_value(JsDoc::from(
-        "@type {string} more doc\n\nnew paragraph".to_string()
+      serde_json::to_value(parse_jsdoc(
+        "@type {string} more doc\n\nnew paragraph"
       ))
       .unwrap(),
-      json!({
+      serde_json::json!({
         "tags": [{
           "kind": "type",
-          "type": "string",
+          "tsType": ts_keyword("string"),
           "doc": "more doc\n\nnew paragraph"
         }]
       })
@@ -720,43 +853,43 @@ class Foo {}
   #[test]
   fn test_js_doc_tag_named_typed() {
     assert_eq!(
-      serde_json::to_value(JsDoc::from(
-        "@prop {string} a more doc\n\nnew paragraph".to_string()
+      serde_json::to_value(parse_jsdoc(
+        "@prop {string} a more doc\n\nnew paragraph"
       ))
       .unwrap(),
-      json!({
+      serde_json::json!({
         "tags": [{
           "kind": "property",
           "name": "a",
-          "type": "string",
+          "tsType": ts_keyword("string"),
           "doc": "more doc\n\nnew paragraph"
         }]
       })
     );
     assert_eq!(
-      serde_json::to_value(JsDoc::from(
-        "@property {string} a more doc\n\nnew paragraph".to_string()
+      serde_json::to_value(parse_jsdoc(
+        "@property {string} a more doc\n\nnew paragraph"
       ))
       .unwrap(),
-      json!({
+      serde_json::json!({
         "tags": [{
           "kind": "property",
           "name": "a",
-          "type": "string",
+          "tsType": ts_keyword("string"),
           "doc": "more doc\n\nnew paragraph"
         }]
       })
     );
     assert_eq!(
-      serde_json::to_value(JsDoc::from(
-        "@typedef {object} Interface more doc\n\nnew paragraph".to_string()
+      serde_json::to_value(parse_jsdoc(
+        "@typedef {object} Interface more doc\n\nnew paragraph"
       ))
       .unwrap(),
-      json!({
+      serde_json::json!({
         "tags": [{
           "kind": "typedef",
           "name": "Interface",
-          "type": "object",
+          "tsType": ts_keyword("object"),
           "doc": "more doc\n\nnew paragraph"
         }]
       })
@@ -766,19 +899,19 @@ class Foo {}
   #[test]
   fn test_js_doc_tag_maybe_doc() {
     assert_eq!(
-      serde_json::to_value(JsDoc::from("@deprecated".to_string())).unwrap(),
-      json!({
+      serde_json::to_value(parse_jsdoc("@deprecated")).unwrap(),
+      serde_json::json!({
         "tags": [{
           "kind": "deprecated",
         }]
       })
     );
     assert_eq!(
-      serde_json::to_value(JsDoc::from(
-        "@deprecated maybe doc\n\nnew paragraph".to_string()
+      serde_json::to_value(parse_jsdoc(
+        "@deprecated maybe doc\n\nnew paragraph"
       ))
       .unwrap(),
-      json!({
+      serde_json::json!({
         "tags": [{
           "kind": "deprecated",
           "doc": "maybe doc\n\nnew paragraph",
@@ -786,19 +919,17 @@ class Foo {}
       })
     );
     assert_eq!(
-      serde_json::to_value(JsDoc::from("@module".to_string())).unwrap(),
-      json!({
+      serde_json::to_value(parse_jsdoc("@module")).unwrap(),
+      serde_json::json!({
         "tags": [{
           "kind": "module",
         }]
       })
     );
     assert_eq!(
-      serde_json::to_value(JsDoc::from(
-        "@module maybe doc\n\nnew paragraph".to_string()
-      ))
-      .unwrap(),
-      json!({
+      serde_json::to_value(parse_jsdoc("@module maybe doc\n\nnew paragraph"))
+        .unwrap(),
+      serde_json::json!({
         "tags": [{
           "kind": "module",
           "name": "maybe doc\n\nnew paragraph",
@@ -810,11 +941,9 @@ class Foo {}
   #[test]
   fn test_js_doc_tag_doc() {
     assert_eq!(
-      serde_json::to_value(JsDoc::from(
-        "@category Functional Components".to_string()
-      ))
-      .unwrap(),
-      json!({
+      serde_json::to_value(parse_jsdoc("@category Functional Components"))
+        .unwrap(),
+      serde_json::json!({
         "tags": [{
           "kind": "category",
           "doc": "Functional Components",
@@ -822,11 +951,9 @@ class Foo {}
       })
     );
     assert_eq!(
-      serde_json::to_value(JsDoc::from(
-        "@group Functional Components".to_string()
-      ))
-      .unwrap(),
-      json!({
+      serde_json::to_value(parse_jsdoc("@group Functional Components"))
+        .unwrap(),
+      serde_json::json!({
         "tags": [{
           "kind": "category",
           "doc": "Functional Components",
@@ -834,11 +961,9 @@ class Foo {}
       })
     );
     assert_eq!(
-      serde_json::to_value(JsDoc::from(
-        "@example\n\nconst a = \"a\";\n".to_string()
-      ))
-      .unwrap(),
-      json!({
+      serde_json::to_value(parse_jsdoc("@example\n\nconst a = \"a\";\n"))
+        .unwrap(),
+      serde_json::json!({
         "tags": [{
           "kind": "example",
           "doc": "const a = \"a\";"
@@ -846,11 +971,9 @@ class Foo {}
       })
     );
     assert_eq!(
-      serde_json::to_value(JsDoc::from(
-        "@tags allow-read, allow-write".to_string()
-      ))
-      .unwrap(),
-      json!({
+      serde_json::to_value(parse_jsdoc("@tags allow-read, allow-write"))
+        .unwrap(),
+      serde_json::json!({
         "tags": [{
           "kind": "tags",
           "tags": ["allow-read", "allow-write"],
@@ -858,8 +981,8 @@ class Foo {}
       })
     );
     assert_eq!(
-      serde_json::to_value(JsDoc::from("@see foo".to_string())).unwrap(),
-      json!({
+      serde_json::to_value(parse_jsdoc("@see foo")).unwrap(),
+      serde_json::json!({
         "tags": [{
           "kind": "see",
           "doc": "foo"
@@ -867,8 +990,8 @@ class Foo {}
       })
     );
     assert_eq!(
-      serde_json::to_value(JsDoc::from("@since 1.0.0".to_string())).unwrap(),
-      json!({
+      serde_json::to_value(parse_jsdoc("@since 1.0.0")).unwrap(),
+      serde_json::json!({
         "tags": [{
           "kind": "since",
           "doc": "1.0.0"
@@ -877,7 +1000,7 @@ class Foo {}
     );
 
     assert_eq!(
-      serde_json::to_value(JsDoc::from(
+      serde_json::to_value(parse_jsdoc(
         r#"@tags allow-read, allow-write
 @example some example
 const a = "a";
@@ -885,10 +1008,9 @@ const a = "a";
 @see bar
 @since 1.0.0
 "#
-        .to_string()
       ))
       .unwrap(),
-      json!({
+      serde_json::json!({
         "tags": [{
           "kind": "tags",
           "tags": ["allow-read", "allow-write"]
@@ -909,9 +1031,8 @@ const a = "a";
       })
     );
     assert_eq!(
-      serde_json::to_value(JsDoc::from("@summary A brief summary".to_string()))
-        .unwrap(),
-      json!({
+      serde_json::to_value(parse_jsdoc("@summary A brief summary")).unwrap(),
+      serde_json::json!({
         "tags": [{
           "kind": "summary",
           "doc": "A brief summary",
@@ -924,48 +1045,42 @@ const a = "a";
   fn test_js_doc_description_tag() {
     // @description overrides the doc field
     assert_eq!(
-      serde_json::to_value(JsDoc::from(
-        "Normal doc text\n@description Override description".to_string()
+      serde_json::to_value(parse_jsdoc(
+        "Normal doc text\n@description Override description"
       ))
       .unwrap(),
-      json!({
+      serde_json::json!({
         "doc": "Override description",
       })
     );
     // @description without preceding doc text
     assert_eq!(
-      serde_json::to_value(JsDoc::from(
-        "@description The description".to_string()
-      ))
-      .unwrap(),
-      json!({
+      serde_json::to_value(parse_jsdoc("@description The description"))
+        .unwrap(),
+      serde_json::json!({
         "doc": "The description",
       })
     );
     // @description with other tags
     assert_eq!(
-      serde_json::to_value(JsDoc::from(
+      serde_json::to_value(parse_jsdoc(
         "Normal doc\n@description Override\n@param {string} a a param"
-          .to_string()
       ))
       .unwrap(),
-      json!({
+      serde_json::json!({
         "doc": "Override",
         "tags": [{
           "kind": "param",
           "name": "a",
-          "type": "string",
+          "tsType": ts_keyword("string"),
           "doc": "a param",
         }]
       })
     );
     // multi-line @description
     assert_eq!(
-      serde_json::to_value(JsDoc::from(
-        "@description Line 1\nLine 2".to_string()
-      ))
-      .unwrap(),
-      json!({
+      serde_json::to_value(parse_jsdoc("@description Line 1\nLine 2")).unwrap(),
+      serde_json::json!({
         "doc": "Line 1\nLine 2",
       })
     );
@@ -974,102 +1089,95 @@ const a = "a";
   #[test]
   fn test_js_doc_tag_param() {
     assert_eq!(
-      serde_json::to_value(JsDoc::from(
-        "@param a maybe doc\n\nnew paragraph".to_string()
-      ))
-      .unwrap(),
-      json!({
-        "tags": [{
-          "kind": "param",
-          "name": "a",
-          "doc": "maybe doc\n\nnew paragraph",
-        }]
-      })
-    );
-    assert_eq!(
-      serde_json::to_value(JsDoc::from(
-        "@param {string} a maybe doc\n\nnew paragraph".to_string()
-      ))
-      .unwrap(),
-      json!({
-        "tags": [{
-          "kind": "param",
-          "name": "a",
-          "type": "string",
-          "doc": "maybe doc\n\nnew paragraph",
-        }]
-      })
-    );
-    assert_eq!(
-      serde_json::to_value(JsDoc::from("@param {string} a".to_string()))
+      serde_json::to_value(parse_jsdoc("@param a maybe doc\n\nnew paragraph"))
         .unwrap(),
-      json!({
+      serde_json::json!({
         "tags": [{
           "kind": "param",
           "name": "a",
-          "type": "string",
+          "doc": "maybe doc\n\nnew paragraph",
         }]
       })
     );
     assert_eq!(
-      serde_json::to_value(JsDoc::from(
-        r#"@param {string} [a="foo"]"#.to_string()
+      serde_json::to_value(parse_jsdoc(
+        "@param {string} a maybe doc\n\nnew paragraph"
       ))
       .unwrap(),
-      json!({
+      serde_json::json!({
         "tags": [{
           "kind": "param",
           "name": "a",
-          "type": "string",
+          "tsType": ts_keyword("string"),
+          "doc": "maybe doc\n\nnew paragraph",
+        }]
+      })
+    );
+    assert_eq!(
+      serde_json::to_value(parse_jsdoc("@param {string} a")).unwrap(),
+      serde_json::json!({
+        "tags": [{
+          "kind": "param",
+          "name": "a",
+          "tsType": ts_keyword("string"),
+        }]
+      })
+    );
+    assert_eq!(
+      serde_json::to_value(parse_jsdoc(r#"@param {string} [a="foo"]"#))
+        .unwrap(),
+      serde_json::json!({
+        "tags": [{
+          "kind": "param",
+          "name": "a",
+          "tsType": ts_keyword("string"),
           "default": "\"foo\"",
         }]
       })
     );
     assert_eq!(
-      serde_json::to_value(JsDoc::from(r#"@param {string} [a]"#.to_string()))
-        .unwrap(),
-      json!({
+      serde_json::to_value(parse_jsdoc(r#"@param {string} [a]"#)).unwrap(),
+      serde_json::json!({
         "tags": [{
           "kind": "param",
           "name": "a",
-          "type": "string",
+          "tsType": ts_keyword("string"),
           "optional": true,
         }]
       })
     );
     assert_eq!(
-      serde_json::to_value(JsDoc::from(
-        "@arg {string} a maybe doc\n\nnew paragraph".to_string()
+      serde_json::to_value(parse_jsdoc(
+        "@arg {string} a maybe doc\n\nnew paragraph"
       ))
       .unwrap(),
-      json!({
+      serde_json::json!({
         "tags": [{
           "kind": "param",
           "name": "a",
-          "type": "string",
+          "tsType": ts_keyword("string"),
           "doc": "maybe doc\n\nnew paragraph",
         }]
       })
     );
     assert_eq!(
-      serde_json::to_value(JsDoc::from(
-        "@argument {string} a maybe doc\n\nnew paragraph".to_string()
+      serde_json::to_value(parse_jsdoc(
+        "@argument {string} a maybe doc\n\nnew paragraph"
       ))
       .unwrap(),
-      json!({
+      serde_json::json!({
         "tags": [{
           "kind": "param",
           "name": "a",
-          "type": "string",
+          "tsType": ts_keyword("string"),
           "doc": "maybe doc\n\nnew paragraph",
         }]
       })
     );
     // hyphen separator should be stripped
     assert_eq!(
-      serde_json::to_value(JsDoc::from("@param foo - The foo".to_string()))
-        .unwrap(),
-      json!({
+      serde_json::to_value(parse_jsdoc("@param foo - The foo")).unwrap(),
+      serde_json::json!({
         "tags": [{
           "kind": "param",
           "name": "foo",
@@ -1078,15 +1186,13 @@ const a = "a";
       })
     );
     assert_eq!(
-      serde_json::to_value(JsDoc::from(
-        "@param {string} foo - The foo".to_string()
-      ))
-      .unwrap(),
-      json!({
+      serde_json::to_value(parse_jsdoc("@param {string} foo - The foo"))
+        .unwrap(),
+      serde_json::json!({
         "tags": [{
           "kind": "param",
           "name": "foo",
-          "type": "string",
+          "tsType": ts_keyword("string"),
           "doc": "The foo",
         }]
       })
@@ -1096,24 +1202,22 @@ const a = "a";
   #[test]
   fn test_js_doc_tag_returns() {
     assert_eq!(
-      serde_json::to_value(JsDoc::from(
-        "@return {string} maybe doc\n\nnew paragraph".to_string()
+      serde_json::to_value(parse_jsdoc(
+        "@return {string} maybe doc\n\nnew paragraph"
       ))
       .unwrap(),
-      json!({
+      serde_json::json!({
         "tags": [{
           "kind": "return",
-          "type": "string",
+          "tsType": ts_keyword("string"),
           "doc": "maybe doc\n\nnew paragraph",
         }]
       })
     );
     assert_eq!(
-      serde_json::to_value(JsDoc::from(
-        "@return maybe doc\n\nnew paragraph".to_string()
-      ))
-      .unwrap(),
-      json!({
+      serde_json::to_value(parse_jsdoc("@return maybe doc\n\nnew paragraph"))
+        .unwrap(),
+      serde_json::json!({
         "tags": [{
           "kind": "return",
           "doc": "maybe doc\n\nnew paragraph",
@@ -1121,14 +1225,14 @@ const a = "a";
       })
     );
     assert_eq!(
-      serde_json::to_value(JsDoc::from(
-        "@returns {string} maybe doc\n\nnew paragraph".to_string()
+      serde_json::to_value(parse_jsdoc(
+        "@returns {string} maybe doc\n\nnew paragraph"
       ))
       .unwrap(),
-      json!({
+      serde_json::json!({
         "tags": [{
           "kind": "return",
-          "type": "string",
+          "tsType": ts_keyword("string"),
           "doc": "maybe doc\n\nnew paragraph",
         }]
       })
@@ -1138,40 +1242,37 @@ const a = "a";
   #[test]
   fn test_js_doc_tag_throws() {
     assert_eq!(
-      serde_json::to_value(JsDoc::from(
-        "@throws {string} maybe doc\n\nnew paragraph".to_string()
+      serde_json::to_value(parse_jsdoc(
+        "@throws {string} maybe doc\n\nnew paragraph"
       ))
       .unwrap(),
-      json!({
+      serde_json::json!({
         "tags": [{
           "kind": "throws",
-          "type": "string",
+          "tsType": ts_keyword("string"),
           "doc": "maybe doc\n\nnew paragraph",
         }]
       })
     );
     assert_eq!(
-      serde_json::to_value(JsDoc::from(
-        "@throws maybe doc\n\nnew paragraph".to_string()
-      ))
-      .unwrap(),
-      json!({
+      serde_json::to_value(parse_jsdoc("@throws maybe doc\n\nnew paragraph"))
+        .unwrap(),
+      serde_json::json!({
         "tags": [{
           "kind": "throws",
-          "type": null,
           "doc": "maybe doc\n\nnew paragraph",
         }]
       })
     );
     assert_eq!(
-      serde_json::to_value(JsDoc::from(
-        "@throws {string} maybe doc\n\nnew paragraph".to_string()
+      serde_json::to_value(parse_jsdoc(
+        "@throws {string} maybe doc\n\nnew paragraph"
       ))
       .unwrap(),
-      json!({
+      serde_json::json!({
         "tags": [{
           "kind": "throws",
-          "type": "string",
+          "tsType": ts_keyword("string"),
           "doc": "maybe doc\n\nnew paragraph",
         }]
       })
@@ -1181,7 +1282,7 @@ const a = "a";
   #[test]
   fn test_js_doc_from_str() {
     assert_eq!(
-      serde_json::to_value(JsDoc::from(
+      serde_json::to_value(parse_jsdoc(
         "Line 1
 Line 2
 
@@ -1190,32 +1291,118 @@ Line 2
 multi-line
 @returns {Promise<T>} nothing
 "
-        .to_string()
       ))
       .unwrap(),
-      json!({
+      serde_json::json!({
         "doc": "Line 1\nLine 2\n",
         "tags": [
           {
             "kind": "param",
             "name": "a",
-            "type": "string",
+            "tsType": ts_keyword("string"),
             "doc": "comment",
           },
           {
             "kind": "param",
             "name": "b",
-            "type": "string",
+            "tsType": ts_keyword("string"),
             "doc": "comment\nmulti-line",
           },
           {
             "kind": "return",
-            "type": "Promise<T>",
+            "tsType": ts_type_ref("Promise", "Promise<T>", Some(vec![
+              ts_type_ref("T", "T", None)
+            ])),
             "doc": "nothing"
           }
         ]
       })
     );
+  }
+
+  #[test]
+  fn test_parse_jsdoc_type_source() {
+    // valid types
+    assert!(parse_jsdoc_type_source("string").is_some());
+    assert!(parse_jsdoc_type_source("number").is_some());
+    assert!(parse_jsdoc_type_source("boolean").is_some());
+    assert!(parse_jsdoc_type_source("void").is_some());
+    assert!(parse_jsdoc_type_source("any").is_some());
+    assert!(parse_jsdoc_type_source("unknown").is_some());
+    assert!(parse_jsdoc_type_source("never").is_some());
+    assert!(parse_jsdoc_type_source("null").is_some());
+    assert!(parse_jsdoc_type_source("undefined").is_some());
+    assert!(parse_jsdoc_type_source("bigint").is_some());
+    assert!(parse_jsdoc_type_source("symbol").is_some());
+    assert!(parse_jsdoc_type_source("object").is_some());
+
+    // type references
+    assert!(parse_jsdoc_type_source("Promise<string>").is_some());
+    assert!(parse_jsdoc_type_source("Map<string, Set<number>>").is_some());
+    assert!(parse_jsdoc_type_source("Record<string, unknown>").is_some());
+    assert!(
+      parse_jsdoc_type_source("Promise<Map<string, Array<number>>>").is_some()
+    );
+
+    // unions and intersections
+    assert!(parse_jsdoc_type_source("string | number").is_some());
+    assert!(parse_jsdoc_type_source("A & B").is_some());
+    assert!(parse_jsdoc_type_source("string | null | undefined").is_some());
+    assert!(parse_jsdoc_type_source("string[] | number[]").is_some());
+
+    // arrays, tuples
+    assert!(parse_jsdoc_type_source("string[]").is_some());
+    assert!(parse_jsdoc_type_source("[string, number]").is_some());
+    assert!(parse_jsdoc_type_source("[string?]").is_some());
+    assert!(parse_jsdoc_type_source("[...string[]]").is_some());
+
+    // function types
+    assert!(parse_jsdoc_type_source("(a: string) => void").is_some());
+    assert!(parse_jsdoc_type_source("(x: string) => number | null").is_some());
+    assert!(parse_jsdoc_type_source("new (x: number) => Foo").is_some());
+
+    // object literals
+    assert!(parse_jsdoc_type_source("{ foo: string }").is_some());
+    assert!(
+      parse_jsdoc_type_source("{ name: string; age: number; tags: string[] }")
+        .is_some()
+    );
+
+    // type operators
+    assert!(parse_jsdoc_type_source("keyof T").is_some());
+    assert!(parse_jsdoc_type_source("readonly string[]").is_some());
+    assert!(parse_jsdoc_type_source("unique symbol").is_some());
+
+    // conditional, mapped, indexed access
+    assert!(parse_jsdoc_type_source("T extends string ? T : never").is_some());
+    assert!(
+      parse_jsdoc_type_source("T extends Promise<infer U> ? U : never")
+        .is_some()
+    );
+    assert!(parse_jsdoc_type_source("{ [K in keyof T]: T[K] }").is_some());
+    assert!(parse_jsdoc_type_source("T[K]").is_some());
+
+    // other valid types
+    assert!(parse_jsdoc_type_source("this").is_some());
+    assert!(parse_jsdoc_type_source("typeof Array").is_some());
+    assert!(parse_jsdoc_type_source("`hello${string}`").is_some());
+    assert!(parse_jsdoc_type_source("(string | number)").is_some());
+    assert!(parse_jsdoc_type_source("import('foo').Bar").is_some());
+
+    // literals
+    assert!(parse_jsdoc_type_source("\"hello\"").is_some());
+    assert!(parse_jsdoc_type_source("42").is_some());
+    assert!(parse_jsdoc_type_source("true").is_some());
+    assert!(parse_jsdoc_type_source("false").is_some());
+
+    // invalid types
+    assert!(parse_jsdoc_type_source("???invalid!!!").is_none());
+    assert!(parse_jsdoc_type_source("").is_none());
+    assert!(parse_jsdoc_type_source("   ").is_none());
+    assert!(parse_jsdoc_type_source("@#$%").is_none());
+    assert!(parse_jsdoc_type_source("if (true) {}").is_none());
+    assert!(parse_jsdoc_type_source("class Foo {}").is_none());
+    assert!(parse_jsdoc_type_source("x is string").is_none());
   }
 
   #[test]
@@ -1260,30 +1447,39 @@ multi-line
     );
     assert_eq!(
       serde_json::to_value(JsDocTag::Enum {
-        type_ref: "number".into(),
+        ts_type: TsTypeDef {
+          repr: "number".to_string(),
+          kind: TsTypeDefKind::Unsupported
+        },
         doc: None,
       })
       .unwrap(),
       json!({
         "kind": "enum",
-        "type": "number",
+        "tsType": { "repr": "number", "kind": "unsupported" },
       })
     );
     assert_eq!(
       serde_json::to_value(JsDocTag::Extends {
-        type_ref: "OtherType<T>".into(),
+        ts_type: TsTypeDef {
+          repr: "OtherType<T>".to_string(),
+          kind: TsTypeDefKind::Unsupported
+        },
         doc: None,
       })
       .unwrap(),
       json!({
         "kind": "extends",
-        "type": "OtherType<T>",
+        "tsType": { "repr": "OtherType<T>", "kind": "unsupported" },
       })
     );
     assert_eq!(
       serde_json::to_value(JsDocTag::Param {
         name: "arg".into(),
-        type_ref: Some("number".into()),
+        ts_type: Some(TsTypeDef {
+          repr: "number".to_string(),
+          kind: TsTypeDefKind::Unsupported
+        }),
         optional: false,
         default: Some("1".into()),
         doc: Some("comment".into()),
@@ -1292,7 +1488,7 @@ multi-line
       json!({
         "kind": "param",
         "name": "arg",
-        "type": "number",
+        "tsType": { "repr": "number", "kind": "unsupported" },
         "default": "1",
         "doc": "comment",
       })
@@ -1300,7 +1496,7 @@ multi-line
     assert_eq!(
       serde_json::to_value(JsDocTag::Param {
         name: "arg".into(),
-        type_ref: None,
+        ts_type: None,
         optional: false,
         default: None,
         doc: Some("comment".into()),
@@ -1323,14 +1519,17 @@ multi-line
     assert_eq!(
       serde_json::to_value(JsDocTag::Property {
         name: "prop".into(),
-        type_ref: "string".into(),
+        ts_type: TsTypeDef {
+          repr: "string".to_string(),
+          kind: TsTypeDefKind::Unsupported
+        },
         doc: None,
       })
       .unwrap(),
       json!({
         "kind": "property",
         "name": "prop",
-        "type": "string",
+        "tsType": { "repr": "string", "kind": "unsupported" },
       })
     );
     assert_eq!(
@@ -1343,13 +1542,16 @@ multi-line
     );
     assert_eq!(
       serde_json::to_value(JsDocTag::Return {
-        type_ref: Some("string".into()),
+        ts_type: Some(TsTypeDef {
+          repr: "string".to_string(),
+          kind: TsTypeDefKind::Unsupported
+        }),
         doc: Some("comment".into()),
       })
       .unwrap(),
       json!({
         "kind": "return",
-        "type": "string",
+        "tsType": { "repr": "string", "kind": "unsupported" },
         "doc": "comment",
       })
     );
@@ -1366,37 +1568,46 @@ multi-line
     );
     assert_eq!(
       serde_json::to_value(JsDocTag::This {
-        type_ref: "Record<string, unknown>".into(),
+        ts_type: TsTypeDef {
+          repr: "Record<string, unknown>".to_string(),
+          kind: TsTypeDefKind::Unsupported
+        },
         doc: None,
       })
       .unwrap(),
       json!({
         "kind": "this",
-        "type": "Record<string, unknown>",
+        "tsType": { "repr": "Record<string, unknown>", "kind": "unsupported" },
       })
     );
     assert_eq!(
       serde_json::to_value(JsDocTag::TypeDef {
         name: "Interface".into(),
-        type_ref: "object".into(),
+        ts_type: TsTypeDef {
+          repr: "object".to_string(),
+          kind: TsTypeDefKind::Unsupported
+        },
         doc: None,
       })
       .unwrap(),
       json!({
         "kind": "typedef",
         "name": "Interface",
-        "type": "object",
+        "tsType": { "repr": "object", "kind": "unsupported" },
       })
     );
     assert_eq!(
       serde_json::to_value(JsDocTag::TypeRef {
-        type_ref: "Map<string, string>".into(),
+        ts_type: TsTypeDef {
+          repr: "Map<string, string>".to_string(),
+          kind: TsTypeDefKind::Unsupported
+        },
         doc: None,
       })
       .unwrap(),
       json!({
         "kind": "type",
-        "type": "Map<string, string>",
+        "tsType": { "repr": "Map<string, string>", "kind": "unsupported" },
       })
     );
     assert_eq!(

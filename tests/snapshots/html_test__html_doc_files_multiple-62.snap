@@ -172,9 +172,9 @@ Functions</h2></div><div class="namespaceSection"><div id="namespace_x" class="n
 </div></div><nav class="topSymbols">
           <h3>Symbols</h3>
           <ul><li>
-                <a href="..&#x2F;.&#x2F;.&#x2F;~&#x2F;AbstractClass.html" title="AbstractClass"><div class="docNodeKindIcon"><div class="text-Class bg-Class/15 dark:text-ClassDark dark:bg-ClassDark/15" title="Class">c</div></div>
+                <a href="..&#x2F;.&#x2F;.&#x2F;~&#x2F;Foo.html" title="Foo"><div class="docNodeKindIcon"><div class="text-Class bg-Class/15 dark:text-ClassDark dark:bg-ClassDark/15" title="Class">c</div></div>
 <span class="hover:bg-Class/15 hover:bg-ClassDark/15">
-                    AbstractClass
+                    Foo
                   </span>
                 </a>
               </li><li>
@@ -184,21 +184,21 @@ Functions</h2></div><div class="namespaceSection"><div id="namespace_x" class="n
                   </span>
                 </a>
               </li><li>
-                <a href="..&#x2F;.&#x2F;.&#x2F;~&#x2F;Baz.html" title="Baz"><div class="docNodeKindIcon"><div class="text-TypeAlias bg-TypeAlias/15 dark:text-TypeAliasDark dark:bg-TypeAliasDark/15" title="Type Alias">T</div></div>
-<span class="hover:bg-TypeAlias/15 hover:bg-TypeAliasDark/15">
-                    Baz
+                <a href="..&#x2F;.&#x2F;.&#x2F;~&#x2F;default.html" title="default"><div class="docNodeKindIcon"><div class="text-Class bg-Class/15 dark:text-ClassDark dark:bg-ClassDark/15" title="Class">c</div></div>
+<span class="hover:bg-Class/15 hover:bg-ClassDark/15">
+                    default
                   </span>
                 </a>
               </li><li>
-                <a href="..&#x2F;.&#x2F;.&#x2F;~&#x2F;CompoundType.html" title="CompoundType"><div class="docNodeKindIcon"><div class="text-Interface bg-Interface/15 dark:text-InterfaceDark dark:bg-InterfaceDark/15" title="Interface">I</div><div class="text-Variable bg-Variable/15 dark:text-VariableDark dark:bg-VariableDark/15" title="Variable">v</div></div>
-<span class="hover:bg-Interface/15 hover:bg-InterfaceDark/15">
-                    CompoundType
+                <a href="..&#x2F;.&#x2F;.&#x2F;~&#x2F;AbstractClass.html" title="AbstractClass"><div class="docNodeKindIcon"><div class="text-Class bg-Class/15 dark:text-ClassDark dark:bg-ClassDark/15" title="Class">c</div></div>
+<span class="hover:bg-Class/15 hover:bg-ClassDark/15">
+                    AbstractClass
                   </span>
                 </a>
               </li><li>
-                <a href="..&#x2F;.&#x2F;.&#x2F;~&#x2F;EmptyInterface.html" title="EmptyInterface"><div class="docNodeKindIcon"><div class="text-Interface bg-Interface/15 dark:text-InterfaceDark dark:bg-InterfaceDark/15" title="Interface">I</div></div>
+                <a href="..&#x2F;.&#x2F;.&#x2F;~&#x2F;Hello.html" title="Hello"><div class="docNodeKindIcon"><div class="text-Interface bg-Interface/15 dark:text-InterfaceDark dark:bg-InterfaceDark/15" title="Interface">I</div></div>
 <span class="hover:bg-Interface/15 hover:bg-InterfaceDark/15">
-                    EmptyInterface
+                    Hello
                   </span>
                 </a>
               </li></ul><a class="flex items-center gap-0.5" href="..&#x2F;.&#x2F;all_symbols.html">

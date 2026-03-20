@@ -16,39 +16,38 @@ export class Foo {
       "modified": [
         {
           "name": "Foo",
-          "kind": "class",
-          "defChanges": {
-            "type": "class",
-            "methodChanges": {
-              "added": [
-                {
-                  "accessibility": null,
-                  "optional": false,
-                  "isAbstract": false,
-                  "isStatic": false,
-                  "name": "baz",
-                  "kind": "method",
-                  "functionDef": {
-                    "params": [],
-                    "returnType": {
-                      "repr": "void",
-                      "kind": "keyword",
-                      "keyword": "void"
-                    },
-                    "hasBody": true,
-                    "isAsync": false,
-                    "isGenerator": false,
-                    "typeParams": []
-                  },
-                  "location": {
-                    "filename": "file:///mod.ts",
-                    "line": 3,
-                    "col": 2,
-                    "byteIndex": 32
+          "declarations": {
+            "modified": [
+              {
+                "kind": "class",
+                "defChanges": {
+                  "type": "class",
+                  "methodChanges": {
+                    "added": [
+                      {
+                        "name": "baz",
+                        "kind": "method",
+                        "functionDef": {
+                          "params": [],
+                          "returnType": {
+                            "repr": "void",
+                            "kind": "keyword",
+                            "value": "void"
+                          },
+                          "hasBody": true
+                        },
+                        "location": {
+                          "filename": "file:///mod.ts",
+                          "line": 2,
+                          "col": 2,
+                          "byteIndex": 32
+                        }
+                      }
+                    ]
                   }
                 }
-              ]
-            }
+              }
+            ]
           }
         }
       ]

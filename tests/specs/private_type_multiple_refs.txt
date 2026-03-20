@@ -47,7 +47,7 @@ error[private-type-ref]: public type 'ClassB.prototype.prop' references private 
   info: to ensure documentation is complete all types that are exposed in the public API must be public
 
 # output.txt
-Defined in file:///mod.ts:4:1
+Defined in file:///mod.ts:3:1
 
 class ClassA
   Class A
@@ -55,7 +55,7 @@ class ClassA
   prop: PrivateInterface
     property a
 
-Defined in file:///mod.ts:10:1
+Defined in file:///mod.ts:9:1
 
 class ClassB
   Class B
@@ -63,129 +63,108 @@ class ClassB
   prop: PrivateInterface
     property b
 
-Defined in file:///mod.ts:1:1
-
-
 
 # output.json
-[
-  {
-    "name": "ClassA",
-    "isDefault": false,
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 4,
-      "col": 0,
-      "byteIndex": 65
-    },
-    "declarationKind": "export",
-    "jsDoc": {
-      "doc": "Class A"
-    },
-    "kind": "class",
-    "classDef": {
-      "isAbstract": false,
-      "constructors": [],
-      "properties": [
+{
+  "imports": [
+    {
+      "importedName": "PrivateInterface",
+      "originalName": "PrivateInterface",
+      "src": "file:///private.ts"
+    }
+  ],
+  "symbols": [
+    {
+      "name": "ClassA",
+      "declarations": [
         {
-          "jsDoc": {
-            "doc": "property a"
-          },
-          "tsType": {
-            "repr": "PrivateInterface",
-            "kind": "typeRef",
-            "typeRef": {
-              "typeParams": null,
-              "typeName": "PrivateInterface"
-            }
-          },
-          "readonly": false,
-          "accessibility": null,
-          "optional": false,
-          "isAbstract": false,
-          "isStatic": false,
-          "name": "prop",
           "location": {
             "filename": "file:///mod.ts",
-            "line": 6,
-            "col": 2,
-            "byteIndex": 109
+            "line": 3,
+            "col": 0,
+            "byteIndex": 65
+          },
+          "declarationKind": "export",
+          "jsDoc": {
+            "doc": "Class A"
+          },
+          "kind": "class",
+          "def": {
+            "properties": [
+              {
+                "jsDoc": {
+                  "doc": "property a"
+                },
+                "tsType": {
+                  "repr": "PrivateInterface",
+                  "kind": "typeRef",
+                  "value": {
+                    "typeName": "PrivateInterface",
+                    "resolution": {
+                      "kind": "import",
+                      "specifier": "./private.ts",
+                      "name": "PrivateInterface"
+                    }
+                  }
+                },
+                "name": "prop",
+                "location": {
+                  "filename": "file:///mod.ts",
+                  "line": 5,
+                  "col": 2,
+                  "byteIndex": 109
+                }
+              }
+            ]
           }
         }
-      ],
-      "indexSignatures": [],
-      "methods": [],
-      "extends": null,
-      "implements": [],
-      "typeParams": [],
-      "superTypeParams": []
-    }
-  },
-  {
-    "name": "ClassB",
-    "isDefault": false,
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 10,
-      "col": 0,
-      "byteIndex": 151
+      ]
     },
-    "declarationKind": "export",
-    "jsDoc": {
-      "doc": "Class B"
-    },
-    "kind": "class",
-    "classDef": {
-      "isAbstract": false,
-      "constructors": [],
-      "properties": [
+    {
+      "name": "ClassB",
+      "declarations": [
         {
-          "jsDoc": {
-            "doc": "property b"
-          },
-          "tsType": {
-            "repr": "PrivateInterface",
-            "kind": "typeRef",
-            "typeRef": {
-              "typeParams": null,
-              "typeName": "PrivateInterface"
-            }
-          },
-          "readonly": false,
-          "accessibility": null,
-          "optional": false,
-          "isAbstract": false,
-          "isStatic": false,
-          "name": "prop",
           "location": {
             "filename": "file:///mod.ts",
-            "line": 12,
-            "col": 2,
-            "byteIndex": 195
+            "line": 9,
+            "col": 0,
+            "byteIndex": 151
+          },
+          "declarationKind": "export",
+          "jsDoc": {
+            "doc": "Class B"
+          },
+          "kind": "class",
+          "def": {
+            "properties": [
+              {
+                "jsDoc": {
+                  "doc": "property b"
+                },
+                "tsType": {
+                  "repr": "PrivateInterface",
+                  "kind": "typeRef",
+                  "value": {
+                    "typeName": "PrivateInterface",
+                    "resolution": {
+                      "kind": "import",
+                      "specifier": "./private.ts",
+                      "name": "PrivateInterface"
+                    }
+                  }
+                },
+                "name": "prop",
+                "location": {
+                  "filename": "file:///mod.ts",
+                  "line": 11,
+                  "col": 2,
+                  "byteIndex": 195
+                }
+              }
+            ]
           }
         }
-      ],
-      "indexSignatures": [],
-      "methods": [],
-      "extends": null,
-      "implements": [],
-      "typeParams": [],
-      "superTypeParams": []
+      ]
     }
-  },
-  {
-    "name": "PrivateInterface",
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 1,
-      "col": 0,
-      "byteIndex": 0
-    },
-    "declarationKind": "private",
-    "kind": "import",
-    "importDef": {
-      "src": "file:///private.ts",
-      "imported": "PrivateInterface"
-    }
-  }
-]
+  ]
+}

@@ -14,6 +14,7 @@ use crate::ts_type::infer_simple_ts_type_from_init;
 #[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct VariableDef {
+  #[serde(skip_serializing_if = "Option::is_none", default)]
   pub ts_type: Option<TsTypeDef>,
   pub kind: VarDeclKind,
 }
@@ -166,7 +167,7 @@ fn get_vars_from_obj_destructuring(
 
     let ts_type = if !reached_rest {
       maybe_ts_type.as_ref().and_then(|ts_type| {
-        ts_type.type_literal.as_ref().and_then(|type_literal| {
+        if let TsTypeDefKind::TypeLiteral(type_literal) = &ts_type.kind {
           type_literal.properties.iter().find_map(|property| {
             if property.name == name {
               property.ts_type.clone()
@@ -174,7 +175,9 @@ fn get_vars_from_obj_destructuring(
               None
             }
           })
-        })
+        } else {
+          None
+        }
       })
     } else {
       rest_type_ann
@@ -237,9 +240,9 @@ fn get_vars_from_array_destructuring(
     };
 
     let ts_type = if !reached_rest {
-      maybe_ts_type.and_then(|ts_type| match ts_type.kind.as_ref()? {
-        TsTypeDefKind::Array => Some(*ts_type.array.clone().unwrap()),
-        TsTypeDefKind::Tuple => ts_type.tuple.as_ref().unwrap().get(i).cloned(),
+      maybe_ts_type.and_then(|ts_type| match &ts_type.kind {
+        TsTypeDefKind::Array(array) => Some(*array.clone()),
+        TsTypeDefKind::Tuple(tuple) => tuple.get(i).cloned(),
         _ => None,
       })
     } else {
@@ -247,7 +250,7 @@ fn get_vars_from_array_destructuring(
         .map(|type_ann| TsTypeDef::new(module_info, &type_ann.type_ann))
         .or_else(|| {
           maybe_ts_type.and_then(|ts_type| {
-            if ts_type.kind == Some(TsTypeDefKind::Array) {
+            if matches!(ts_type.kind, TsTypeDefKind::Array(_)) {
               Some(ts_type.clone())
             } else {
               None

@@ -26,7 +26,7 @@ export namespace Tabs {
 	}
 }
 # output.txt
-Defined in file:///mod.ts:8:1
+Defined in file:///mod.ts:7:1
 
 namespace Tabs
   Line 1
@@ -44,70 +44,68 @@ namespace Tabs
 
 
 # output.json
-[
-  {
-    "name": "Tabs",
-    "isDefault": false,
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 8,
-      "col": 0,
-      "byteIndex": 47
-    },
-    "declarationKind": "export",
-    "jsDoc": {
-      "doc": "Line 1\n\nLine 2\n\n\tIndented"
-    },
-    "kind": "namespace",
-    "namespaceDef": {
-      "elements": [
+{
+  "symbols": [
+    {
+      "name": "Tabs",
+      "declarations": [
         {
-          "name": "Tabs",
-          "isDefault": false,
           "location": {
             "filename": "file:///mod.ts",
-            "line": 16,
-            "col": 4,
-            "byteIndex": 126
+            "line": 7,
+            "col": 0,
+            "byteIndex": 47
           },
           "declarationKind": "export",
           "jsDoc": {
             "doc": "Line 1\n\nLine 2\n\n\tIndented"
           },
-          "kind": "interface",
-          "interfaceDef": {
-            "extends": [],
-            "constructors": [],
-            "methods": [],
-            "properties": [
+          "kind": "namespace",
+          "def": {
+            "elements": [
               {
-                "name": "property",
-                "jsDoc": {
-                  "doc": "Line 1\n\nLine 2\n\n\tIndented"
-                },
-                "location": {
-                  "filename": "file:///mod.ts",
-                  "line": 24,
-                  "col": 8,
-                  "byteIndex": 212
-                },
-                "params": [],
-                "computed": false,
-                "optional": false,
-                "tsType": {
-                  "repr": "string",
-                  "kind": "keyword",
-                  "keyword": "string"
-                },
-                "typeParams": []
+                "name": "Tabs",
+                "declarations": [
+                  {
+                    "location": {
+                      "filename": "file:///mod.ts",
+                      "line": 15,
+                      "col": 2,
+                      "byteIndex": 126
+                    },
+                    "declarationKind": "export",
+                    "jsDoc": {
+                      "doc": "Line 1\n\nLine 2\n\n\tIndented"
+                    },
+                    "kind": "interface",
+                    "def": {
+                      "properties": [
+                        {
+                          "name": "property",
+                          "jsDoc": {
+                            "doc": "Line 1\n\nLine 2\n\n\tIndented"
+                          },
+                          "location": {
+                            "filename": "file:///mod.ts",
+                            "line": 23,
+                            "col": 4,
+                            "byteIndex": 212
+                          },
+                          "tsType": {
+                            "repr": "string",
+                            "kind": "keyword",
+                            "value": "string"
+                          }
+                        }
+                      ]
+                    }
+                  }
+                ]
               }
-            ],
-            "callSignatures": [],
-            "indexSignatures": [],
-            "typeParams": []
+            ]
           }
         }
       ]
     }
-  }
-]
+  ]
+}

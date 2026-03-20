@@ -1,16 +1,18 @@
+use crate::Declaration;
 use crate::diff::JsDocDiff;
 use crate::html::DiffStatus;
-use crate::html::DocNodeKind;
 use crate::html::DocNodeWithContext;
 use crate::html::FileMode;
 use crate::html::GenerateCtx;
 use crate::html::RenderContext;
 use crate::html::ShortPath;
+use crate::html::partition::flatten_namespace;
 use crate::html::render_context::ToCEntry;
 use crate::html::usage::UsagesCtx;
 use crate::js_doc::JsDoc;
 use crate::js_doc::JsDocTag;
-use crate::node::DocNodeDef;
+use crate::node::DeclarationDef;
+use crate::node::DocNodeKind;
 use deno_ast::swc::ast::Accessibility;
 use deno_ast::swc::atoms::once_cell::sync::Lazy;
 use indexmap::IndexSet;
@@ -208,169 +210,174 @@ impl NamespacedSymbols {
 
 pub fn compute_namespaced_symbols<'a>(
   ctx: &'a GenerateCtx,
-  doc_nodes: Box<dyn Iterator<Item = Cow<'a, DocNodeWithContext>> + 'a>,
+  symbols: Box<dyn Iterator<Item = Cow<'a, DocNodeWithContext>> + 'a>,
 ) -> HashMap<Vec<String>, Option<Rc<ShortPath>>> {
   let mut namespaced_symbols =
     HashMap::<Vec<String>, Option<Rc<ShortPath>>>::new();
 
-  for doc_node in doc_nodes {
-    if matches!(
-      doc_node.def,
-      DocNodeDef::ModuleDoc | DocNodeDef::Import { .. }
-    ) {
-      continue;
-    }
+  for symbol in symbols {
+    let name_path: Rc<[String]> = symbol.sub_qualifier().into();
 
-    // TODO: handle export aliasing
+    for decl in &symbol.declarations {
+      // TODO: handle export aliasing
 
-    let name_path: Rc<[String]> = doc_node.sub_qualifier().into();
-
-    match &doc_node.def {
-      DocNodeDef::Class { class_def } => {
-        namespaced_symbols.extend(class_def.methods.iter().map(|method| {
-          let mut method_path = doc_node.ns_qualifiers.to_vec();
-          method_path.extend(
-            qualify_drilldown_name(
-              doc_node.get_name(),
-              &method.name,
-              method.is_static,
-            )
-            .split('.')
-            .map(|part| part.to_string()),
-          );
-          (method_path, Some(doc_node.origin.clone()))
-        }));
-
-        namespaced_symbols.extend(class_def.properties.iter().map(
-          |property| {
-            let mut method_path = doc_node.ns_qualifiers.to_vec();
+      match &decl.def {
+        DeclarationDef::Class(class_def) => {
+          namespaced_symbols.extend(class_def.methods.iter().map(|method| {
+            let mut method_path = symbol.ns_qualifiers.to_vec();
             method_path.extend(
               qualify_drilldown_name(
-                doc_node.get_name(),
-                &property.name,
-                property.is_static,
+                symbol.get_name(),
+                &method.name,
+                method.is_static,
               )
               .split('.')
               .map(|part| part.to_string()),
             );
-            (method_path, Some(doc_node.origin.clone()))
-          },
-        ));
-      }
-      DocNodeDef::Interface { interface_def } => {
-        namespaced_symbols.extend(interface_def.methods.iter().map(|method| {
-          let mut method_path = doc_node.ns_qualifiers.to_vec();
-          method_path.extend(
-            qualify_drilldown_name(doc_node.get_name(), &method.name, true)
-              .split('.')
-              .map(|part| part.to_string()),
-          );
-          (method_path, Some(doc_node.origin.clone()))
-        }));
+            (method_path, Some(symbol.origin.clone()))
+          }));
 
-        namespaced_symbols.extend(interface_def.properties.iter().map(
-          |property| {
-            let mut method_path = doc_node.ns_qualifiers.to_vec();
-            method_path.extend(
-              qualify_drilldown_name(doc_node.get_name(), &property.name, true)
-                .split('.')
-                .map(|part| part.to_string()),
-            );
-            (method_path, Some(doc_node.origin.clone()))
-          },
-        ));
-      }
-      DocNodeDef::TypeAlias { type_alias_def } => {
-        if let Some(type_literal) = type_alias_def.ts_type.type_literal.as_ref()
-        {
-          namespaced_symbols.extend(type_literal.methods.iter().map(
-            |method| {
-              let mut method_path = doc_node.ns_qualifiers.to_vec();
-              method_path.extend(
-                qualify_drilldown_name(doc_node.get_name(), &method.name, true)
-                  .split('.')
-                  .map(|part| part.to_string()),
-              );
-              (method_path, Some(doc_node.origin.clone()))
-            },
-          ));
-
-          namespaced_symbols.extend(type_literal.properties.iter().map(
+          namespaced_symbols.extend(class_def.properties.iter().map(
             |property| {
-              let mut method_path = doc_node.ns_qualifiers.to_vec();
+              let mut method_path = symbol.ns_qualifiers.to_vec();
               method_path.extend(
                 qualify_drilldown_name(
-                  doc_node.get_name(),
+                  symbol.get_name(),
                   &property.name,
-                  true,
+                  property.is_static,
                 )
                 .split('.')
                 .map(|part| part.to_string()),
               );
-              (method_path, Some(doc_node.origin.clone()))
+              (method_path, Some(symbol.origin.clone()))
             },
           ));
         }
-      }
-      DocNodeDef::Variable { variable_def } => {
-        if let Some(type_literal) = variable_def
-          .ts_type
-          .as_ref()
-          .and_then(|ts_type| ts_type.type_literal.as_ref())
-        {
-          namespaced_symbols.extend(type_literal.methods.iter().map(
+        DeclarationDef::Interface(interface_def) => {
+          namespaced_symbols.extend(interface_def.methods.iter().map(
             |method| {
-              let mut method_path = doc_node.ns_qualifiers.to_vec();
+              let mut method_path = symbol.ns_qualifiers.to_vec();
               method_path.extend(
-                qualify_drilldown_name(doc_node.get_name(), &method.name, true)
+                qualify_drilldown_name(symbol.get_name(), &method.name, true)
                   .split('.')
                   .map(|part| part.to_string()),
               );
-              (method_path, Some(doc_node.origin.clone()))
+              (method_path, Some(symbol.origin.clone()))
             },
           ));
 
-          namespaced_symbols.extend(type_literal.properties.iter().map(
+          namespaced_symbols.extend(interface_def.properties.iter().map(
             |property| {
-              let mut method_path = doc_node.ns_qualifiers.to_vec();
+              let mut method_path = symbol.ns_qualifiers.to_vec();
               method_path.extend(
-                qualify_drilldown_name(
-                  doc_node.get_name(),
-                  &property.name,
-                  true,
-                )
-                .split('.')
-                .map(|part| part.to_string()),
+                qualify_drilldown_name(symbol.get_name(), &property.name, true)
+                  .split('.')
+                  .map(|part| part.to_string()),
               );
-              (method_path, Some(doc_node.origin.clone()))
+              (method_path, Some(symbol.origin.clone()))
             },
           ));
         }
-      }
-      _ => {}
-    }
+        DeclarationDef::TypeAlias(type_alias_def) => {
+          if let crate::ts_type::TsTypeDefKind::TypeLiteral(type_literal) =
+            &type_alias_def.ts_type.kind
+          {
+            namespaced_symbols.extend(type_literal.methods.iter().map(
+              |method| {
+                let mut method_path = symbol.ns_qualifiers.to_vec();
+                method_path.extend(
+                  qualify_drilldown_name(symbol.get_name(), &method.name, true)
+                    .split('.')
+                    .map(|part| part.to_string()),
+                );
+                (method_path, Some(symbol.origin.clone()))
+              },
+            ));
 
-    namespaced_symbols
-      .insert(name_path.to_vec(), Some(doc_node.origin.clone()));
-
-    if matches!(doc_node.def, DocNodeDef::Namespace { .. }) {
-      let children = doc_node
-        .namespace_children
-        .as_ref()
-        .unwrap()
-        .iter()
-        .flat_map(|element| {
-          if let Some(reference_def) = element.reference_def() {
-            Box::new(
-              ctx.resolve_reference(Some(&doc_node), &reference_def.target),
-            ) as Box<dyn Iterator<Item = Cow<DocNodeWithContext>>>
-          } else {
-            Box::new(std::iter::once(Cow::Borrowed(element))) as _
+            namespaced_symbols.extend(type_literal.properties.iter().map(
+              |property| {
+                let mut method_path = symbol.ns_qualifiers.to_vec();
+                method_path.extend(
+                  qualify_drilldown_name(
+                    symbol.get_name(),
+                    &property.name,
+                    true,
+                  )
+                  .split('.')
+                  .map(|part| part.to_string()),
+                );
+                (method_path, Some(symbol.origin.clone()))
+              },
+            ));
           }
-        });
+        }
+        DeclarationDef::Variable(variable_def) => {
+          if let Some(type_literal) =
+            variable_def.ts_type.as_ref().and_then(|ts_type| {
+              if let crate::ts_type::TsTypeDefKind::TypeLiteral(tl) =
+                &ts_type.kind
+              {
+                Some(tl)
+              } else {
+                None
+              }
+            })
+          {
+            namespaced_symbols.extend(type_literal.methods.iter().map(
+              |method| {
+                let mut method_path = symbol.ns_qualifiers.to_vec();
+                method_path.extend(
+                  qualify_drilldown_name(symbol.get_name(), &method.name, true)
+                    .split('.')
+                    .map(|part| part.to_string()),
+                );
+                (method_path, Some(symbol.origin.clone()))
+              },
+            ));
+
+            namespaced_symbols.extend(type_literal.properties.iter().map(
+              |property| {
+                let mut method_path = symbol.ns_qualifiers.to_vec();
+                method_path.extend(
+                  qualify_drilldown_name(
+                    symbol.get_name(),
+                    &property.name,
+                    true,
+                  )
+                  .split('.')
+                  .map(|part| part.to_string()),
+                );
+                (method_path, Some(symbol.origin.clone()))
+              },
+            ));
+          }
+        }
+        _ => {}
+      }
 
       namespaced_symbols
-        .extend(compute_namespaced_symbols(ctx, Box::new(children)))
+        .insert(name_path.to_vec(), Some(symbol.origin.clone()));
+
+      if matches!(decl.def, DeclarationDef::Namespace(..)) {
+        let children =
+          symbol.namespace_children.as_ref().unwrap().iter().flat_map(
+            |element| {
+              element.declarations.iter().flat_map(|decl| {
+                if let Some(reference_def) = decl.reference_def() {
+                  Box::new(
+                    ctx.resolve_reference(Some(&symbol), &reference_def.target),
+                  )
+                    as Box<dyn Iterator<Item = Cow<DocNodeWithContext>>>
+                } else {
+                  Box::new(std::iter::once(Cow::Borrowed(element))) as _
+                }
+              })
+            },
+          );
+
+        namespaced_symbols
+          .extend(compute_namespaced_symbols(ctx, Box::new(children)))
+      }
     }
   }
 
@@ -535,13 +542,30 @@ pub struct DocNodeKindCtx {
   pub title_plural: Cow<'static, str>,
 }
 
+impl From<super::DrilldownKind> for DocNodeKindCtx {
+  fn from(kind: super::DrilldownKind) -> Self {
+    let (char, kind, title, title_lowercase, title_plural) = match kind {
+      super::DrilldownKind::Property => {
+        ('p', "Property", "Property", "property", "Properties")
+      }
+      super::DrilldownKind::Method(_) => {
+        ('m', "Method", "Method", "method", "Methods")
+      }
+    };
+
+    Self {
+      kind: kind.into(),
+      char,
+      title: title.into(),
+      title_lowercase: title_lowercase.into(),
+      title_plural: title_plural.into(),
+    }
+  }
+}
+
 impl From<DocNodeKind> for DocNodeKindCtx {
   fn from(kind: DocNodeKind) -> Self {
     let (char, kind, title, title_lowercase, title_plural) = match kind {
-      DocNodeKind::Property => {
-        ('p', "Property", "Property", "property", "Properties")
-      }
-      DocNodeKind::Method(_) => ('m', "Method", "Method", "method", "Methods"),
       DocNodeKind::Function => {
         ('f', "Function", "Function", "function", "Functions")
       }
@@ -559,7 +583,7 @@ impl From<DocNodeKind> for DocNodeKindCtx {
       DocNodeKind::Namespace => {
         ('N', "Namespace", "Namespace", "namespace", "Namespaces")
       }
-      DocNodeKind::ModuleDoc | DocNodeKind::Import | DocNodeKind::Reference => {
+      DocNodeKind::Reference => {
         unreachable!()
       }
     };
@@ -849,9 +873,9 @@ impl DocEntryCtx {
   }
 }
 
-pub(crate) fn all_deprecated(nodes: &[&DocNodeWithContext]) -> bool {
-  nodes.iter().all(|node| {
-    node
+pub(crate) fn all_deprecated(decls: &[&Declaration]) -> bool {
+  decls.iter().all(|decl| {
+    decl
       .js_doc
       .tags
       .iter()
@@ -886,39 +910,35 @@ pub struct TopSymbolsCtx {
 
 impl TopSymbolsCtx {
   pub fn new(ctx: &RenderContext) -> Option<Self> {
-    let partitions = ctx
+    let symbols = ctx
       .ctx
       .doc_nodes
       .values()
       .flat_map(|nodes| {
-        super::partition::partition_nodes_by_name(
-          ctx.ctx,
-          nodes.iter().map(Cow::Borrowed),
-          true,
-        )
+        flatten_namespace(ctx.ctx, nodes.iter().map(Cow::Borrowed))
       })
-      .filter(|(_name, node)| !node[0].is_internal(ctx.ctx))
+      .filter(|node| !node.is_internal(ctx.ctx))
       .collect::<Vec<_>>();
 
-    if partitions.is_empty() {
+    if symbols.is_empty() {
       return None;
     }
 
-    let total_symbols = partitions.len();
+    let total_symbols = symbols.len();
 
-    let symbols = partitions
+    let symbols = symbols
       .into_iter()
       .take(5)
-      .map(|(name, nodes)| TopSymbolCtx {
-        kind: nodes.iter().map(|node| node.kind.into()).collect(),
+      .map(|node| TopSymbolCtx {
+        kind: node.get_kind_ctxs(),
         href: ctx.ctx.resolve_path(
           ctx.get_current_resolve(),
           UrlResolveKind::Symbol {
-            file: &nodes[0].origin,
-            symbol: &name,
+            file: &node.origin,
+            symbol: &node.name,
           },
         ),
-        name,
+        name: node.name.to_string(),
       })
       .collect();
 
@@ -946,7 +966,7 @@ impl ToCCtx {
   pub fn new(
     ctx: RenderContext,
     include_top_symbols: bool,
-    usage_doc_nodes: Option<&[DocNodeWithContext]>,
+    usage_symbol: Option<Option<&DocNodeWithContext>>,
   ) -> Self {
     if ctx.get_current_resolve() == UrlResolveKind::Root
       && matches!(ctx.ctx.file_mode, FileMode::SingleDts | FileMode::Dts)
@@ -965,8 +985,7 @@ impl ToCCtx {
       {
         None
       } else {
-        usage_doc_nodes
-          .and_then(|usage_doc_nodes| UsagesCtx::new(&ctx, usage_doc_nodes))
+        usage_symbol.and_then(|usage_symbol| UsagesCtx::new(&ctx, usage_symbol))
       },
       top_symbols: if include_top_symbols {
         TopSymbolsCtx::new(&ctx)

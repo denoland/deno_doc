@@ -1,3 +1,4 @@
+use crate::Declaration;
 use crate::r#enum::EnumMemberDef;
 use crate::html::DiffStatus;
 use crate::html::DocNodeWithContext;
@@ -8,16 +9,17 @@ use crate::js_doc::JsDocTag;
 
 pub(crate) fn render_enum(
   render_ctx: &RenderContext,
-  doc_node: &DocNodeWithContext,
+  symbol: &DocNodeWithContext,
+  decl: &Declaration,
 ) -> Vec<SectionCtx> {
-  let enum_def = doc_node.enum_def().unwrap();
+  let enum_def = decl.enum_def().unwrap();
 
   let enum_diff = render_ctx.ctx.diff.as_ref().and_then(|diff_index| {
     diff_index
       .get_def_diff(
-        &doc_node.origin.specifier,
-        doc_node.get_name(),
-        doc_node.def.to_kind(),
+        &symbol.origin.specifier,
+        symbol.get_name(),
+        decl.def.to_kind(),
       )
       .and_then(|d| d.as_enum())
   });
@@ -41,7 +43,7 @@ pub(crate) fn render_enum(
     .map(|member| {
       let id = IdBuilder::new(render_ctx)
         .kind(IdKind::Enum)
-        .name(doc_node.get_name())
+        .name(symbol.get_name())
         .name(&member.name)
         .build();
 
@@ -100,7 +102,7 @@ pub(crate) fn render_enum(
     for removed_member in &enum_diff.removed_members {
       let id = IdBuilder::new(render_ctx)
         .kind(IdKind::Enum)
-        .name(doc_node.get_name())
+        .name(symbol.get_name())
         .name(&removed_member.name)
         .build();
 

@@ -22,43 +22,45 @@ error[missing-return-type]: exported function is missing an explicit return type
   | ^
 
 # output.txt
-Defined in file:///mod.ts:1:1
+Defined in file:///mod.ts:0:1
 
 function default(a: number)
 
 
 # output.json
-[
-  {
-    "name": "default",
-    "isDefault": true,
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 1,
-      "col": 0,
-      "byteIndex": 0
-    },
-    "declarationKind": "export",
-    "kind": "function",
-    "functionDef": {
-      "defName": "foo",
-      "params": [
+{
+  "symbols": [
+    {
+      "name": "default",
+      "isDefault": true,
+      "declarations": [
         {
-          "kind": "identifier",
-          "name": "a",
-          "optional": false,
-          "tsType": {
-            "repr": "number",
-            "kind": "keyword",
-            "keyword": "number"
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 0,
+            "col": 0,
+            "byteIndex": 0
+          },
+          "declarationKind": "export",
+          "kind": "function",
+          "def": {
+            "defName": "foo",
+            "params": [
+              {
+                "kind": "identifier",
+                "name": "a",
+                "optional": false,
+                "tsType": {
+                  "repr": "number",
+                  "kind": "keyword",
+                  "value": "number"
+                }
+              }
+            ],
+            "hasBody": true
           }
         }
-      ],
-      "returnType": null,
-      "hasBody": true,
-      "isAsync": false,
-      "isGenerator": false,
-      "typeParams": []
+      ]
     }
-  }
-]
+  ]
+}

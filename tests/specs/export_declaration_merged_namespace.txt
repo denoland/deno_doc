@@ -30,7 +30,7 @@ error[missing-jsdoc]: exported symbol is missing JSDoc documentation
   |   ^
 
 # output.txt
-Defined in file:///mod.ts:1:1
+Defined in file:///mod.ts:0:1
 
 namespace Namespace1
 
@@ -39,67 +39,58 @@ namespace Namespace1
 
 
 # output.json
-[
-  {
-    "name": "Namespace1",
-    "isDefault": false,
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 1,
-      "col": 0,
-      "byteIndex": 0
-    },
-    "declarationKind": "export",
-    "kind": "namespace",
-    "namespaceDef": {
-      "elements": [
+{
+  "symbols": [
+    {
+      "name": "Namespace1",
+      "declarations": [
         {
-          "name": "Test1",
-          "isDefault": false,
           "location": {
             "filename": "file:///mod.ts",
-            "line": 2,
-            "col": 2,
-            "byteIndex": 25
+            "line": 0,
+            "col": 0,
+            "byteIndex": 0
           },
           "declarationKind": "export",
-          "kind": "class",
-          "classDef": {
-            "isAbstract": false,
-            "constructors": [],
-            "properties": [],
-            "indexSignatures": [],
-            "methods": [],
-            "extends": null,
-            "implements": [],
-            "typeParams": [],
-            "superTypeParams": []
-          }
-        },
-        {
-          "name": "Test2",
-          "isDefault": false,
-          "location": {
-            "filename": "file:///mod.ts",
-            "line": 5,
-            "col": 2,
-            "byteIndex": 74
-          },
-          "declarationKind": "export",
-          "kind": "class",
-          "classDef": {
-            "isAbstract": false,
-            "constructors": [],
-            "properties": [],
-            "indexSignatures": [],
-            "methods": [],
-            "extends": null,
-            "implements": [],
-            "typeParams": [],
-            "superTypeParams": []
+          "kind": "namespace",
+          "def": {
+            "elements": [
+              {
+                "name": "Test1",
+                "declarations": [
+                  {
+                    "location": {
+                      "filename": "file:///mod.ts",
+                      "line": 1,
+                      "col": 2,
+                      "byteIndex": 25
+                    },
+                    "declarationKind": "export",
+                    "kind": "class",
+                    "def": {}
+                  }
+                ]
+              },
+              {
+                "name": "Test2",
+                "declarations": [
+                  {
+                    "location": {
+                      "filename": "file:///mod.ts",
+                      "line": 4,
+                      "col": 2,
+                      "byteIndex": 74
+                    },
+                    "declarationKind": "export",
+                    "kind": "class",
+                    "def": {}
+                  }
+                ]
+              }
+            ]
           }
         }
       ]
     }
-  }
-]
+  ]
+}

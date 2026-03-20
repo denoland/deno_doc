@@ -2,10 +2,10 @@
 
 use crate::Location;
 use crate::js_doc::JsDoc;
+use crate::node::DeclarationDef;
 use crate::node::DeclarationKind;
-use crate::node::DocNode;
-use crate::node::DocNodeDef;
 use crate::node::NamespaceDef;
+use crate::node::Symbol;
 use crate::ts_type::TsTypeDef;
 use crate::util::swc::get_text_info_location;
 use crate::util::swc::has_ignorable_js_doc_tag;
@@ -26,7 +26,7 @@ use deno_ast::diagnostics::DiagnosticSourceRange;
 use deno_ast::swc::ast::Accessibility;
 use deno_graph::symbols::ModuleInfoRef;
 use deno_graph::symbols::RootSymbol;
-use deno_graph::symbols::Symbol;
+use deno_graph::symbols::Symbol as GraphSymbol;
 use deno_graph::symbols::UniqueSymbolId;
 
 use std::borrow::Cow;
@@ -206,7 +206,7 @@ impl<'a> DiagnosticsCollector<'a> {
     decl_range: SourceRange,
     doc_symbol_id: UniqueSymbolId,
     referenced_module: ModuleInfoRef,
-    referenced_symbol: &Symbol,
+    referenced_symbol: &GraphSymbol,
   ) {
     if !self.seen_private_types_in_public.insert((
       doc_symbol_id,
@@ -255,7 +255,7 @@ impl<'a> DiagnosticsCollector<'a> {
                 .specifier()
                 .to_string()
                 .into_boxed_str(),
-              line: 1,
+              line: 0,
               col: 0,
               byte_index: 0,
             }),
@@ -270,7 +270,7 @@ impl<'a> DiagnosticsCollector<'a> {
     inner
   }
 
-  pub fn analyze_doc_nodes(&mut self, doc_nodes: &[DocNode]) {
+  pub fn analyze_doc_nodes(&mut self, doc_nodes: &[Symbol]) {
     DiagnosticDocNodeVisitor { diagnostics: self }
       .visit_doc_nodes(doc_nodes.iter())
   }
@@ -363,75 +363,77 @@ struct DiagnosticDocNodeVisitor<'a, 'b> {
 impl DiagnosticDocNodeVisitor<'_, '_> {
   pub fn visit_doc_nodes<'c, I>(&'c mut self, doc_nodes: I)
   where
-    I: Iterator<Item = &'c DocNode>,
+    I: Iterator<Item = &'c Symbol>,
   {
-    let mut last_node: Option<&DocNode> = None;
     for doc_node in doc_nodes {
-      if !doc_node.location.filename.starts_with("file:") {
-        continue; // don't report diagnostics on remote modules
-      }
+      let fn_decl_count = doc_node
+        .declarations
+        .iter()
+        .filter(|d| matches!(d.def, DeclarationDef::Function(..)))
+        .count();
+      let has_fn_overloads = fn_decl_count > 1;
 
-      if let Some(last_node) = last_node
-        && doc_node.name == last_node.name
-        && last_node.function_def().is_some()
-        && let Some(current_fn) = &doc_node.function_def()
-        && current_fn.has_body
-      {
-        continue; // it's an overload. Ignore it
-      }
+      for (i, decl) in doc_node.declarations.iter().enumerate() {
+        if !decl.location.filename.starts_with("file:") {
+          continue; // don't report diagnostics on remote modules
+        }
 
-      if !has_ignorable_js_doc_tag(&doc_node.js_doc) {
-        self.visit_doc_node(doc_node);
-      }
+        if has_fn_overloads
+          && decl.function_def().is_some_and(|def| def.has_body)
+          && i > 0
+        {
+          continue; // it's an overload. Ignore it
+        }
 
-      last_node = Some(doc_node);
+        if !has_ignorable_js_doc_tag(&decl.js_doc) {
+          self.visit_decl(decl);
+        }
+      }
     }
   }
 
-  fn visit_doc_node(&mut self, doc_node: &DocNode) {
-    fn is_js_docable_kind(node: &DocNode) -> bool {
-      match node.def {
-        DocNodeDef::Class { .. }
-        | DocNodeDef::Enum { .. }
-        | DocNodeDef::Function { .. }
-        | DocNodeDef::Interface { .. }
-        | DocNodeDef::Namespace { .. }
-        | DocNodeDef::TypeAlias { .. }
-        | DocNodeDef::Variable { .. } => true,
-        DocNodeDef::Import { .. }
-        | DocNodeDef::ModuleDoc
-        | DocNodeDef::Reference { .. } => false,
+  fn visit_decl(&mut self, decl: &crate::node::Declaration) {
+    fn is_js_docable_kind(def: &DeclarationDef) -> bool {
+      match def {
+        DeclarationDef::Class(..)
+        | DeclarationDef::Enum(..)
+        | DeclarationDef::Function(..)
+        | DeclarationDef::Interface(..)
+        | DeclarationDef::Namespace(..)
+        | DeclarationDef::TypeAlias(..)
+        | DeclarationDef::Variable(..) => true,
+        DeclarationDef::Reference(..) => false,
       }
     }
 
-    if doc_node.declaration_kind == DeclarationKind::Private {
+    if decl.declaration_kind == DeclarationKind::Private {
       return; // skip, we don't do these diagnostics above private nodes
     }
 
-    if is_js_docable_kind(doc_node) {
+    if is_js_docable_kind(&decl.def) {
       self
         .diagnostics
-        .check_missing_js_doc(&doc_node.js_doc, &doc_node.location);
+        .check_missing_js_doc(&decl.js_doc, &decl.location);
     }
 
-    if let Some(def) = &doc_node.class_def() {
+    if let Some(def) = &decl.class_def() {
       self.visit_class_def(def);
     }
 
-    if let Some(def) = &doc_node.function_def() {
-      self.visit_function_def(doc_node, def);
+    if let Some(def) = &decl.function_def() {
+      self.visit_function_def(decl, def);
     }
 
-    if let Some(def) = &doc_node.interface_def() {
+    if let Some(def) = &decl.interface_def() {
       self.visit_interface_def(def);
     }
 
-    if let Some(def) = &doc_node.namespace_def() {
+    if let Some(def) = &decl.namespace_def() {
       self.visit_namespace_def(def);
     }
 
-    if let Some(def) = &doc_node.variable_def() {
-      self.visit_variable_def(doc_node, def);
+    if let Some(def) = &decl.variable_def() {
+      self.visit_variable_def(decl, def);
     }
   }
 
@@ -512,16 +514,16 @@ impl DiagnosticDocNodeVisitor<'_, '_> {
 
   fn visit_function_def(
     &mut self,
-    parent: &DocNode,
+    decl: &crate::node::Declaration,
     def: &crate::function::FunctionDef,
   ) {
     self
       .diagnostics
-      .check_missing_js_doc(&parent.js_doc, &parent.location);
+      .check_missing_js_doc(&decl.js_doc, &decl.location);
     self.diagnostics.check_missing_return_type(
       def.return_type.as_ref(),
-      &parent.js_doc,
-      &parent.location,
+      &decl.js_doc,
+      &decl.location,
     );
   }
 
@@ -580,11 +582,15 @@ impl DiagnosticDocNodeVisitor<'_, '_> {
     self.visit_doc_nodes(def.elements.iter().map(|element| element.as_ref()));
   }
 
-  fn visit_variable_def(&mut self, parent: &DocNode, def: &VariableDef) {
+  fn visit_variable_def(
+    &mut self,
+    decl: &crate::node::Declaration,
+    def: &VariableDef,
+  ) {
     self.diagnostics.check_missing_explicit_type(
       def.ts_type.as_ref(),
-      &parent.js_doc,
-      &parent.location,
+      &decl.js_doc,
+      &decl.location,
     );
   }
 }

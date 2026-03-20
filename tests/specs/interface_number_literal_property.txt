@@ -26,7 +26,7 @@ error[missing-jsdoc]: exported symbol is missing JSDoc documentation
   |   ^
 
 # output.txt
-Defined in file:///mod.ts:1:1
+Defined in file:///mod.ts:0:1
 
 interface I
 
@@ -35,63 +35,55 @@ interface I
 
 
 # output.json
-[
-  {
-    "name": "I",
-    "isDefault": false,
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 1,
-      "col": 0,
-      "byteIndex": 0
-    },
-    "declarationKind": "export",
-    "kind": "interface",
-    "interfaceDef": {
-      "extends": [],
-      "constructors": [],
-      "methods": [],
-      "properties": [
+{
+  "symbols": [
+    {
+      "name": "I",
+      "declarations": [
         {
-          "name": "1",
           "location": {
             "filename": "file:///mod.ts",
-            "line": 2,
-            "col": 2,
-            "byteIndex": 23
+            "line": 0,
+            "col": 0,
+            "byteIndex": 0
           },
-          "params": [],
-          "computed": false,
-          "optional": false,
-          "tsType": {
-            "repr": "string",
-            "kind": "keyword",
-            "keyword": "string"
-          },
-          "typeParams": []
-        },
-        {
-          "name": "2",
-          "location": {
-            "filename": "file:///mod.ts",
-            "line": 3,
-            "col": 2,
-            "byteIndex": 36
-          },
-          "params": [],
-          "computed": false,
-          "optional": true,
-          "tsType": {
-            "repr": "number",
-            "kind": "keyword",
-            "keyword": "number"
-          },
-          "typeParams": []
+          "declarationKind": "export",
+          "kind": "interface",
+          "def": {
+            "properties": [
+              {
+                "name": "1",
+                "location": {
+                  "filename": "file:///mod.ts",
+                  "line": 1,
+                  "col": 2,
+                  "byteIndex": 23
+                },
+                "tsType": {
+                  "repr": "string",
+                  "kind": "keyword",
+                  "value": "string"
+                }
+              },
+              {
+                "name": "2",
+                "location": {
+                  "filename": "file:///mod.ts",
+                  "line": 2,
+                  "col": 2,
+                  "byteIndex": 36
+                },
+                "optional": true,
+                "tsType": {
+                  "repr": "number",
+                  "kind": "keyword",
+                  "value": "number"
+                }
+              }
+            ]
+          }
         }
-      ],
-      "callSignatures": [],
-      "indexSignatures": [],
-      "typeParams": []
+      ]
     }
-  }
-]
+  ]
+}

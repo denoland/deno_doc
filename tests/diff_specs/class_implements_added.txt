@@ -15,93 +15,89 @@ export class Foo implements Runnable {
       "added": [
         {
           "name": "Runnable",
-          "isDefault": false,
-          "location": {
-            "filename": "file:///mod.ts",
-            "line": 1,
-            "col": 0,
-            "byteIndex": 0
-          },
-          "declarationKind": "private",
-          "kind": "interface",
-          "interfaceDef": {
-            "extends": [],
-            "constructors": [],
-            "methods": [
-              {
-                "name": "run",
-                "kind": "method",
-                "location": {
-                  "filename": "file:///mod.ts",
-                  "line": 1,
-                  "col": 21,
-                  "byteIndex": 21
-                },
-                "params": [],
-                "optional": false,
-                "returnType": {
-                  "repr": "void",
-                  "kind": "keyword",
-                  "keyword": "void"
-                },
-                "typeParams": []
+          "declarations": [
+            {
+              "location": {
+                "filename": "file:///mod.ts",
+                "line": 0,
+                "col": 0,
+                "byteIndex": 0
+              },
+              "declarationKind": "private",
+              "kind": "interface",
+              "def": {
+                "methods": [
+                  {
+                    "name": "run",
+                    "kind": "method",
+                    "location": {
+                      "filename": "file:///mod.ts",
+                      "line": 0,
+                      "col": 21,
+                      "byteIndex": 21
+                    },
+                    "params": [],
+                    "returnType": {
+                      "repr": "void",
+                      "kind": "keyword",
+                      "value": "void"
+                    }
+                  }
+                ]
               }
-            ],
-            "properties": [],
-            "callSignatures": [],
-            "indexSignatures": [],
-            "typeParams": []
-          }
+            }
+          ]
         }
       ],
       "modified": [
         {
           "name": "Foo",
-          "kind": "class",
-          "defChanges": {
-            "type": "class",
-            "implementsChange": {
-              "added": [
-                {
-                  "repr": "Runnable",
-                  "kind": "typeRef",
-                  "typeRef": {
-                    "typeParams": null,
-                    "typeName": "Runnable"
-                  }
-                }
-              ]
-            },
-            "methodChanges": {
-              "added": [
-                {
-                  "accessibility": null,
-                  "optional": false,
-                  "isAbstract": false,
-                  "isStatic": false,
-                  "name": "run",
-                  "kind": "method",
-                  "functionDef": {
-                    "params": [],
-                    "returnType": {
-                      "repr": "void",
-                      "kind": "keyword",
-                      "keyword": "void"
-                    },
-                    "hasBody": true,
-                    "isAsync": false,
-                    "isGenerator": false,
-                    "typeParams": []
+          "declarations": {
+            "modified": [
+              {
+                "kind": "class",
+                "defChanges": {
+                  "type": "class",
+                  "implementsChange": {
+                    "added": [
+                      {
+                        "repr": "Runnable",
+                        "kind": "typeRef",
+                        "value": {
+                          "typeName": "Runnable",
+                          "resolution": {
+                            "kind": "local"
+                          }
+                        }
+                      }
+                    ]
                   },
-                  "location": {
-                    "filename": "file:///mod.ts",
-                    "line": 3,
-                    "col": 2,
-                    "byteIndex": 77
+                  "methodChanges": {
+                    "added": [
+                      {
+                        "name": "run",
+                        "kind": "method",
+                        "functionDef": {
+                          "params": [],
+                          "returnType": {
+                            "repr": "void",
+                            "kind": "keyword",
+                            "value": "void"
+                          },
+                          "hasBody": true
+                        },
+                        "location": {
+                          "filename": "file:///mod.ts",
+                          "line": 2,
+                          "col": 2,
+                          "byteIndex": 77
+                        }
+                      }
+                    ]
                   }
                 }
-              ]
-            }
+              }
+            ]
           }
         }
       ]

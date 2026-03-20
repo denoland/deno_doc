@@ -7,7 +7,7 @@ export function foo(): void {}
 export * as other from "./other.ts";
 
 # output.txt
-Defined in file:///mod.ts:2:8
+Defined in file:///mod.ts:1:8
 
 namespace other
   Re-exports of other.
@@ -17,51 +17,56 @@ namespace other
 
 
 # output.json
-[
-  {
-    "name": "other",
-    "isDefault": false,
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 2,
-      "col": 7,
-      "byteIndex": 35
-    },
-    "declarationKind": "export",
-    "jsDoc": {
-      "doc": "Re-exports of other."
-    },
-    "kind": "namespace",
-    "namespaceDef": {
-      "elements": [
+{
+  "symbols": [
+    {
+      "name": "other",
+      "declarations": [
         {
-          "name": "foo",
-          "isDefault": false,
           "location": {
-            "filename": "file:///other.ts",
-            "line": 2,
-            "col": 0,
-            "byteIndex": 18
+            "filename": "file:///mod.ts",
+            "line": 1,
+            "col": 7,
+            "byteIndex": 35
           },
           "declarationKind": "export",
           "jsDoc": {
-            "doc": "a function"
+            "doc": "Re-exports of other."
           },
-          "kind": "function",
-          "functionDef": {
-            "params": [],
-            "returnType": {
-              "repr": "void",
-              "kind": "keyword",
-              "keyword": "void"
-            },
-            "hasBody": true,
-            "isAsync": false,
-            "isGenerator": false,
-            "typeParams": []
+          "kind": "namespace",
+          "def": {
+            "elements": [
+              {
+                "name": "foo",
+                "declarations": [
+                  {
+                    "location": {
+                      "filename": "file:///other.ts",
+                      "line": 1,
+                      "col": 0,
+                      "byteIndex": 18
+                    },
+                    "declarationKind": "export",
+                    "jsDoc": {
+                      "doc": "a function"
+                    },
+                    "kind": "function",
+                    "def": {
+                      "params": [],
+                      "returnType": {
+                        "repr": "void",
+                        "kind": "keyword",
+                        "value": "void"
+                      },
+                      "hasBody": true
+                    }
+                  }
+                ]
+              }
+            ]
           }
         }
       ]
     }
-  }
-]
+  ]
+}

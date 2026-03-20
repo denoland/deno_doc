@@ -77,14 +77,14 @@ impl TestBuilder {
     )
     .unwrap();
 
-    let entries = parser.parse().unwrap().into_values().next().unwrap();
+    let document = parser.parse().unwrap().into_values().next().unwrap();
 
-    let doc = DocPrinter::new(&entries, false, self.private).to_string();
+    let doc = DocPrinter::new(&document, false, self.private).to_string();
     let diagnostics = parser.take_diagnostics();
 
     BuildResult {
       diagnostics,
-      json_output: serde_json::to_value(entries).unwrap(),
+      json_output: serde_json::to_value(&document).unwrap(),
       text_output: doc,
     }
   }

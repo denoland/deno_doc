@@ -245,55 +245,55 @@ error[missing-return-type]: exported function is missing an explicit return type
    |   ^
 
 # output.txt
-Defined in file:///mod.ts:17:1
+Defined in file:///mod.ts:16:1
 
 function cannotInfer()
 
-Defined in file:///mod.ts:23:1
+Defined in file:///mod.ts:22:1
 
 async function cannotInferAsync()
 
-Defined in file:///mod.ts:29:1
+Defined in file:///mod.ts:28:1
 
 function* cannotInferGenerator()
 
-Defined in file:///mod.ts:9:1
+Defined in file:///mod.ts:8:1
 
 function test(): void
 
-Defined in file:///mod.ts:13:1
+Defined in file:///mod.ts:12:1
 
 async function testAsync(): Promise<void>
 
-Defined in file:///mod.ts:3:12
+Defined in file:///mod.ts:2:12
 
 let b: boolean
 
-Defined in file:///mod.ts:4:12
+Defined in file:///mod.ts:3:12
 
 let bi: bigint
 
-Defined in file:///mod.ts:7:12
+Defined in file:///mod.ts:6:12
 
 let complexTpl: `f${string | number}${string | null}o${string}${number}o`
 
-Defined in file:///mod.ts:2:12
+Defined in file:///mod.ts:1:12
 
 let n: number
 
-Defined in file:///mod.ts:5:12
+Defined in file:///mod.ts:4:12
 
 let re: RegExp
 
-Defined in file:///mod.ts:1:12
+Defined in file:///mod.ts:0:12
 
 let s: string
 
-Defined in file:///mod.ts:6:12
+Defined in file:///mod.ts:5:12
 
 let tpl: `foobar`
 
-Defined in file:///mod.ts:32:1
+Defined in file:///mod.ts:31:1
 
 class MyClass
 
@@ -303,7 +303,7 @@ class MyClass
   async cannotInferAsync()
   *cannotInferGenerator()
 
-Defined in file:///mod.ts:52:1
+Defined in file:///mod.ts:51:1
 
 namespace MyNamespace
 
@@ -311,549 +311,529 @@ namespace MyNamespace
 
 
 # output.json
-[
-  {
-    "name": "s",
-    "isDefault": false,
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 1,
-      "col": 11,
-      "byteIndex": 11
-    },
-    "declarationKind": "export",
-    "kind": "variable",
-    "variableDef": {
-      "tsType": {
-        "repr": "string",
-        "kind": "keyword",
-        "keyword": "string"
-      },
-      "kind": "let"
-    }
-  },
-  {
-    "name": "n",
-    "isDefault": false,
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 2,
-      "col": 11,
-      "byteIndex": 35
-    },
-    "declarationKind": "export",
-    "kind": "variable",
-    "variableDef": {
-      "tsType": {
-        "repr": "number",
-        "kind": "keyword",
-        "keyword": "number"
-      },
-      "kind": "let"
-    }
-  },
-  {
-    "name": "b",
-    "isDefault": false,
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 3,
-      "col": 11,
-      "byteIndex": 55
-    },
-    "declarationKind": "export",
-    "kind": "variable",
-    "variableDef": {
-      "tsType": {
-        "repr": "boolean",
-        "kind": "keyword",
-        "keyword": "boolean"
-      },
-      "kind": "let"
-    }
-  },
-  {
-    "name": "bi",
-    "isDefault": false,
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 4,
-      "col": 11,
-      "byteIndex": 77
-    },
-    "declarationKind": "export",
-    "kind": "variable",
-    "variableDef": {
-      "tsType": {
-        "repr": "bigint",
-        "kind": "keyword",
-        "keyword": "bigint"
-      },
-      "kind": "let"
-    }
-  },
-  {
-    "name": "re",
-    "isDefault": false,
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 5,
-      "col": 11,
-      "byteIndex": 99
-    },
-    "declarationKind": "export",
-    "kind": "variable",
-    "variableDef": {
-      "tsType": {
-        "repr": "hello",
-        "kind": "typeRef",
-        "typeRef": {
-          "typeParams": null,
-          "typeName": "RegExp"
-        }
-      },
-      "kind": "let"
-    }
-  },
-  {
-    "name": "tpl",
-    "isDefault": false,
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 6,
-      "col": 11,
-      "byteIndex": 124
-    },
-    "declarationKind": "export",
-    "kind": "variable",
-    "variableDef": {
-      "tsType": {
-        "repr": "foobar",
-        "kind": "literal",
-        "literal": {
-          "kind": "template",
-          "tsTypes": [
-            {
-              "repr": "foobar",
-              "kind": "literal",
-              "literal": {
-                "kind": "string",
-                "string": "foobar"
-              }
-            }
-          ]
-        }
-      },
-      "kind": "let"
-    }
-  },
-  {
-    "name": "complexTpl",
-    "isDefault": false,
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 7,
-      "col": 11,
-      "byteIndex": 151
-    },
-    "declarationKind": "export",
-    "kind": "variable",
-    "variableDef": {
-      "tsType": {
-        "repr": "f${string | number}${string | null}o${string}${number}o",
-        "kind": "literal",
-        "literal": {
-          "kind": "template",
-          "tsTypes": [
-            {
-              "repr": "f",
-              "kind": "literal",
-              "literal": {
-                "kind": "string",
-                "string": "f"
-              }
-            },
-            {
-              "repr": "",
-              "kind": "union",
-              "union": [
-                {
-                  "repr": "string",
-                  "kind": "keyword",
-                  "keyword": "string"
-                },
-                {
-                  "repr": "number",
-                  "kind": "keyword",
-                  "keyword": "number"
-                }
-              ]
-            },
-            {
-              "repr": "",
-              "kind": "literal",
-              "literal": {
-                "kind": "string",
-                "string": ""
-              }
-            },
-            {
-              "repr": "",
-              "kind": "union",
-              "union": [
-                {
-                  "repr": "string",
-                  "kind": "keyword",
-                  "keyword": "string"
-                },
-                {
-                  "repr": "null",
-                  "kind": "keyword",
-                  "keyword": "null"
-                }
-              ]
-            },
-            {
-              "repr": "o",
-              "kind": "literal",
-              "literal": {
-                "kind": "string",
-                "string": "o"
-              }
-            },
-            {
+{
+  "symbols": [
+    {
+      "name": "s",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 0,
+            "col": 11,
+            "byteIndex": 11
+          },
+          "declarationKind": "export",
+          "kind": "variable",
+          "def": {
+            "tsType": {
               "repr": "string",
               "kind": "keyword",
-              "keyword": "string"
+              "value": "string"
             },
-            {
-              "repr": "",
-              "kind": "literal",
-              "literal": {
-                "kind": "string",
-                "string": ""
-              }
-            },
-            {
+            "kind": "let"
+          }
+        }
+      ]
+    },
+    {
+      "name": "n",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 1,
+            "col": 11,
+            "byteIndex": 35
+          },
+          "declarationKind": "export",
+          "kind": "variable",
+          "def": {
+            "tsType": {
               "repr": "number",
               "kind": "keyword",
-              "keyword": "number"
+              "value": "number"
             },
-            {
-              "repr": "o",
-              "kind": "literal",
-              "literal": {
-                "kind": "string",
-                "string": "o"
-              }
-            }
-          ]
+            "kind": "let"
+          }
         }
-      },
-      "kind": "let"
-    }
-  },
-  {
-    "name": "test",
-    "isDefault": false,
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 9,
-      "col": 0,
-      "byteIndex": 219
+      ]
     },
-    "declarationKind": "export",
-    "kind": "function",
-    "functionDef": {
-      "params": [],
-      "returnType": {
-        "repr": "void",
-        "kind": "keyword",
-        "keyword": "void"
-      },
-      "hasBody": true,
-      "isAsync": false,
-      "isGenerator": false,
-      "typeParams": []
-    }
-  },
-  {
-    "name": "testAsync",
-    "isDefault": false,
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 13,
-      "col": 0,
-      "byteIndex": 271
-    },
-    "declarationKind": "export",
-    "kind": "function",
-    "functionDef": {
-      "params": [],
-      "returnType": {
-        "repr": "Promise",
-        "kind": "typeRef",
-        "typeRef": {
-          "typeParams": [
-            {
-              "repr": "void",
-              "kind": "keyword",
-              "keyword": "void"
-            }
-          ],
-          "typeName": "Promise"
-        }
-      },
-      "hasBody": true,
-      "isAsync": true,
-      "isGenerator": false,
-      "typeParams": []
-    }
-  },
-  {
-    "name": "cannotInfer",
-    "isDefault": false,
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 17,
-      "col": 0,
-      "byteIndex": 338
-    },
-    "declarationKind": "export",
-    "kind": "function",
-    "functionDef": {
-      "params": [],
-      "returnType": null,
-      "hasBody": true,
-      "isAsync": false,
-      "isGenerator": false,
-      "typeParams": []
-    }
-  },
-  {
-    "name": "cannotInferAsync",
-    "isDefault": false,
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 23,
-      "col": 0,
-      "byteIndex": 415
-    },
-    "declarationKind": "export",
-    "kind": "function",
-    "functionDef": {
-      "params": [],
-      "returnType": null,
-      "hasBody": true,
-      "isAsync": true,
-      "isGenerator": false,
-      "typeParams": []
-    }
-  },
-  {
-    "name": "cannotInferGenerator",
-    "isDefault": false,
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 29,
-      "col": 0,
-      "byteIndex": 525
-    },
-    "declarationKind": "export",
-    "kind": "function",
-    "functionDef": {
-      "params": [],
-      "returnType": null,
-      "hasBody": true,
-      "isAsync": false,
-      "isGenerator": true,
-      "typeParams": []
-    }
-  },
-  {
-    "name": "MyClass",
-    "isDefault": false,
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 32,
-      "col": 0,
-      "byteIndex": 570
-    },
-    "declarationKind": "export",
-    "kind": "class",
-    "classDef": {
-      "isAbstract": false,
-      "constructors": [],
-      "properties": [],
-      "indexSignatures": [],
-      "methods": [
+    {
+      "name": "b",
+      "declarations": [
         {
-          "accessibility": null,
-          "optional": false,
-          "isAbstract": false,
-          "isStatic": false,
-          "name": "infer",
-          "kind": "method",
-          "functionDef": {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 2,
+            "col": 11,
+            "byteIndex": 55
+          },
+          "declarationKind": "export",
+          "kind": "variable",
+          "def": {
+            "tsType": {
+              "repr": "boolean",
+              "kind": "keyword",
+              "value": "boolean"
+            },
+            "kind": "let"
+          }
+        }
+      ]
+    },
+    {
+      "name": "bi",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 3,
+            "col": 11,
+            "byteIndex": 77
+          },
+          "declarationKind": "export",
+          "kind": "variable",
+          "def": {
+            "tsType": {
+              "repr": "bigint",
+              "kind": "keyword",
+              "value": "bigint"
+            },
+            "kind": "let"
+          }
+        }
+      ]
+    },
+    {
+      "name": "re",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 4,
+            "col": 11,
+            "byteIndex": 99
+          },
+          "declarationKind": "export",
+          "kind": "variable",
+          "def": {
+            "tsType": {
+              "repr": "hello",
+              "kind": "typeRef",
+              "value": {
+                "typeName": "RegExp"
+              }
+            },
+            "kind": "let"
+          }
+        }
+      ]
+    },
+    {
+      "name": "tpl",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 5,
+            "col": 11,
+            "byteIndex": 124
+          },
+          "declarationKind": "export",
+          "kind": "variable",
+          "def": {
+            "tsType": {
+              "repr": "foobar",
+              "kind": "literal",
+              "value": {
+                "kind": "template",
+                "tsTypes": [
+                  {
+                    "repr": "foobar",
+                    "kind": "literal",
+                    "value": {
+                      "kind": "string",
+                      "string": "foobar"
+                    }
+                  }
+                ]
+              }
+            },
+            "kind": "let"
+          }
+        }
+      ]
+    },
+    {
+      "name": "complexTpl",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 6,
+            "col": 11,
+            "byteIndex": 151
+          },
+          "declarationKind": "export",
+          "kind": "variable",
+          "def": {
+            "tsType": {
+              "repr": "f${string | number}${string | null}o${string}${number}o",
+              "kind": "literal",
+              "value": {
+                "kind": "template",
+                "tsTypes": [
+                  {
+                    "repr": "f",
+                    "kind": "literal",
+                    "value": {
+                      "kind": "string",
+                      "string": "f"
+                    }
+                  },
+                  {
+                    "kind": "union",
+                    "value": [
+                      {
+                        "repr": "string",
+                        "kind": "keyword",
+                        "value": "string"
+                      },
+                      {
+                        "repr": "number",
+                        "kind": "keyword",
+                        "value": "number"
+                      }
+                    ]
+                  },
+                  {
+                    "kind": "literal",
+                    "value": {
+                      "kind": "string",
+                      "string": ""
+                    }
+                  },
+                  {
+                    "kind": "union",
+                    "value": [
+                      {
+                        "repr": "string",
+                        "kind": "keyword",
+                        "value": "string"
+                      },
+                      {
+                        "repr": "null",
+                        "kind": "keyword",
+                        "value": "null"
+                      }
+                    ]
+                  },
+                  {
+                    "repr": "o",
+                    "kind": "literal",
+                    "value": {
+                      "kind": "string",
+                      "string": "o"
+                    }
+                  },
+                  {
+                    "repr": "string",
+                    "kind": "keyword",
+                    "value": "string"
+                  },
+                  {
+                    "kind": "literal",
+                    "value": {
+                      "kind": "string",
+                      "string": ""
+                    }
+                  },
+                  {
+                    "repr": "number",
+                    "kind": "keyword",
+                    "value": "number"
+                  },
+                  {
+                    "repr": "o",
+                    "kind": "literal",
+                    "value": {
+                      "kind": "string",
+                      "string": "o"
+                    }
+                  }
+                ]
+              }
+            },
+            "kind": "let"
+          }
+        }
+      ]
+    },
+    {
+      "name": "test",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 8,
+            "col": 0,
+            "byteIndex": 219
+          },
+          "declarationKind": "export",
+          "kind": "function",
+          "def": {
             "params": [],
             "returnType": {
               "repr": "void",
               "kind": "keyword",
-              "keyword": "void"
+              "value": "void"
             },
-            "hasBody": true,
-            "isAsync": false,
-            "isGenerator": false,
-            "typeParams": []
-          },
+            "hasBody": true
+          }
+        }
+      ]
+    },
+    {
+      "name": "testAsync",
+      "declarations": [
+        {
           "location": {
             "filename": "file:///mod.ts",
-            "line": 33,
-            "col": 2,
-            "byteIndex": 595
-          }
-        },
-        {
-          "accessibility": null,
-          "optional": false,
-          "isAbstract": false,
-          "isStatic": false,
-          "name": "inferAync",
-          "kind": "method",
-          "functionDef": {
+            "line": 12,
+            "col": 0,
+            "byteIndex": 271
+          },
+          "declarationKind": "export",
+          "kind": "function",
+          "def": {
             "params": [],
             "returnType": {
               "repr": "Promise",
               "kind": "typeRef",
-              "typeRef": {
+              "value": {
                 "typeParams": [
                   {
                     "repr": "void",
                     "kind": "keyword",
-                    "keyword": "void"
+                    "value": "void"
                   }
                 ],
                 "typeName": "Promise"
               }
             },
             "hasBody": true,
-            "isAsync": true,
-            "isGenerator": false,
-            "typeParams": []
-          },
-          "location": {
-            "filename": "file:///mod.ts",
-            "line": 35,
-            "col": 2,
-            "byteIndex": 611
-          }
-        },
-        {
-          "accessibility": null,
-          "optional": false,
-          "isAbstract": false,
-          "isStatic": false,
-          "name": "cannotInfer",
-          "kind": "method",
-          "functionDef": {
-            "params": [],
-            "returnType": null,
-            "hasBody": true,
-            "isAsync": false,
-            "isGenerator": false,
-            "typeParams": []
-          },
-          "location": {
-            "filename": "file:///mod.ts",
-            "line": 38,
-            "col": 2,
-            "byteIndex": 638
-          }
-        },
-        {
-          "accessibility": null,
-          "optional": false,
-          "isAbstract": false,
-          "isStatic": false,
-          "name": "cannotInferAsync",
-          "kind": "method",
-          "functionDef": {
-            "params": [],
-            "returnType": null,
-            "hasBody": true,
-            "isAsync": true,
-            "isGenerator": false,
-            "typeParams": []
-          },
-          "location": {
-            "filename": "file:///mod.ts",
-            "line": 44,
-            "col": 2,
-            "byteIndex": 728
-          }
-        },
-        {
-          "accessibility": null,
-          "optional": false,
-          "isAbstract": false,
-          "isStatic": false,
-          "name": "cannotInferGenerator",
-          "kind": "method",
-          "functionDef": {
-            "params": [],
-            "returnType": null,
-            "hasBody": true,
-            "isAsync": false,
-            "isGenerator": true,
-            "typeParams": []
-          },
-          "location": {
-            "filename": "file:///mod.ts",
-            "line": 48,
-            "col": 2,
-            "byteIndex": 792
+            "isAsync": true
           }
         }
-      ],
-      "extends": null,
-      "implements": [],
-      "typeParams": [],
-      "superTypeParams": []
-    }
-  },
-  {
-    "name": "MyNamespace",
-    "isDefault": false,
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 52,
-      "col": 0,
-      "byteIndex": 825
+      ]
     },
-    "declarationKind": "export",
-    "kind": "namespace",
-    "namespaceDef": {
-      "elements": [
+    {
+      "name": "cannotInfer",
+      "declarations": [
         {
-          "name": "cannotInfer",
-          "isDefault": false,
           "location": {
             "filename": "file:///mod.ts",
-            "line": 54,
-            "col": 2,
-            "byteIndex": 909
+            "line": 16,
+            "col": 0,
+            "byteIndex": 338
           },
-          "declarationKind": "declare",
+          "declarationKind": "export",
           "kind": "function",
-          "functionDef": {
+          "def": {
             "params": [],
-            "returnType": null,
-            "isAsync": false,
-            "isGenerator": false,
-            "typeParams": []
+            "hasBody": true
+          }
+        }
+      ]
+    },
+    {
+      "name": "cannotInferAsync",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 22,
+            "col": 0,
+            "byteIndex": 415
+          },
+          "declarationKind": "export",
+          "kind": "function",
+          "def": {
+            "params": [],
+            "hasBody": true,
+            "isAsync": true
+          }
+        }
+      ]
+    },
+    {
+      "name": "cannotInferGenerator",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 28,
+            "col": 0,
+            "byteIndex": 525
+          },
+          "declarationKind": "export",
+          "kind": "function",
+          "def": {
+            "params": [],
+            "hasBody": true,
+            "isGenerator": true
+          }
+        }
+      ]
+    },
+    {
+      "name": "MyClass",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 31,
+            "col": 0,
+            "byteIndex": 570
+          },
+          "declarationKind": "export",
+          "kind": "class",
+          "def": {
+            "methods": [
+              {
+                "name": "infer",
+                "kind": "method",
+                "functionDef": {
+                  "params": [],
+                  "returnType": {
+                    "repr": "void",
+                    "kind": "keyword",
+                    "value": "void"
+                  },
+                  "hasBody": true
+                },
+                "location": {
+                  "filename": "file:///mod.ts",
+                  "line": 32,
+                  "col": 2,
+                  "byteIndex": 595
+                }
+              },
+              {
+                "name": "inferAync",
+                "kind": "method",
+                "functionDef": {
+                  "params": [],
+                  "returnType": {
+                    "repr": "Promise",
+                    "kind": "typeRef",
+                    "value": {
+                      "typeParams": [
+                        {
+                          "repr": "void",
+                          "kind": "keyword",
+                          "value": "void"
+                        }
+                      ],
+                      "typeName": "Promise"
+                    }
+                  },
+                  "hasBody": true,
+                  "isAsync": true
+                },
+                "location": {
+                  "filename": "file:///mod.ts",
+                  "line": 34,
+                  "col": 2,
+                  "byteIndex": 611
+                }
+              },
+              {
+                "name": "cannotInfer",
+                "kind": "method",
+                "functionDef": {
+                  "params": [],
+                  "hasBody": true
+                },
+                "location": {
+                  "filename": "file:///mod.ts",
+                  "line": 37,
+                  "col": 2,
+                  "byteIndex": 638
+                }
+              },
+              {
+                "name": "cannotInferAsync",
+                "kind": "method",
+                "functionDef": {
+                  "params": [],
+                  "hasBody": true,
+                  "isAsync": true
+                },
+                "location": {
+                  "filename": "file:///mod.ts",
+                  "line": 43,
+                  "col": 2,
+                  "byteIndex": 728
+                }
+              },
+              {
+                "name": "cannotInferGenerator",
+                "kind": "method",
+                "functionDef": {
+                  "params": [],
+                  "hasBody": true,
+                  "isGenerator": true
+                },
+                "location": {
+                  "filename": "file:///mod.ts",
+                  "line": 47,
+                  "col": 2,
+                  "byteIndex": 792
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "MyNamespace",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 51,
+            "col": 0,
+            "byteIndex": 825
+          },
+          "declarationKind": "export",
+          "kind": "namespace",
+          "def": {
+            "elements": [
+              {
+                "name": "cannotInfer",
+                "declarations": [
+                  {
+                    "location": {
+                      "filename": "file:///mod.ts",
+                      "line": 53,
+                      "col": 2,
+                      "byteIndex": 909
+                    },
+                    "declarationKind": "declare",
+                    "kind": "function",
+                    "def": {
+                      "params": []
+                    }
+                  }
+                ]
+              }
+            ]
           }
         }
       ]
     }
-  }
-]
+  ]
+}

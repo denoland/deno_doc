@@ -18,17 +18,23 @@ export enum Color {
       "modified": [
         {
           "name": "Color",
-          "kind": "enum",
-          "defChanges": {
-            "type": "enum",
-            "addedMembers": [
+          "declarations": {
+            "modified": [
               {
-                "name": "Blue",
-                "location": {
-                  "filename": "file:///mod.ts",
-                  "line": 4,
-                  "col": 2,
-                  "byteIndex": 38
+                "kind": "enum",
+                "defChanges": {
+                  "type": "enum",
+                  "addedMembers": [
+                    {
+                      "name": "Blue",
+                      "location": {
+                        "filename": "file:///mod.ts",
+                        "line": 3,
+                        "col": 2,
+                        "byteIndex": 38
+                      }
+                    }
+                  ]
                 }
               }
             ]

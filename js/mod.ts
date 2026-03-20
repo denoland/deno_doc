@@ -1,7 +1,7 @@
 // Copyright 2018-2024 the Deno authors. All rights reserved. MIT license.
 
 import { instantiate } from "./deno_doc_wasm.generated.js";
-import type { DocNode, Location } from "./types.d.ts";
+import type { Document, Location } from "./types.d.ts";
 import type { Page } from "./html_types.d.ts";
 import { createCache } from "@deno/cache-dir";
 import type { CacheSetting, LoadResponse } from "@deno/graph";
@@ -87,7 +87,7 @@ export interface DocOptions {
 export async function doc(
   specifiers: string[],
   options: DocOptions = {},
-): Promise<Record<string, Array<DocNode>>> {
+): Promise<Record<string, Document>> {
   const {
     load = createCache().load,
     includeAll = false,
@@ -126,6 +126,18 @@ export async function doc(
     importMap,
     printImportMapDiagnostics,
   );
+}
+
+/**
+ * Convert a v1 doc nodes array (flat array of doc nodes) to the v2
+ * {@linkcode Document} format.
+ */
+export async function docnodesV1ToV2(
+  // deno-lint-ignore no-explicit-any
+  v1Nodes: any[],
+): Promise<Document> {
+  const wasm = await instantiate();
+  return wasm.docnodes_v1_to_v2(v1Nodes);
 }
 
 export interface ShortPath {
@@ -303,12 +315,12 @@ const defaultUsageComposer: UsageComposer = {
 };
 
 /**
- * Generate HTML files for provided {@linkcode DocNode}s.
+ * Generate HTML files for provided {@linkcode Document}s.
  * @param docNodesByUrl DocNodes keyed by their absolute URL.
  * @param options Options for the generation.
  */
 export async function generateHtml(
-  docNodesByUrl: Record<string, Array<DocNode>>,
+  docNodesByUrl: Record<string, Document>,
   options: GenerateOptions,
 ): Promise<Record<string, string>> {
   const {
@@ -346,7 +358,7 @@ export async function generateHtml(
  * @param options Options for the generation.
  */
 export async function generateHtmlAsJSON(
-  docNodesByUrl: Record<string, Array<DocNode>>,
+  docNodesByUrl: Record<string, Document>,
   options: GenerateOptions,
 ): Promise<Record<string, Page>> {
   const {

@@ -13,7 +13,7 @@ error[missing-jsdoc]: exported symbol is missing JSDoc documentation
   |   ^
 
 # output.txt
-Defined in file:///mod.ts:3:1
+Defined in file:///mod.ts:2:1
 
 @sealed
 class A
@@ -23,62 +23,54 @@ class A
 
 
 # output.json
-[
-  {
-    "name": "A",
-    "isDefault": false,
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 3,
-      "col": 0,
-      "byteIndex": 21
-    },
-    "declarationKind": "export",
-    "jsDoc": {
-      "doc": "jsdoc"
-    },
-    "kind": "class",
-    "classDef": {
-      "isAbstract": false,
-      "constructors": [],
-      "properties": [
+{
+  "symbols": [
+    {
+      "name": "A",
+      "declarations": [
         {
-          "tsType": {
-            "repr": "string",
-            "kind": "keyword",
-            "keyword": "string"
-          },
-          "readonly": false,
-          "accessibility": null,
-          "optional": false,
-          "isAbstract": false,
-          "isStatic": false,
-          "name": "a",
-          "location": {
-            "filename": "file:///mod.ts",
-            "line": 4,
-            "col": 2,
-            "byteIndex": 40
-          }
-        }
-      ],
-      "indexSignatures": [],
-      "methods": [],
-      "extends": null,
-      "implements": [],
-      "typeParams": [],
-      "superTypeParams": [],
-      "decorators": [
-        {
-          "name": "sealed",
           "location": {
             "filename": "file:///mod.ts",
             "line": 2,
-            "col": 1,
-            "byteIndex": 14
+            "col": 0,
+            "byteIndex": 21
+          },
+          "declarationKind": "export",
+          "jsDoc": {
+            "doc": "jsdoc"
+          },
+          "kind": "class",
+          "def": {
+            "properties": [
+              {
+                "tsType": {
+                  "repr": "string",
+                  "kind": "keyword",
+                  "value": "string"
+                },
+                "name": "a",
+                "location": {
+                  "filename": "file:///mod.ts",
+                  "line": 3,
+                  "col": 2,
+                  "byteIndex": 40
+                }
+              }
+            ],
+            "decorators": [
+              {
+                "name": "sealed",
+                "location": {
+                  "filename": "file:///mod.ts",
+                  "line": 1,
+                  "col": 1,
+                  "byteIndex": 14
+                }
+              }
+            ]
           }
         }
       ]
     }
-  }
-]
+  ]
+}

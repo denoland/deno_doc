@@ -19,196 +19,198 @@ export class Builder {
       "modified": [
         {
           "name": "Builder",
-          "kind": "class",
-          "defChanges": {
-            "type": "class",
-            "constructorChanges": {
-              "added": [
-                {
-                  "accessibility": null,
-                  "name": "constructor",
-                  "params": [
-                    {
-                      "kind": "identifier",
-                      "name": "name",
-                      "optional": false,
-                      "tsType": {
-                        "repr": "string",
-                        "kind": "keyword",
-                        "keyword": "string"
+          "declarations": {
+            "modified": [
+              {
+                "kind": "class",
+                "defChanges": {
+                  "type": "class",
+                  "constructorChanges": {
+                    "added": [
+                      {
+                        "name": "constructor",
+                        "params": [
+                          {
+                            "kind": "identifier",
+                            "name": "name",
+                            "optional": false,
+                            "tsType": {
+                              "repr": "string",
+                              "kind": "keyword",
+                              "value": "string"
+                            }
+                          },
+                          {
+                            "kind": "identifier",
+                            "name": "age",
+                            "optional": false,
+                            "tsType": {
+                              "repr": "number",
+                              "kind": "keyword",
+                              "value": "number"
+                            }
+                          },
+                          {
+                            "kind": "identifier",
+                            "name": "active",
+                            "optional": false,
+                            "tsType": {
+                              "repr": "boolean",
+                              "kind": "keyword",
+                              "value": "boolean"
+                            }
+                          }
+                        ],
+                        "location": {
+                          "filename": "file:///mod.ts",
+                          "line": 2,
+                          "col": 2,
+                          "byteIndex": 55
+                        }
+                      },
+                      {
+                        "hasBody": true,
+                        "name": "constructor",
+                        "params": [
+                          {
+                            "kind": "identifier",
+                            "name": "name",
+                            "optional": false,
+                            "tsType": {
+                              "repr": "string",
+                              "kind": "keyword",
+                              "value": "string"
+                            }
+                          },
+                          {
+                            "kind": "identifier",
+                            "name": "age",
+                            "optional": true,
+                            "tsType": {
+                              "repr": "number",
+                              "kind": "keyword",
+                              "value": "number"
+                            }
+                          },
+                          {
+                            "kind": "identifier",
+                            "name": "active",
+                            "optional": true,
+                            "tsType": {
+                              "repr": "boolean",
+                              "kind": "keyword",
+                              "value": "boolean"
+                            }
+                          }
+                        ],
+                        "location": {
+                          "filename": "file:///mod.ts",
+                          "line": 3,
+                          "col": 2,
+                          "byteIndex": 114
+                        }
                       }
-                    },
-                    {
-                      "kind": "identifier",
-                      "name": "age",
-                      "optional": false,
-                      "tsType": {
-                        "repr": "number",
-                        "kind": "keyword",
-                        "keyword": "number"
+                    ],
+                    "removed": [
+                      {
+                        "name": "constructor",
+                        "params": [
+                          {
+                            "kind": "identifier",
+                            "name": "name",
+                            "optional": false,
+                            "tsType": {
+                              "repr": "string",
+                              "kind": "keyword",
+                              "value": "string"
+                            }
+                          },
+                          {
+                            "kind": "identifier",
+                            "name": "age",
+                            "optional": false,
+                            "tsType": {
+                              "repr": "number",
+                              "kind": "keyword",
+                              "value": "number"
+                            }
+                          }
+                        ],
+                        "location": {
+                          "filename": "file:///mod.ts",
+                          "line": 2,
+                          "col": 2,
+                          "byteIndex": 54
+                        }
+                      },
+                      {
+                        "hasBody": true,
+                        "name": "constructor",
+                        "params": [
+                          {
+                            "kind": "identifier",
+                            "name": "name",
+                            "optional": false,
+                            "tsType": {
+                              "repr": "string",
+                              "kind": "keyword",
+                              "value": "string"
+                            }
+                          },
+                          {
+                            "kind": "identifier",
+                            "name": "age",
+                            "optional": true,
+                            "tsType": {
+                              "repr": "number",
+                              "kind": "keyword",
+                              "value": "number"
+                            }
+                          }
+                        ],
+                        "location": {
+                          "filename": "file:///mod.ts",
+                          "line": 3,
+                          "col": 2,
+                          "byteIndex": 96
+                        }
                       }
-                    },
-                    {
-                      "kind": "identifier",
-                      "name": "active",
-                      "optional": false,
-                      "tsType": {
-                        "repr": "boolean",
-                        "kind": "keyword",
-                        "keyword": "boolean"
-                      }
-                    }
-                  ],
-                  "location": {
-                    "filename": "file:///mod.ts",
-                    "line": 3,
-                    "col": 2,
-                    "byteIndex": 55
-                  }
-                },
-                {
-                  "accessibility": null,
-                  "hasBody": true,
-                  "name": "constructor",
-                  "params": [
-                    {
-                      "kind": "identifier",
-                      "name": "name",
-                      "optional": false,
-                      "tsType": {
-                        "repr": "string",
-                        "kind": "keyword",
-                        "keyword": "string"
-                      }
-                    },
-                    {
-                      "kind": "identifier",
-                      "name": "age",
-                      "optional": true,
-                      "tsType": {
-                        "repr": "number",
-                        "kind": "keyword",
-                        "keyword": "number"
-                      }
-                    },
-                    {
-                      "kind": "identifier",
-                      "name": "active",
-                      "optional": true,
-                      "tsType": {
-                        "repr": "boolean",
-                        "kind": "keyword",
-                        "keyword": "boolean"
-                      }
-                    }
-                  ],
-                  "location": {
-                    "filename": "file:///mod.ts",
-                    "line": 4,
-                    "col": 2,
-                    "byteIndex": 114
-                  }
-                }
-              ],
-              "removed": [
-                {
-                  "accessibility": null,
-                  "name": "constructor",
-                  "params": [
-                    {
-                      "kind": "identifier",
-                      "name": "name",
-                      "optional": false,
-                      "tsType": {
-                        "repr": "string",
-                        "kind": "keyword",
-                        "keyword": "string"
-                      }
-                    },
-                    {
-                      "kind": "identifier",
-                      "name": "age",
-                      "optional": false,
-                      "tsType": {
-                        "repr": "number",
-                        "kind": "keyword",
-                        "keyword": "number"
-                      }
-                    }
-                  ],
-                  "location": {
-                    "filename": "file:///mod.ts",
-                    "line": 3,
-                    "col": 2,
-                    "byteIndex": 54
-                  }
-                },
-                {
-                  "accessibility": null,
-                  "hasBody": true,
-                  "name": "constructor",
-                  "params": [
-                    {
-                      "kind": "identifier",
-                      "name": "name",
-                      "optional": false,
-                      "tsType": {
-                        "repr": "string",
-                        "kind": "keyword",
-                        "keyword": "string"
-                      }
-                    },
-                    {
-                      "kind": "identifier",
-                      "name": "age",
-                      "optional": true,
-                      "tsType": {
-                        "repr": "number",
-                        "kind": "keyword",
-                        "keyword": "number"
-                      }
-                    }
-                  ],
-                  "location": {
-                    "filename": "file:///mod.ts",
-                    "line": 4,
-                    "col": 2,
-                    "byteIndex": 96
-                  }
-                }
-              ],
-              "modified": [
-                {
-                  "paramCount": 1,
-                  "paramsChange": {
+                    ],
                     "modified": [
                       {
-                        "index": 0,
-                        "paramChange": {
+                        "paramCount": 1,
+                        "paramsChange": {
                           "modified": [
                             {
                               "index": 0,
-                              "patternChange": {
-                                "old": {
-                                  "kind": "identifier",
-                                  "name": "name",
-                                  "optional": false,
-                                  "tsType": {
-                                    "repr": "string",
-                                    "kind": "keyword",
-                                    "keyword": "string"
+                              "paramChange": {
+                                "modified": [
+                                  {
+                                    "index": 0,
+                                    "patternChange": {
+                                      "old": {
+                                        "kind": "identifier",
+                                        "name": "name",
+                                        "optional": false,
+                                        "tsType": {
+                                          "repr": "string",
+                                          "kind": "keyword",
+                                          "value": "string"
+                                        }
+                                      },
+                                      "new": {
+                                        "kind": "identifier",
+                                        "name": "label",
+                                        "optional": false,
+                                        "tsType": {
+                                          "repr": "string",
+                                          "kind": "keyword",
+                                          "value": "string"
+                                        }
+                                      }
+                                    }
                                   }
-                                },
-                                "new": {
-                                  "kind": "identifier",
-                                  "name": "label",
-                                  "optional": false,
-                                  "tsType": {
-                                    "repr": "string",
-                                    "kind": "keyword",
-                                    "keyword": "string"
-                                  }
-                                }
+                                ]
                               }
                             }
                           ]
@@ -217,8 +219,8 @@ export class Builder {
                     ]
                   }
                 }
-              ]
-            }
+              }
+            ]
           }
         }
       ]

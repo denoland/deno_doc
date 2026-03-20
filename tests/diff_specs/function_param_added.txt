@@ -11,23 +11,29 @@ export function greet(name: string, greeting?: string) {}
       "modified": [
         {
           "name": "greet",
-          "kind": "function",
-          "defChanges": {
-            "type": "function",
-            "paramsChange": {
-              "added": [
-                {
-                  "kind": "identifier",
-                  "name": "greeting",
-                  "optional": true,
-                  "tsType": {
-                    "repr": "string",
-                    "kind": "keyword",
-                    "keyword": "string"
+          "declarations": {
+            "modified": [
+              {
+                "kind": "function",
+                "defChanges": {
+                  "type": "function",
+                  "paramsChange": {
+                    "added": [
+                      {
+                        "kind": "identifier",
+                        "name": "greeting",
+                        "optional": true,
+                        "tsType": {
+                          "repr": "string",
+                          "kind": "keyword",
+                          "value": "string"
+                        }
+                      }
+                    ]
                   }
                 }
-              ]
-            }
+              }
+            ]
           }
         }
       ]

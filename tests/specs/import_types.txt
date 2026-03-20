@@ -11,63 +11,69 @@ error[missing-jsdoc]: exported symbol is missing JSDoc documentation
   | ^
 
 # output.txt
-Defined in file:///mod.ts:1:1
+Defined in file:///mod.ts:0:1
 
 function adopt<T>(p: import("./module.ts").Pet<T>): void
 
 
 # output.json
-[
-  {
-    "name": "adopt",
-    "isDefault": false,
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 1,
-      "col": 0,
-      "byteIndex": 0
-    },
-    "declarationKind": "export",
-    "kind": "function",
-    "functionDef": {
-      "params": [
+{
+  "symbols": [
+    {
+      "name": "adopt",
+      "declarations": [
         {
-          "kind": "identifier",
-          "name": "p",
-          "optional": false,
-          "tsType": {
-            "repr": "",
-            "kind": "importType",
-            "importType": {
-              "specifier": "./module.ts",
-              "qualifier": "Pet",
-              "typeParams": [
-                {
-                  "repr": "T",
-                  "kind": "typeRef",
-                  "typeRef": {
-                    "typeParams": null,
-                    "typeName": "T"
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 0,
+            "col": 0,
+            "byteIndex": 0
+          },
+          "declarationKind": "export",
+          "kind": "function",
+          "def": {
+            "params": [
+              {
+                "kind": "identifier",
+                "name": "p",
+                "optional": false,
+                "tsType": {
+                  "kind": "importType",
+                  "value": {
+                    "specifier": "./module.ts",
+                    "qualifier": "Pet",
+                    "typeParams": [
+                      {
+                        "repr": "T",
+                        "kind": "typeRef",
+                        "value": {
+                          "typeName": "T",
+                          "resolution": {
+                            "kind": "typeParam",
+                            "declaringName": "adopt",
+                            "declaringKind": "function"
+                          }
+                        }
+                      }
+                    ]
                   }
                 }
-              ]
-            }
+              }
+            ],
+            "returnType": {
+              "repr": "void",
+              "kind": "keyword",
+              "value": "void"
+            },
+            "hasBody": true,
+            "typeParams": [
+              {
+                "name": "T"
+              }
+            ]
           }
-        }
-      ],
-      "returnType": {
-        "repr": "void",
-        "kind": "keyword",
-        "keyword": "void"
-      },
-      "hasBody": true,
-      "isAsync": false,
-      "isGenerator": false,
-      "typeParams": [
-        {
-          "name": "T"
         }
       ]
     }
-  }
-]
+  ]
+}

@@ -52,7 +52,7 @@ error[private-type-ref]: public type 'Data.prototype.prop2' references private t
   info: to ensure documentation is complete all types that are exposed in the public API must be public
 
 # output.txt
-Defined in file:///data.ts:8:1
+Defined in file:///data.ts:7:1
 
 class Data
   doc
@@ -67,111 +67,99 @@ class Data
 
 
 # output.json
-[
-  {
-    "name": "Data",
-    "isDefault": false,
-    "location": {
-      "filename": "file:///data.ts",
-      "line": 8,
-      "col": 0,
-      "byteIndex": 98
-    },
-    "declarationKind": "export",
-    "jsDoc": {
-      "doc": "doc"
-    },
-    "kind": "class",
-    "classDef": {
-      "isAbstract": false,
-      "constructors": [],
-      "properties": [
+{
+  "symbols": [
+    {
+      "name": "Data",
+      "declarations": [
         {
+          "location": {
+            "filename": "file:///data.ts",
+            "line": 7,
+            "col": 0,
+            "byteIndex": 98
+          },
+          "declarationKind": "export",
           "jsDoc": {
             "doc": "doc"
           },
-          "tsType": {
-            "repr": "PrivateNotExported",
-            "kind": "typeRef",
-            "typeRef": {
-              "typeParams": null,
-              "typeName": "PrivateNotExported"
-            }
-          },
-          "readonly": false,
-          "accessibility": null,
-          "optional": false,
-          "isAbstract": false,
-          "isStatic": false,
-          "name": "prop",
-          "location": {
-            "filename": "file:///data.ts",
-            "line": 10,
-            "col": 2,
-            "byteIndex": 133
-          }
-        },
-        {
-          "jsDoc": {
-            "doc": "doc"
-          },
-          "tsType": {
-            "repr": "PrivateExportedButNotFromModTs",
-            "kind": "typeRef",
-            "typeRef": {
-              "typeParams": null,
-              "typeName": "PrivateExportedButNotFromModTs"
-            }
-          },
-          "readonly": false,
-          "accessibility": null,
-          "optional": false,
-          "isAbstract": false,
-          "isStatic": false,
-          "name": "prop2",
-          "location": {
-            "filename": "file:///data.ts",
-            "line": 12,
-            "col": 2,
-            "byteIndex": 174
-          }
-        },
-        {
-          "jsDoc": {
-            "tags": [
+          "kind": "class",
+          "def": {
+            "properties": [
               {
-                "kind": "internal"
+                "jsDoc": {
+                  "doc": "doc"
+                },
+                "tsType": {
+                  "repr": "PrivateNotExported",
+                  "kind": "typeRef",
+                  "value": {
+                    "typeName": "PrivateNotExported",
+                    "resolution": {
+                      "kind": "local"
+                    }
+                  }
+                },
+                "name": "prop",
+                "location": {
+                  "filename": "file:///data.ts",
+                  "line": 9,
+                  "col": 2,
+                  "byteIndex": 133
+                }
+              },
+              {
+                "jsDoc": {
+                  "doc": "doc"
+                },
+                "tsType": {
+                  "repr": "PrivateExportedButNotFromModTs",
+                  "kind": "typeRef",
+                  "value": {
+                    "typeName": "PrivateExportedButNotFromModTs",
+                    "resolution": {
+                      "kind": "local"
+                    }
+                  }
+                },
+                "name": "prop2",
+                "location": {
+                  "filename": "file:///data.ts",
+                  "line": 11,
+                  "col": 2,
+                  "byteIndex": 174
+                }
+              },
+              {
+                "jsDoc": {
+                  "tags": [
+                    {
+                      "kind": "internal"
+                    }
+                  ]
+                },
+                "tsType": {
+                  "repr": "PrivateReferencedInInternal",
+                  "kind": "typeRef",
+                  "value": {
+                    "typeName": "PrivateReferencedInInternal",
+                    "resolution": {
+                      "kind": "local"
+                    }
+                  }
+                },
+                "name": "prop3",
+                "location": {
+                  "filename": "file:///data.ts",
+                  "line": 13,
+                  "col": 2,
+                  "byteIndex": 234
+                }
               }
             ]
-          },
-          "tsType": {
-            "repr": "PrivateReferencedInInternal",
-            "kind": "typeRef",
-            "typeRef": {
-              "typeParams": null,
-              "typeName": "PrivateReferencedInInternal"
-            }
-          },
-          "readonly": false,
-          "accessibility": null,
-          "optional": false,
-          "isAbstract": false,
-          "isStatic": false,
-          "name": "prop3",
-          "location": {
-            "filename": "file:///data.ts",
-            "line": 14,
-            "col": 2,
-            "byteIndex": 234
           }
         }
-      ],
-      "indexSignatures": [],
-      "methods": [],
-      "extends": null,
-      "implements": [],
-      "typeParams": [],
-      "superTypeParams": []
+      ]
     }
-  }
-]
+  ]
+}

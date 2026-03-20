@@ -16,31 +16,35 @@ export interface Foo {
       "modified": [
         {
           "name": "Foo",
-          "kind": "interface",
-          "defChanges": {
-            "type": "interface",
-            "methodChanges": {
-              "removed": [
-                {
-                  "name": "baz",
-                  "kind": "method",
-                  "location": {
-                    "filename": "file:///mod.ts",
-                    "line": 3,
-                    "col": 2,
-                    "byteIndex": 40
-                  },
-                  "params": [],
-                  "optional": false,
-                  "returnType": {
-                    "repr": "string",
-                    "kind": "keyword",
-                    "keyword": "string"
-                  },
-                  "typeParams": []
+          "declarations": {
+            "modified": [
+              {
+                "kind": "interface",
+                "defChanges": {
+                  "type": "interface",
+                  "methodChanges": {
+                    "removed": [
+                      {
+                        "name": "baz",
+                        "kind": "method",
+                        "location": {
+                          "filename": "file:///mod.ts",
+                          "line": 2,
+                          "col": 2,
+                          "byteIndex": 40
+                        },
+                        "params": [],
+                        "returnType": {
+                          "repr": "string",
+                          "kind": "keyword",
+                          "value": "string"
+                        }
+                      }
+                    ]
+                  }
                 }
-              ]
-            }
+              }
+            ]
           }
         }
       ]

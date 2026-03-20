@@ -13,7 +13,6 @@ use deno_doc::html::HrefResolver;
 use deno_doc::html::UrlResolveKind;
 use deno_doc::html::UsageComposer;
 use deno_doc::html::UsageComposerEntry;
-use deno_doc::node::DocNodeDef;
 use deno_graph::BuildOptions;
 use deno_graph::GraphKind;
 use deno_graph::ModuleGraph;
@@ -190,7 +189,7 @@ async fn run() -> anyhow::Result<()> {
       filter,
       private,
     } => {
-      let doc_nodes_by_url = if json_input {
+      let mut doc_nodes_by_url = if json_input {
         assert_eq!(files.len(), 1);
         serde_json::from_reader(std::fs::File::open(&files[0])?)?
       } else {
@@ -210,21 +209,26 @@ async fn run() -> anyhow::Result<()> {
         return Ok(());
       }
 
-      let mut doc_nodes =
-        doc_nodes_by_url.into_values().flatten().collect::<Vec<_>>();
-
-      doc_nodes
-        .retain(|doc_node| !matches!(doc_node.def, DocNodeDef::Import { .. }));
-
-      if let Some(filter) = filter {
-        doc_nodes = find_nodes_by_name_recursively(doc_nodes, &filter);
+      for (_, doc) in &mut doc_nodes_by_url {
+        if let Some(filter) = &filter {
+          let symbols = std::mem::take(&mut doc.symbols);
+          doc.symbols = find_nodes_by_name_recursively(symbols, filter);
+        }
       }
 
       if json {
-        serde_json::to_writer_pretty(std::io::stdout(), &doc_nodes)?;
+        serde_json::to_writer_pretty(std::io::stdout(), &doc_nodes_by_url)?;
         println!();
       } else {
-        let result = DocPrinter::new(&doc_nodes, true, false);
+        let mut merged_doc = deno_doc::Document::default();
+        for doc in doc_nodes_by_url.into_values() {
+          if merged_doc.module_doc.is_empty() {
+            merged_doc.module_doc = doc.module_doc;
+          }
+          merged_doc.symbols.extend(doc.symbols);
+        }
+
+        let result = DocPrinter::new(&merged_doc, true, false);
         println!("{result}");
       }
     }
@@ -378,7 +382,7 @@ fn generate_docs_directory(
   package_name: Option<String>,
   output_dir: PathBuf,
   main_entrypoint: Option<ModuleSpecifier>,
-  doc_nodes_by_url: IndexMap<ModuleSpecifier, Vec<deno_doc::DocNode>>,
+  doc_nodes_by_url: IndexMap<ModuleSpecifier, deno_doc::Document>,
 ) -> Result<(), anyhow::Error> {
   let cwd = current_dir().unwrap();
   let output_dir_resolved = cwd.join(output_dir);

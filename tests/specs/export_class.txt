@@ -96,7 +96,7 @@ error[missing-jsdoc]: exported symbol is missing JSDoc documentation
    |     ^
 
 # output.txt
-Defined in file:///mod.ts:2:1
+Defined in file:///mod.ts:1:1
 
 class Foobar extends Fizz implements Buzz, Aldrin
   Class doc
@@ -120,444 +120,378 @@ class Foobar extends Fizz implements Buzz, Aldrin
 
 
 # output.json
-[
-  {
-    "name": "Foobar",
-    "isDefault": false,
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 2,
-      "col": 0,
-      "byteIndex": 17
-    },
-    "declarationKind": "export",
-    "jsDoc": {
-      "doc": "Class doc"
-    },
-    "kind": "class",
-    "classDef": {
-      "isAbstract": false,
-      "constructors": [
+{
+  "symbols": [
+    {
+      "name": "Foobar",
+      "declarations": [
         {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 1,
+            "col": 0,
+            "byteIndex": 17
+          },
+          "declarationKind": "export",
           "jsDoc": {
-            "doc": "Constructor js doc"
+            "doc": "Class doc"
           },
-          "accessibility": null,
-          "hasBody": true,
-          "name": "constructor",
-          "params": [
-            {
-              "kind": "identifier",
-              "name": "name",
-              "optional": false,
-              "tsType": {
-                "repr": "string",
-                "kind": "keyword",
-                "keyword": "string"
-              }
-            },
-            {
-              "accessibility": "private",
-              "kind": "identifier",
-              "name": "private2",
-              "optional": false,
-              "tsType": {
-                "repr": "number",
-                "kind": "keyword",
-                "keyword": "number"
-              }
-            },
-            {
-              "accessibility": "protected",
-              "kind": "identifier",
-              "name": "protected2",
-              "optional": false,
-              "tsType": {
-                "repr": "number",
-                "kind": "keyword",
-                "keyword": "number"
-              }
-            }
-          ],
-          "location": {
-            "filename": "file:///mod.ts",
-            "line": 19,
-            "col": 4,
-            "byteIndex": 453
-          }
-        }
-      ],
-      "properties": [
-        {
-          "tsType": {
-            "repr": "boolean",
-            "kind": "keyword",
-            "keyword": "boolean"
-          },
-          "readonly": false,
-          "accessibility": "private",
-          "optional": true,
-          "isAbstract": false,
-          "isStatic": false,
-          "name": "private1",
-          "location": {
-            "filename": "file:///mod.ts",
-            "line": 3,
-            "col": 4,
-            "byteIndex": 80
-          }
-        },
-        {
-          "tsType": {
-            "repr": "number",
-            "kind": "keyword",
-            "keyword": "number"
-          },
-          "readonly": false,
-          "accessibility": "protected",
-          "optional": false,
-          "isAbstract": false,
-          "isStatic": false,
-          "name": "protected1",
-          "location": {
-            "filename": "file:///mod.ts",
-            "line": 4,
-            "col": 4,
-            "byteIndex": 112
-          }
-        },
-        {
-          "tsType": {
-            "repr": "boolean",
-            "kind": "keyword",
-            "keyword": "boolean"
-          },
-          "readonly": false,
-          "accessibility": "public",
-          "optional": false,
-          "isAbstract": false,
-          "isStatic": false,
-          "name": "public1",
-          "location": {
-            "filename": "file:///mod.ts",
-            "line": 5,
-            "col": 4,
-            "byteIndex": 146
-          }
-        },
-        {
-          "tsType": {
-            "repr": "number",
-            "kind": "keyword",
-            "keyword": "number"
-          },
-          "readonly": false,
-          "accessibility": null,
-          "optional": false,
-          "isAbstract": false,
-          "isStatic": false,
-          "name": "public2",
-          "location": {
-            "filename": "file:///mod.ts",
-            "line": 6,
-            "col": 4,
-            "byteIndex": 175
-          }
-        },
-        {
-          "tsType": {
-            "repr": "string",
-            "kind": "keyword",
-            "keyword": "string"
-          },
-          "readonly": false,
-          "accessibility": null,
-          "optional": false,
-          "isAbstract": false,
-          "isStatic": false,
-          "isOverride": true,
-          "name": "public3",
-          "location": {
-            "filename": "file:///mod.ts",
-            "line": 7,
-            "col": 4,
-            "byteIndex": 196
-          }
-        },
-        {
-          "tsType": {
-            "repr": "Map",
-            "kind": "typeRef",
-            "typeRef": {
-              "typeParams": [
-                {
-                  "repr": "string",
-                  "kind": "keyword",
-                  "keyword": "string"
+          "kind": "class",
+          "def": {
+            "constructors": [
+              {
+                "jsDoc": {
+                  "doc": "Constructor js doc"
                 },
-                {
-                  "repr": "string",
-                  "kind": "keyword",
-                  "keyword": "string"
-                }
-              ],
-              "typeName": "Map"
-            }
-          },
-          "readonly": false,
-          "accessibility": null,
-          "optional": false,
-          "isAbstract": false,
-          "isStatic": false,
-          "name": "m",
-          "location": {
-            "filename": "file:///mod.ts",
-            "line": 8,
-            "col": 4,
-            "byteIndex": 226
-          }
-        },
-        {
-          "tsType": {
-            "repr": "string",
-            "kind": "keyword",
-            "keyword": "string"
-          },
-          "readonly": false,
-          "accessibility": null,
-          "optional": false,
-          "isAbstract": false,
-          "isStatic": false,
-          "name": "s",
-          "location": {
-            "filename": "file:///mod.ts",
-            "line": 9,
-            "col": 4,
-            "byteIndex": 261
-          }
-        },
-        {
-          "tsType": {
-            "repr": "",
-            "kind": "array",
-            "array": {
-              "repr": "",
-              "kind": "union",
-              "union": [
-                {
-                  "repr": "number",
-                  "kind": "keyword",
-                  "keyword": "number"
-                },
-                {
-                  "repr": "string",
-                  "kind": "keyword",
-                  "keyword": "string"
-                }
-              ]
-            }
-          },
-          "readonly": false,
-          "accessibility": null,
-          "optional": false,
-          "isAbstract": false,
-          "isStatic": false,
-          "name": "a",
-          "location": {
-            "filename": "file:///mod.ts",
-            "line": 10,
-            "col": 4,
-            "byteIndex": 276
-          }
-        },
-        {
-          "tsType": {
-            "repr": "",
-            "kind": "fnOrConstructor",
-            "fnOrConstructor": {
-              "constructor": false,
-              "tsType": {
-                "repr": "void",
-                "kind": "keyword",
-                "keyword": "void"
-              },
-              "params": [
-                {
-                  "kind": "identifier",
-                  "name": "a",
-                  "optional": false,
-                  "tsType": {
-                    "repr": "string",
-                    "kind": "keyword",
-                    "keyword": "string"
-                  }
-                }
-              ],
-              "typeParams": []
-            }
-          },
-          "readonly": false,
-          "accessibility": null,
-          "optional": false,
-          "isAbstract": false,
-          "isStatic": false,
-          "name": "fn",
-          "location": {
-            "filename": "file:///mod.ts",
-            "line": 11,
-            "col": 4,
-            "byteIndex": 296
-          }
-        }
-      ],
-      "indexSignatures": [
-        {
-          "jsDoc": {
-            "doc": "Test"
-          },
-          "readonly": false,
-          "params": [
-            {
-              "kind": "identifier",
-              "name": "prop",
-              "optional": false,
-              "tsType": {
-                "repr": "string",
-                "kind": "keyword",
-                "keyword": "string"
-              }
-            }
-          ],
-          "tsType": {
-            "repr": "number",
-            "kind": "keyword",
-            "keyword": "number"
-          },
-          "location": {
-            "filename": "file:///mod.ts",
-            "line": 14,
-            "col": 4,
-            "byteIndex": 347
-          }
-        }
-      ],
-      "methods": [
-        {
-          "jsDoc": {
-            "doc": "Async foo method"
-          },
-          "accessibility": null,
-          "optional": false,
-          "isAbstract": false,
-          "isStatic": false,
-          "name": "foo",
-          "kind": "method",
-          "functionDef": {
-            "params": [],
-            "returnType": {
-              "repr": "Promise",
-              "kind": "typeRef",
-              "typeRef": {
-                "typeParams": [
+                "hasBody": true,
+                "name": "constructor",
+                "params": [
                   {
-                    "repr": "void",
-                    "kind": "keyword",
-                    "keyword": "void"
+                    "kind": "identifier",
+                    "name": "name",
+                    "optional": false,
+                    "tsType": {
+                      "repr": "string",
+                      "kind": "keyword",
+                      "value": "string"
+                    }
+                  },
+                  {
+                    "accessibility": "private",
+                    "kind": "identifier",
+                    "name": "private2",
+                    "optional": false,
+                    "tsType": {
+                      "repr": "number",
+                      "kind": "keyword",
+                      "value": "number"
+                    }
+                  },
+                  {
+                    "accessibility": "protected",
+                    "kind": "identifier",
+                    "name": "protected2",
+                    "optional": false,
+                    "tsType": {
+                      "repr": "number",
+                      "kind": "keyword",
+                      "value": "number"
+                    }
                   }
                 ],
-                "typeName": "Promise"
+                "location": {
+                  "filename": "file:///mod.ts",
+                  "line": 18,
+                  "col": 4,
+                  "byteIndex": 453
+                }
               }
-            },
-            "hasBody": true,
-            "isAsync": true,
-            "isGenerator": false,
-            "typeParams": []
-          },
-          "location": {
-            "filename": "file:///mod.ts",
-            "line": 22,
-            "col": 4,
-            "byteIndex": 571
-          }
-        },
-        {
-          "jsDoc": {
-            "doc": "Sync bar method"
-          },
-          "accessibility": null,
-          "optional": true,
-          "isAbstract": false,
-          "isStatic": false,
-          "name": "bar",
-          "kind": "method",
-          "functionDef": {
-            "params": [],
-            "returnType": {
-              "repr": "void",
-              "kind": "keyword",
-              "keyword": "void"
-            },
-            "hasBody": true,
-            "isAsync": false,
-            "isGenerator": false,
-            "typeParams": []
-          },
-          "location": {
-            "filename": "file:///mod.ts",
-            "line": 27,
-            "col": 4,
-            "byteIndex": 649
-          }
-        },
-        {
-          "accessibility": null,
-          "optional": false,
-          "isAbstract": false,
-          "isStatic": false,
-          "isOverride": true,
-          "name": "s",
-          "kind": "method",
-          "functionDef": {
-            "params": [],
-            "returnType": {
-              "repr": "void",
-              "kind": "keyword",
-              "keyword": "void"
-            },
-            "hasBody": true,
-            "isAsync": false,
-            "isGenerator": false,
-            "typeParams": []
-          },
-          "location": {
-            "filename": "file:///mod.ts",
-            "line": 31,
-            "col": 4,
-            "byteIndex": 686
+            ],
+            "properties": [
+              {
+                "tsType": {
+                  "repr": "boolean",
+                  "kind": "keyword",
+                  "value": "boolean"
+                },
+                "accessibility": "private",
+                "optional": true,
+                "name": "private1",
+                "location": {
+                  "filename": "file:///mod.ts",
+                  "line": 2,
+                  "col": 4,
+                  "byteIndex": 80
+                }
+              },
+              {
+                "tsType": {
+                  "repr": "number",
+                  "kind": "keyword",
+                  "value": "number"
+                },
+                "accessibility": "protected",
+                "name": "protected1",
+                "location": {
+                  "filename": "file:///mod.ts",
+                  "line": 3,
+                  "col": 4,
+                  "byteIndex": 112
+                }
+              },
+              {
+                "tsType": {
+                  "repr": "boolean",
+                  "kind": "keyword",
+                  "value": "boolean"
+                },
+                "accessibility": "public",
+                "name": "public1",
+                "location": {
+                  "filename": "file:///mod.ts",
+                  "line": 4,
+                  "col": 4,
+                  "byteIndex": 146
+                }
+              },
+              {
+                "tsType": {
+                  "repr": "number",
+                  "kind": "keyword",
+                  "value": "number"
+                },
+                "name": "public2",
+                "location": {
+                  "filename": "file:///mod.ts",
+                  "line": 5,
+                  "col": 4,
+                  "byteIndex": 175
+                }
+              },
+              {
+                "tsType": {
+                  "repr": "string",
+                  "kind": "keyword",
+                  "value": "string"
+                },
+                "isOverride": true,
+                "name": "public3",
+                "location": {
+                  "filename": "file:///mod.ts",
+                  "line": 6,
+                  "col": 4,
+                  "byteIndex": 196
+                }
+              },
+              {
+                "tsType": {
+                  "repr": "Map",
+                  "kind": "typeRef",
+                  "value": {
+                    "typeParams": [
+                      {
+                        "repr": "string",
+                        "kind": "keyword",
+                        "value": "string"
+                      },
+                      {
+                        "repr": "string",
+                        "kind": "keyword",
+                        "value": "string"
+                      }
+                    ],
+                    "typeName": "Map"
+                  }
+                },
+                "name": "m",
+                "location": {
+                  "filename": "file:///mod.ts",
+                  "line": 7,
+                  "col": 4,
+                  "byteIndex": 226
+                }
+              },
+              {
+                "tsType": {
+                  "repr": "string",
+                  "kind": "keyword",
+                  "value": "string"
+                },
+                "name": "s",
+                "location": {
+                  "filename": "file:///mod.ts",
+                  "line": 8,
+                  "col": 4,
+                  "byteIndex": 261
+                }
+              },
+              {
+                "tsType": {
+                  "kind": "array",
+                  "value": {
+                    "kind": "union",
+                    "value": [
+                      {
+                        "repr": "number",
+                        "kind": "keyword",
+                        "value": "number"
+                      },
+                      {
+                        "repr": "string",
+                        "kind": "keyword",
+                        "value": "string"
+                      }
+                    ]
+                  }
+                },
+                "name": "a",
+                "location": {
+                  "filename": "file:///mod.ts",
+                  "line": 9,
+                  "col": 4,
+                  "byteIndex": 276
+                }
+              },
+              {
+                "tsType": {
+                  "kind": "fnOrConstructor",
+                  "value": {
+                    "constructor": false,
+                    "tsType": {
+                      "repr": "void",
+                      "kind": "keyword",
+                      "value": "void"
+                    },
+                    "params": [
+                      {
+                        "kind": "identifier",
+                        "name": "a",
+                        "optional": false,
+                        "tsType": {
+                          "repr": "string",
+                          "kind": "keyword",
+                          "value": "string"
+                        }
+                      }
+                    ]
+                  }
+                },
+                "name": "fn",
+                "location": {
+                  "filename": "file:///mod.ts",
+                  "line": 10,
+                  "col": 4,
+                  "byteIndex": 296
+                }
+              }
+            ],
+            "indexSignatures": [
+              {
+                "jsDoc": {
+                  "doc": "Test"
+                },
+                "params": [
+                  {
+                    "kind": "identifier",
+                    "name": "prop",
+                    "optional": false,
+                    "tsType": {
+                      "repr": "string",
+                      "kind": "keyword",
+                      "value": "string"
+                    }
+                  }
+                ],
+                "tsType": {
+                  "repr": "number",
+                  "kind": "keyword",
+                  "value": "number"
+                },
+                "location": {
+                  "filename": "file:///mod.ts",
+                  "line": 13,
+                  "col": 4,
+                  "byteIndex": 347
+                }
+              }
+            ],
+            "methods": [
+              {
+                "jsDoc": {
+                  "doc": "Async foo method"
+                },
+                "name": "foo",
+                "kind": "method",
+                "functionDef": {
+                  "params": [],
+                  "returnType": {
+                    "repr": "Promise",
+                    "kind": "typeRef",
+                    "value": {
+                      "typeParams": [
+                        {
+                          "repr": "void",
+                          "kind": "keyword",
+                          "value": "void"
+                        }
+                      ],
+                      "typeName": "Promise"
+                    }
+                  },
+                  "hasBody": true,
+                  "isAsync": true
+                },
+                "location": {
+                  "filename": "file:///mod.ts",
+                  "line": 21,
+                  "col": 4,
+                  "byteIndex": 571
+                }
+              },
+              {
+                "jsDoc": {
+                  "doc": "Sync bar method"
+                },
+                "optional": true,
+                "name": "bar",
+                "kind": "method",
+                "functionDef": {
+                  "params": [],
+                  "returnType": {
+                    "repr": "void",
+                    "kind": "keyword",
+                    "value": "void"
+                  },
+                  "hasBody": true
+                },
+                "location": {
+                  "filename": "file:///mod.ts",
+                  "line": 26,
+                  "col": 4,
+                  "byteIndex": 649
+                }
+              },
+              {
+                "isOverride": true,
+                "name": "s",
+                "kind": "method",
+                "functionDef": {
+                  "params": [],
+                  "returnType": {
+                    "repr": "void",
+                    "kind": "keyword",
+                    "value": "void"
+                  },
+                  "hasBody": true
+                },
+                "location": {
+                  "filename": "file:///mod.ts",
+                  "line": 30,
+                  "col": 4,
+                  "byteIndex": 686
+                }
+              }
+            ],
+            "extends": "Fizz",
+            "implements": [
+              {
+                "repr": "Buzz",
+                "kind": "typeRef",
+                "value": {
+                  "typeName": "Buzz"
+                }
+              },
+              {
+                "repr": "Aldrin",
+                "kind": "typeRef",
+                "value": {
+                  "typeName": "Aldrin"
+                }
+              }
+            ]
           }
         }
-      ],
-      "extends": "Fizz",
-      "implements": [
-        {
-          "repr": "Buzz",
-          "kind": "typeRef",
-          "typeRef": {
-            "typeParams": null,
-            "typeName": "Buzz"
-          }
-        },
-        {
-          "repr": "Aldrin",
-          "kind": "typeRef",
-          "typeRef": {
-            "typeParams": null,
-            "typeName": "Aldrin"
-          }
-        }
-      ],
-      "typeParams": [],
-      "superTypeParams": []
+      ]
     }
-  }
-]
+  ]
+}

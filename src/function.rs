@@ -21,11 +21,15 @@ pub struct FunctionDef {
   /// set when the function is a default export and has a name in its declaration
   pub def_name: Option<String>,
   pub params: Vec<ParamDef>,
+  #[serde(skip_serializing_if = "Option::is_none", default)]
   pub return_type: Option<TsTypeDef>,
   #[serde(skip_serializing_if = "is_false", default)]
   pub has_body: bool,
+  #[serde(skip_serializing_if = "is_false", default)]
   pub is_async: bool,
+  #[serde(skip_serializing_if = "is_false", default)]
   pub is_generator: bool,
+  #[serde(skip_serializing_if = "<[_]>::is_empty", default)]
   pub type_params: Box<[TsTypeParamDef]>,
   #[serde(skip_serializing_if = "<[_]>::is_empty", default)]
   pub decorators: Box<[DecoratorDef]>,
@@ -56,12 +60,13 @@ pub fn function_to_function_def(
       if function.is_async {
         Some(TsTypeDef {
           repr: "Promise".to_string(),
-          kind: Some(crate::ts_type::TsTypeDefKind::TypeRef),
-          type_ref: Some(crate::ts_type::TsTypeRefDef {
-            type_params: Some(Box::new([TsTypeDef::keyword("void")])),
-            type_name: "Promise".to_string(),
-          }),
-          ..Default::default()
+          kind: crate::ts_type::TsTypeDefKind::TypeRef(
+            crate::ts_type::TsTypeRefDef {
+              type_params: Some(Box::new([TsTypeDef::keyword("void")])),
+              type_name: "Promise".to_string(),
+              resolution: None,
+            },
+          ),
         })
       } else {
         Some(TsTypeDef::keyword("void"))
@@ -126,10 +131,8 @@ pub fn arrow_to_function_def(
 pub fn get_doc_for_fn_decl(
   module_info: &EsModuleInfo,
   fn_decl: &deno_ast::swc::ast::FnDecl,
-) -> (String, FunctionDef) {
-  let name = fn_decl.ident.sym.to_string();
-  let fn_def = function_to_function_def(module_info, &fn_decl.function, None);
-  (name, fn_def)
+) -> FunctionDef {
+  function_to_function_def(module_info, &fn_decl.function, None)
 }
 
 fn get_return_stmt_with_arg_from_function(

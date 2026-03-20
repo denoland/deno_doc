@@ -1,8 +1,9 @@
 use crate::html::DiffStatus;
 use crate::html::DocNodeWithContext;
 use crate::html::RenderContext;
-use crate::html::diff::is_symbol_added;
-use crate::html::diff::is_symbol_removed;
+use crate::html::UrlResolveKind;
+use crate::html::diff::is_decl_added;
+use crate::html::diff::is_decl_removed;
 use crate::html::jsdoc::ModuleDocCtx;
 use crate::html::types::render_type_def;
 use crate::html::usage::UsagesCtx;
@@ -10,9 +11,9 @@ use crate::html::util::AnchorCtx;
 use crate::html::util::SectionContentCtx;
 use crate::html::util::SectionCtx;
 use crate::html::util::Tag;
-use crate::html::{DocNodeKind, UrlResolveKind};
 use crate::js_doc::JsDocTag;
-use crate::node::DocNodeDef;
+use crate::ts_type::TsTypeDefKind;
+use crate::{Declaration, DeclarationDef};
 use indexmap::IndexMap;
 use serde::Deserialize;
 use serde::Serialize;
@@ -51,36 +52,27 @@ pub struct SymbolGroupCtx {
 impl SymbolGroupCtx {
   pub const TEMPLATE: &'static str = "symbol_group";
 
-  pub fn new(
-    ctx: &RenderContext,
-    doc_nodes: &[DocNodeWithContext],
-    name: &str,
-  ) -> Self {
-    let mut split_nodes =
-      IndexMap::<DocNodeKind, Vec<DocNodeWithContext>>::default();
+  pub fn new(ctx: &RenderContext, symbol: &DocNodeWithContext) -> Self {
+    let mut declarations =
+      IndexMap::<crate::node::DocNodeKind, Vec<&Declaration>>::default();
 
-    for doc_node in doc_nodes {
-      if matches!(doc_node.def, DocNodeDef::Import { .. }) {
-        continue;
-      }
-
-      split_nodes
-        .entry(doc_node.kind)
+    for decl in &symbol.declarations {
+      declarations
+        .entry(decl.def.to_kind())
         .or_insert(vec![])
-        .push(doc_node.clone());
+        .push(decl);
     }
 
-    split_nodes.sort_keys();
+    declarations.sort_keys();
 
-    let mut symbols = split_nodes
-      .values()
-      .map(|doc_nodes| {
-        let all_deprecated =
-          super::util::all_deprecated(&doc_nodes.iter().collect::<Vec<_>>());
+    let mut symbols = declarations
+      .iter()
+      .map(|(kind, decls)| {
+        let all_deprecated = super::util::all_deprecated(decls.as_slice());
 
         let mut tags = indexmap::IndexSet::new();
 
-        if doc_nodes.iter().any(|node| {
+        if decls.iter().any(|node| {
           node
             .js_doc
             .tags
@@ -90,7 +82,7 @@ impl SymbolGroupCtx {
           tags.insert(Tag::Unstable);
         }
 
-        let mut permissions = doc_nodes
+        let mut permissions = decls
           .iter()
           .flat_map(|node| {
             node
@@ -119,15 +111,15 @@ impl SymbolGroupCtx {
           tags.insert(Tag::Permissions(permissions.into_iter().collect()));
         }
 
-        if doc_nodes[0].is_internal(ctx.ctx) {
+        if symbol.is_internal(ctx.ctx) {
           tags.insert(Tag::Private);
         }
 
         let deprecated = if all_deprecated
-          && !(matches!(doc_nodes[0].def, DocNodeDef::Function { .. })
-            && doc_nodes.len() == 1)
+          && !(matches!(decls[0].def, DeclarationDef::Function(..))
+            && decls.len() == 1)
         {
-          doc_nodes[0].js_doc.tags.iter().find_map(|tag| {
+          decls[0].js_doc.tags.iter().find_map(|tag| {
             if let JsDocTag::Deprecated { doc } = tag {
               Some(
                 doc
@@ -149,29 +141,21 @@ impl SymbolGroupCtx {
           ctx.ctx.file_mode,
           super::FileMode::SingleDts | super::FileMode::Dts
         )
-        .then(|| UsagesCtx::new(ctx, doc_nodes))
+        .then(|| UsagesCtx::new(ctx, Some(symbol)))
         .flatten();
 
-        let old_tags = if doc_nodes
-          .iter()
-          .any(|n| matches!(n.diff_status, Some(DiffStatus::Modified)))
-        {
+        let old_tags = if let Some(diff) = ctx.ctx.diff.as_ref().and_then(|d| {
+          d.get_declaration_diff(
+            &symbol.origin.specifier,
+            symbol.get_name(),
+            *kind,
+          )
+        }) {
           let mut old_tags = tags.clone();
-          if let Some(tags_diff) =
-            ctx.ctx.diff.as_ref().and_then(|diff_index| {
-              let info = diff_index.get_node_diff(
-                &doc_nodes[0].origin.specifier,
-                doc_nodes[0].get_name(),
-                doc_nodes[0].def.to_kind(),
-              )?;
-              info
-                .diff
-                .as_ref()?
-                .js_doc_changes
-                .as_ref()?
-                .tags_change
-                .as_ref()
-            })
+          if let Some(tags_diff) = diff
+            .js_doc_changes
+            .as_ref()
+            .and_then(|jsdoc| jsdoc.tags_change.as_ref())
           {
             for added in &tags_diff.added {
               match added {
@@ -218,17 +202,37 @@ impl SymbolGroupCtx {
           None
         };
 
-        let diff_status = compute_combined_diff_status(doc_nodes);
+        let diff_status = if is_decl_added(symbol, *kind, &ctx.ctx.diff) {
+          Some(DiffStatus::Added)
+        } else if is_decl_removed(symbol, *kind, &ctx.ctx.diff) {
+          Some(DiffStatus::Removed)
+        } else if ctx
+          .ctx
+          .diff
+          .as_ref()
+          .and_then(|d| {
+            d.get_declaration_diff(
+              &symbol.origin.specifier,
+              symbol.get_name(),
+              *kind,
+            )
+          })
+          .is_some()
+        {
+          Some(DiffStatus::Modified)
+        } else {
+          symbol.diff_status.clone()
+        };
 
         SymbolCtx {
           tags: super::util::compute_tag_ctx(tags, old_tags),
-          kind: doc_nodes[0].kind.into(),
-          subtitle: DocBlockSubtitleCtx::new(ctx, &doc_nodes[0]),
-          content: SymbolInnerCtx::new(ctx, doc_nodes, name),
-          source_href: ctx
-            .ctx
-            .href_resolver
-            .resolve_source(&doc_nodes[0].location),
+          kind: symbol
+            .drilldown_kind
+            .map(super::util::DocNodeKindCtx::from)
+            .unwrap_or_else(|| super::util::DocNodeKindCtx::from(*kind)),
+          subtitle: DocBlockSubtitleCtx::new(ctx, symbol, decls[0]),
+          content: SymbolInnerCtx::new(ctx, symbol),
+          source_href: ctx.ctx.href_resolver.resolve_source(&decls[0].location),
           deprecated,
           usage,
           diff_status,
@@ -236,7 +240,7 @@ impl SymbolGroupCtx {
       })
       .collect::<Vec<_>>();
 
-    let diff_status = compute_combined_diff_status(doc_nodes);
+    let diff_status = symbol.diff_status.clone();
 
     // Strip per-symbol diff_status when it matches the group status —
     // if the whole group is Added or Removed, annotating each symbol
@@ -250,7 +254,7 @@ impl SymbolGroupCtx {
     }
 
     SymbolGroupCtx {
-      name: name.to_string(),
+      name: symbol.get_qualified_name().to_string(),
       symbols,
       diff_status,
     }
@@ -265,33 +269,6 @@ impl SymbolGroupCtx {
         symbol.tags.retain(|t| t.diff.is_some());
       }
     }
-  }
-}
-
-/// Compute a combined diff_status for a group of nodes with the same name.
-/// If nodes have a mix of Added and Removed (kind change), return Modified.
-pub(crate) fn compute_combined_diff_status(
-  nodes: &[DocNodeWithContext],
-) -> Option<DiffStatus> {
-  let mut has_added = false;
-  let mut has_removed = false;
-  let mut first_status = None;
-
-  for node in nodes {
-    match &node.diff_status {
-      Some(DiffStatus::Added) => has_added = true,
-      Some(DiffStatus::Removed) => has_removed = true,
-      _ => {}
-    }
-    if first_status.is_none() && node.diff_status.is_some() {
-      first_status = node.diff_status.clone();
-    }
-  }
-
-  if has_added && has_removed {
-    Some(DiffStatus::Modified)
-  } else {
-    first_status
   }
 }
 
@@ -335,9 +312,13 @@ impl DocBlockSubtitleCtx {
   pub const TEMPLATE_CLASS: &'static str = "doc_block_subtitle_class";
   pub const TEMPLATE_INTERFACE: &'static str = "doc_block_subtitle_interface";
 
-  fn new(ctx: &RenderContext, doc_node: &DocNodeWithContext) -> Option<Self> {
-    match &doc_node.def {
-      DocNodeDef::Class { class_def } => {
+  fn new(
+    ctx: &RenderContext,
+    symbol: &DocNodeWithContext,
+    decl: &Declaration,
+  ) -> Option<Self> {
+    match &decl.def {
+      DeclarationDef::Class(class_def) => {
         let current_type_params = class_def
           .type_params
           .iter()
@@ -349,9 +330,9 @@ impl DocBlockSubtitleCtx {
         let class_diff = ctx.ctx.diff.as_ref().and_then(|diff_index| {
           diff_index
             .get_def_diff(
-              &doc_node.origin.specifier,
-              doc_node.get_name(),
-              doc_node.def.to_kind(),
+              &symbol.origin.specifier,
+              symbol.get_name(),
+              decl.def.to_kind(),
             )
             .and_then(|d| d.as_class())
         });
@@ -437,13 +418,13 @@ impl DocBlockSubtitleCtx {
           super_type_params_removed,
         })
       }
-      DocNodeDef::Interface { interface_def } => {
+      DeclarationDef::Interface(interface_def) => {
         let iface_diff = ctx.ctx.diff.as_ref().and_then(|diff_index| {
           diff_index
             .get_def_diff(
-              &doc_node.origin.specifier,
-              doc_node.get_name(),
-              doc_node.def.to_kind(),
+              &symbol.origin.specifier,
+              symbol.get_name(),
+              decl.def.to_kind(),
             )
             .and_then(|d| d.as_interface())
         });
@@ -518,59 +499,59 @@ pub enum SymbolInnerCtx {
 }
 
 impl SymbolInnerCtx {
-  fn new(
-    ctx: &RenderContext,
-    doc_nodes: &[DocNodeWithContext],
-    name: &str,
-  ) -> Vec<Self> {
-    let mut content_parts = Vec::with_capacity(doc_nodes.len());
+  fn new(ctx: &RenderContext, symbol: &DocNodeWithContext) -> Vec<Self> {
+    let mut content_parts = Vec::with_capacity(symbol.declarations.len());
     let mut functions = vec![];
 
-    for doc_node in doc_nodes {
+    for decl in &symbol.declarations {
       let mut sections = vec![];
       let mut docs =
-        crate::html::jsdoc::jsdoc_body_to_html(ctx, &doc_node.js_doc, false);
+        crate::html::jsdoc::jsdoc_body_to_html(ctx, &decl.js_doc, false);
 
-      if !matches!(doc_node.def, DocNodeDef::Function { .. })
+      if !matches!(decl.def, DeclarationDef::Function(..))
         && let Some(examples) =
-          crate::html::jsdoc::jsdoc_examples(ctx, &doc_node.js_doc)
+          crate::html::jsdoc::jsdoc_examples(ctx, &decl.js_doc)
       {
         sections.push(examples);
       }
 
-      sections.extend(match doc_node.def {
-        DocNodeDef::Function { .. } => {
-          functions.push(doc_node);
+      sections.extend(match decl.def {
+        DeclarationDef::Function(..) => {
+          functions.push(decl);
           continue;
         }
 
-        DocNodeDef::Variable { .. } => {
-          variable::render_variable(ctx, doc_node, name)
+        DeclarationDef::Variable(..) => {
+          variable::render_variable(ctx, symbol, decl)
         }
-        DocNodeDef::Class { .. } => class::render_class(ctx, doc_node, name),
-        DocNodeDef::Enum { .. } => r#enum::render_enum(ctx, doc_node),
-        DocNodeDef::Interface { .. } => {
-          interface::render_interface(ctx, doc_node, name)
+        DeclarationDef::Class(..) => class::render_class(ctx, symbol, decl),
+        DeclarationDef::Enum(..) => r#enum::render_enum(ctx, symbol, decl),
+        DeclarationDef::Interface(..) => {
+          interface::render_interface(ctx, symbol, decl)
         }
-        DocNodeDef::TypeAlias { .. } => {
-          type_alias::render_type_alias(ctx, doc_node, name)
+        DeclarationDef::TypeAlias(..) => {
+          type_alias::render_type_alias(ctx, symbol, decl)
         }
 
-        DocNodeDef::Namespace { .. } => {
-          let namespace_nodes = doc_node.namespace_children.as_ref().unwrap();
+        DeclarationDef::Namespace(..) => {
+          let namespace_nodes = symbol.namespace_children.as_ref().unwrap();
           let ns_qualifiers = namespace_nodes
             .first()
             .map(|node| node.ns_qualifiers.clone())
-            .unwrap_or_else(|| doc_node.sub_qualifier().into());
+            .unwrap_or_else(|| symbol.sub_qualifier().into());
 
           let partitions = super::partition::partition_nodes_by_kind(
             ctx.ctx,
             namespace_nodes.iter().flat_map(|node| {
-              if let Some(reference_def) = node.reference_def() {
+              if let Some(reference_def) = node
+                .declarations
+                .iter()
+                .find_map(|decl| decl.reference_def())
+              {
                 Box::new(
                   ctx
                     .ctx
-                    .resolve_reference(Some(doc_node), &reference_def.target),
+                    .resolve_reference(Some(symbol), &reference_def.target),
                 )
                   as Box<dyn Iterator<Item = Cow<DocNodeWithContext>>>
               } else {
@@ -599,12 +580,12 @@ impl SymbolInnerCtx {
             },
           ))
         }
-        DocNodeDef::ModuleDoc
-        | DocNodeDef::Import { .. }
-        | DocNodeDef::Reference { .. } => unreachable!(),
+        DeclarationDef::Reference(..) => {
+          unreachable!()
+        }
       });
 
-      let references = doc_node
+      let references = decl
         .js_doc
         .tags
         .iter()
@@ -626,21 +607,19 @@ impl SymbolInnerCtx {
       }
 
       if ctx.ctx.diff_only
-        && !is_symbol_added(doc_node)
-        && !is_symbol_removed(doc_node)
+        && !is_decl_added(symbol, decl.def.to_kind(), &ctx.ctx.diff)
+        && !is_decl_removed(symbol, decl.def.to_kind(), &ctx.ctx.diff)
       {
         crate::html::diff::filter_sections_diff_only(&mut sections, &ctx.toc);
       }
 
       let doc_change = ctx.ctx.diff.as_ref().and_then(|diff_index| {
         diff_index
-          .get_node_diff(
-            &doc_node.origin.specifier,
-            doc_node.get_name(),
-            doc_node.def.to_kind(),
+          .get_declaration_diff(
+            &symbol.origin.specifier,
+            symbol.get_name(),
+            decl.def.to_kind(),
           )?
-          .diff
-          .as_ref()?
           .js_doc_changes
           .as_ref()?
           .doc_change
@@ -648,15 +627,15 @@ impl SymbolInnerCtx {
       });
       if let Some(dc) = doc_change {
         let old_doc = dc.old.as_deref().unwrap_or_default();
-        let new_doc = doc_node.js_doc.doc.as_deref().unwrap_or_default();
+        let new_doc = decl.js_doc.doc.as_deref().unwrap_or_default();
         if let Some(diff_docs) =
           crate::html::jsdoc::render_docs_with_diff(ctx, old_doc, new_doc)
         {
           docs = Some(diff_docs);
         }
       } else if ctx.ctx.diff_only
-        && !is_symbol_added(doc_node)
-        && !is_symbol_removed(doc_node)
+        && !is_decl_added(symbol, decl.def.to_kind(), &ctx.ctx.diff)
+        && !is_decl_removed(symbol, decl.def.to_kind(), &ctx.ctx.diff)
       {
         docs = None;
       }
@@ -670,7 +649,7 @@ impl SymbolInnerCtx {
 
     if !functions.is_empty() {
       content_parts.push(SymbolInnerCtx::Function(function::FunctionCtx::new(
-        ctx, functions,
+        ctx, symbol, functions,
       )));
     }
 
@@ -938,9 +917,9 @@ pub(crate) fn render_type_def_sections(
 ) -> Vec<SectionCtx> {
   let mut sections = vec![];
 
-  if let Some(ts_type_literal) = ts_type.type_literal.as_ref() {
+  if let TsTypeDefKind::TypeLiteral(ts_type_literal) = &ts_type.kind {
     let type_lit_diff = ts_type_change.and_then(|tc| {
-      if let Some(old_lit) = tc.old.type_literal.as_ref() {
+      if let TsTypeDefKind::TypeLiteral(old_lit) = &tc.old.kind {
         crate::diff::InterfaceDiff::diff_type_literal(old_lit, ts_type_literal)
       } else {
         let empty = crate::ts_type::TsTypeLiteralDef::default();
@@ -949,7 +928,7 @@ pub(crate) fn render_type_def_sections(
     });
 
     if let Some(tc) = ts_type_change
-      && tc.old.type_literal.is_none()
+      && !matches!(tc.old.kind, TsTypeDefKind::TypeLiteral(_))
     {
       sections.push(SectionCtx::new(
         ctx,
@@ -1039,8 +1018,8 @@ pub(crate) fn render_type_def_sections(
       )]),
     ));
 
-    if let Some(old_lit) =
-      ts_type_change.and_then(|tc| tc.old.type_literal.as_ref())
+    if let Some(TsTypeDefKind::TypeLiteral(old_lit)) =
+      ts_type_change.map(|tc| &tc.old.kind)
     {
       let empty = crate::ts_type::TsTypeLiteralDef::default();
       let type_lit_diff =

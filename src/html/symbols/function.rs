@@ -1,4 +1,5 @@
 use super::SymbolContentCtx;
+use crate::Declaration;
 use crate::diff::FunctionDiff;
 use crate::function::FunctionDef;
 use crate::html::DiffStatus;
@@ -11,6 +12,7 @@ use crate::html::types::type_params_summary;
 use crate::html::util::*;
 use crate::js_doc::JsDocTag;
 use crate::params::ParamPatternDef;
+use crate::ts_type::TsTypeDef;
 use indexmap::IndexSet;
 use serde::Deserialize;
 use serde::Serialize;
@@ -36,28 +38,29 @@ impl FunctionCtx {
 
   pub(crate) fn new(
     ctx: &RenderContext,
-    doc_nodes: Vec<&DocNodeWithContext>,
+    symbol: &DocNodeWithContext,
+    decls: Vec<&Declaration>,
   ) -> Self {
-    let mut functions_content = Vec::with_capacity(doc_nodes.len());
+    let mut functions_content = Vec::with_capacity(decls.len());
 
-    let overloads_count = doc_nodes
+    let overloads_count = decls
       .iter()
       .enumerate()
-      .filter(|(i, doc_node)| {
-        let function_def = doc_node.function_def().unwrap();
+      .filter(|(i, decl)| {
+        let function_def = decl.function_def().unwrap();
 
         !(function_def.has_body && *i != 0)
       })
       .count();
 
-    for (i, doc_node) in doc_nodes.into_iter().enumerate() {
-      let function_def = doc_node.function_def().unwrap();
+    for (i, decl) in decls.into_iter().enumerate() {
+      let function_def = decl.function_def().unwrap();
 
       if function_def.has_body && i != 0 {
         continue;
       }
 
-      let deprecated = doc_node.js_doc.tags.iter().find_map(|tag| {
+      let deprecated = decl.js_doc.tags.iter().find_map(|tag| {
         if let JsDocTag::Deprecated { doc } = tag {
           Some(
             doc
@@ -72,7 +75,7 @@ impl FunctionCtx {
 
       let overload_id = IdBuilder::new(ctx)
         .kind(IdKind::Function)
-        .name(doc_node.get_name())
+        .name(symbol.get_name())
         .index(i)
         .build();
 
@@ -84,7 +87,7 @@ impl FunctionCtx {
 
       functions_content.push(OverloadRenderCtx {
         anchor: AnchorCtx::new(overload_id.clone()),
-        name: doc_node.get_name().to_string(),
+        name: symbol.get_name().to_string(),
         summary: render_function_summary(
           ctx,
           &function_def.type_params,
@@ -92,7 +95,7 @@ impl FunctionCtx {
           &function_def.return_type,
         ),
         deprecated,
-        content: render_single_function(ctx, doc_node, overload_id),
+        content: render_single_function(ctx, symbol, decl, overload_id),
       });
     }
 
@@ -233,10 +236,11 @@ fn reconstruct_old_params(
 
 fn render_single_function(
   ctx: &RenderContext,
-  doc_node: &DocNodeWithContext,
+  symbol: &DocNodeWithContext,
+  decl: &Declaration,
   overload_id: Id,
 ) -> SymbolContentCtx {
-  let function_def = doc_node.function_def().unwrap();
+  let function_def = decl.function_def().unwrap();
 
   let current_type_params = function_def
     .type_params
@@ -248,23 +252,23 @@ fn render_single_function(
   let direct_func_diff = ctx.ctx.diff.as_ref().and_then(|diff_index| {
     diff_index
       .get_def_diff(
-        &doc_node.origin.specifier,
-        doc_node.get_name(),
-        doc_node.def.to_kind(),
+        &symbol.origin.specifier,
+        symbol.get_name(),
+        decl.def.to_kind(),
       )
       .and_then(|d| d.as_function())
   });
 
   // For drilldown symbols (class/interface methods), look up via parent
   let drilldown_func_diff = if direct_func_diff.is_none() {
-    get_drilldown_function_diff(ctx, doc_node)
+    get_drilldown_function_diff(ctx, symbol)
   } else {
     None
   };
 
   let func_diff = direct_func_diff.or(drilldown_func_diff.as_ref());
 
-  let param_docs = doc_node
+  let param_docs = decl
     .js_doc
     .tags
     .iter()
@@ -352,7 +356,7 @@ fn render_single_function(
         &ts_type,
         tags,
         param_doc,
-        &doc_node.location,
+        &decl.location,
         diff_status,
         old_content,
         None,
@@ -363,24 +367,23 @@ fn render_single_function(
 
   // Inject removed parameters
   if let Some(diff) = func_diff {
-    inject_removed_params(ctx, diff, doc_node, &overload_id, &mut params);
+    inject_removed_params(ctx, diff, decl, &overload_id, &mut params);
   }
 
   let mut sections = vec![];
 
   let mut docs =
-    crate::html::jsdoc::jsdoc_body_to_html(ctx, &doc_node.js_doc, false);
-  if let Some(examples) =
-    crate::html::jsdoc::jsdoc_examples(ctx, &doc_node.js_doc)
+    crate::html::jsdoc::jsdoc_body_to_html(ctx, &decl.js_doc, false);
+  if let Some(examples) = crate::html::jsdoc::jsdoc_examples(ctx, &decl.js_doc)
   {
     sections.push(examples);
   }
 
   if let Some(type_params) = crate::html::types::render_type_params(
     ctx,
-    &doc_node.js_doc,
+    &decl.js_doc,
     &function_def.type_params,
-    &doc_node.location,
+    &decl.location,
     func_diff.and_then(|d| d.type_params_change.as_ref()),
   ) {
     sections.push(type_params);
@@ -401,7 +404,7 @@ fn render_single_function(
       render_function_return_type(
         ctx,
         function_def,
-        doc_node,
+        decl,
         overload_id.clone(),
         func_diff,
       )
@@ -410,27 +413,27 @@ fn render_single_function(
   ));
 
   let throws_tags_diff =
-    get_js_doc_diff(ctx, doc_node).and_then(|jd| jd.tags_change);
+    get_js_doc_diff(ctx, symbol, decl).and_then(|jd| jd.tags_change);
 
-  let mut throws = doc_node
+  let mut throws = decl
     .js_doc
     .tags
     .iter()
     .filter_map(|tag| {
-      if let JsDocTag::Throws { type_ref, doc } = tag
-        && (type_ref.is_some() || doc.is_some())
+      if let JsDocTag::Throws { ts_type, doc, .. } = tag
+        && (ts_type.is_some() || doc.is_some())
       {
-        return Some((type_ref, doc));
+        return Some((ts_type, doc));
       }
 
       None
     })
     .enumerate()
-    .map(|(i, (type_ref, doc))| {
+    .map(|(i, (ts_type, doc))| {
       render_function_throws(
         ctx,
-        doc_node,
-        type_ref,
+        decl,
+        ts_type,
         doc,
         overload_id.clone(),
         i,
@@ -442,8 +445,8 @@ fn render_single_function(
   // Inject removed throws entries
   if let Some(td) = &throws_tags_diff {
     for removed_tag in &td.removed {
-      if let JsDocTag::Throws { type_ref, doc } = removed_tag
-        && (type_ref.is_some() || doc.is_some())
+      if let JsDocTag::Throws { ts_type, doc, .. } = removed_tag
+        && (ts_type.is_some() || doc.is_some())
       {
         let id = IdBuilder::new_with_parent(ctx, &overload_id)
           .kind(IdKind::Throws)
@@ -455,10 +458,13 @@ fn render_single_function(
           id,
           None,
           None,
-          type_ref.as_ref().map(|t| t.as_ref()).unwrap_or_default(),
+          ts_type
+            .as_ref()
+            .map(|t| t.repr.as_str())
+            .unwrap_or_default(),
           IndexSet::new(),
           doc.as_ref().map(|d| d.as_ref()),
-          &doc_node.location,
+          &decl.location,
         ));
       }
     }
@@ -472,7 +478,7 @@ fn render_single_function(
     ));
   }
 
-  let references = doc_node
+  let references = decl
     .js_doc
     .tags
     .iter()
@@ -493,20 +499,21 @@ fn render_single_function(
     ));
   }
 
+  let decl_kind = decl.def.to_kind();
   if ctx.ctx.diff_only
-    && !crate::html::diff::is_symbol_added(doc_node)
-    && !crate::html::diff::is_symbol_removed(doc_node)
+    && !crate::html::diff::is_decl_added(symbol, decl_kind, &ctx.ctx.diff)
+    && !crate::html::diff::is_decl_removed(symbol, decl_kind, &ctx.ctx.diff)
   {
     crate::html::diff::filter_sections_diff_only(&mut sections, &ctx.toc);
   }
 
   // If there's a doc text change, re-render docs with inline diff;
   // otherwise in diff_only mode, hide the unchanged docs.
-  if let Some(diff_docs) = render_overload_docs_with_diff(ctx, doc_node) {
+  if let Some(diff_docs) = render_overload_docs_with_diff(ctx, symbol, decl) {
     docs = Some(diff_docs);
   } else if ctx.ctx.diff_only
-    && !crate::html::diff::is_symbol_added(doc_node)
-    && !crate::html::diff::is_symbol_removed(doc_node)
+    && !crate::html::diff::is_decl_added(symbol, decl_kind, &ctx.ctx.diff)
+    && !crate::html::diff::is_decl_removed(symbol, decl_kind, &ctx.ctx.diff)
   {
     docs = None;
   }
@@ -521,7 +528,7 @@ fn render_single_function(
 fn render_function_return_type(
   render_ctx: &RenderContext,
   def: &FunctionDef,
-  doc_node: &DocNodeWithContext,
+  decl: &Declaration,
   overload_id: Id,
   func_diff: Option<&FunctionDiff>,
 ) -> Option<DocEntryCtx> {
@@ -531,7 +538,7 @@ fn render_function_return_type(
     .kind(IdKind::Return)
     .build();
 
-  let return_type_doc = doc_node.js_doc.tags.iter().find_map(|tag| {
+  let return_type_doc = decl.js_doc.tags.iter().find_map(|tag| {
     if let JsDocTag::Return { doc, .. } = tag {
       doc.as_deref()
     } else {
@@ -560,7 +567,7 @@ fn render_function_return_type(
     &render_type_def(render_ctx, return_type),
     IndexSet::new(),
     return_type_doc,
-    &doc_node.location,
+    &decl.location,
     diff_status,
     old_content,
     None,
@@ -617,7 +624,7 @@ fn get_param_diff_info(
 fn inject_removed_params(
   ctx: &RenderContext,
   func_diff: &FunctionDiff,
-  doc_node: &DocNodeWithContext,
+  decl: &Declaration,
   overload_id: &Id,
   entries: &mut Vec<DocEntryCtx>,
 ) {
@@ -648,7 +655,7 @@ fn inject_removed_params(
       &ts_type,
       Default::default(),
       None,
-      &doc_node.location,
+      &decl.location,
     ));
   }
 }
@@ -656,39 +663,38 @@ fn inject_removed_params(
 #[allow(clippy::too_many_arguments)]
 fn render_function_throws(
   render_ctx: &RenderContext,
-  doc_node: &DocNodeWithContext,
-  type_ref: &Option<Box<str>>,
+  decl: &Declaration,
+  ts_type: &Option<TsTypeDef>,
   doc: &Option<Box<str>>,
   overload_id: Id,
   throws_id: usize,
   diff: &Option<crate::diff::TagsDiff>,
 ) -> DocEntryCtx {
-  let (diff_status, old_content) = if let Some(td) = diff {
-    if let Some(tag_diff) = td.modified.iter().find(|m| {
-      matches!(&m.new, JsDocTag::Throws { type_ref: t, .. } if t == type_ref)
+  let (diff_status, old_content) =
+    if let Some(td) = diff {
+      if let Some(tag_diff) = td.modified.iter().find(|m| {
+      matches!(&m.new, JsDocTag::Throws { ts_type: t, .. } if t == ts_type)
     }) {
       let old = if let JsDocTag::Throws {
-        type_ref: old_type_ref,
+        ts_type: old_ts_type,
         ..
       } = &tag_diff.old
       {
-        old_type_ref
-          .as_ref()
-          .map(|t| t.to_string())
+        old_ts_type.as_ref().map(|t| t.repr.clone())
       } else {
         None
       };
       (Some(DiffStatus::Modified), old)
     } else if td.added.iter().any(|a| {
-      matches!(a, JsDocTag::Throws { type_ref: t, .. } if t == type_ref)
+      matches!(a, JsDocTag::Throws { ts_type: t, .. } if t == ts_type)
     }) {
       (Some(DiffStatus::Added), None)
     } else {
       (None, None)
     }
-  } else {
-    (None, None)
-  };
+    } else {
+      (None, None)
+    };
 
   let id = IdBuilder::new_with_parent(render_ctx, &overload_id)
     .kind(IdKind::Throws)
@@ -700,13 +706,13 @@ fn render_function_throws(
     id,
     None,
     None,
-    type_ref
+    ts_type
       .as_ref()
-      .map(|doc| doc.as_ref())
+      .map(|t| t.repr.as_str())
       .unwrap_or_default(),
     IndexSet::new(),
     doc.as_ref().map(|doc| doc.as_ref()),
-    &doc_node.location,
+    &decl.location,
     diff_status,
     old_content,
     None,
@@ -718,20 +724,22 @@ fn render_function_throws(
 /// from the parent node's diff data.
 fn get_drilldown_function_diff(
   ctx: &RenderContext,
-  doc_node: &DocNodeWithContext,
+  symbol: &DocNodeWithContext,
 ) -> Option<FunctionDiff> {
   let diff_index = ctx.ctx.diff.as_ref()?;
-  let drilldown_name = doc_node.drilldown_name.as_deref()?;
-  let parent = doc_node.parent.as_ref()?;
+  let drilldown_name = symbol.drilldown_name.as_deref()?;
+  let parent = symbol.parent.as_ref()?;
 
-  let def_changes = diff_index.get_def_diff(
-    &parent.origin.specifier,
-    parent.get_name(),
-    parent.def.to_kind(),
-  )?;
+  let def_changes = parent.declarations.iter().find_map(|decl| {
+    diff_index.get_def_diff(
+      &parent.origin.specifier,
+      parent.get_name(),
+      decl.def.to_kind(),
+    )
+  })?;
 
   match def_changes {
-    crate::diff::DocNodeDefDiff::Class(class_diff) => class_diff
+    crate::diff::DeclarationDefDiff::Class(class_diff) => class_diff
       .method_changes
       .as_ref()?
       .modified
@@ -739,7 +747,7 @@ fn get_drilldown_function_diff(
       .find(|m| &*m.name == drilldown_name)?
       .function_diff
       .clone(),
-    crate::diff::DocNodeDefDiff::Interface(iface_diff) => {
+    crate::diff::DeclarationDefDiff::Interface(iface_diff) => {
       let imd = iface_diff
         .method_changes
         .as_ref()?
@@ -763,31 +771,34 @@ fn get_drilldown_function_diff(
 /// Works for both top-level functions and drilldown methods (class/interface).
 fn get_js_doc_diff(
   ctx: &RenderContext,
-  doc_node: &DocNodeWithContext,
+  symbol: &DocNodeWithContext,
+  decl: &Declaration,
 ) -> Option<crate::diff::JsDocDiff> {
   let diff_index = ctx.ctx.diff.as_ref()?;
 
-  if doc_node.drilldown_name.is_none() {
+  if symbol.drilldown_name.is_none() {
     // Top-level function: check node-level js_doc_changes
-    let info = diff_index.get_node_diff(
-      &doc_node.origin.specifier,
-      doc_node.get_name(),
-      doc_node.def.to_kind(),
+    let info = diff_index.get_declaration_diff(
+      &symbol.origin.specifier,
+      symbol.get_name(),
+      decl.def.to_kind(),
     )?;
-    info.diff.as_ref()?.js_doc_changes.clone()
+    info.js_doc_changes.clone()
   } else {
     // Drilldown method: check parent's method diff for js_doc_change
-    let drilldown_name = doc_node.drilldown_name.as_deref()?;
-    let parent = doc_node.parent.as_ref()?;
+    let drilldown_name = symbol.drilldown_name.as_deref()?;
+    let parent = symbol.parent.as_ref()?;
 
-    let def_changes = diff_index.get_def_diff(
-      &parent.origin.specifier,
-      parent.get_name(),
-      parent.def.to_kind(),
-    )?;
+    let def_changes = parent.declarations.iter().find_map(|decl| {
+      diff_index.get_def_diff(
+        &parent.origin.specifier,
+        parent.get_name(),
+        decl.def.to_kind(),
+      )
+    })?;
 
     match def_changes {
-      crate::diff::DocNodeDefDiff::Class(class_diff) => class_diff
+      crate::diff::DeclarationDefDiff::Class(class_diff) => class_diff
         .method_changes
         .as_ref()?
         .modified
@@ -795,7 +806,7 @@ fn get_js_doc_diff(
         .find(|m| &*m.name == drilldown_name)?
         .js_doc_change
         .clone(),
-      crate::diff::DocNodeDefDiff::Interface(iface_diff) => iface_diff
+      crate::diff::DeclarationDefDiff::Interface(iface_diff) => iface_diff
         .method_changes
         .as_ref()?
         .modified
@@ -812,12 +823,13 @@ fn get_js_doc_diff(
 /// diff annotations. Returns `None` if there's no doc change.
 fn render_overload_docs_with_diff(
   ctx: &RenderContext,
-  doc_node: &DocNodeWithContext,
+  symbol: &DocNodeWithContext,
+  decl: &Declaration,
 ) -> Option<String> {
-  let js_doc_diff = get_js_doc_diff(ctx, doc_node)?;
+  let js_doc_diff = get_js_doc_diff(ctx, symbol, decl)?;
 
   let doc_change = js_doc_diff.doc_change.as_ref()?;
   let old_doc = doc_change.old.as_deref().unwrap_or_default();
-  let new_doc = doc_node.js_doc.doc.as_deref().unwrap_or_default();
+  let new_doc = decl.js_doc.doc.as_deref().unwrap_or_default();
   crate::html::jsdoc::render_docs_with_diff(ctx, old_doc, new_doc)
 }

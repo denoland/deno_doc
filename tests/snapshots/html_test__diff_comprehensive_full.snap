@@ -914,13 +914,6 @@ expression: pages
                           "tags": [],
                           "doc_node_kind_ctx": [
                             {
-                              "kind": "Class",
-                              "char": "c",
-                              "title": "Class",
-                              "title_lowercase": "class",
-                              "title_plural": "Classes"
-                            },
-                            {
                               "kind": "Interface",
                               "char": "I",
                               "title": "Interface",
@@ -931,21 +924,9 @@ expression: pages
                           "href": "./././~/Parser.html",
                           "name": "Parser",
                           "ty": null,
-                          "docs": "<div class=\"markdown_summary\"><p>A class-based parser.</p>\n</div>",
+                          "docs": "<div class=\"markdown_summary\"><p>A parser interface (was a class).</p>\n</div>",
                           "deprecated": false,
                           "subitems": [
-                            {
-                              "title": "fromConfig",
-                              "docs": null,
-                              "ty": {
-                                "ty": "(<span><span>config<span>: <span class=\"td-ref\">Config</span></span></span></span>)<span>: <span class=\"td-ref\">Parser</span></span>",
-                                "info": null
-                              },
-                              "href": "./././~/Parser.html#method_fromconfig_0",
-                              "diff_status": {
-                                "kind": "removed"
-                              }
-                            },
                             {
                               "title": "parse",
                               "docs": null,
@@ -953,10 +934,7 @@ expression: pages
                                 "ty": "(<span><span>input<span>: <span class=\"td-kw\">string</span></span></span></span>)<span>: <span class=\"td-ref\">T</span></span>",
                                 "info": null
                               },
-                              "href": "./././~/Parser.html#method_parse_0",
-                              "diff_status": {
-                                "kind": "removed"
-                              }
+                              "href": "./././~/Parser.html#method_parse_0"
                             },
                             {
                               "title": "tryParse",
@@ -965,10 +943,7 @@ expression: pages
                                 "ty": "(<span><span>input<span>: <span class=\"td-kw\">string</span></span></span></span>)<span>: <span><span class=\"td-ref\">T</span><span class=\"td-op\"> | </span><span class=\"td-kw\">null</span></span></span>",
                                 "info": null
                               },
-                              "href": "./././~/Parser.html#method_tryparse_0",
-                              "diff_status": {
-                                "kind": "removed"
-                              }
+                              "href": "./././~/Parser.html#method_tryparse_0"
                             }
                           ],
                           "diff_status": {
@@ -1485,32 +1460,6 @@ expression: pages
                   "title_plural": "Classes"
                 }
               ],
-              "name": "AbstractRenderer",
-              "href": "././~/AbstractRenderer.html"
-            },
-            {
-              "kind": [
-                {
-                  "kind": "Interface",
-                  "char": "I",
-                  "title": "Interface",
-                  "title_lowercase": "interface",
-                  "title_plural": "Interfaces"
-                }
-              ],
-              "name": "AdvancedSerializable",
-              "href": "././~/AdvancedSerializable.html"
-            },
-            {
-              "kind": [
-                {
-                  "kind": "Class",
-                  "char": "c",
-                  "title": "Class",
-                  "title_lowercase": "class",
-                  "title_plural": "Classes"
-                }
-              ],
               "name": "Animal",
               "href": "././~/Animal.html"
             },
@@ -1530,15 +1479,41 @@ expression: pages
             {
               "kind": [
                 {
-                  "kind": "Enum",
-                  "char": "E",
-                  "title": "Enum",
-                  "title_lowercase": "enum",
-                  "title_plural": "Enums"
+                  "kind": "Class",
+                  "char": "c",
+                  "title": "Class",
+                  "title_lowercase": "class",
+                  "title_plural": "Classes"
                 }
               ],
-              "name": "Color",
-              "href": "././~/Color.html"
+              "name": "AbstractRenderer",
+              "href": "././~/AbstractRenderer.html"
+            },
+            {
+              "kind": [
+                {
+                  "kind": "Interface",
+                  "char": "I",
+                  "title": "Interface",
+                  "title_lowercase": "interface",
+                  "title_plural": "Interfaces"
+                }
+              ],
+              "name": "Serializable",
+              "href": "././~/Serializable.html"
+            },
+            {
+              "kind": [
+                {
+                  "kind": "Interface",
+                  "char": "I",
+                  "title": "Interface",
+                  "title_lowercase": "interface",
+                  "title_plural": "Interfaces"
+                }
+              ],
+              "name": "AdvancedSerializable",
+              "href": "././~/AdvancedSerializable.html"
             }
           ],
           "total_symbols": 30,
@@ -4525,70 +4500,6 @@ expression: pages
                         "id": "function_animal_prototype_displayname_0"
                       },
                       "name": "Animal.prototype.displayName",
-                      "summary": "()<span>: <span class=\"td-kw\">string</span></span>",
-                      "deprecated": null,
-                      "content": {
-                        "id": "",
-                        "docs": null,
-                        "sections": [
-                          {
-                            "header": {
-                              "title": "Return Type",
-                              "anchor": {
-                                "id": "return-type"
-                              },
-                              "href": null,
-                              "doc": null
-                            },
-                            "content": {
-                              "kind": "doc_entry",
-                              "content": [
-                                {
-                                  "name_prefix": null,
-                                  "name": null,
-                                  "name_href": null,
-                                  "content": "<span class=\"td-kw\">string</span>",
-                                  "anchor": {
-                                    "id": "function_animal_prototype_displayname_0_return"
-                                  },
-                                  "tags": [],
-                                  "js_doc": null,
-                                  "source_href": null
-                                }
-                              ]
-                            }
-                          }
-                        ]
-                      }
-                    }
-                  ]
-                }
-              }
-            ],
-            "deprecated": null,
-            "source_href": null
-          },
-          {
-            "kind": {
-              "kind": "Method",
-              "char": "m",
-              "title": "Method",
-              "title_lowercase": "method",
-              "title_plural": "Methods"
-            },
-            "usage": null,
-            "tags": [],
-            "subtitle": null,
-            "content": [
-              {
-                "kind": "function",
-                "value": {
-                  "functions": [
-                    {
-                      "anchor": {
-                        "id": "function_animal_prototype_displayname_0-1"
-                      },
-                      "name": "Animal.prototype.displayName",
                       "summary": "(<span><span>value<span>: <span class=\"td-kw\">string</span></span></span></span>)<span>: <span class=\"td-kw\">void</span></span>",
                       "deprecated": null,
                       "content": {
@@ -4613,7 +4524,7 @@ expression: pages
                                   "name_href": null,
                                   "content": "<span>: <span class=\"td-kw\">string</span></span>",
                                   "anchor": {
-                                    "id": "function_animal_prototype_displayname_0-1_parameter_value"
+                                    "id": "function_animal_prototype_displayname_0_parameter_value"
                                   },
                                   "tags": [],
                                   "js_doc": null,
@@ -4626,7 +4537,7 @@ expression: pages
                             "header": {
                               "title": "Return Type",
                               "anchor": {
-                                "id": "return-type-1"
+                                "id": "return-type"
                               },
                               "href": null,
                               "doc": null
@@ -4640,7 +4551,7 @@ expression: pages
                                   "name_href": null,
                                   "content": "<span class=\"td-kw\">void</span>",
                                   "anchor": {
-                                    "id": "function_animal_prototype_displayname_0-1_return"
+                                    "id": "function_animal_prototype_displayname_0_return"
                                   },
                                   "tags": [],
                                   "js_doc": null,
@@ -4711,13 +4622,8 @@ expression: pages
           "composed": false
         },
         "top_symbols": null,
-        "document_navigation_str": "<ul><li><a href=\"#return-type\" title=\"Return Type\">Return Type</a></li><li><a href=\"#parameters\" title=\"Parameters\">Parameters</a></li><li><ul><li><a href=\"#function_animal_prototype_displayname_0-1_parameter_value\" title=\"value\">value</a></li></ul></li><li><a href=\"#return-type-1\" title=\"Return Type\">Return Type</a></li></ul>",
+        "document_navigation_str": "<ul><li><a href=\"#parameters\" title=\"Parameters\">Parameters</a></li><li><ul><li><a href=\"#function_animal_prototype_displayname_0_parameter_value\" title=\"value\">value</a></li></ul></li><li><a href=\"#return-type\" title=\"Return Type\">Return Type</a></li></ul>",
         "document_navigation": [
-          {
-            "level": 1,
-            "content": "Return Type",
-            "anchor": "return-type"
-          },
           {
             "level": 1,
             "content": "Parameters",
@@ -4726,12 +4632,12 @@ expression: pages
           {
             "level": 2,
             "content": "value",
-            "anchor": "function_animal_prototype_displayname_0-1_parameter_value"
+            "anchor": "function_animal_prototype_displayname_0_parameter_value"
           },
           {
             "level": 1,
             "content": "Return Type",
-            "anchor": "return-type-1"
+            "anchor": "return-type"
           }
         ]
       },
@@ -6319,7 +6225,7 @@ expression: pages
           "usages": [
             {
               "name": "",
-              "content": "<div class=\"markdown\"><pre class=\"highlight\"><code class=\"language-typescript\">import { type CompoundType } from &quot;.&quot;;\n</code><button class=\"copyButton\" data-copy=\"import { type CompoundType } from &quot;.&quot;;\n\"><svg\n  class=\"copy\"\n  width=\"15\"\n  height=\"15\"\n  viewBox=\"0 0 15 15\"\n  fill=\"none\"\n  xmlns=\"http://www.w3.org/2000/svg\"\n>\n  <rect x=\"2\" y=\"2\" width=\"7\" height=\"7\" fill=\"none\" />\n  <rect x=\"6\" y=\"6\" width=\"7\" height=\"7\" fill=\"none\" />\n  <path\n    d=\"M1.55566 2.7C1.55566 2.03726 2.09292 1.5 2.75566 1.5H8.75566C9.41841 1.5 9.95566 2.03726 9.95566 2.7V5.1H12.3557C13.0184 5.1 13.5557 5.63726 13.5557 6.3V12.3C13.5557 12.9627 13.0184 13.5 12.3557 13.5H6.35566C5.69292 13.5 5.15566 12.9627 5.15566 12.3V9.9H2.75566C2.09292 9.9 1.55566 9.36274 1.55566 8.7V2.7ZM6.35566 9.9V12.3H12.3557V6.3H9.95566V8.7C9.95566 9.36274 9.41841 9.9 8.75566 9.9H6.35566ZM8.75566 8.7V2.7H2.75566V8.7H8.75566Z\"\n    fill=\"currentColor\"\n  />\n</svg>\n<svg\n  class=\"check\"\n  width=\"15\"\n  height=\"15\"\n  viewBox=\"0 0 24 24\"\n  stroke-width=\"2\"\n  stroke=\"currentColor\"\n  fill=\"none\"\n  stroke-linecap=\"round\"\n  stroke-linejoin=\"round\"\n  xmlns=\"http://www.w3.org/2000/svg\"\n>\n  <path stroke=\"none\" d=\"M0 0h24v24H0z\" fill=\"none\" />\n  <path d=\"M5 12l5 5l10 -10\" />\n</svg>\n</button><code></code></pre>\n</div>",
+              "content": "<div class=\"markdown\"><pre class=\"highlight\"><code class=\"language-typescript\">import { CompoundType } from &quot;.&quot;;\n</code><button class=\"copyButton\" data-copy=\"import { CompoundType } from &quot;.&quot;;\n\"><svg\n  class=\"copy\"\n  width=\"15\"\n  height=\"15\"\n  viewBox=\"0 0 15 15\"\n  fill=\"none\"\n  xmlns=\"http://www.w3.org/2000/svg\"\n>\n  <rect x=\"2\" y=\"2\" width=\"7\" height=\"7\" fill=\"none\" />\n  <rect x=\"6\" y=\"6\" width=\"7\" height=\"7\" fill=\"none\" />\n  <path\n    d=\"M1.55566 2.7C1.55566 2.03726 2.09292 1.5 2.75566 1.5H8.75566C9.41841 1.5 9.95566 2.03726 9.95566 2.7V5.1H12.3557C13.0184 5.1 13.5557 5.63726 13.5557 6.3V12.3C13.5557 12.9627 13.0184 13.5 12.3557 13.5H6.35566C5.69292 13.5 5.15566 12.9627 5.15566 12.3V9.9H2.75566C2.09292 9.9 1.55566 9.36274 1.55566 8.7V2.7ZM6.35566 9.9V12.3H12.3557V6.3H9.95566V8.7C9.95566 9.36274 9.41841 9.9 8.75566 9.9H6.35566ZM8.75566 8.7V2.7H2.75566V8.7H8.75566Z\"\n    fill=\"currentColor\"\n  />\n</svg>\n<svg\n  class=\"check\"\n  width=\"15\"\n  height=\"15\"\n  viewBox=\"0 0 24 24\"\n  stroke-width=\"2\"\n  stroke=\"currentColor\"\n  fill=\"none\"\n  stroke-linecap=\"round\"\n  stroke-linejoin=\"round\"\n  xmlns=\"http://www.w3.org/2000/svg\"\n>\n  <path stroke=\"none\" d=\"M0 0h24v24H0z\" fill=\"none\" />\n  <path d=\"M5 12l5 5l10 -10\" />\n</svg>\n</button><code></code></pre>\n</div>",
               "icon": null,
               "additional_css": ""
             }
@@ -6453,7 +6359,7 @@ expression: pages
           "usages": [
             {
               "name": "",
-              "content": "<div class=\"markdown\"><pre class=\"highlight\"><code class=\"language-typescript\">import { type CompoundType } from &quot;.&quot;;\n</code><button class=\"copyButton\" data-copy=\"import { type CompoundType } from &quot;.&quot;;\n\"><svg\n  class=\"copy\"\n  width=\"15\"\n  height=\"15\"\n  viewBox=\"0 0 15 15\"\n  fill=\"none\"\n  xmlns=\"http://www.w3.org/2000/svg\"\n>\n  <rect x=\"2\" y=\"2\" width=\"7\" height=\"7\" fill=\"none\" />\n  <rect x=\"6\" y=\"6\" width=\"7\" height=\"7\" fill=\"none\" />\n  <path\n    d=\"M1.55566 2.7C1.55566 2.03726 2.09292 1.5 2.75566 1.5H8.75566C9.41841 1.5 9.95566 2.03726 9.95566 2.7V5.1H12.3557C13.0184 5.1 13.5557 5.63726 13.5557 6.3V12.3C13.5557 12.9627 13.0184 13.5 12.3557 13.5H6.35566C5.69292 13.5 5.15566 12.9627 5.15566 12.3V9.9H2.75566C2.09292 9.9 1.55566 9.36274 1.55566 8.7V2.7ZM6.35566 9.9V12.3H12.3557V6.3H9.95566V8.7C9.95566 9.36274 9.41841 9.9 8.75566 9.9H6.35566ZM8.75566 8.7V2.7H2.75566V8.7H8.75566Z\"\n    fill=\"currentColor\"\n  />\n</svg>\n<svg\n  class=\"check\"\n  width=\"15\"\n  height=\"15\"\n  viewBox=\"0 0 24 24\"\n  stroke-width=\"2\"\n  stroke=\"currentColor\"\n  fill=\"none\"\n  stroke-linecap=\"round\"\n  stroke-linejoin=\"round\"\n  xmlns=\"http://www.w3.org/2000/svg\"\n>\n  <path stroke=\"none\" d=\"M0 0h24v24H0z\" fill=\"none\" />\n  <path d=\"M5 12l5 5l10 -10\" />\n</svg>\n</button><code></code></pre>\n</div>",
+              "content": "<div class=\"markdown\"><pre class=\"highlight\"><code class=\"language-typescript\">import { CompoundType } from &quot;.&quot;;\n</code><button class=\"copyButton\" data-copy=\"import { CompoundType } from &quot;.&quot;;\n\"><svg\n  class=\"copy\"\n  width=\"15\"\n  height=\"15\"\n  viewBox=\"0 0 15 15\"\n  fill=\"none\"\n  xmlns=\"http://www.w3.org/2000/svg\"\n>\n  <rect x=\"2\" y=\"2\" width=\"7\" height=\"7\" fill=\"none\" />\n  <rect x=\"6\" y=\"6\" width=\"7\" height=\"7\" fill=\"none\" />\n  <path\n    d=\"M1.55566 2.7C1.55566 2.03726 2.09292 1.5 2.75566 1.5H8.75566C9.41841 1.5 9.95566 2.03726 9.95566 2.7V5.1H12.3557C13.0184 5.1 13.5557 5.63726 13.5557 6.3V12.3C13.5557 12.9627 13.0184 13.5 12.3557 13.5H6.35566C5.69292 13.5 5.15566 12.9627 5.15566 12.3V9.9H2.75566C2.09292 9.9 1.55566 9.36274 1.55566 8.7V2.7ZM6.35566 9.9V12.3H12.3557V6.3H9.95566V8.7C9.95566 9.36274 9.41841 9.9 8.75566 9.9H6.35566ZM8.75566 8.7V2.7H2.75566V8.7H8.75566Z\"\n    fill=\"currentColor\"\n  />\n</svg>\n<svg\n  class=\"check\"\n  width=\"15\"\n  height=\"15\"\n  viewBox=\"0 0 24 24\"\n  stroke-width=\"2\"\n  stroke=\"currentColor\"\n  fill=\"none\"\n  stroke-linecap=\"round\"\n  stroke-linejoin=\"round\"\n  xmlns=\"http://www.w3.org/2000/svg\"\n>\n  <path stroke=\"none\" d=\"M0 0h24v24H0z\" fill=\"none\" />\n  <path d=\"M5 12l5 5l10 -10\" />\n</svg>\n</button><code></code></pre>\n</div>",
               "icon": null,
               "additional_css": ""
             }
@@ -6623,6 +6529,14 @@ expression: pages
                     }
                   ]
                 }
+              },
+              {
+                "kind": "other",
+                "value": {
+                  "id": "",
+                  "docs": null,
+                  "sections": []
+                }
               }
             ],
             "deprecated": null,
@@ -6640,6 +6554,123 @@ expression: pages
             "tags": [],
             "subtitle": null,
             "content": [
+              {
+                "kind": "other",
+                "value": {
+                  "id": "",
+                  "docs": "<div class=\"markdown\"><p>A compound type (interface + const).</p>\n</div>",
+                  "sections": [
+                    {
+                      "header": {
+                        "title": "Properties",
+                        "anchor": {
+                          "id": "properties-1"
+                        },
+                        "href": null,
+                        "doc": null
+                      },
+                      "content": {
+                        "kind": "doc_entry",
+                        "content": [
+                          {
+                            "name_prefix": null,
+                            "name": "id",
+                            "name_href": "../././~/CompoundType.id.html",
+                            "content": "<span>: <span class=\"td-kw\">string</span></span>",
+                            "anchor": {
+                              "id": "property_id-1"
+                            },
+                            "tags": [
+                              {
+                                "kind": "readonly"
+                              }
+                            ],
+                            "js_doc": null,
+                            "source_href": null
+                          },
+                          {
+                            "name_prefix": null,
+                            "name": "name",
+                            "name_href": "../././~/CompoundType.name.html",
+                            "content": "<span>: <span class=\"td-kw\">string</span></span>",
+                            "anchor": {
+                              "id": "property_name-1"
+                            },
+                            "tags": [
+                              {
+                                "kind": "readonly"
+                              }
+                            ],
+                            "js_doc": null,
+                            "source_href": null
+                          },
+                          {
+                            "name_prefix": null,
+                            "name": "description",
+                            "name_href": "../././~/CompoundType.description.html",
+                            "content": "<span>: <span class=\"td-kw\">string</span></span>",
+                            "anchor": {
+                              "id": "property_description-1"
+                            },
+                            "tags": [
+                              {
+                                "kind": "readonly"
+                              }
+                            ],
+                            "js_doc": null,
+                            "source_href": null,
+                            "diff_status": {
+                              "kind": "added"
+                            }
+                          }
+                        ]
+                      }
+                    },
+                    {
+                      "header": {
+                        "title": "Methods",
+                        "anchor": {
+                          "id": "methods-1"
+                        },
+                        "href": null,
+                        "doc": null
+                      },
+                      "content": {
+                        "kind": "doc_entry",
+                        "content": [
+                          {
+                            "name_prefix": null,
+                            "name": "process",
+                            "name_href": "../././~/CompoundType.process.html",
+                            "content": "()<span>: <span class=\"td-kw\">void</span></span>",
+                            "anchor": {
+                              "id": "method_process_0-1"
+                            },
+                            "tags": [],
+                            "js_doc": null,
+                            "source_href": null
+                          },
+                          {
+                            "name_prefix": null,
+                            "name": "validate",
+                            "name_href": "../././~/CompoundType.validate.html",
+                            "content": "()<span>: <span class=\"td-kw\">boolean</span></span>",
+                            "anchor": {
+                              "id": "method_validate_1-1"
+                            },
+                            "tags": [],
+                            "js_doc": null,
+                            "source_href": null,
+                            "diff_status": {
+                              "kind": "added"
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                }
+              },
               {
                 "kind": "other",
                 "value": {
@@ -6696,7 +6727,7 @@ expression: pages
           "composed": false
         },
         "top_symbols": null,
-        "document_navigation_str": "<ul><li><a href=\"#properties\" title=\"Properties\">Properties</a></li><li><ul><li><a href=\"#property_id\" title=\"id\">id</a></li><li><a href=\"#property_name\" title=\"name\">name</a></li><li><a href=\"#property_description\" title=\"description\">description</a></li></ul></li><li><a href=\"#methods\" title=\"Methods\">Methods</a></li><li><ul><li><a href=\"#method_process_0\" title=\"process\">process</a></li><li><a href=\"#method_validate_1\" title=\"validate\">validate</a></li></ul></li></ul>",
+        "document_navigation_str": "<ul><li><a href=\"#properties\" title=\"Properties\">Properties</a></li><li><ul><li><a href=\"#property_id\" title=\"id\">id</a></li><li><a href=\"#property_name\" title=\"name\">name</a></li><li><a href=\"#property_description\" title=\"description\">description</a></li></ul></li><li><a href=\"#methods\" title=\"Methods\">Methods</a></li><li><ul><li><a href=\"#method_process_0\" title=\"process\">process</a></li><li><a href=\"#method_validate_1\" title=\"validate\">validate</a></li></ul></li><li><a href=\"#properties-1\" title=\"Properties\">Properties</a></li><li><ul><li><a href=\"#property_id-1\" title=\"id\">id</a></li><li><a href=\"#property_name-1\" title=\"name\">name</a></li><li><a href=\"#property_description-1\" title=\"description\">description</a></li></ul></li><li><a href=\"#methods-1\" title=\"Methods\">Methods</a></li><li><ul><li><a href=\"#method_process_0-1\" title=\"process\">process</a></li><li><a href=\"#method_validate_1-1\" title=\"validate\">validate</a></li></ul></li></ul>",
         "document_navigation": [
           {
             "level": 1,
@@ -6732,6 +6763,41 @@ expression: pages
             "level": 2,
             "content": "validate",
             "anchor": "method_validate_1"
+          },
+          {
+            "level": 1,
+            "content": "Properties",
+            "anchor": "properties-1"
+          },
+          {
+            "level": 2,
+            "content": "id",
+            "anchor": "property_id-1"
+          },
+          {
+            "level": 2,
+            "content": "name",
+            "anchor": "property_name-1"
+          },
+          {
+            "level": 2,
+            "content": "description",
+            "anchor": "property_description-1"
+          },
+          {
+            "level": 1,
+            "content": "Methods",
+            "anchor": "methods-1"
+          },
+          {
+            "level": 2,
+            "content": "process",
+            "anchor": "method_process_0-1"
+          },
+          {
+            "level": 2,
+            "content": "validate",
+            "anchor": "method_validate_1-1"
           }
         ]
       },
@@ -6852,7 +6918,7 @@ expression: pages
           "usages": [
             {
               "name": "",
-              "content": "<div class=\"markdown\"><pre class=\"highlight\"><code class=\"language-typescript\">import { type CompoundType } from &quot;.&quot;;\n</code><button class=\"copyButton\" data-copy=\"import { type CompoundType } from &quot;.&quot;;\n\"><svg\n  class=\"copy\"\n  width=\"15\"\n  height=\"15\"\n  viewBox=\"0 0 15 15\"\n  fill=\"none\"\n  xmlns=\"http://www.w3.org/2000/svg\"\n>\n  <rect x=\"2\" y=\"2\" width=\"7\" height=\"7\" fill=\"none\" />\n  <rect x=\"6\" y=\"6\" width=\"7\" height=\"7\" fill=\"none\" />\n  <path\n    d=\"M1.55566 2.7C1.55566 2.03726 2.09292 1.5 2.75566 1.5H8.75566C9.41841 1.5 9.95566 2.03726 9.95566 2.7V5.1H12.3557C13.0184 5.1 13.5557 5.63726 13.5557 6.3V12.3C13.5557 12.9627 13.0184 13.5 12.3557 13.5H6.35566C5.69292 13.5 5.15566 12.9627 5.15566 12.3V9.9H2.75566C2.09292 9.9 1.55566 9.36274 1.55566 8.7V2.7ZM6.35566 9.9V12.3H12.3557V6.3H9.95566V8.7C9.95566 9.36274 9.41841 9.9 8.75566 9.9H6.35566ZM8.75566 8.7V2.7H2.75566V8.7H8.75566Z\"\n    fill=\"currentColor\"\n  />\n</svg>\n<svg\n  class=\"check\"\n  width=\"15\"\n  height=\"15\"\n  viewBox=\"0 0 24 24\"\n  stroke-width=\"2\"\n  stroke=\"currentColor\"\n  fill=\"none\"\n  stroke-linecap=\"round\"\n  stroke-linejoin=\"round\"\n  xmlns=\"http://www.w3.org/2000/svg\"\n>\n  <path stroke=\"none\" d=\"M0 0h24v24H0z\" fill=\"none\" />\n  <path d=\"M5 12l5 5l10 -10\" />\n</svg>\n</button><code></code></pre>\n</div>",
+              "content": "<div class=\"markdown\"><pre class=\"highlight\"><code class=\"language-typescript\">import { CompoundType } from &quot;.&quot;;\n</code><button class=\"copyButton\" data-copy=\"import { CompoundType } from &quot;.&quot;;\n\"><svg\n  class=\"copy\"\n  width=\"15\"\n  height=\"15\"\n  viewBox=\"0 0 15 15\"\n  fill=\"none\"\n  xmlns=\"http://www.w3.org/2000/svg\"\n>\n  <rect x=\"2\" y=\"2\" width=\"7\" height=\"7\" fill=\"none\" />\n  <rect x=\"6\" y=\"6\" width=\"7\" height=\"7\" fill=\"none\" />\n  <path\n    d=\"M1.55566 2.7C1.55566 2.03726 2.09292 1.5 2.75566 1.5H8.75566C9.41841 1.5 9.95566 2.03726 9.95566 2.7V5.1H12.3557C13.0184 5.1 13.5557 5.63726 13.5557 6.3V12.3C13.5557 12.9627 13.0184 13.5 12.3557 13.5H6.35566C5.69292 13.5 5.15566 12.9627 5.15566 12.3V9.9H2.75566C2.09292 9.9 1.55566 9.36274 1.55566 8.7V2.7ZM6.35566 9.9V12.3H12.3557V6.3H9.95566V8.7C9.95566 9.36274 9.41841 9.9 8.75566 9.9H6.35566ZM8.75566 8.7V2.7H2.75566V8.7H8.75566Z\"\n    fill=\"currentColor\"\n  />\n</svg>\n<svg\n  class=\"check\"\n  width=\"15\"\n  height=\"15\"\n  viewBox=\"0 0 24 24\"\n  stroke-width=\"2\"\n  stroke=\"currentColor\"\n  fill=\"none\"\n  stroke-linecap=\"round\"\n  stroke-linejoin=\"round\"\n  xmlns=\"http://www.w3.org/2000/svg\"\n>\n  <path stroke=\"none\" d=\"M0 0h24v24H0z\" fill=\"none\" />\n  <path d=\"M5 12l5 5l10 -10\" />\n</svg>\n</button><code></code></pre>\n</div>",
               "icon": null,
               "additional_css": ""
             }
@@ -6998,7 +7064,7 @@ expression: pages
           "usages": [
             {
               "name": "",
-              "content": "<div class=\"markdown\"><pre class=\"highlight\"><code class=\"language-typescript\">import { type CompoundType } from &quot;.&quot;;\n</code><button class=\"copyButton\" data-copy=\"import { type CompoundType } from &quot;.&quot;;\n\"><svg\n  class=\"copy\"\n  width=\"15\"\n  height=\"15\"\n  viewBox=\"0 0 15 15\"\n  fill=\"none\"\n  xmlns=\"http://www.w3.org/2000/svg\"\n>\n  <rect x=\"2\" y=\"2\" width=\"7\" height=\"7\" fill=\"none\" />\n  <rect x=\"6\" y=\"6\" width=\"7\" height=\"7\" fill=\"none\" />\n  <path\n    d=\"M1.55566 2.7C1.55566 2.03726 2.09292 1.5 2.75566 1.5H8.75566C9.41841 1.5 9.95566 2.03726 9.95566 2.7V5.1H12.3557C13.0184 5.1 13.5557 5.63726 13.5557 6.3V12.3C13.5557 12.9627 13.0184 13.5 12.3557 13.5H6.35566C5.69292 13.5 5.15566 12.9627 5.15566 12.3V9.9H2.75566C2.09292 9.9 1.55566 9.36274 1.55566 8.7V2.7ZM6.35566 9.9V12.3H12.3557V6.3H9.95566V8.7C9.95566 9.36274 9.41841 9.9 8.75566 9.9H6.35566ZM8.75566 8.7V2.7H2.75566V8.7H8.75566Z\"\n    fill=\"currentColor\"\n  />\n</svg>\n<svg\n  class=\"check\"\n  width=\"15\"\n  height=\"15\"\n  viewBox=\"0 0 24 24\"\n  stroke-width=\"2\"\n  stroke=\"currentColor\"\n  fill=\"none\"\n  stroke-linecap=\"round\"\n  stroke-linejoin=\"round\"\n  xmlns=\"http://www.w3.org/2000/svg\"\n>\n  <path stroke=\"none\" d=\"M0 0h24v24H0z\" fill=\"none\" />\n  <path d=\"M5 12l5 5l10 -10\" />\n</svg>\n</button><code></code></pre>\n</div>",
+              "content": "<div class=\"markdown\"><pre class=\"highlight\"><code class=\"language-typescript\">import { CompoundType } from &quot;.&quot;;\n</code><button class=\"copyButton\" data-copy=\"import { CompoundType } from &quot;.&quot;;\n\"><svg\n  class=\"copy\"\n  width=\"15\"\n  height=\"15\"\n  viewBox=\"0 0 15 15\"\n  fill=\"none\"\n  xmlns=\"http://www.w3.org/2000/svg\"\n>\n  <rect x=\"2\" y=\"2\" width=\"7\" height=\"7\" fill=\"none\" />\n  <rect x=\"6\" y=\"6\" width=\"7\" height=\"7\" fill=\"none\" />\n  <path\n    d=\"M1.55566 2.7C1.55566 2.03726 2.09292 1.5 2.75566 1.5H8.75566C9.41841 1.5 9.95566 2.03726 9.95566 2.7V5.1H12.3557C13.0184 5.1 13.5557 5.63726 13.5557 6.3V12.3C13.5557 12.9627 13.0184 13.5 12.3557 13.5H6.35566C5.69292 13.5 5.15566 12.9627 5.15566 12.3V9.9H2.75566C2.09292 9.9 1.55566 9.36274 1.55566 8.7V2.7ZM6.35566 9.9V12.3H12.3557V6.3H9.95566V8.7C9.95566 9.36274 9.41841 9.9 8.75566 9.9H6.35566ZM8.75566 8.7V2.7H2.75566V8.7H8.75566Z\"\n    fill=\"currentColor\"\n  />\n</svg>\n<svg\n  class=\"check\"\n  width=\"15\"\n  height=\"15\"\n  viewBox=\"0 0 24 24\"\n  stroke-width=\"2\"\n  stroke=\"currentColor\"\n  fill=\"none\"\n  stroke-linecap=\"round\"\n  stroke-linejoin=\"round\"\n  xmlns=\"http://www.w3.org/2000/svg\"\n>\n  <path stroke=\"none\" d=\"M0 0h24v24H0z\" fill=\"none\" />\n  <path d=\"M5 12l5 5l10 -10\" />\n</svg>\n</button><code></code></pre>\n</div>",
               "icon": null,
               "additional_css": ""
             }
@@ -7144,7 +7210,7 @@ expression: pages
           "usages": [
             {
               "name": "",
-              "content": "<div class=\"markdown\"><pre class=\"highlight\"><code class=\"language-typescript\">import { type CompoundType } from &quot;.&quot;;\n</code><button class=\"copyButton\" data-copy=\"import { type CompoundType } from &quot;.&quot;;\n\"><svg\n  class=\"copy\"\n  width=\"15\"\n  height=\"15\"\n  viewBox=\"0 0 15 15\"\n  fill=\"none\"\n  xmlns=\"http://www.w3.org/2000/svg\"\n>\n  <rect x=\"2\" y=\"2\" width=\"7\" height=\"7\" fill=\"none\" />\n  <rect x=\"6\" y=\"6\" width=\"7\" height=\"7\" fill=\"none\" />\n  <path\n    d=\"M1.55566 2.7C1.55566 2.03726 2.09292 1.5 2.75566 1.5H8.75566C9.41841 1.5 9.95566 2.03726 9.95566 2.7V5.1H12.3557C13.0184 5.1 13.5557 5.63726 13.5557 6.3V12.3C13.5557 12.9627 13.0184 13.5 12.3557 13.5H6.35566C5.69292 13.5 5.15566 12.9627 5.15566 12.3V9.9H2.75566C2.09292 9.9 1.55566 9.36274 1.55566 8.7V2.7ZM6.35566 9.9V12.3H12.3557V6.3H9.95566V8.7C9.95566 9.36274 9.41841 9.9 8.75566 9.9H6.35566ZM8.75566 8.7V2.7H2.75566V8.7H8.75566Z\"\n    fill=\"currentColor\"\n  />\n</svg>\n<svg\n  class=\"check\"\n  width=\"15\"\n  height=\"15\"\n  viewBox=\"0 0 24 24\"\n  stroke-width=\"2\"\n  stroke=\"currentColor\"\n  fill=\"none\"\n  stroke-linecap=\"round\"\n  stroke-linejoin=\"round\"\n  xmlns=\"http://www.w3.org/2000/svg\"\n>\n  <path stroke=\"none\" d=\"M0 0h24v24H0z\" fill=\"none\" />\n  <path d=\"M5 12l5 5l10 -10\" />\n</svg>\n</button><code></code></pre>\n</div>",
+              "content": "<div class=\"markdown\"><pre class=\"highlight\"><code class=\"language-typescript\">import { CompoundType } from &quot;.&quot;;\n</code><button class=\"copyButton\" data-copy=\"import { CompoundType } from &quot;.&quot;;\n\"><svg\n  class=\"copy\"\n  width=\"15\"\n  height=\"15\"\n  viewBox=\"0 0 15 15\"\n  fill=\"none\"\n  xmlns=\"http://www.w3.org/2000/svg\"\n>\n  <rect x=\"2\" y=\"2\" width=\"7\" height=\"7\" fill=\"none\" />\n  <rect x=\"6\" y=\"6\" width=\"7\" height=\"7\" fill=\"none\" />\n  <path\n    d=\"M1.55566 2.7C1.55566 2.03726 2.09292 1.5 2.75566 1.5H8.75566C9.41841 1.5 9.95566 2.03726 9.95566 2.7V5.1H12.3557C13.0184 5.1 13.5557 5.63726 13.5557 6.3V12.3C13.5557 12.9627 13.0184 13.5 12.3557 13.5H6.35566C5.69292 13.5 5.15566 12.9627 5.15566 12.3V9.9H2.75566C2.09292 9.9 1.55566 9.36274 1.55566 8.7V2.7ZM6.35566 9.9V12.3H12.3557V6.3H9.95566V8.7C9.95566 9.36274 9.41841 9.9 8.75566 9.9H6.35566ZM8.75566 8.7V2.7H2.75566V8.7H8.75566Z\"\n    fill=\"currentColor\"\n  />\n</svg>\n<svg\n  class=\"check\"\n  width=\"15\"\n  height=\"15\"\n  viewBox=\"0 0 24 24\"\n  stroke-width=\"2\"\n  stroke=\"currentColor\"\n  fill=\"none\"\n  stroke-linecap=\"round\"\n  stroke-linejoin=\"round\"\n  xmlns=\"http://www.w3.org/2000/svg\"\n>\n  <path stroke=\"none\" d=\"M0 0h24v24H0z\" fill=\"none\" />\n  <path d=\"M5 12l5 5l10 -10\" />\n</svg>\n</button><code></code></pre>\n</div>",
               "icon": null,
               "additional_css": ""
             }
@@ -9046,189 +9112,6 @@ expression: pages
     }
   ],
   [
-    "./~/Parser.fromConfig.json",
-    {
-      "kind": "SymbolPageCtx",
-      "html_head_ctx": {
-        "title": "Parser.fromConfig - default - documentation",
-        "current_file": ".",
-        "stylesheet_url": "../styles.css",
-        "page_stylesheet_url": "../page.css",
-        "reset_stylesheet_url": "../reset.css",
-        "url_search_index": "../search_index.js",
-        "script_js": "../script.js",
-        "fuse_js": "../fuse.js",
-        "search_js": "../search.js",
-        "darkmode_toggle_js": "../darkmode_toggle.js",
-        "head_inject": null,
-        "disable_search": false
-      },
-      "symbol_group_ctx": {
-        "name": "Parser.fromConfig",
-        "symbols": [
-          {
-            "kind": {
-              "kind": "Method",
-              "char": "m",
-              "title": "Method",
-              "title_lowercase": "method",
-              "title_plural": "Methods"
-            },
-            "usage": null,
-            "tags": [],
-            "subtitle": null,
-            "content": [
-              {
-                "kind": "function",
-                "value": {
-                  "functions": [
-                    {
-                      "anchor": {
-                        "id": "function_parser_fromconfig_0"
-                      },
-                      "name": "Parser.fromConfig",
-                      "summary": "(<span><span>config<span>: <a href=\"../././~/Config.html\" class=\"link td-ref\">Config</a></span></span></span>)<span>: <a href=\"../././~/Parser.html\" class=\"link td-ref\">Parser</a></span>",
-                      "deprecated": null,
-                      "content": {
-                        "id": "",
-                        "docs": null,
-                        "sections": [
-                          {
-                            "header": {
-                              "title": "Parameters",
-                              "anchor": {
-                                "id": "parameters"
-                              },
-                              "href": null,
-                              "doc": null
-                            },
-                            "content": {
-                              "kind": "doc_entry",
-                              "content": [
-                                {
-                                  "name_prefix": null,
-                                  "name": "config",
-                                  "name_href": null,
-                                  "content": "<span>: <a href=\"../././~/Config.html\" class=\"link td-ref\">Config</a></span>",
-                                  "anchor": {
-                                    "id": "function_parser_fromconfig_0_parameter_config"
-                                  },
-                                  "tags": [],
-                                  "js_doc": null,
-                                  "source_href": null
-                                }
-                              ]
-                            }
-                          },
-                          {
-                            "header": {
-                              "title": "Return Type",
-                              "anchor": {
-                                "id": "return-type"
-                              },
-                              "href": null,
-                              "doc": null
-                            },
-                            "content": {
-                              "kind": "doc_entry",
-                              "content": [
-                                {
-                                  "name_prefix": null,
-                                  "name": null,
-                                  "name_href": null,
-                                  "content": "<a href=\"../././~/Parser.html\" class=\"link td-ref\">Parser</a>",
-                                  "anchor": {
-                                    "id": "function_parser_fromconfig_0_return"
-                                  },
-                                  "tags": [],
-                                  "js_doc": null,
-                                  "source_href": null
-                                }
-                              ]
-                            }
-                          }
-                        ]
-                      }
-                    }
-                  ]
-                }
-              }
-            ],
-            "deprecated": null,
-            "source_href": null
-          }
-        ],
-        "diff_status": {
-          "kind": "removed"
-        }
-      },
-      "breadcrumbs_ctx": {
-        "root": {
-          "name": "index",
-          "href": "../"
-        },
-        "current_entrypoint": {
-          "name": "default",
-          "href": "../"
-        },
-        "entrypoints": [
-          {
-            "name": "all symbols",
-            "href": ".././all_symbols.html"
-          },
-          {
-            "name": "default",
-            "href": "../"
-          }
-        ],
-        "symbol": [
-          {
-            "name": "Parser",
-            "href": "../././~/Parser.html"
-          },
-          {
-            "name": "fromConfig",
-            "href": "../././~/Parser.fromConfig.html"
-          }
-        ]
-      },
-      "toc_ctx": {
-        "usages": {
-          "usages": [
-            {
-              "name": "",
-              "content": "<div class=\"markdown\"><pre class=\"highlight\"><code class=\"language-typescript\">import { Parser } from &quot;.&quot;;\n</code><button class=\"copyButton\" data-copy=\"import { Parser } from &quot;.&quot;;\n\"><svg\n  class=\"copy\"\n  width=\"15\"\n  height=\"15\"\n  viewBox=\"0 0 15 15\"\n  fill=\"none\"\n  xmlns=\"http://www.w3.org/2000/svg\"\n>\n  <rect x=\"2\" y=\"2\" width=\"7\" height=\"7\" fill=\"none\" />\n  <rect x=\"6\" y=\"6\" width=\"7\" height=\"7\" fill=\"none\" />\n  <path\n    d=\"M1.55566 2.7C1.55566 2.03726 2.09292 1.5 2.75566 1.5H8.75566C9.41841 1.5 9.95566 2.03726 9.95566 2.7V5.1H12.3557C13.0184 5.1 13.5557 5.63726 13.5557 6.3V12.3C13.5557 12.9627 13.0184 13.5 12.3557 13.5H6.35566C5.69292 13.5 5.15566 12.9627 5.15566 12.3V9.9H2.75566C2.09292 9.9 1.55566 9.36274 1.55566 8.7V2.7ZM6.35566 9.9V12.3H12.3557V6.3H9.95566V8.7C9.95566 9.36274 9.41841 9.9 8.75566 9.9H6.35566ZM8.75566 8.7V2.7H2.75566V8.7H8.75566Z\"\n    fill=\"currentColor\"\n  />\n</svg>\n<svg\n  class=\"check\"\n  width=\"15\"\n  height=\"15\"\n  viewBox=\"0 0 24 24\"\n  stroke-width=\"2\"\n  stroke=\"currentColor\"\n  fill=\"none\"\n  stroke-linecap=\"round\"\n  stroke-linejoin=\"round\"\n  xmlns=\"http://www.w3.org/2000/svg\"\n>\n  <path stroke=\"none\" d=\"M0 0h24v24H0z\" fill=\"none\" />\n  <path d=\"M5 12l5 5l10 -10\" />\n</svg>\n</button><code></code></pre>\n</div>",
-              "icon": null,
-              "additional_css": ""
-            }
-          ],
-          "composed": false
-        },
-        "top_symbols": null,
-        "document_navigation_str": "<ul><li><a href=\"#parameters\" title=\"Parameters\">Parameters</a></li><li><ul><li><a href=\"#function_parser_fromconfig_0_parameter_config\" title=\"config\">config</a></li></ul></li><li><a href=\"#return-type\" title=\"Return Type\">Return Type</a></li></ul>",
-        "document_navigation": [
-          {
-            "level": 1,
-            "content": "Parameters",
-            "anchor": "parameters"
-          },
-          {
-            "level": 2,
-            "content": "config",
-            "anchor": "function_parser_fromconfig_0_parameter_config"
-          },
-          {
-            "level": 1,
-            "content": "Return Type",
-            "anchor": "return-type"
-          }
-        ]
-      },
-      "disable_search": false,
-      "categories_panel": null
-    }
-  ],
-  [
     "./~/Parser.json",
     {
       "kind": "SymbolPageCtx",
@@ -9251,51 +9134,22 @@ expression: pages
         "symbols": [
           {
             "kind": {
-              "kind": "Class",
-              "char": "c",
-              "title": "Class",
-              "title_lowercase": "class",
-              "title_plural": "Classes"
+              "kind": "Interface",
+              "char": "I",
+              "title": "Interface",
+              "title_lowercase": "interface",
+              "title_plural": "Interfaces"
             },
             "usage": null,
             "tags": [],
-            "subtitle": {
-              "kind": "class",
-              "value": {
-                "implements": null,
-                "extends": null
-              }
-            },
+            "subtitle": null,
             "content": [
               {
                 "kind": "other",
                 "value": {
                   "id": "",
-                  "docs": "<div class=\"markdown\"><p>A class-based parser.</p>\n<p>Parses input strings into structured data. The parser operates\nsynchronously and throws on invalid input.</p>\n<h2 id=\"error-handling\">\nError Handling</h2>\n<p>The parser throws <code>ParseError</code> for malformed input.\nUse <code>tryParse</code> for a non-throwing alternative.</p>\n</div>",
+                  "docs": "<div class=\"markdown\"><p>A parser interface (was a class).</p>\n<p>Defines the contract for parsing input strings into structured data.\nImplementations may operate synchronously or asynchronously.</p>\n<h2 id=\"migration-from-parser-class\">\nMigration from Parser class</h2>\n<p>The <code>Parser</code> class has been replaced with this interface.\nUse <code>createParser()</code> to get a default implementation.</p>\n</div>",
                   "sections": [
-                    {
-                      "header": {
-                        "title": "Examples",
-                        "anchor": {
-                          "id": "examples"
-                        },
-                        "href": null,
-                        "doc": null
-                      },
-                      "content": {
-                        "kind": "example",
-                        "content": [
-                          {
-                            "anchor": {
-                              "id": "example_0"
-                            },
-                            "title": "Example 1",
-                            "markdown_title": "<div class=\"markdown\"><p>Example 1</p>\n</div>",
-                            "markdown_body": "<div class=\"markdown\"><pre class=\"highlight\"><code class=\"language-ts\">const p = new Parser();\np.parse(&quot;input&quot;);\n</code><button class=\"copyButton\" data-copy=\"const p = new Parser();\np.parse(&quot;input&quot;);\n\"><svg\n  class=\"copy\"\n  width=\"15\"\n  height=\"15\"\n  viewBox=\"0 0 15 15\"\n  fill=\"none\"\n  xmlns=\"http://www.w3.org/2000/svg\"\n>\n  <rect x=\"2\" y=\"2\" width=\"7\" height=\"7\" fill=\"none\" />\n  <rect x=\"6\" y=\"6\" width=\"7\" height=\"7\" fill=\"none\" />\n  <path\n    d=\"M1.55566 2.7C1.55566 2.03726 2.09292 1.5 2.75566 1.5H8.75566C9.41841 1.5 9.95566 2.03726 9.95566 2.7V5.1H12.3557C13.0184 5.1 13.5557 5.63726 13.5557 6.3V12.3C13.5557 12.9627 13.0184 13.5 12.3557 13.5H6.35566C5.69292 13.5 5.15566 12.9627 5.15566 12.3V9.9H2.75566C2.09292 9.9 1.55566 9.36274 1.55566 8.7V2.7ZM6.35566 9.9V12.3H12.3557V6.3H9.95566V8.7C9.95566 9.36274 9.41841 9.9 8.75566 9.9H6.35566ZM8.75566 8.7V2.7H2.75566V8.7H8.75566Z\"\n    fill=\"currentColor\"\n  />\n</svg>\n<svg\n  class=\"check\"\n  width=\"15\"\n  height=\"15\"\n  viewBox=\"0 0 24 24\"\n  stroke-width=\"2\"\n  stroke=\"currentColor\"\n  fill=\"none\"\n  stroke-linecap=\"round\"\n  stroke-linejoin=\"round\"\n  xmlns=\"http://www.w3.org/2000/svg\"\n>\n  <path stroke=\"none\" d=\"M0 0h24v24H0z\" fill=\"none\" />\n  <path d=\"M5 12l5 5l10 -10\" />\n</svg>\n</button><code></code></pre>\n</div>"
-                          }
-                        ]
-                      }
-                    },
                     {
                       "header": {
                         "title": "Type Parameters",
@@ -9325,33 +9179,6 @@ expression: pages
                     },
                     {
                       "header": {
-                        "title": "Static Methods",
-                        "anchor": {
-                          "id": "static-methods"
-                        },
-                        "href": null,
-                        "doc": null
-                      },
-                      "content": {
-                        "kind": "doc_entry",
-                        "content": [
-                          {
-                            "name_prefix": null,
-                            "name": "fromConfig",
-                            "name_href": "../././~/Parser.fromConfig.html",
-                            "content": "(<span><span>config<span>: <a href=\"../././~/Config.html\" class=\"link td-ref\">Config</a></span></span></span>)<span>: <a href=\"../././~/Parser.html\" class=\"link td-ref\">Parser</a></span>",
-                            "anchor": {
-                              "id": "method_fromconfig_0"
-                            },
-                            "tags": [],
-                            "js_doc": null,
-                            "source_href": null
-                          }
-                        ]
-                      }
-                    },
-                    {
-                      "header": {
                         "title": "Methods",
                         "anchor": {
                           "id": "methods"
@@ -9365,104 +9192,10 @@ expression: pages
                           {
                             "name_prefix": null,
                             "name": "parse",
-                            "name_href": "../././~/Parser.prototype.parse.html",
-                            "content": "(<span><span>input<span>: <span class=\"td-kw\">string</span></span></span></span>)<span>: <a href=\"#type_param_t\" class=\"link td-ref\">T</a></span>",
-                            "anchor": {
-                              "id": "method_parse_0"
-                            },
-                            "tags": [],
-                            "js_doc": null,
-                            "source_href": null
-                          },
-                          {
-                            "name_prefix": null,
-                            "name": "tryParse",
-                            "name_href": "../././~/Parser.prototype.tryParse.html",
-                            "content": "(<span><span>input<span>: <span class=\"td-kw\">string</span></span></span></span>)<span>: <span><a href=\"#type_param_t\" class=\"link td-ref\">T</a><span class=\"td-op\"> | </span><span class=\"td-kw\">null</span></span></span>",
-                            "anchor": {
-                              "id": "method_tryparse_0"
-                            },
-                            "tags": [],
-                            "js_doc": null,
-                            "source_href": null
-                          }
-                        ]
-                      }
-                    }
-                  ]
-                }
-              }
-            ],
-            "deprecated": null,
-            "source_href": null,
-            "diff_status": {
-              "kind": "removed"
-            }
-          },
-          {
-            "kind": {
-              "kind": "Interface",
-              "char": "I",
-              "title": "Interface",
-              "title_lowercase": "interface",
-              "title_plural": "Interfaces"
-            },
-            "usage": null,
-            "tags": [],
-            "subtitle": null,
-            "content": [
-              {
-                "kind": "other",
-                "value": {
-                  "id": "",
-                  "docs": "<div class=\"markdown\"><p>A parser interface (was a class).</p>\n<p>Defines the contract for parsing input strings into structured data.\nImplementations may operate synchronously or asynchronously.</p>\n<h2 id=\"migration-from-parser-class\">\nMigration from Parser class</h2>\n<p>The <code>Parser</code> class has been replaced with this interface.\nUse <code>createParser()</code> to get a default implementation.</p>\n</div>",
-                  "sections": [
-                    {
-                      "header": {
-                        "title": "Type Parameters",
-                        "anchor": {
-                          "id": "type-parameters-1"
-                        },
-                        "href": null,
-                        "doc": null
-                      },
-                      "content": {
-                        "kind": "doc_entry",
-                        "content": [
-                          {
-                            "name_prefix": null,
-                            "name": "T",
-                            "name_href": null,
-                            "content": "<span><span> = </span><span class=\"td-kw\">string</span></span>",
-                            "anchor": {
-                              "id": "type_param_t-1"
-                            },
-                            "tags": [],
-                            "js_doc": null,
-                            "source_href": null
-                          }
-                        ]
-                      }
-                    },
-                    {
-                      "header": {
-                        "title": "Methods",
-                        "anchor": {
-                          "id": "methods-1"
-                        },
-                        "href": null,
-                        "doc": null
-                      },
-                      "content": {
-                        "kind": "doc_entry",
-                        "content": [
-                          {
-                            "name_prefix": null,
-                            "name": "parse",
                             "name_href": "../././~/Parser.parse.html",
                             "content": "(<span><span>input<span>: <span class=\"td-kw\">string</span></span></span></span>)<span>: <a href=\"#type_param_t\" class=\"link td-ref\">T</a></span>",
                             "anchor": {
-                              "id": "method_parse_0-1"
+                              "id": "method_parse_0"
                             },
                             "tags": [],
                             "js_doc": null,
@@ -9529,7 +9262,7 @@ expression: pages
           "usages": [
             {
               "name": "",
-              "content": "<div class=\"markdown\"><pre class=\"highlight\"><code class=\"language-typescript\">import { Parser } from &quot;.&quot;;\n</code><button class=\"copyButton\" data-copy=\"import { Parser } from &quot;.&quot;;\n\"><svg\n  class=\"copy\"\n  width=\"15\"\n  height=\"15\"\n  viewBox=\"0 0 15 15\"\n  fill=\"none\"\n  xmlns=\"http://www.w3.org/2000/svg\"\n>\n  <rect x=\"2\" y=\"2\" width=\"7\" height=\"7\" fill=\"none\" />\n  <rect x=\"6\" y=\"6\" width=\"7\" height=\"7\" fill=\"none\" />\n  <path\n    d=\"M1.55566 2.7C1.55566 2.03726 2.09292 1.5 2.75566 1.5H8.75566C9.41841 1.5 9.95566 2.03726 9.95566 2.7V5.1H12.3557C13.0184 5.1 13.5557 5.63726 13.5557 6.3V12.3C13.5557 12.9627 13.0184 13.5 12.3557 13.5H6.35566C5.69292 13.5 5.15566 12.9627 5.15566 12.3V9.9H2.75566C2.09292 9.9 1.55566 9.36274 1.55566 8.7V2.7ZM6.35566 9.9V12.3H12.3557V6.3H9.95566V8.7C9.95566 9.36274 9.41841 9.9 8.75566 9.9H6.35566ZM8.75566 8.7V2.7H2.75566V8.7H8.75566Z\"\n    fill=\"currentColor\"\n  />\n</svg>\n<svg\n  class=\"check\"\n  width=\"15\"\n  height=\"15\"\n  viewBox=\"0 0 24 24\"\n  stroke-width=\"2\"\n  stroke=\"currentColor\"\n  fill=\"none\"\n  stroke-linecap=\"round\"\n  stroke-linejoin=\"round\"\n  xmlns=\"http://www.w3.org/2000/svg\"\n>\n  <path stroke=\"none\" d=\"M0 0h24v24H0z\" fill=\"none\" />\n  <path d=\"M5 12l5 5l10 -10\" />\n</svg>\n</button><code></code></pre>\n</div>",
+              "content": "<div class=\"markdown\"><pre class=\"highlight\"><code class=\"language-typescript\">import { type Parser } from &quot;.&quot;;\n</code><button class=\"copyButton\" data-copy=\"import { type Parser } from &quot;.&quot;;\n\"><svg\n  class=\"copy\"\n  width=\"15\"\n  height=\"15\"\n  viewBox=\"0 0 15 15\"\n  fill=\"none\"\n  xmlns=\"http://www.w3.org/2000/svg\"\n>\n  <rect x=\"2\" y=\"2\" width=\"7\" height=\"7\" fill=\"none\" />\n  <rect x=\"6\" y=\"6\" width=\"7\" height=\"7\" fill=\"none\" />\n  <path\n    d=\"M1.55566 2.7C1.55566 2.03726 2.09292 1.5 2.75566 1.5H8.75566C9.41841 1.5 9.95566 2.03726 9.95566 2.7V5.1H12.3557C13.0184 5.1 13.5557 5.63726 13.5557 6.3V12.3C13.5557 12.9627 13.0184 13.5 12.3557 13.5H6.35566C5.69292 13.5 5.15566 12.9627 5.15566 12.3V9.9H2.75566C2.09292 9.9 1.55566 9.36274 1.55566 8.7V2.7ZM6.35566 9.9V12.3H12.3557V6.3H9.95566V8.7C9.95566 9.36274 9.41841 9.9 8.75566 9.9H6.35566ZM8.75566 8.7V2.7H2.75566V8.7H8.75566Z\"\n    fill=\"currentColor\"\n  />\n</svg>\n<svg\n  class=\"check\"\n  width=\"15\"\n  height=\"15\"\n  viewBox=\"0 0 24 24\"\n  stroke-width=\"2\"\n  stroke=\"currentColor\"\n  fill=\"none\"\n  stroke-linecap=\"round\"\n  stroke-linejoin=\"round\"\n  xmlns=\"http://www.w3.org/2000/svg\"\n>\n  <path stroke=\"none\" d=\"M0 0h24v24H0z\" fill=\"none\" />\n  <path d=\"M5 12l5 5l10 -10\" />\n</svg>\n</button><code></code></pre>\n</div>",
               "icon": null,
               "additional_css": ""
             }
@@ -9537,22 +9270,12 @@ expression: pages
           "composed": false
         },
         "top_symbols": null,
-        "document_navigation_str": "<ul><li><ul><li><a href=\"#error-handling\" title=\"Error Handling\">Error Handling</a></li></ul></li><li><a href=\"#examples\" title=\"Examples\">Examples</a></li><li><ul><li><a href=\"#example_0\" title=\"Example 1\">Example 1</a></li></ul></li><li><a href=\"#type-parameters\" title=\"Type Parameters\">Type Parameters</a></li><li><ul><li><a href=\"#type_param_t\" title=\"T\">T</a></li></ul></li><li><a href=\"#static-methods\" title=\"Static Methods\">Static Methods</a></li><li><ul><li><a href=\"#method_fromconfig_0\" title=\"fromConfig\">fromConfig</a></li></ul></li><li><a href=\"#methods\" title=\"Methods\">Methods</a></li><li><ul><li><a href=\"#method_parse_0\" title=\"parse\">parse</a></li><li><a href=\"#method_tryparse_0\" title=\"tryParse\">tryParse</a></li><li><ul><li><a href=\"#migration-from-parser-class\" title=\"Migration from Parser class\">Migration from Parser class</a></li></ul></li><li><a href=\"#type-parameters-1\" title=\"Type Parameters\">Type Parameters</a></li><li><ul><li><a href=\"#type_param_t-1\" title=\"T\">T</a></li></ul></li><li><a href=\"#methods-1\" title=\"Methods\">Methods</a></li><li><ul><li><a href=\"#method_parse_0-1\" title=\"parse\">parse</a></li><li><a href=\"#method_tryparse_1\" title=\"tryParse\">tryParse</a></li></ul></li></ul></li></ul>",
+        "document_navigation_str": "<ul><li><ul><li><a href=\"#migration-from-parser-class\" title=\"Migration from Parser class\">Migration from Parser class</a></li></ul></li><li><a href=\"#type-parameters\" title=\"Type Parameters\">Type Parameters</a></li><li><ul><li><a href=\"#type_param_t\" title=\"T\">T</a></li></ul></li><li><a href=\"#methods\" title=\"Methods\">Methods</a></li><li><ul><li><a href=\"#method_parse_0\" title=\"parse\">parse</a></li><li><a href=\"#method_tryparse_1\" title=\"tryParse\">tryParse</a></li></ul></li></ul>",
         "document_navigation": [
           {
             "level": 2,
-            "content": "Error Handling",
-            "anchor": "error-handling"
-          },
-          {
-            "level": 1,
-            "content": "Examples",
-            "anchor": "examples"
-          },
-          {
-            "level": 2,
-            "content": "Example 1",
-            "anchor": "example_0"
+            "content": "Migration from Parser class",
+            "anchor": "migration-from-parser-class"
           },
           {
             "level": 1,
@@ -9566,16 +9289,6 @@ expression: pages
           },
           {
             "level": 1,
-            "content": "Static Methods",
-            "anchor": "static-methods"
-          },
-          {
-            "level": 2,
-            "content": "fromConfig",
-            "anchor": "method_fromconfig_0"
-          },
-          {
-            "level": 1,
             "content": "Methods",
             "anchor": "methods"
           },
@@ -9583,36 +9296,6 @@ expression: pages
             "level": 2,
             "content": "parse",
             "anchor": "method_parse_0"
-          },
-          {
-            "level": 2,
-            "content": "tryParse",
-            "anchor": "method_tryparse_0"
-          },
-          {
-            "level": 4,
-            "content": "Migration from Parser class",
-            "anchor": "migration-from-parser-class"
-          },
-          {
-            "level": 1,
-            "content": "Type Parameters",
-            "anchor": "type-parameters-1"
-          },
-          {
-            "level": 2,
-            "content": "T",
-            "anchor": "type_param_t-1"
-          },
-          {
-            "level": 1,
-            "content": "Methods",
-            "anchor": "methods-1"
-          },
-          {
-            "level": 2,
-            "content": "parse",
-            "anchor": "method_parse_0-1"
           },
           {
             "level": 2,
@@ -9739,7 +9422,7 @@ expression: pages
           }
         ],
         "diff_status": {
-          "kind": "added"
+          "kind": "modified"
         }
       },
       "breadcrumbs_ctx": {
@@ -9796,386 +9479,6 @@ expression: pages
             "level": 2,
             "content": "input",
             "anchor": "function_parser_parse_0_parameter_input"
-          },
-          {
-            "level": 1,
-            "content": "Return Type",
-            "anchor": "return-type"
-          }
-        ]
-      },
-      "disable_search": false,
-      "categories_panel": null
-    }
-  ],
-  [
-    "./~/Parser.prototype.json",
-    {
-      "path": "../././~/Parser.html"
-    }
-  ],
-  [
-    "./~/Parser.prototype.parse.json",
-    {
-      "kind": "SymbolPageCtx",
-      "html_head_ctx": {
-        "title": "Parser.prototype.parse - default - documentation",
-        "current_file": ".",
-        "stylesheet_url": "../styles.css",
-        "page_stylesheet_url": "../page.css",
-        "reset_stylesheet_url": "../reset.css",
-        "url_search_index": "../search_index.js",
-        "script_js": "../script.js",
-        "fuse_js": "../fuse.js",
-        "search_js": "../search.js",
-        "darkmode_toggle_js": "../darkmode_toggle.js",
-        "head_inject": null,
-        "disable_search": false
-      },
-      "symbol_group_ctx": {
-        "name": "Parser.prototype.parse",
-        "symbols": [
-          {
-            "kind": {
-              "kind": "Method",
-              "char": "m",
-              "title": "Method",
-              "title_lowercase": "method",
-              "title_plural": "Methods"
-            },
-            "usage": null,
-            "tags": [],
-            "subtitle": null,
-            "content": [
-              {
-                "kind": "function",
-                "value": {
-                  "functions": [
-                    {
-                      "anchor": {
-                        "id": "function_parser_prototype_parse_0"
-                      },
-                      "name": "Parser.prototype.parse",
-                      "summary": "(<span><span>input<span>: <span class=\"td-kw\">string</span></span></span></span>)<span>: <span class=\"td-ref\">T</span></span>",
-                      "deprecated": null,
-                      "content": {
-                        "id": "",
-                        "docs": null,
-                        "sections": [
-                          {
-                            "header": {
-                              "title": "Parameters",
-                              "anchor": {
-                                "id": "parameters"
-                              },
-                              "href": null,
-                              "doc": null
-                            },
-                            "content": {
-                              "kind": "doc_entry",
-                              "content": [
-                                {
-                                  "name_prefix": null,
-                                  "name": "input",
-                                  "name_href": null,
-                                  "content": "<span>: <span class=\"td-kw\">string</span></span>",
-                                  "anchor": {
-                                    "id": "function_parser_prototype_parse_0_parameter_input"
-                                  },
-                                  "tags": [],
-                                  "js_doc": null,
-                                  "source_href": null
-                                }
-                              ]
-                            }
-                          },
-                          {
-                            "header": {
-                              "title": "Return Type",
-                              "anchor": {
-                                "id": "return-type"
-                              },
-                              "href": null,
-                              "doc": null
-                            },
-                            "content": {
-                              "kind": "doc_entry",
-                              "content": [
-                                {
-                                  "name_prefix": null,
-                                  "name": null,
-                                  "name_href": null,
-                                  "content": "<span class=\"td-ref\">T</span>",
-                                  "anchor": {
-                                    "id": "function_parser_prototype_parse_0_return"
-                                  },
-                                  "tags": [],
-                                  "js_doc": null,
-                                  "source_href": null
-                                }
-                              ]
-                            }
-                          }
-                        ]
-                      }
-                    }
-                  ]
-                }
-              }
-            ],
-            "deprecated": null,
-            "source_href": null
-          }
-        ],
-        "diff_status": {
-          "kind": "removed"
-        }
-      },
-      "breadcrumbs_ctx": {
-        "root": {
-          "name": "index",
-          "href": "../"
-        },
-        "current_entrypoint": {
-          "name": "default",
-          "href": "../"
-        },
-        "entrypoints": [
-          {
-            "name": "all symbols",
-            "href": ".././all_symbols.html"
-          },
-          {
-            "name": "default",
-            "href": "../"
-          }
-        ],
-        "symbol": [
-          {
-            "name": "Parser",
-            "href": "../././~/Parser.html"
-          },
-          {
-            "name": "prototype",
-            "href": "../././~/Parser.prototype.html"
-          },
-          {
-            "name": "parse",
-            "href": "../././~/Parser.prototype.parse.html"
-          }
-        ]
-      },
-      "toc_ctx": {
-        "usages": {
-          "usages": [
-            {
-              "name": "",
-              "content": "<div class=\"markdown\"><pre class=\"highlight\"><code class=\"language-typescript\">import { Parser } from &quot;.&quot;;\n</code><button class=\"copyButton\" data-copy=\"import { Parser } from &quot;.&quot;;\n\"><svg\n  class=\"copy\"\n  width=\"15\"\n  height=\"15\"\n  viewBox=\"0 0 15 15\"\n  fill=\"none\"\n  xmlns=\"http://www.w3.org/2000/svg\"\n>\n  <rect x=\"2\" y=\"2\" width=\"7\" height=\"7\" fill=\"none\" />\n  <rect x=\"6\" y=\"6\" width=\"7\" height=\"7\" fill=\"none\" />\n  <path\n    d=\"M1.55566 2.7C1.55566 2.03726 2.09292 1.5 2.75566 1.5H8.75566C9.41841 1.5 9.95566 2.03726 9.95566 2.7V5.1H12.3557C13.0184 5.1 13.5557 5.63726 13.5557 6.3V12.3C13.5557 12.9627 13.0184 13.5 12.3557 13.5H6.35566C5.69292 13.5 5.15566 12.9627 5.15566 12.3V9.9H2.75566C2.09292 9.9 1.55566 9.36274 1.55566 8.7V2.7ZM6.35566 9.9V12.3H12.3557V6.3H9.95566V8.7C9.95566 9.36274 9.41841 9.9 8.75566 9.9H6.35566ZM8.75566 8.7V2.7H2.75566V8.7H8.75566Z\"\n    fill=\"currentColor\"\n  />\n</svg>\n<svg\n  class=\"check\"\n  width=\"15\"\n  height=\"15\"\n  viewBox=\"0 0 24 24\"\n  stroke-width=\"2\"\n  stroke=\"currentColor\"\n  fill=\"none\"\n  stroke-linecap=\"round\"\n  stroke-linejoin=\"round\"\n  xmlns=\"http://www.w3.org/2000/svg\"\n>\n  <path stroke=\"none\" d=\"M0 0h24v24H0z\" fill=\"none\" />\n  <path d=\"M5 12l5 5l10 -10\" />\n</svg>\n</button><code></code></pre>\n</div>",
-              "icon": null,
-              "additional_css": ""
-            }
-          ],
-          "composed": false
-        },
-        "top_symbols": null,
-        "document_navigation_str": "<ul><li><a href=\"#parameters\" title=\"Parameters\">Parameters</a></li><li><ul><li><a href=\"#function_parser_prototype_parse_0_parameter_input\" title=\"input\">input</a></li></ul></li><li><a href=\"#return-type\" title=\"Return Type\">Return Type</a></li></ul>",
-        "document_navigation": [
-          {
-            "level": 1,
-            "content": "Parameters",
-            "anchor": "parameters"
-          },
-          {
-            "level": 2,
-            "content": "input",
-            "anchor": "function_parser_prototype_parse_0_parameter_input"
-          },
-          {
-            "level": 1,
-            "content": "Return Type",
-            "anchor": "return-type"
-          }
-        ]
-      },
-      "disable_search": false,
-      "categories_panel": null
-    }
-  ],
-  [
-    "./~/Parser.prototype.tryParse.json",
-    {
-      "kind": "SymbolPageCtx",
-      "html_head_ctx": {
-        "title": "Parser.prototype.tryParse - default - documentation",
-        "current_file": ".",
-        "stylesheet_url": "../styles.css",
-        "page_stylesheet_url": "../page.css",
-        "reset_stylesheet_url": "../reset.css",
-        "url_search_index": "../search_index.js",
-        "script_js": "../script.js",
-        "fuse_js": "../fuse.js",
-        "search_js": "../search.js",
-        "darkmode_toggle_js": "../darkmode_toggle.js",
-        "head_inject": null,
-        "disable_search": false
-      },
-      "symbol_group_ctx": {
-        "name": "Parser.prototype.tryParse",
-        "symbols": [
-          {
-            "kind": {
-              "kind": "Method",
-              "char": "m",
-              "title": "Method",
-              "title_lowercase": "method",
-              "title_plural": "Methods"
-            },
-            "usage": null,
-            "tags": [],
-            "subtitle": null,
-            "content": [
-              {
-                "kind": "function",
-                "value": {
-                  "functions": [
-                    {
-                      "anchor": {
-                        "id": "function_parser_prototype_tryparse_0"
-                      },
-                      "name": "Parser.prototype.tryParse",
-                      "summary": "(<span><span>input<span>: <span class=\"td-kw\">string</span></span></span></span>)<span>: <span><span class=\"td-ref\">T</span><span class=\"td-op\"> | </span><span class=\"td-kw\">null</span></span></span>",
-                      "deprecated": null,
-                      "content": {
-                        "id": "",
-                        "docs": null,
-                        "sections": [
-                          {
-                            "header": {
-                              "title": "Parameters",
-                              "anchor": {
-                                "id": "parameters"
-                              },
-                              "href": null,
-                              "doc": null
-                            },
-                            "content": {
-                              "kind": "doc_entry",
-                              "content": [
-                                {
-                                  "name_prefix": null,
-                                  "name": "input",
-                                  "name_href": null,
-                                  "content": "<span>: <span class=\"td-kw\">string</span></span>",
-                                  "anchor": {
-                                    "id": "function_parser_prototype_tryparse_0_parameter_input"
-                                  },
-                                  "tags": [],
-                                  "js_doc": null,
-                                  "source_href": null
-                                }
-                              ]
-                            }
-                          },
-                          {
-                            "header": {
-                              "title": "Return Type",
-                              "anchor": {
-                                "id": "return-type"
-                              },
-                              "href": null,
-                              "doc": null
-                            },
-                            "content": {
-                              "kind": "doc_entry",
-                              "content": [
-                                {
-                                  "name_prefix": null,
-                                  "name": null,
-                                  "name_href": null,
-                                  "content": "<span><span class=\"td-ref\">T</span><span class=\"td-op\"> | </span><span class=\"td-kw\">null</span></span>",
-                                  "anchor": {
-                                    "id": "function_parser_prototype_tryparse_0_return"
-                                  },
-                                  "tags": [],
-                                  "js_doc": null,
-                                  "source_href": null
-                                }
-                              ]
-                            }
-                          }
-                        ]
-                      }
-                    }
-                  ]
-                }
-              }
-            ],
-            "deprecated": null,
-            "source_href": null
-          }
-        ],
-        "diff_status": {
-          "kind": "removed"
-        }
-      },
-      "breadcrumbs_ctx": {
-        "root": {
-          "name": "index",
-          "href": "../"
-        },
-        "current_entrypoint": {
-          "name": "default",
-          "href": "../"
-        },
-        "entrypoints": [
-          {
-            "name": "all symbols",
-            "href": ".././all_symbols.html"
-          },
-          {
-            "name": "default",
-            "href": "../"
-          }
-        ],
-        "symbol": [
-          {
-            "name": "Parser",
-            "href": "../././~/Parser.html"
-          },
-          {
-            "name": "prototype",
-            "href": "../././~/Parser.prototype.html"
-          },
-          {
-            "name": "tryParse",
-            "href": "../././~/Parser.prototype.tryParse.html"
-          }
-        ]
-      },
-      "toc_ctx": {
-        "usages": {
-          "usages": [
-            {
-              "name": "",
-              "content": "<div class=\"markdown\"><pre class=\"highlight\"><code class=\"language-typescript\">import { Parser } from &quot;.&quot;;\n</code><button class=\"copyButton\" data-copy=\"import { Parser } from &quot;.&quot;;\n\"><svg\n  class=\"copy\"\n  width=\"15\"\n  height=\"15\"\n  viewBox=\"0 0 15 15\"\n  fill=\"none\"\n  xmlns=\"http://www.w3.org/2000/svg\"\n>\n  <rect x=\"2\" y=\"2\" width=\"7\" height=\"7\" fill=\"none\" />\n  <rect x=\"6\" y=\"6\" width=\"7\" height=\"7\" fill=\"none\" />\n  <path\n    d=\"M1.55566 2.7C1.55566 2.03726 2.09292 1.5 2.75566 1.5H8.75566C9.41841 1.5 9.95566 2.03726 9.95566 2.7V5.1H12.3557C13.0184 5.1 13.5557 5.63726 13.5557 6.3V12.3C13.5557 12.9627 13.0184 13.5 12.3557 13.5H6.35566C5.69292 13.5 5.15566 12.9627 5.15566 12.3V9.9H2.75566C2.09292 9.9 1.55566 9.36274 1.55566 8.7V2.7ZM6.35566 9.9V12.3H12.3557V6.3H9.95566V8.7C9.95566 9.36274 9.41841 9.9 8.75566 9.9H6.35566ZM8.75566 8.7V2.7H2.75566V8.7H8.75566Z\"\n    fill=\"currentColor\"\n  />\n</svg>\n<svg\n  class=\"check\"\n  width=\"15\"\n  height=\"15\"\n  viewBox=\"0 0 24 24\"\n  stroke-width=\"2\"\n  stroke=\"currentColor\"\n  fill=\"none\"\n  stroke-linecap=\"round\"\n  stroke-linejoin=\"round\"\n  xmlns=\"http://www.w3.org/2000/svg\"\n>\n  <path stroke=\"none\" d=\"M0 0h24v24H0z\" fill=\"none\" />\n  <path d=\"M5 12l5 5l10 -10\" />\n</svg>\n</button><code></code></pre>\n</div>",
-              "icon": null,
-              "additional_css": ""
-            }
-          ],
-          "composed": false
-        },
-        "top_symbols": null,
-        "document_navigation_str": "<ul><li><a href=\"#parameters\" title=\"Parameters\">Parameters</a></li><li><ul><li><a href=\"#function_parser_prototype_tryparse_0_parameter_input\" title=\"input\">input</a></li></ul></li><li><a href=\"#return-type\" title=\"Return Type\">Return Type</a></li></ul>",
-        "document_navigation": [
-          {
-            "level": 1,
-            "content": "Parameters",
-            "anchor": "parameters"
-          },
-          {
-            "level": 2,
-            "content": "input",
-            "anchor": "function_parser_prototype_tryparse_0_parameter_input"
           },
           {
             "level": 1,
@@ -10302,7 +9605,7 @@ expression: pages
           }
         ],
         "diff_status": {
-          "kind": "added"
+          "kind": "modified"
         }
       },
       "breadcrumbs_ctx": {
@@ -15820,126 +15123,6 @@ expression: pages
       "kind": "search",
       "nodes": [
         {
-          "id": "namespace_abstractrenderer",
-          "kind": [
-            {
-              "char": "c",
-              "kind": "Class",
-              "title": "Class"
-            }
-          ],
-          "name": "AbstractRenderer",
-          "file": ".",
-          "doc": "Base for renderers. No longer abstract.Provides the foundation for all rendering implementations. Now includes concrete default implementations for all methods.PerformanceThe base class handles buffering and frame timing. The default render implementation uses a software rasterizer.Migration from AbstractRendererIf you were subclassing AbstractRenderer, you can now use this class directly or override specific methods as needed.",
-          "url": "././~/AbstractRenderer.html",
-          "deprecated": false
-        },
-        {
-          "id": "namespace_abstractrenderer",
-          "kind": [
-            {
-              "char": "m",
-              "kind": "Method",
-              "title": "Method"
-            }
-          ],
-          "name": "AbstractRenderer.prototype.render",
-          "file": ".",
-          "doc": "",
-          "url": "././~/AbstractRenderer.prototype.render.html",
-          "deprecated": false
-        },
-        {
-          "id": "namespace_abstractrenderer",
-          "kind": [
-            {
-              "char": "m",
-              "kind": "Method",
-              "title": "Method"
-            }
-          ],
-          "name": "AbstractRenderer.prototype.canvas",
-          "file": ".",
-          "doc": "",
-          "url": "././~/AbstractRenderer.prototype.canvas.html",
-          "deprecated": false
-        },
-        {
-          "id": "namespace_abstractrenderer",
-          "kind": [
-            {
-              "char": "m",
-              "kind": "Method",
-              "title": "Method"
-            }
-          ],
-          "name": "AbstractRenderer.prototype.format",
-          "file": ".",
-          "doc": "",
-          "url": "././~/AbstractRenderer.prototype.format.html",
-          "deprecated": false
-        },
-        {
-          "id": "namespace_advancedserializable",
-          "kind": [
-            {
-              "char": "I",
-              "kind": "Interface",
-              "title": "Interface"
-            }
-          ],
-          "name": "AdvancedSerializable",
-          "file": ".",
-          "doc": "Extended serializable.",
-          "url": "././~/AdvancedSerializable.html",
-          "deprecated": false
-        },
-        {
-          "id": "namespace_advancedserializable",
-          "kind": [
-            {
-              "char": "m",
-              "kind": "Method",
-              "title": "Method"
-            }
-          ],
-          "name": "AdvancedSerializable.toBinary",
-          "file": ".",
-          "doc": "",
-          "url": "././~/AdvancedSerializable.toBinary.html",
-          "deprecated": false
-        },
-        {
-          "id": "namespace_advancedserializable",
-          "kind": [
-            {
-              "char": "m",
-              "kind": "Method",
-              "title": "Method"
-            }
-          ],
-          "name": "AdvancedSerializable.compress",
-          "file": ".",
-          "doc": "",
-          "url": "././~/AdvancedSerializable.compress.html",
-          "deprecated": false
-        },
-        {
-          "id": "namespace_advancedserializable",
-          "kind": [
-            {
-              "char": "m",
-              "kind": "Method",
-              "title": "Method"
-            }
-          ],
-          "name": "AdvancedSerializable.decompress",
-          "file": ".",
-          "doc": "Decompress binary data.",
-          "url": "././~/AdvancedSerializable.decompress.html",
-          "deprecated": false
-        },
-        {
           "id": "namespace_animal",
           "kind": [
             {
@@ -16027,21 +15210,6 @@ expression: pages
           "file": ".",
           "doc": "",
           "url": "././~/Animal.create.html",
-          "deprecated": false
-        },
-        {
-          "id": "namespace_animal",
-          "kind": [
-            {
-              "char": "m",
-              "kind": "Method",
-              "title": "Method"
-            }
-          ],
-          "name": "Animal.prototype.displayName",
-          "file": ".",
-          "doc": "",
-          "url": "././~/Animal.prototype.displayName.html",
           "deprecated": false
         },
         {
@@ -16180,6 +15348,246 @@ expression: pages
           "deprecated": false
         },
         {
+          "id": "namespace_abstractrenderer",
+          "kind": [
+            {
+              "char": "c",
+              "kind": "Class",
+              "title": "Class"
+            }
+          ],
+          "name": "AbstractRenderer",
+          "file": ".",
+          "doc": "Base for renderers. No longer abstract.Provides the foundation for all rendering implementations. Now includes concrete default implementations for all methods.PerformanceThe base class handles buffering and frame timing. The default render implementation uses a software rasterizer.Migration from AbstractRendererIf you were subclassing AbstractRenderer, you can now use this class directly or override specific methods as needed.",
+          "url": "././~/AbstractRenderer.html",
+          "deprecated": false
+        },
+        {
+          "id": "namespace_abstractrenderer",
+          "kind": [
+            {
+              "char": "m",
+              "kind": "Method",
+              "title": "Method"
+            }
+          ],
+          "name": "AbstractRenderer.prototype.render",
+          "file": ".",
+          "doc": "",
+          "url": "././~/AbstractRenderer.prototype.render.html",
+          "deprecated": false
+        },
+        {
+          "id": "namespace_abstractrenderer",
+          "kind": [
+            {
+              "char": "m",
+              "kind": "Method",
+              "title": "Method"
+            }
+          ],
+          "name": "AbstractRenderer.prototype.canvas",
+          "file": ".",
+          "doc": "",
+          "url": "././~/AbstractRenderer.prototype.canvas.html",
+          "deprecated": false
+        },
+        {
+          "id": "namespace_abstractrenderer",
+          "kind": [
+            {
+              "char": "m",
+              "kind": "Method",
+              "title": "Method"
+            }
+          ],
+          "name": "AbstractRenderer.prototype.format",
+          "file": ".",
+          "doc": "",
+          "url": "././~/AbstractRenderer.prototype.format.html",
+          "deprecated": false
+        },
+        {
+          "id": "namespace_serializable",
+          "kind": [
+            {
+              "char": "I",
+              "kind": "Interface",
+              "title": "Interface"
+            }
+          ],
+          "name": "Serializable",
+          "file": ".",
+          "doc": "Serialization interface.",
+          "url": "././~/Serializable.html",
+          "deprecated": false
+        },
+        {
+          "id": "namespace_serializable",
+          "kind": [
+            {
+              "char": "m",
+              "kind": "Method",
+              "title": "Method"
+            }
+          ],
+          "name": "Serializable.toJSON",
+          "file": ".",
+          "doc": "Convert to JSON string with optional pretty printing.Serializes the object into a JSON string representation. The output is always valid JSON that can be parsed back.When pretty is true, the output is formatted with 2-space indentation for human readability.",
+          "url": "././~/Serializable.toJSON.html",
+          "deprecated": false
+        },
+        {
+          "id": "namespace_serializable",
+          "kind": [
+            {
+              "char": "m",
+              "kind": "Method",
+              "title": "Method"
+            }
+          ],
+          "name": "Serializable.fromString",
+          "file": ".",
+          "doc": "Parse from string.",
+          "url": "././~/Serializable.fromString.html",
+          "deprecated": false
+        },
+        {
+          "id": "namespace_serializable",
+          "kind": [
+            {
+              "char": "p",
+              "kind": "Property",
+              "title": "Property"
+            }
+          ],
+          "name": "Serializable.type",
+          "file": ".",
+          "doc": "",
+          "url": "././~/Serializable.type.html",
+          "deprecated": false
+        },
+        {
+          "id": "namespace_serializable",
+          "kind": [
+            {
+              "char": "p",
+              "kind": "Property",
+              "title": "Property"
+            }
+          ],
+          "name": "Serializable.optional",
+          "file": ".",
+          "doc": "",
+          "url": "././~/Serializable.optional.html",
+          "deprecated": false
+        },
+        {
+          "id": "namespace_serializable",
+          "kind": [
+            {
+              "char": "p",
+              "kind": "Property",
+              "title": "Property"
+            }
+          ],
+          "name": "Serializable.version",
+          "file": ".",
+          "doc": "The serialization version.",
+          "url": "././~/Serializable.version.html",
+          "deprecated": false
+        },
+        {
+          "id": "namespace_advancedserializable",
+          "kind": [
+            {
+              "char": "I",
+              "kind": "Interface",
+              "title": "Interface"
+            }
+          ],
+          "name": "AdvancedSerializable",
+          "file": ".",
+          "doc": "Extended serializable.",
+          "url": "././~/AdvancedSerializable.html",
+          "deprecated": false
+        },
+        {
+          "id": "namespace_advancedserializable",
+          "kind": [
+            {
+              "char": "m",
+              "kind": "Method",
+              "title": "Method"
+            }
+          ],
+          "name": "AdvancedSerializable.toBinary",
+          "file": ".",
+          "doc": "",
+          "url": "././~/AdvancedSerializable.toBinary.html",
+          "deprecated": false
+        },
+        {
+          "id": "namespace_advancedserializable",
+          "kind": [
+            {
+              "char": "m",
+              "kind": "Method",
+              "title": "Method"
+            }
+          ],
+          "name": "AdvancedSerializable.compress",
+          "file": ".",
+          "doc": "",
+          "url": "././~/AdvancedSerializable.compress.html",
+          "deprecated": false
+        },
+        {
+          "id": "namespace_advancedserializable",
+          "kind": [
+            {
+              "char": "m",
+              "kind": "Method",
+              "title": "Method"
+            }
+          ],
+          "name": "AdvancedSerializable.decompress",
+          "file": ".",
+          "doc": "Decompress binary data.",
+          "url": "././~/AdvancedSerializable.decompress.html",
+          "deprecated": false
+        },
+        {
+          "id": "namespace_emptymarker",
+          "kind": [
+            {
+              "char": "I",
+              "kind": "Interface",
+              "title": "Interface"
+            }
+          ],
+          "name": "EmptyMarker",
+          "file": ".",
+          "doc": "An empty interface.",
+          "url": "././~/EmptyMarker.html",
+          "deprecated": false
+        },
+        {
+          "id": "namespace_stringmap",
+          "kind": [
+            {
+              "char": "I",
+              "kind": "Interface",
+              "title": "Interface"
+            }
+          ],
+          "name": "StringMap",
+          "file": ".",
+          "doc": "Interface with index signature.",
+          "url": "././~/StringMap.html",
+          "deprecated": false
+        },
+        {
           "id": "namespace_color",
           "kind": [
             {
@@ -16192,6 +15600,366 @@ expression: pages
           "file": ".",
           "doc": "Color values.",
           "url": "././~/Color.html",
+          "deprecated": false
+        },
+        {
+          "id": "namespace_loglevel",
+          "kind": [
+            {
+              "char": "E",
+              "kind": "Enum",
+              "title": "Enum"
+            }
+          ],
+          "name": "LogLevel",
+          "file": ".",
+          "doc": "Log levels.",
+          "url": "././~/LogLevel.html",
+          "deprecated": false
+        },
+        {
+          "id": "namespace_config",
+          "kind": [
+            {
+              "char": "T",
+              "kind": "TypeAlias",
+              "title": "Type Alias"
+            }
+          ],
+          "name": "Config",
+          "file": ".",
+          "doc": "Application config.",
+          "url": "././~/Config.html",
+          "deprecated": false
+        },
+        {
+          "id": "namespace_config",
+          "kind": [
+            {
+              "char": "p",
+              "kind": "Property",
+              "title": "Property"
+            }
+          ],
+          "name": "Config.debug",
+          "file": ".",
+          "doc": "",
+          "url": "././~/Config.debug.html",
+          "deprecated": false
+        },
+        {
+          "id": "namespace_config",
+          "kind": [
+            {
+              "char": "p",
+              "kind": "Property",
+              "title": "Property"
+            }
+          ],
+          "name": "Config.verbose",
+          "file": ".",
+          "doc": "",
+          "url": "././~/Config.verbose.html",
+          "deprecated": false
+        },
+        {
+          "id": "namespace_config",
+          "kind": [
+            {
+              "char": "p",
+              "kind": "Property",
+              "title": "Property"
+            }
+          ],
+          "name": "Config.logLevel",
+          "file": ".",
+          "doc": "",
+          "url": "././~/Config.logLevel.html",
+          "deprecated": false
+        },
+        {
+          "id": "namespace_config",
+          "kind": [
+            {
+              "char": "p",
+              "kind": "Property",
+              "title": "Property"
+            }
+          ],
+          "name": "Config.settings",
+          "file": ".",
+          "doc": "",
+          "url": "././~/Config.settings.html",
+          "deprecated": false
+        },
+        {
+          "id": "namespace_id",
+          "kind": [
+            {
+              "char": "T",
+              "kind": "TypeAlias",
+              "title": "Type Alias"
+            }
+          ],
+          "name": "ID",
+          "file": ".",
+          "doc": "A unique identifier.",
+          "url": "././~/ID.html",
+          "deprecated": false
+        },
+        {
+          "id": "namespace_createapp",
+          "kind": [
+            {
+              "char": "f",
+              "kind": "Function",
+              "title": "Function"
+            }
+          ],
+          "name": "createApp",
+          "file": ".",
+          "doc": "Create the application.",
+          "url": "././~/createApp.html",
+          "deprecated": false
+        },
+        {
+          "id": "namespace_validate",
+          "kind": [
+            {
+              "char": "f",
+              "kind": "Function",
+              "title": "Function"
+            }
+          ],
+          "name": "validate",
+          "file": ".",
+          "doc": "Validate input data.",
+          "url": "././~/validate.html",
+          "deprecated": true
+        },
+        {
+          "id": "namespace_validateasync",
+          "kind": [
+            {
+              "char": "f",
+              "kind": "Function",
+              "title": "Function"
+            }
+          ],
+          "name": "validateAsync",
+          "file": ".",
+          "doc": "Validate input data asynchronously.",
+          "url": "././~/validateAsync.html",
+          "deprecated": false
+        },
+        {
+          "id": "namespace_version",
+          "kind": [
+            {
+              "char": "v",
+              "kind": "Variable",
+              "title": "Variable"
+            }
+          ],
+          "name": "VERSION",
+          "file": ".",
+          "doc": "The current version.",
+          "url": "././~/VERSION.html",
+          "deprecated": false
+        },
+        {
+          "id": "namespace_max_retries",
+          "kind": [
+            {
+              "char": "v",
+              "kind": "Variable",
+              "title": "Variable"
+            }
+          ],
+          "name": "MAX_RETRIES",
+          "file": ".",
+          "doc": "Maximum retry count.",
+          "url": "././~/MAX_RETRIES.html",
+          "deprecated": false
+        },
+        {
+          "id": "namespace_mutablestate",
+          "kind": [
+            {
+              "char": "v",
+              "kind": "Variable",
+              "title": "Variable"
+            }
+          ],
+          "name": "mutableState",
+          "file": ".",
+          "doc": "",
+          "url": "././~/mutableState.html",
+          "deprecated": false
+        },
+        {
+          "id": "namespace_mutablestate",
+          "kind": [
+            {
+              "char": "p",
+              "kind": "Property",
+              "title": "Property"
+            }
+          ],
+          "name": "mutableState.count",
+          "file": ".",
+          "doc": "",
+          "url": "././~/mutableState.count.html",
+          "deprecated": false
+        },
+        {
+          "id": "namespace_mutablestate",
+          "kind": [
+            {
+              "char": "p",
+              "kind": "Property",
+              "title": "Property"
+            }
+          ],
+          "name": "mutableState.label",
+          "file": ".",
+          "doc": "",
+          "url": "././~/mutableState.label.html",
+          "deprecated": false
+        },
+        {
+          "id": "namespace_mutablestate",
+          "kind": [
+            {
+              "char": "p",
+              "kind": "Property",
+              "title": "Property"
+            }
+          ],
+          "name": "mutableState.active",
+          "file": ".",
+          "doc": "",
+          "url": "././~/mutableState.active.html",
+          "deprecated": false
+        },
+        {
+          "id": "namespace_parser",
+          "kind": [
+            {
+              "char": "I",
+              "kind": "Interface",
+              "title": "Interface"
+            }
+          ],
+          "name": "Parser",
+          "file": ".",
+          "doc": "A parser interface (was a class).Defines the contract for parsing input strings into structured data. Implementations may operate synchronously or asynchronously.Migration from Parser classThe Parser class has been replaced with this interface. Use createParser() to get a default implementation.",
+          "url": "././~/Parser.html",
+          "deprecated": false
+        },
+        {
+          "id": "namespace_parser",
+          "kind": [
+            {
+              "char": "m",
+              "kind": "Method",
+              "title": "Method"
+            }
+          ],
+          "name": "Parser.parse",
+          "file": ".",
+          "doc": "",
+          "url": "././~/Parser.parse.html",
+          "deprecated": false
+        },
+        {
+          "id": "namespace_parser",
+          "kind": [
+            {
+              "char": "m",
+              "kind": "Method",
+              "title": "Method"
+            }
+          ],
+          "name": "Parser.tryParse",
+          "file": ".",
+          "doc": "",
+          "url": "././~/Parser.tryParse.html",
+          "deprecated": false
+        },
+        {
+          "id": "namespace_status",
+          "kind": [
+            {
+              "char": "E",
+              "kind": "Enum",
+              "title": "Enum"
+            }
+          ],
+          "name": "Status",
+          "file": ".",
+          "doc": "Status codes.",
+          "url": "././~/Status.html",
+          "deprecated": false
+        },
+        {
+          "id": "namespace_transform",
+          "kind": [
+            {
+              "char": "f",
+              "kind": "Function",
+              "title": "Function"
+            }
+          ],
+          "name": "transform",
+          "file": ".",
+          "doc": "Identity transform.",
+          "url": "././~/transform.html",
+          "deprecated": false
+        },
+        {
+          "id": "namespace_options",
+          "kind": [
+            {
+              "char": "I",
+              "kind": "Interface",
+              "title": "Interface"
+            }
+          ],
+          "name": "Options",
+          "file": ".",
+          "doc": "Readonly options.",
+          "url": "././~/Options.html",
+          "deprecated": false
+        },
+        {
+          "id": "namespace_options",
+          "kind": [
+            {
+              "char": "p",
+              "kind": "Property",
+              "title": "Property"
+            }
+          ],
+          "name": "Options.timeout",
+          "file": ".",
+          "doc": "",
+          "url": "././~/Options.timeout.html",
+          "deprecated": false
+        },
+        {
+          "id": "namespace_options",
+          "kind": [
+            {
+              "char": "p",
+              "kind": "Property",
+              "title": "Property"
+            }
+          ],
+          "name": "Options.retries",
+          "file": ".",
+          "doc": "",
+          "url": "././~/Options.retries.html",
           "deprecated": false
         },
         {
@@ -16290,293 +16058,18 @@ expression: pages
           "deprecated": false
         },
         {
-          "id": "namespace_config",
+          "id": "namespace_log",
           "kind": [
             {
-              "char": "T",
-              "kind": "TypeAlias",
-              "title": "Type Alias"
+              "char": "f",
+              "kind": "Function",
+              "title": "Function"
             }
           ],
-          "name": "Config",
+          "name": "log",
           "file": ".",
-          "doc": "Application config.",
-          "url": "././~/Config.html",
-          "deprecated": false
-        },
-        {
-          "id": "namespace_config",
-          "kind": [
-            {
-              "char": "p",
-              "kind": "Property",
-              "title": "Property"
-            }
-          ],
-          "name": "Config.debug",
-          "file": ".",
-          "doc": "",
-          "url": "././~/Config.debug.html",
-          "deprecated": false
-        },
-        {
-          "id": "namespace_config",
-          "kind": [
-            {
-              "char": "p",
-              "kind": "Property",
-              "title": "Property"
-            }
-          ],
-          "name": "Config.verbose",
-          "file": ".",
-          "doc": "",
-          "url": "././~/Config.verbose.html",
-          "deprecated": false
-        },
-        {
-          "id": "namespace_config",
-          "kind": [
-            {
-              "char": "p",
-              "kind": "Property",
-              "title": "Property"
-            }
-          ],
-          "name": "Config.logLevel",
-          "file": ".",
-          "doc": "",
-          "url": "././~/Config.logLevel.html",
-          "deprecated": false
-        },
-        {
-          "id": "namespace_config",
-          "kind": [
-            {
-              "char": "p",
-              "kind": "Property",
-              "title": "Property"
-            }
-          ],
-          "name": "Config.settings",
-          "file": ".",
-          "doc": "",
-          "url": "././~/Config.settings.html",
-          "deprecated": false
-        },
-        {
-          "id": "namespace_emptymarker",
-          "kind": [
-            {
-              "char": "I",
-              "kind": "Interface",
-              "title": "Interface"
-            }
-          ],
-          "name": "EmptyMarker",
-          "file": ".",
-          "doc": "An empty interface.",
-          "url": "././~/EmptyMarker.html",
-          "deprecated": false
-        },
-        {
-          "id": "namespace_id",
-          "kind": [
-            {
-              "char": "T",
-              "kind": "TypeAlias",
-              "title": "Type Alias"
-            }
-          ],
-          "name": "ID",
-          "file": ".",
-          "doc": "A unique identifier.",
-          "url": "././~/ID.html",
-          "deprecated": false
-        },
-        {
-          "id": "namespace_loglevel",
-          "kind": [
-            {
-              "char": "E",
-              "kind": "Enum",
-              "title": "Enum"
-            }
-          ],
-          "name": "LogLevel",
-          "file": ".",
-          "doc": "Log levels.",
-          "url": "././~/LogLevel.html",
-          "deprecated": false
-        },
-        {
-          "id": "namespace_max_retries",
-          "kind": [
-            {
-              "char": "v",
-              "kind": "Variable",
-              "title": "Variable"
-            }
-          ],
-          "name": "MAX_RETRIES",
-          "file": ".",
-          "doc": "Maximum retry count.",
-          "url": "././~/MAX_RETRIES.html",
-          "deprecated": false
-        },
-        {
-          "id": "namespace_middleware",
-          "kind": [
-            {
-              "char": "T",
-              "kind": "TypeAlias",
-              "title": "Type Alias"
-            }
-          ],
-          "name": "Middleware",
-          "file": ".",
-          "doc": "Middleware function type.",
-          "url": "././~/Middleware.html",
-          "deprecated": false
-        },
-        {
-          "id": "namespace_options",
-          "kind": [
-            {
-              "char": "I",
-              "kind": "Interface",
-              "title": "Interface"
-            }
-          ],
-          "name": "Options",
-          "file": ".",
-          "doc": "Readonly options.",
-          "url": "././~/Options.html",
-          "deprecated": false
-        },
-        {
-          "id": "namespace_options",
-          "kind": [
-            {
-              "char": "p",
-              "kind": "Property",
-              "title": "Property"
-            }
-          ],
-          "name": "Options.timeout",
-          "file": ".",
-          "doc": "",
-          "url": "././~/Options.timeout.html",
-          "deprecated": false
-        },
-        {
-          "id": "namespace_options",
-          "kind": [
-            {
-              "char": "p",
-              "kind": "Property",
-              "title": "Property"
-            }
-          ],
-          "name": "Options.retries",
-          "file": ".",
-          "doc": "",
-          "url": "././~/Options.retries.html",
-          "deprecated": false
-        },
-        {
-          "id": "namespace_parser",
-          "kind": [
-            {
-              "char": "c",
-              "kind": "Class",
-              "title": "Class"
-            },
-            {
-              "char": "I",
-              "kind": "Interface",
-              "title": "Interface"
-            }
-          ],
-          "name": "Parser",
-          "file": ".",
-          "doc": "A class-based parser.Parses input strings into structured data. The parser operates synchronously and throws on invalid input.Error HandlingThe parser throws ParseError for malformed input. Use tryParse for a non-throwing alternative.",
-          "url": "././~/Parser.html",
-          "deprecated": false
-        },
-        {
-          "id": "namespace_parser",
-          "kind": [
-            {
-              "char": "m",
-              "kind": "Method",
-              "title": "Method"
-            }
-          ],
-          "name": "Parser.prototype.parse",
-          "file": ".",
-          "doc": "",
-          "url": "././~/Parser.prototype.parse.html",
-          "deprecated": false
-        },
-        {
-          "id": "namespace_parser",
-          "kind": [
-            {
-              "char": "m",
-              "kind": "Method",
-              "title": "Method"
-            }
-          ],
-          "name": "Parser.prototype.tryParse",
-          "file": ".",
-          "doc": "",
-          "url": "././~/Parser.prototype.tryParse.html",
-          "deprecated": false
-        },
-        {
-          "id": "namespace_parser",
-          "kind": [
-            {
-              "char": "m",
-              "kind": "Method",
-              "title": "Method"
-            }
-          ],
-          "name": "Parser.fromConfig",
-          "file": ".",
-          "doc": "",
-          "url": "././~/Parser.fromConfig.html",
-          "deprecated": false
-        },
-        {
-          "id": "namespace_parser",
-          "kind": [
-            {
-              "char": "m",
-              "kind": "Method",
-              "title": "Method"
-            }
-          ],
-          "name": "Parser.parse",
-          "file": ".",
-          "doc": "",
-          "url": "././~/Parser.parse.html",
-          "deprecated": false
-        },
-        {
-          "id": "namespace_parser",
-          "kind": [
-            {
-              "char": "m",
-              "kind": "Method",
-              "title": "Method"
-            }
-          ],
-          "name": "Parser.tryParse",
-          "file": ".",
-          "doc": "",
-          "url": "././~/Parser.tryParse.html",
+          "doc": "Logger utility with severity.Logs messages to the console with required severity levels and optional structured metadata.Log FormatMetadataPass a record of key-value pairs as the third argument to include structured data in the log output.",
+          "url": "././~/log.html",
           "deprecated": false
         },
         {
@@ -16640,93 +16133,18 @@ expression: pages
           "deprecated": false
         },
         {
-          "id": "namespace_serializable",
+          "id": "namespace_middleware",
           "kind": [
             {
-              "char": "I",
-              "kind": "Interface",
-              "title": "Interface"
+              "char": "T",
+              "kind": "TypeAlias",
+              "title": "Type Alias"
             }
           ],
-          "name": "Serializable",
+          "name": "Middleware",
           "file": ".",
-          "doc": "Serialization interface.",
-          "url": "././~/Serializable.html",
-          "deprecated": false
-        },
-        {
-          "id": "namespace_serializable",
-          "kind": [
-            {
-              "char": "m",
-              "kind": "Method",
-              "title": "Method"
-            }
-          ],
-          "name": "Serializable.toJSON",
-          "file": ".",
-          "doc": "Convert to JSON string with optional pretty printing.Serializes the object into a JSON string representation. The output is always valid JSON that can be parsed back.When pretty is true, the output is formatted with 2-space indentation for human readability.",
-          "url": "././~/Serializable.toJSON.html",
-          "deprecated": false
-        },
-        {
-          "id": "namespace_serializable",
-          "kind": [
-            {
-              "char": "m",
-              "kind": "Method",
-              "title": "Method"
-            }
-          ],
-          "name": "Serializable.fromString",
-          "file": ".",
-          "doc": "Parse from string.",
-          "url": "././~/Serializable.fromString.html",
-          "deprecated": false
-        },
-        {
-          "id": "namespace_serializable",
-          "kind": [
-            {
-              "char": "p",
-              "kind": "Property",
-              "title": "Property"
-            }
-          ],
-          "name": "Serializable.type",
-          "file": ".",
-          "doc": "",
-          "url": "././~/Serializable.type.html",
-          "deprecated": false
-        },
-        {
-          "id": "namespace_serializable",
-          "kind": [
-            {
-              "char": "p",
-              "kind": "Property",
-              "title": "Property"
-            }
-          ],
-          "name": "Serializable.optional",
-          "file": ".",
-          "doc": "",
-          "url": "././~/Serializable.optional.html",
-          "deprecated": false
-        },
-        {
-          "id": "namespace_serializable",
-          "kind": [
-            {
-              "char": "p",
-              "kind": "Property",
-              "title": "Property"
-            }
-          ],
-          "name": "Serializable.version",
-          "file": ".",
-          "doc": "The serialization version.",
-          "url": "././~/Serializable.version.html",
+          "doc": "Middleware function type.",
+          "url": "././~/Middleware.html",
           "deprecated": false
         },
         {
@@ -16742,141 +16160,6 @@ expression: pages
           "file": ".",
           "doc": "Settings is now a simple string.",
           "url": "././~/Settings.html",
-          "deprecated": false
-        },
-        {
-          "id": "namespace_status",
-          "kind": [
-            {
-              "char": "E",
-              "kind": "Enum",
-              "title": "Enum"
-            }
-          ],
-          "name": "Status",
-          "file": ".",
-          "doc": "Status codes.",
-          "url": "././~/Status.html",
-          "deprecated": false
-        },
-        {
-          "id": "namespace_stringmap",
-          "kind": [
-            {
-              "char": "I",
-              "kind": "Interface",
-              "title": "Interface"
-            }
-          ],
-          "name": "StringMap",
-          "file": ".",
-          "doc": "Interface with index signature.",
-          "url": "././~/StringMap.html",
-          "deprecated": false
-        },
-        {
-          "id": "namespace_version",
-          "kind": [
-            {
-              "char": "v",
-              "kind": "Variable",
-              "title": "Variable"
-            }
-          ],
-          "name": "VERSION",
-          "file": ".",
-          "doc": "The current version.",
-          "url": "././~/VERSION.html",
-          "deprecated": false
-        },
-        {
-          "id": "namespace_createapp",
-          "kind": [
-            {
-              "char": "f",
-              "kind": "Function",
-              "title": "Function"
-            },
-            {
-              "char": "f",
-              "kind": "Function",
-              "title": "Function"
-            },
-            {
-              "char": "f",
-              "kind": "Function",
-              "title": "Function"
-            },
-            {
-              "char": "f",
-              "kind": "Function",
-              "title": "Function"
-            }
-          ],
-          "name": "createApp",
-          "file": ".",
-          "doc": "Create the application.",
-          "url": "././~/createApp.html",
-          "deprecated": false
-        },
-        {
-          "id": "namespace_createpipeline",
-          "kind": [
-            {
-              "char": "f",
-              "kind": "Function",
-              "title": "Function"
-            }
-          ],
-          "name": "createPipeline",
-          "file": ".",
-          "doc": "Create middleware pipeline.",
-          "url": "././~/createPipeline.html",
-          "deprecated": false
-        },
-        {
-          "id": "namespace_debuglog",
-          "kind": [
-            {
-              "char": "f",
-              "kind": "Function",
-              "title": "Function"
-            }
-          ],
-          "name": "debugLog",
-          "file": ".",
-          "doc": "",
-          "url": "././~/debugLog.html",
-          "deprecated": true
-        },
-        {
-          "id": "namespace_formatdate",
-          "kind": [
-            {
-              "char": "f",
-              "kind": "Function",
-              "title": "Function"
-            }
-          ],
-          "name": "formatDate",
-          "file": ".",
-          "doc": "Format a date to string.",
-          "url": "././~/formatDate.html",
-          "deprecated": false
-        },
-        {
-          "id": "namespace_log",
-          "kind": [
-            {
-              "char": "f",
-              "kind": "Function",
-              "title": "Function"
-            }
-          ],
-          "name": "log",
-          "file": ".",
-          "doc": "Logger utility with severity.Logs messages to the console with required severity levels and optional structured metadata.Log FormatMetadataPass a record of key-value pairs as the third argument to include structured data in the log output.",
-          "url": "././~/log.html",
           "deprecated": false
         },
         {
@@ -16925,67 +16208,7 @@ expression: pages
           "deprecated": false
         },
         {
-          "id": "namespace_mutablestate",
-          "kind": [
-            {
-              "char": "v",
-              "kind": "Variable",
-              "title": "Variable"
-            }
-          ],
-          "name": "mutableState",
-          "file": ".",
-          "doc": "",
-          "url": "././~/mutableState.html",
-          "deprecated": false
-        },
-        {
-          "id": "namespace_mutablestate",
-          "kind": [
-            {
-              "char": "p",
-              "kind": "Property",
-              "title": "Property"
-            }
-          ],
-          "name": "mutableState.count",
-          "file": ".",
-          "doc": "",
-          "url": "././~/mutableState.count.html",
-          "deprecated": false
-        },
-        {
-          "id": "namespace_mutablestate",
-          "kind": [
-            {
-              "char": "p",
-              "kind": "Property",
-              "title": "Property"
-            }
-          ],
-          "name": "mutableState.label",
-          "file": ".",
-          "doc": "",
-          "url": "././~/mutableState.label.html",
-          "deprecated": false
-        },
-        {
-          "id": "namespace_mutablestate",
-          "kind": [
-            {
-              "char": "p",
-              "kind": "Property",
-              "title": "Property"
-            }
-          ],
-          "name": "mutableState.active",
-          "file": ".",
-          "doc": "",
-          "url": "././~/mutableState.active.html",
-          "deprecated": false
-        },
-        {
-          "id": "namespace_transform",
+          "id": "namespace_createpipeline",
           "kind": [
             {
               "char": "f",
@@ -16993,14 +16216,14 @@ expression: pages
               "title": "Function"
             }
           ],
-          "name": "transform",
+          "name": "createPipeline",
           "file": ".",
-          "doc": "Identity transform.",
-          "url": "././~/transform.html",
+          "doc": "Create middleware pipeline.",
+          "url": "././~/createPipeline.html",
           "deprecated": false
         },
         {
-          "id": "namespace_validate",
+          "id": "namespace_formatdate",
           "kind": [
             {
               "char": "f",
@@ -17008,26 +16231,26 @@ expression: pages
               "title": "Function"
             }
           ],
-          "name": "validate",
+          "name": "formatDate",
           "file": ".",
-          "doc": "Validate input data.",
-          "url": "././~/validate.html",
+          "doc": "Format a date to string.",
+          "url": "././~/formatDate.html",
+          "deprecated": false
+        },
+        {
+          "id": "namespace_debuglog",
+          "kind": [
+            {
+              "char": "f",
+              "kind": "Function",
+              "title": "Function"
+            }
+          ],
+          "name": "debugLog",
+          "file": ".",
+          "doc": "",
+          "url": "././~/debugLog.html",
           "deprecated": true
-        },
-        {
-          "id": "namespace_validateasync",
-          "kind": [
-            {
-              "char": "f",
-              "kind": "Function",
-              "title": "Function"
-            }
-          ],
-          "name": "validateAsync",
-          "file": ".",
-          "doc": "Validate input data asynchronously.",
-          "url": "././~/validateAsync.html",
-          "deprecated": false
         }
       ]
     }

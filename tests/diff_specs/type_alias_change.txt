@@ -11,21 +11,27 @@ export type ID = number;
       "modified": [
         {
           "name": "ID",
-          "kind": "typeAlias",
-          "defChanges": {
-            "type": "typeAlias",
-            "tsTypeChange": {
-              "old": {
-                "repr": "string",
-                "kind": "keyword",
-                "keyword": "string"
-              },
-              "new": {
-                "repr": "number",
-                "kind": "keyword",
-                "keyword": "number"
+          "declarations": {
+            "modified": [
+              {
+                "kind": "typeAlias",
+                "defChanges": {
+                  "type": "typeAlias",
+                  "tsTypeChange": {
+                    "old": {
+                      "repr": "string",
+                      "kind": "keyword",
+                      "value": "string"
+                    },
+                    "new": {
+                      "repr": "number",
+                      "kind": "keyword",
+                      "value": "number"
+                    }
+                  }
+                }
               }
-            }
+            ]
           }
         }
       ]

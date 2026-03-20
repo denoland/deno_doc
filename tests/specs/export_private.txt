@@ -11,31 +11,36 @@ error[missing-jsdoc]: exported symbol is missing JSDoc documentation
   |       ^
 
 # output.txt
-Defined in file:///mod.ts:1:7
+Defined in file:///mod.ts:0:7
 
 const foo: string
 
 
 # output.json
-[
-  {
-    "name": "foo",
-    "isDefault": false,
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 1,
-      "col": 6,
-      "byteIndex": 6
-    },
-    "declarationKind": "export",
-    "kind": "variable",
-    "variableDef": {
-      "tsType": {
-        "repr": "string",
-        "kind": "keyword",
-        "keyword": "string"
-      },
-      "kind": "const"
+{
+  "symbols": [
+    {
+      "name": "foo",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 0,
+            "col": 6,
+            "byteIndex": 6
+          },
+          "declarationKind": "export",
+          "kind": "variable",
+          "def": {
+            "tsType": {
+              "repr": "string",
+              "kind": "keyword",
+              "value": "string"
+            },
+            "kind": "const"
+          }
+        }
+      ]
     }
-  }
-]
+  ]
+}

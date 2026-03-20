@@ -82,14 +82,8 @@ pub(crate) fn render_type_def(
   ctx: &RenderContext,
   def: &crate::ts_type::TsTypeDef,
 ) -> String {
-  let Some(kind) = &def.kind else {
-    return html_escape::encode_text(&def.repr).to_string();
-  };
-
-  match kind {
-    TsTypeDefKind::Keyword => {
-      let keyword = def.keyword.as_ref().unwrap();
-
+  match &def.kind {
+    TsTypeDefKind::Keyword(keyword) => {
       if !ctx.disable_links
         && let Some(href) = ctx
           .ctx
@@ -104,53 +98,46 @@ pub(crate) fn render_type_def(
         format!(r#"<span class="td-kw">{keyword}</span>"#)
       }
     }
-    TsTypeDefKind::Literal => {
-      let lit = def.literal.as_ref().unwrap();
+    TsTypeDefKind::Literal(lit) => match lit.kind {
+      LiteralDefKind::Number
+      | LiteralDefKind::BigInt
+      | LiteralDefKind::Boolean => {
+        format!(
+          r#"<span class="td-lit">{}</span>"#,
+          html_escape::encode_text(&def.repr)
+        )
+      }
+      LiteralDefKind::String => {
+        format!(
+          r#"<span class="td-str">{:?}</span>"#,
+          html_escape::encode_text(&def.repr)
+        )
+      }
+      LiteralDefKind::Template => {
+        if let Some(types) = &lit.ts_types {
+          let mut out = String::new();
 
-      match lit.kind {
-        LiteralDefKind::Number
-        | LiteralDefKind::BigInt
-        | LiteralDefKind::Boolean => {
-          format!(
-            r#"<span class="td-lit">{}</span>"#,
-            html_escape::encode_text(&def.repr)
-          )
-        }
-        LiteralDefKind::String => {
-          format!(
-            r#"<span class="td-str">{:?}</span>"#,
-            html_escape::encode_text(&def.repr)
-          )
-        }
-        LiteralDefKind::Template => {
-          if let Some(types) = &lit.ts_types {
-            let mut out = String::new();
-
-            for ts_type in types {
-              out.push_str(&if ts_type
-                .literal
-                .as_ref()
-                .is_some_and(|literal| literal.string.is_some())
-              {
-                html_escape::encode_text(&ts_type.repr).into_owned()
-              } else {
-                format!("${{{}}}", render_type_def(ctx, ts_type))
-              });
-            }
-
-            format!(r#"<span class="td-str">`{out}`</span>"#)
-          } else {
-            format!(
-              r#"<span class="td-str">`{}`</span>"#,
-              html_escape::encode_text(&def.repr)
-            )
+          for ts_type in types {
+            out.push_str(&if matches!(
+              &ts_type.kind,
+              TsTypeDefKind::Literal(l) if l.string.is_some()
+            ) {
+              html_escape::encode_text(&ts_type.repr).into_owned()
+            } else {
+              format!("${{{}}}", render_type_def(ctx, ts_type))
+            });
           }
+
+          format!(r#"<span class="td-str">`{out}`</span>"#)
+        } else {
+          format!(
+            r#"<span class="td-str">`{}`</span>"#,
+            html_escape::encode_text(&def.repr)
+          )
         }
       }
-    }
-    TsTypeDefKind::TypeRef => {
-      let type_ref = def.type_ref.as_ref().unwrap();
-
+    },
+    TsTypeDefKind::TypeRef(type_ref) => {
       let href = if ctx.disable_links {
         None
       } else if ctx.contains_type_param(&type_ref.type_name) {
@@ -188,39 +175,29 @@ pub(crate) fn render_type_def(
           .unwrap_or_default()
       )
     }
-    TsTypeDefKind::Union => {
-      type_def_join(ctx, def.union.as_ref().unwrap(), '|')
+    TsTypeDefKind::Union(union) => type_def_join(ctx, union, '|'),
+    TsTypeDefKind::Intersection(intersection) => {
+      type_def_join(ctx, intersection, '&')
     }
-    TsTypeDefKind::Intersection => {
-      type_def_join(ctx, def.intersection.as_ref().unwrap(), '&')
+    TsTypeDefKind::Array(array) => {
+      format!("{}[]", render_type_def(ctx, array))
     }
-    TsTypeDefKind::Array => {
-      format!("{}[]", render_type_def(ctx, def.array.as_ref().unwrap()))
-    }
-    TsTypeDefKind::Tuple => type_def_tuple(ctx, def.tuple.as_ref().unwrap()),
-    TsTypeDefKind::TypeOperator => {
-      let operator = def.type_operator.as_ref().unwrap();
+    TsTypeDefKind::Tuple(tuple) => type_def_tuple(ctx, tuple),
+    TsTypeDefKind::TypeOperator(operator) => {
       format!(
         r#"<span class="td-kw">{}</span> {}"#,
         operator.operator,
         render_type_def(ctx, &operator.ts_type)
       )
     }
-    TsTypeDefKind::Parenthesized => {
-      format!(
-        "({})",
-        render_type_def(ctx, def.parenthesized.as_ref().unwrap())
-      )
+    TsTypeDefKind::Parenthesized(inner) => {
+      format!("({})", render_type_def(ctx, inner))
     }
-    TsTypeDefKind::Rest => {
-      format!("...{}", render_type_def(ctx, def.rest.as_ref().unwrap()))
+    TsTypeDefKind::Rest(inner) => {
+      format!("...{}", render_type_def(ctx, inner))
     }
-    TsTypeDefKind::Optional => {
-      render_type_def(ctx, def.optional.as_ref().unwrap())
-    }
-    TsTypeDefKind::TypeQuery => {
-      let query = def.type_query.as_ref().unwrap();
-
+    TsTypeDefKind::Optional(inner) => render_type_def(ctx, inner),
+    TsTypeDefKind::TypeQuery(query) => {
       if !ctx.disable_links
         && let Some(href) = ctx.lookup_symbol_href(query)
       {
@@ -237,9 +214,7 @@ pub(crate) fn render_type_def(
       }
     }
     TsTypeDefKind::This => r#"<span class="td-kw">this</span>"#.to_string(),
-    TsTypeDefKind::FnOrConstructor => {
-      let fn_or_constructor = def.fn_or_constructor.as_ref().unwrap();
-
+    TsTypeDefKind::FnOrConstructor(fn_or_constructor) => {
       let new = if fn_or_constructor.constructor {
         r#"<span class="td-kw">new </span>"#
       } else {
@@ -253,9 +228,7 @@ pub(crate) fn render_type_def(
         render_type_def(ctx, &fn_or_constructor.ts_type),
       )
     }
-    TsTypeDefKind::Conditional => {
-      let conditional = def.conditional_type.as_ref().unwrap();
-
+    TsTypeDefKind::Conditional(conditional) => {
       format!(
         r#"{} <span class="td-kw">extends</span> {} <span class="td-op">?</span> {} <span class="td-op">:</span> {}"#,
         render_type_def(ctx, &conditional.check_type),
@@ -264,26 +237,18 @@ pub(crate) fn render_type_def(
         render_type_def(ctx, &conditional.false_type),
       )
     }
-    TsTypeDefKind::Infer => format!(
+    TsTypeDefKind::Infer(infer) => format!(
       r#"<span class="td-kw">infer </span>{}"#,
-      type_param_summary(
-        ctx,
-        &def.infer.as_ref().unwrap().type_param,
-        "extends",
-      )
+      type_param_summary(ctx, &infer.type_param, "extends",)
     ),
-    TsTypeDefKind::IndexedAccess => {
-      let indexed_access = def.indexed_access.as_ref().unwrap();
-
+    TsTypeDefKind::IndexedAccess(indexed_access) => {
       format!(
         "{}[{}]",
         render_type_def(ctx, &indexed_access.obj_type),
         render_type_def(ctx, &indexed_access.index_type)
       )
     }
-    TsTypeDefKind::Mapped => {
-      let mapped = def.mapped_type.as_ref().unwrap();
-
+    TsTypeDefKind::Mapped(mapped) => {
       let readonly = if let Some(readonly) = mapped.readonly {
         let char = match readonly {
           TruePlusMinus::True => "",
@@ -329,9 +294,7 @@ pub(crate) fn render_type_def(
         type_param_summary(ctx, &mapped.type_param, "in")
       )
     }
-    TsTypeDefKind::TypeLiteral => {
-      let type_literal = def.type_literal.as_ref().unwrap();
-
+    TsTypeDefKind::TypeLiteral(type_literal) => {
       let mut index_signatures =
         Vec::with_capacity(type_literal.index_signatures.len());
 
@@ -449,9 +412,7 @@ pub(crate) fn render_type_def(
 
       format!("{{ {index_signatures}{call_signatures}{properties}{methods} }}")
     }
-    TsTypeDefKind::TypePredicate => {
-      let type_predicate = def.type_predicate.as_ref().unwrap();
-
+    TsTypeDefKind::TypePredicate(type_predicate) => {
       let asserts = if type_predicate.asserts {
         r#"<span class="td-kw">asserts </span>"#
       } else {
@@ -460,7 +421,7 @@ pub(crate) fn render_type_def(
       let param_type = if let crate::ts_type::ThisOrIdent::Identifier { name } =
         &type_predicate.param
       {
-        html_escape::encode_text(name).to_string()
+        html_escape::encode_text(&name).to_string()
       } else {
         r#"<span class="td-kw">this</span>"#.to_string()
       };
@@ -478,9 +439,7 @@ pub(crate) fn render_type_def(
 
       format!("{asserts}{param_type}{}", r#type)
     }
-    TsTypeDefKind::ImportType => {
-      let import_type = def.import_type.as_ref().unwrap();
-
+    TsTypeDefKind::ImportType(import_type) => {
       let qualifier = import_type
         .qualifier
         .as_ref()
@@ -499,6 +458,9 @@ pub(crate) fn render_type_def(
         r#"<span class="td-kw">import</span>(<span class="td-str">"{}"</span>){qualifier}{type_arguments}"#,
         html_escape::encode_text(&import_type.specifier),
       )
+    }
+    TsTypeDefKind::Unsupported => {
+      html_escape::encode_text(&def.repr).into_owned()
     }
   }
 }

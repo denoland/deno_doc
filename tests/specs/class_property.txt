@@ -26,7 +26,7 @@ error[missing-jsdoc]: exported symbol is missing JSDoc documentation
   |   ^
 
 # output.txt
-Defined in file:///mod.ts:1:1
+Defined in file:///mod.ts:0:1
 
 class Class
 
@@ -35,70 +35,56 @@ class Class
 
 
 # output.json
-[
-  {
-    "name": "Class",
-    "isDefault": false,
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 1,
-      "col": 0,
-      "byteIndex": 0
-    },
-    "declarationKind": "export",
-    "kind": "class",
-    "classDef": {
-      "isAbstract": false,
-      "constructors": [],
-      "properties": [
+{
+  "symbols": [
+    {
+      "name": "Class",
+      "declarations": [
         {
-          "tsType": {
-            "repr": "bool",
-            "kind": "typeRef",
-            "typeRef": {
-              "typeParams": null,
-              "typeName": "bool"
-            }
-          },
-          "readonly": false,
-          "accessibility": null,
-          "optional": false,
-          "isAbstract": false,
-          "isStatic": false,
-          "name": "someproperty",
           "location": {
             "filename": "file:///mod.ts",
-            "line": 2,
-            "col": 2,
-            "byteIndex": 23
-          }
-        },
-        {
-          "tsType": {
-            "repr": "bigint",
-            "kind": "keyword",
-            "keyword": "bigint"
+            "line": 0,
+            "col": 0,
+            "byteIndex": 0
           },
-          "readonly": false,
-          "accessibility": null,
-          "optional": false,
-          "isAbstract": false,
-          "isStatic": false,
-          "name": "optproperty",
-          "location": {
-            "filename": "file:///mod.ts",
-            "line": 3,
-            "col": 2,
-            "byteIndex": 45
+          "declarationKind": "export",
+          "kind": "class",
+          "def": {
+            "properties": [
+              {
+                "tsType": {
+                  "repr": "bool",
+                  "kind": "typeRef",
+                  "value": {
+                    "typeName": "bool"
+                  }
+                },
+                "name": "someproperty",
+                "location": {
+                  "filename": "file:///mod.ts",
+                  "line": 1,
+                  "col": 2,
+                  "byteIndex": 23
+                }
+              },
+              {
+                "tsType": {
+                  "repr": "bigint",
+                  "kind": "keyword",
+                  "value": "bigint"
+                },
+                "name": "optproperty",
+                "location": {
+                  "filename": "file:///mod.ts",
+                  "line": 2,
+                  "col": 2,
+                  "byteIndex": 45
+                }
+              }
+            ]
           }
         }
-      ],
-      "indexSignatures": [],
-      "methods": [],
-      "extends": null,
-      "implements": [],
-      "typeParams": [],
-      "superTypeParams": []
+      ]
     }
-  }
-]
+  ]
+}

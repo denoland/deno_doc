@@ -10,23 +10,22 @@ use serde::Serialize;
 #[serde(rename_all = "camelCase")]
 pub struct TypeAliasDef {
   pub ts_type: TsTypeDef,
+  #[serde(skip_serializing_if = "<[_]>::is_empty", default)]
   pub type_params: Box<[TsTypeParamDef]>,
 }
 
 pub fn get_doc_for_ts_type_alias_decl(
   module_info: &EsModuleInfo,
   type_alias_decl: &deno_ast::swc::ast::TsTypeAliasDecl,
-) -> (String, TypeAliasDef) {
-  let alias_name = type_alias_decl.id.sym.to_string();
+) -> TypeAliasDef {
   let ts_type = TsTypeDef::new(module_info, &type_alias_decl.type_ann);
   let type_params = maybe_type_param_decl_to_type_param_defs(
     module_info,
     type_alias_decl.type_params.as_deref(),
   );
-  let type_alias_def = TypeAliasDef {
+
+  TypeAliasDef {
     ts_type,
     type_params,
-  };
-
-  (alias_name, type_alias_def)
+  }
 }

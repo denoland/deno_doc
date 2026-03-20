@@ -50,13 +50,13 @@ error[missing-jsdoc]: exported symbol is missing JSDoc documentation
   |   ^
 
 # output.txt
-Defined in file:///mod.ts:5:1
+Defined in file:///mod.ts:4:1
 
 interface Output
 
   other: Test.Other
 
-Defined in file:///mod.ts:1:1
+Defined in file:///mod.ts:0:1
 
 private namespace Test
 
@@ -64,87 +64,80 @@ private namespace Test
 
 
 # output.json
-[
-  {
-    "name": "Output",
-    "isDefault": false,
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 5,
-      "col": 0,
-      "byteIndex": 44
-    },
-    "declarationKind": "export",
-    "kind": "interface",
-    "interfaceDef": {
-      "extends": [],
-      "constructors": [],
-      "methods": [],
-      "properties": [
+{
+  "symbols": [
+    {
+      "name": "Output",
+      "declarations": [
         {
-          "name": "other",
           "location": {
             "filename": "file:///mod.ts",
-            "line": 6,
-            "col": 2,
-            "byteIndex": 72
-          },
-          "params": [],
-          "computed": false,
-          "optional": false,
-          "tsType": {
-            "repr": "Test.Other",
-            "kind": "typeRef",
-            "typeRef": {
-              "typeParams": null,
-              "typeName": "Test.Other"
-            }
-          },
-          "typeParams": []
-        }
-      ],
-      "callSignatures": [],
-      "indexSignatures": [],
-      "typeParams": []
-    }
-  },
-  {
-    "name": "Test",
-    "isDefault": false,
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 1,
-      "col": 0,
-      "byteIndex": 0
-    },
-    "declarationKind": "private",
-    "kind": "namespace",
-    "namespaceDef": {
-      "elements": [
-        {
-          "name": "Other",
-          "isDefault": false,
-          "location": {
-            "filename": "file:///mod.ts",
-            "line": 2,
-            "col": 2,
-            "byteIndex": 19
+            "line": 4,
+            "col": 0,
+            "byteIndex": 44
           },
           "declarationKind": "export",
-          "kind": "class",
-          "classDef": {
-            "isAbstract": false,
-            "constructors": [],
-            "properties": [],
-            "indexSignatures": [],
-            "methods": [],
-            "extends": null,
-            "implements": [],
-            "typeParams": [],
-            "superTypeParams": []
+          "kind": "interface",
+          "def": {
+            "properties": [
+              {
+                "name": "other",
+                "location": {
+                  "filename": "file:///mod.ts",
+                  "line": 5,
+                  "col": 2,
+                  "byteIndex": 72
+                },
+                "tsType": {
+                  "repr": "Test.Other",
+                  "kind": "typeRef",
+                  "value": {
+                    "typeName": "Test.Other",
+                    "resolution": {
+                      "kind": "local"
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Test",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 0,
+            "col": 0,
+            "byteIndex": 0
+          },
+          "declarationKind": "private",
+          "kind": "namespace",
+          "def": {
+            "elements": [
+              {
+                "name": "Other",
+                "declarations": [
+                  {
+                    "location": {
+                      "filename": "file:///mod.ts",
+                      "line": 1,
+                      "col": 2,
+                      "byteIndex": 19
+                    },
+                    "declarationKind": "export",
+                    "kind": "class",
+                    "def": {}
+                  }
+                ]
+              }
+            ]
           }
         }
       ]
     }
-  }
-]
+  ]
+}

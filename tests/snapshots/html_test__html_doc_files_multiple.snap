@@ -106,7 +106,10 @@ expression: files.get(file_name).unwrap()
       <a href=".&#x2F;" class="link text-xl font-bold">default</a>
 
       <div class="ml-4 mt-2"><section>
-  <div class="space-y-2 flex-1"><div class="space-y-7" id="module_doc"><section class="section"  id="default_classes"><div>
+  <div class="space-y-2 flex-1"><div class="deprecated">
+    <div><span>Deprecated</span></div><div><div class="markdown"></div> </div></div><div class="space-y-7" id="module_doc"><div class="markdown_summary"><p>Some docs
+with a line break</p>
+</div><section class="section"  id="default_classes"><div>
       <h2 class="anchorable mb-1"><a href="#default_classes" class="anchor" aria-label="Anchor" tabIndex="-1"><svg
   width="16"
   height="16"
@@ -253,10 +256,6 @@ Functions</h2></div><div class="namespaceSection"><div id="namespace_c" class="n
 <div class="namespaceItemContent">
 		    <a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;functionWithOptionalParameters.html" title="functionWithOptionalParameters">
 			    <span>functionWithOptionalParameters</span><span>(<div class="ml-4"><div><span>foo<span class="td-op">?</span><span>: <span class="td-kw">number</span></span></span>,</div><div><span>bar<span class="td-op">?</span><span>: <span class="td-kw">number</span></span></span>,</div><div><span>baz<span class="td-op">?</span><span>: <span>[<span class="td-kw">number</span>]</span></span></span>,</div><div><span><span class="italic">unnamed 3</span><span class="td-op">?</span><span>: <span class="td-kw">string</span>[]</span></span>,</div><div><span><span class="italic">unnamed 4</span><span class="td-op">?</span><span>: { qux<span>: <span class="td-kw">number</span></span>;  }</span></span></div></div>)<span>: <span class="td-kw">void</span></span></span></a></div>
-    </div><div id="namespace_qaz" class="namespaceItem" ><div class="docNodeKindIcon"><div class="text-Function bg-Function/15 dark:text-FunctionDark dark:bg-FunctionDark/15" title="Function">f</div></div>
-<div class="namespaceItemContent">
-		    <a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;qaz.html" title="qaz">
-			    <span>qaz</span><span>(<span><span>a<span>: <span><span class="td-kw">string</span><span class="td-op"> | </span><span class="td-kw">number</span></span></span></span></span>)<span>: <span class="td-kw">void</span></span></span><div class="namespaceItemContentTypeInfo">2 overloads</div></a></div>
     </div><div id="namespace_testing_externalfunction" class="namespaceItem" ><div class="docNodeKindIcon"><div class="text-Function bg-Function/15 dark:text-FunctionDark dark:bg-FunctionDark/15" title="Function">f</div></div>
 <div class="namespaceItemContent">
 		    <a href=".&#x2F;.&#x2F;d&#x2F;~&#x2F;Testing.externalFunction.html" title="Testing.externalFunction">
@@ -273,6 +272,11 @@ Functions</h2></div><div class="namespaceSection"><div id="namespace_c" class="n
 <div class="namespaceItemContent">
 		    <a href=".&#x2F;.&#x2F;c&#x2F;~&#x2F;x.html" title="x">
 			    <span>x</span><span>(<span><span>_n<span class="td-op">?</span><span>: <span class="td-kw">number</span></span></span></span>)<span>: <span class="td-kw">void</span></span></span></a></div>
+    </div><div id="namespace_qaz" class="namespaceItem" ><div class="docNodeKindIcon"><div class="text-Function bg-Function/15 dark:text-FunctionDark dark:bg-FunctionDark/15" title="Function">f</div></div>
+<div class="namespaceItemContent">
+		    <a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;qaz.html" title="qaz">
+			    <span>qaz</span><span>(<span><span>a<span>: <span><span class="td-kw">string</span><span class="td-op"> | </span><span class="td-kw">number</span></span></span></span></span>)<span>: <span class="td-kw">void</span></span></span><div class="namespaceItemContentTypeInfo">2 overloads</div></a><div class="namespaceItemContentDoc"><div class="markdown_summary"><p>content</p>
+</div></div></div>
     </div></div>
 </section>
 <section class="section"  id="default_interfaces"><div>

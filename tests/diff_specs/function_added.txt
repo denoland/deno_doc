@@ -12,27 +12,27 @@ export function bar() {}
       "added": [
         {
           "name": "bar",
-          "isDefault": false,
-          "location": {
-            "filename": "file:///mod.ts",
-            "line": 2,
-            "col": 0,
-            "byteIndex": 25
-          },
-          "declarationKind": "export",
-          "kind": "function",
-          "functionDef": {
-            "params": [],
-            "returnType": {
-              "repr": "void",
-              "kind": "keyword",
-              "keyword": "void"
-            },
-            "hasBody": true,
-            "isAsync": false,
-            "isGenerator": false,
-            "typeParams": []
-          }
+          "declarations": [
+            {
+              "location": {
+                "filename": "file:///mod.ts",
+                "line": 1,
+                "col": 0,
+                "byteIndex": 25
+              },
+              "declarationKind": "export",
+              "kind": "function",
+              "def": {
+                "params": [],
+                "returnType": {
+                  "repr": "void",
+                  "kind": "keyword",
+                  "value": "void"
+                },
+                "hasBody": true
+              }
+            }
+          ]
         }
       ]
     }

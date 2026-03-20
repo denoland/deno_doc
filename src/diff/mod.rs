@@ -16,8 +16,9 @@ use indexmap::IndexSet;
 use serde::Deserialize;
 use serde::Serialize;
 
-use crate::DocNode;
-use crate::DocNodeDef;
+use crate::Symbol;
+use crate::node::Declaration;
+use crate::node::DeclarationDef;
 use crate::node::DeclarationKind;
 use crate::node::DocNodeKind;
 use crate::parser::ParseOutput;
@@ -162,10 +163,10 @@ impl DocDiff {
     let mut modified_modules = IndexMap::new();
 
     for specifier in old_modules.intersection(&new_modules) {
-      let old_nodes = old.get(*specifier).unwrap();
-      let new_nodes = new.get(*specifier).unwrap();
+      let old_doc = old.get(*specifier).unwrap();
+      let new_doc = new.get(*specifier).unwrap();
 
-      let module_diff = ModuleDiff::diff(old_nodes, new_nodes);
+      let module_diff = ModuleDiff::diff(&old_doc.symbols, &new_doc.symbols);
 
       if module_diff.has_changes() {
         modified_modules.insert((*specifier).clone(), module_diff);
@@ -190,34 +191,35 @@ impl DocDiff {
 #[serde(rename_all = "camelCase")]
 pub struct ModuleDiff {
   #[serde(skip_serializing_if = "Vec::is_empty", default)]
-  pub added: Vec<DocNode>,
+  pub added: Vec<Symbol>,
   #[serde(skip_serializing_if = "Vec::is_empty", default)]
-  pub removed: Vec<DocNode>,
+  pub removed: Vec<Symbol>,
   #[serde(skip_serializing_if = "Vec::is_empty", default)]
-  pub modified: Vec<DocNodeDiff>,
+  pub modified: Vec<SymbolDiff>,
 }
 
 impl ModuleDiff {
-  pub fn diff(old_nodes: &[DocNode], new_nodes: &[DocNode]) -> Self {
-    let old_map = build_node_map(old_nodes);
-    let new_map = build_node_map(new_nodes);
+  pub fn diff(old_nodes: &[Symbol], new_nodes: &[Symbol]) -> Self {
+    let old_map = build_name_map(old_nodes);
+    let new_map = build_name_map(new_nodes);
 
-    let mut added = Vec::new();
-    let mut removed = Vec::new();
+    let mut added: Vec<Symbol> = Vec::new();
+    let mut removed: Vec<Symbol> = Vec::new();
     let mut modified = Vec::new();
 
-    for ((name, kind), node) in &new_map {
-      if !old_map.contains_key(&(name.clone(), *kind)) {
+    for (name, node) in &new_map {
+      if !old_map.contains_key(name) {
         added.push((*node).clone());
       }
     }
 
-    for ((name, kind), node) in &old_map {
-      if !new_map.contains_key(&(name.clone(), *kind)) {
+    for (name, node) in &old_map {
+      if !new_map.contains_key(name) {
         removed.push((*node).clone());
       }
     }
 
+    // Rename detection among added/removed Symbols
     let mut matched_added = IndexSet::new();
     let mut matched_removed = IndexSet::new();
 
@@ -227,43 +229,8 @@ impl ModuleDiff {
           continue;
         }
 
-        if let Some(def_changes) = try_detect_rename(removed_node, added_node) {
-          let js_doc_changes =
-            JsDocDiff::diff(&removed_node.js_doc, &added_node.js_doc);
-          let declaration_kind_change =
-            if removed_node.declaration_kind != added_node.declaration_kind {
-              Some(Change::new(
-                removed_node.declaration_kind,
-                added_node.declaration_kind,
-              ))
-            } else {
-              None
-            };
-
-          let is_default_change = if removed_node.is_default.unwrap_or(false)
-            != added_node.is_default.unwrap_or(false)
-          {
-            Some(Change::new(
-              removed_node.is_default.unwrap_or(false),
-              added_node.is_default.unwrap_or(false),
-            ))
-          } else {
-            None
-          };
-
-          modified.push(DocNodeDiff {
-            name: added_node.name.clone(),
-            kind: added_node.def.to_kind(),
-            name_change: Some(Change::new(
-              removed_node.name.clone(),
-              added_node.name.clone(),
-            )),
-            def_changes,
-            js_doc_changes,
-            declaration_kind_change,
-            is_default_change,
-          });
-
+        if let Some(rename_diff) = try_detect_rename(removed_node, added_node) {
+          modified.push(rename_diff);
           matched_added.insert(a_idx);
           matched_removed.insert(r_idx);
           break;
@@ -271,24 +238,25 @@ impl ModuleDiff {
       }
     }
 
-    let added = added
-      .into_iter()
-      .enumerate()
-      .filter(|(i, _)| !matched_added.contains(i))
-      .map(|(_, n)| n)
-      .collect::<Vec<_>>();
-    let removed = removed
-      .into_iter()
-      .enumerate()
-      .filter(|(i, _)| !matched_removed.contains(i))
-      .map(|(_, n)| n)
-      .collect::<Vec<_>>();
+    let mut i = 0;
+    added.retain(|_| {
+      let keep = !matched_added.contains(&i);
+      i += 1;
+      keep
+    });
+    let mut i = 0;
+    removed.retain(|_| {
+      let keep = !matched_removed.contains(&i);
+      i += 1;
+      keep
+    });
 
-    for ((name, kind), old_node) in &old_map {
-      if let Some(new_node) = new_map.get(&(name.clone(), *kind))
-        && let Some(symbol_diff) = DocNodeDiff::diff(old_node, new_node)
+    // Modifications: same name in both
+    for (name, old_node) in &old_map {
+      if let Some(new_node) = new_map.get(name)
+        && let Some(diff) = SymbolDiff::diff(old_node, new_node)
       {
-        modified.push(symbol_diff);
+        modified.push(diff);
       }
     }
 
@@ -306,60 +274,142 @@ impl ModuleDiff {
   }
 }
 
-/// None = not a rename.
-/// Some(None) = rename detected, no diff.
-/// Some(Some(def_diff)) = rename detected, with diff.
-fn try_detect_rename(
-  old: &DocNode,
-  new: &DocNode,
-) -> Option<Option<DocNodeDefDiff>> {
-  if old.def.to_kind() != new.def.to_kind() {
+/// Detect if two Symbols are a rename of each other.
+/// Returns a SymbolDiff with name_change set if below threshold.
+fn try_detect_rename(old: &Symbol, new: &Symbol) -> Option<SymbolDiff> {
+  let old_kinds: IndexSet<DocNodeKind> =
+    old.declarations.iter().map(|d| d.def.to_kind()).collect();
+  let new_kinds: IndexSet<DocNodeKind> =
+    new.declarations.iter().map(|d| d.def.to_kind()).collect();
+
+  if old_kinds.is_disjoint(&new_kinds) {
     return None;
   }
 
-  let def_diff = DocNodeDefDiff::diff(&old.def, &new.def);
+  // Use first common kind to check rename threshold
+  let first_kind = *old_kinds.intersection(&new_kinds).next()?;
+  let old_decl = old
+    .declarations
+    .iter()
+    .find(|d| d.def.to_kind() == first_kind)?;
+  let new_decl = new
+    .declarations
+    .iter()
+    .find(|d| d.def.to_kind() == first_kind)?;
+
+  let def_diff = DeclarationDefDiff::diff(&old_decl.def, &new_decl.def);
   let pct = def_diff
     .as_ref()
-    .map_or(0.0, |d| d.change_percentage(&old.def, &new.def));
+    .map_or(0.0, |d| d.change_percentage(&old_decl.def, &new_decl.def));
 
-  if pct <= RENAME_THRESHOLD {
-    Some(def_diff)
-  } else {
-    None
+  if pct > RENAME_THRESHOLD {
+    return None;
   }
+
+  let declarations =
+    DeclarationsDiff::diff(&old.declarations, &new.declarations);
+
+  Some(SymbolDiff {
+    name: new.name.clone(),
+    name_change: Some(Change::new(old.name.clone(), new.name.clone())),
+    is_default_change: if old.is_default != new.is_default {
+      Some(Change::new(old.is_default, new.is_default))
+    } else {
+      None
+    },
+    declarations,
+  })
 }
 
-fn build_node_map(
-  nodes: &[DocNode],
-) -> IndexMap<(String, DocNodeKind), &DocNode> {
-  let mut map = IndexMap::new();
-  for node in nodes {
-    let kind = node.def.to_kind();
-    map.insert((node.name.to_string(), kind), node);
-  }
-  map
+fn build_name_map(nodes: &[Symbol]) -> IndexMap<&str, &Symbol> {
+  nodes.iter().map(|n| (n.name.as_ref(), n)).collect()
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub struct DocNodeDiff {
+pub struct SymbolDiff {
   pub name: Box<str>,
-  pub kind: DocNodeKind,
   #[serde(skip_serializing_if = "Option::is_none")]
   pub name_change: Option<Change<Box<str>>>,
   #[serde(skip_serializing_if = "Option::is_none")]
-  pub def_changes: Option<DocNodeDefDiff>,
+  pub is_default_change: Option<Change<bool>>,
+  #[serde(skip_serializing_if = "Option::is_none")]
+  pub declarations: Option<DeclarationsDiff>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+#[serde(rename_all = "camelCase")]
+pub struct DeclarationsDiff {
+  #[serde(skip_serializing_if = "Vec::is_empty", default)]
+  pub added: Vec<Declaration>,
+  #[serde(skip_serializing_if = "Vec::is_empty", default)]
+  pub removed: Vec<Declaration>,
+  #[serde(skip_serializing_if = "Vec::is_empty", default)]
+  pub modified: Vec<DeclarationDiff>,
+}
+
+impl DeclarationsDiff {
+  pub fn diff(old: &[Declaration], new: &[Declaration]) -> Option<Self> {
+    let old_map = old
+      .iter()
+      .map(|d| (d.def.to_kind(), d))
+      .collect::<IndexMap<_, _>>();
+    let new_map = new
+      .iter()
+      .map(|d| (d.def.to_kind(), d))
+      .collect::<IndexMap<_, _>>();
+
+    let mut added = Vec::new();
+    let mut removed = Vec::new();
+    let mut modified = Vec::new();
+
+    for (kind, new_decl) in &new_map {
+      match old_map.get(kind) {
+        Some(old_decl) => {
+          if let Some(diff) = DeclarationDiff::diff(old_decl, new_decl) {
+            modified.push(diff);
+          }
+        }
+        None => {
+          added.push((*new_decl).clone());
+        }
+      }
+    }
+
+    for (kind, old_decl) in &old_map {
+      if !new_map.contains_key(kind) {
+        removed.push((*old_decl).clone());
+      }
+    }
+
+    if added.is_empty() && removed.is_empty() && modified.is_empty() {
+      return None;
+    }
+
+    Some(DeclarationsDiff {
+      added,
+      removed,
+      modified,
+    })
+  }
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct DeclarationDiff {
+  pub kind: DocNodeKind,
+  #[serde(skip_serializing_if = "Option::is_none")]
+  pub def_changes: Option<DeclarationDefDiff>,
   #[serde(skip_serializing_if = "Option::is_none")]
   pub js_doc_changes: Option<JsDocDiff>,
   #[serde(skip_serializing_if = "Option::is_none")]
   pub declaration_kind_change: Option<Change<DeclarationKind>>,
-  #[serde(skip_serializing_if = "Option::is_none")]
-  pub is_default_change: Option<Change<bool>>,
 }
 
-impl DocNodeDiff {
-  pub fn diff(old: &DocNode, new: &DocNode) -> Option<Self> {
-    let def_changes = DocNodeDefDiff::diff(&old.def, &new.def);
+impl DeclarationDiff {
+  pub fn diff(old: &Declaration, new: &Declaration) -> Option<Self> {
+    let def_changes = DeclarationDefDiff::diff(&old.def, &new.def);
+
     let js_doc_changes = JsDocDiff::diff(&old.js_doc, &new.js_doc);
 
     let declaration_kind_change =
@@ -369,39 +419,49 @@ impl DocNodeDiff {
         None
       };
 
-    let is_default_change =
-      if old.is_default.unwrap_or(false) != new.is_default.unwrap_or(false) {
-        Some(Change::new(
-          old.is_default.unwrap_or(false),
-          new.is_default.unwrap_or(false),
-        ))
-      } else {
-        None
-      };
-
     if def_changes.is_none()
       && js_doc_changes.is_none()
       && declaration_kind_change.is_none()
-      && is_default_change.is_none()
     {
       return None;
     }
 
-    Some(DocNodeDiff {
-      name: old.name.clone(),
+    Some(DeclarationDiff {
       kind: old.def.to_kind(),
-      name_change: None,
       def_changes,
       js_doc_changes,
       declaration_kind_change,
+    })
+  }
+}
+
+impl SymbolDiff {
+  pub fn diff(old: &Symbol, new: &Symbol) -> Option<Self> {
+    let declarations =
+      DeclarationsDiff::diff(&old.declarations, &new.declarations);
+
+    let is_default_change = if old.is_default != new.is_default {
+      Some(Change::new(old.is_default, new.is_default))
+    } else {
+      None
+    };
+
+    if declarations.is_none() && is_default_change.is_none() {
+      return None;
+    }
+
+    Some(SymbolDiff {
+      name: old.name.clone(),
+      name_change: None,
       is_default_change,
+      declarations,
     })
   }
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(tag = "type", rename_all = "camelCase")]
-pub enum DocNodeDefDiff {
+pub enum DeclarationDefDiff {
   Function(FunctionDiff),
   Variable(VariableDiff),
   Enum(EnumDiff),
@@ -409,42 +469,38 @@ pub enum DocNodeDefDiff {
   TypeAlias(TypeAliasDiff),
   Namespace(NamespaceDiff),
   Interface(InterfaceDiff),
-  // ignore Import & Reference
+  // ignore Reference
 }
 
-impl DocNodeDefDiff {
-  pub fn change_percentage(&self, old: &DocNodeDef, new: &DocNodeDef) -> f64 {
+impl DeclarationDefDiff {
+  pub fn change_percentage(
+    &self,
+    old: &DeclarationDef,
+    new: &DeclarationDef,
+  ) -> f64 {
     match (self, old, new) {
-      (DocNodeDefDiff::Function(d), _, _) => d.change_percentage(),
-      (DocNodeDefDiff::Variable(d), _, _) => d.change_percentage(),
-      (DocNodeDefDiff::TypeAlias(d), _, _) => d.change_percentage(),
+      (DeclarationDefDiff::Function(d), _, _) => d.change_percentage(),
+      (DeclarationDefDiff::Variable(d), _, _) => d.change_percentage(),
+      (DeclarationDefDiff::TypeAlias(d), _, _) => d.change_percentage(),
       (
-        DocNodeDefDiff::Enum(d),
-        DocNodeDef::Enum { enum_def: old_def },
-        DocNodeDef::Enum { enum_def: new_def },
+        DeclarationDefDiff::Enum(d),
+        DeclarationDef::Enum(old_def),
+        DeclarationDef::Enum(new_def),
       ) => d.change_percentage(old_def, new_def),
       (
-        DocNodeDefDiff::Class(d),
-        DocNodeDef::Class { class_def: old_def },
-        DocNodeDef::Class { class_def: new_def },
+        DeclarationDefDiff::Class(d),
+        DeclarationDef::Class(old_def),
+        DeclarationDef::Class(new_def),
       ) => d.change_percentage(old_def, new_def),
       (
-        DocNodeDefDiff::Interface(d),
-        DocNodeDef::Interface {
-          interface_def: old_def,
-        },
-        DocNodeDef::Interface {
-          interface_def: new_def,
-        },
+        DeclarationDefDiff::Interface(d),
+        DeclarationDef::Interface(old_def),
+        DeclarationDef::Interface(new_def),
       ) => d.change_percentage(old_def, new_def),
       (
-        DocNodeDefDiff::Namespace(d),
-        DocNodeDef::Namespace {
-          namespace_def: old_def,
-        },
-        DocNodeDef::Namespace {
-          namespace_def: new_def,
-        },
+        DeclarationDefDiff::Namespace(d),
+        DeclarationDef::Namespace(old_def),
+        DeclarationDef::Namespace(new_def),
       ) => d.change_percentage(old_def, new_def),
       _ => 1.0,
     }
@@ -452,113 +508,99 @@ impl DocNodeDefDiff {
 
   pub fn as_function(&self) -> Option<&FunctionDiff> {
     match self {
-      DocNodeDefDiff::Function(d) => Some(d),
+      DeclarationDefDiff::Function(d) => Some(d),
       _ => None,
     }
   }
 
   pub fn as_variable(&self) -> Option<&VariableDiff> {
     match self {
-      DocNodeDefDiff::Variable(d) => Some(d),
+      DeclarationDefDiff::Variable(d) => Some(d),
       _ => None,
     }
   }
 
   pub fn as_enum(&self) -> Option<&EnumDiff> {
     match self {
-      DocNodeDefDiff::Enum(d) => Some(d),
+      DeclarationDefDiff::Enum(d) => Some(d),
       _ => None,
     }
   }
 
   pub fn as_class(&self) -> Option<&ClassDiff> {
     match self {
-      DocNodeDefDiff::Class(d) => Some(d),
+      DeclarationDefDiff::Class(d) => Some(d),
       _ => None,
     }
   }
 
   pub fn as_type_alias(&self) -> Option<&TypeAliasDiff> {
     match self {
-      DocNodeDefDiff::TypeAlias(d) => Some(d),
+      DeclarationDefDiff::TypeAlias(d) => Some(d),
       _ => None,
     }
   }
 
   pub fn as_namespace(&self) -> Option<&NamespaceDiff> {
     match self {
-      DocNodeDefDiff::Namespace(d) => Some(d),
+      DeclarationDefDiff::Namespace(d) => Some(d),
       _ => None,
     }
   }
 
   pub fn as_interface(&self) -> Option<&InterfaceDiff> {
     match self {
-      DocNodeDefDiff::Interface(d) => Some(d),
+      DeclarationDefDiff::Interface(d) => Some(d),
       _ => None,
     }
   }
 
-  pub fn diff(old: &DocNodeDef, new: &DocNodeDef) -> Option<Self> {
+  pub fn diff(old: &DeclarationDef, new: &DeclarationDef) -> Option<Self> {
     match (old, new) {
       (
-        DocNodeDef::Function {
-          function_def: old_def,
-        },
-        DocNodeDef::Function {
-          function_def: new_def,
-        },
-      ) => FunctionDiff::diff(old_def, new_def).map(DocNodeDefDiff::Function),
+        DeclarationDef::Function(old_def),
+        DeclarationDef::Function(new_def),
+      ) => {
+        FunctionDiff::diff(old_def, new_def).map(DeclarationDefDiff::Function)
+      }
 
       (
-        DocNodeDef::Variable {
-          variable_def: old_def,
-        },
-        DocNodeDef::Variable {
-          variable_def: new_def,
-        },
-      ) => VariableDiff::diff(old_def, new_def).map(DocNodeDefDiff::Variable),
+        DeclarationDef::Variable(old_def),
+        DeclarationDef::Variable(new_def),
+      ) => {
+        VariableDiff::diff(old_def, new_def).map(DeclarationDefDiff::Variable)
+      }
+
+      (DeclarationDef::Enum(old_def), DeclarationDef::Enum(new_def)) => {
+        EnumDiff::diff(old_def, new_def).map(DeclarationDefDiff::Enum)
+      }
+
+      (DeclarationDef::Class(old_def), DeclarationDef::Class(new_def)) => {
+        ClassDiff::diff(old_def, new_def).map(DeclarationDefDiff::Class)
+      }
 
       (
-        DocNodeDef::Enum { enum_def: old_def },
-        DocNodeDef::Enum { enum_def: new_def },
-      ) => EnumDiff::diff(old_def, new_def).map(DocNodeDefDiff::Enum),
+        DeclarationDef::TypeAlias(old_def),
+        DeclarationDef::TypeAlias(new_def),
+      ) => {
+        TypeAliasDiff::diff(old_def, new_def).map(DeclarationDefDiff::TypeAlias)
+      }
 
       (
-        DocNodeDef::Class { class_def: old_def },
-        DocNodeDef::Class { class_def: new_def },
-      ) => ClassDiff::diff(old_def, new_def).map(DocNodeDefDiff::Class),
+        DeclarationDef::Namespace(old_def),
+        DeclarationDef::Namespace(new_def),
+      ) => {
+        NamespaceDiff::diff(old_def, new_def).map(DeclarationDefDiff::Namespace)
+      }
 
       (
-        DocNodeDef::TypeAlias {
-          type_alias_def: old_def,
-        },
-        DocNodeDef::TypeAlias {
-          type_alias_def: new_def,
-        },
-      ) => TypeAliasDiff::diff(old_def, new_def).map(DocNodeDefDiff::TypeAlias),
+        DeclarationDef::Interface(old_def),
+        DeclarationDef::Interface(new_def),
+      ) => {
+        InterfaceDiff::diff(old_def, new_def).map(DeclarationDefDiff::Interface)
+      }
 
-      (
-        DocNodeDef::Namespace {
-          namespace_def: old_def,
-        },
-        DocNodeDef::Namespace {
-          namespace_def: new_def,
-        },
-      ) => NamespaceDiff::diff(old_def, new_def).map(DocNodeDefDiff::Namespace),
-
-      (
-        DocNodeDef::Interface {
-          interface_def: old_def,
-        },
-        DocNodeDef::Interface {
-          interface_def: new_def,
-        },
-      ) => InterfaceDiff::diff(old_def, new_def).map(DocNodeDefDiff::Interface),
-
-      (DocNodeDef::Import { .. }, DocNodeDef::Import { .. }) => None,
-      (DocNodeDef::Reference { .. }, DocNodeDef::Reference { .. }) => None,
-      (DocNodeDef::ModuleDoc, DocNodeDef::ModuleDoc) => None,
+      (DeclarationDef::Reference(..), DeclarationDef::Reference(..)) => None,
 
       _ => unreachable!(),
     }

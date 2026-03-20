@@ -14,7 +14,7 @@ export namespace Audio {
 export namespace Speech {}
 
 # output.txt
-Defined in file:///audio.ts:4:1
+Defined in file:///audio.ts:3:1
 
 namespace Audio
   Some documentation.
@@ -24,42 +24,50 @@ namespace Audio
 
 
 # output.json
-[
-  {
-    "name": "Audio",
-    "isDefault": false,
-    "location": {
-      "filename": "file:///audio.ts",
-      "line": 4,
-      "col": 0,
-      "byteIndex": 66
-    },
-    "declarationKind": "export",
-    "jsDoc": {
-      "doc": "Some documentation."
-    },
-    "kind": "namespace",
-    "namespaceDef": {
-      "elements": [
+{
+  "symbols": [
+    {
+      "name": "Audio",
+      "declarations": [
         {
-          "name": "Speech",
-          "isDefault": false,
           "location": {
-            "filename": "file:///speech.ts",
-            "line": 2,
+            "filename": "file:///audio.ts",
+            "line": 3,
             "col": 0,
-            "byteIndex": 27
+            "byteIndex": 66
           },
           "declarationKind": "export",
           "jsDoc": {
             "doc": "Some documentation."
           },
           "kind": "namespace",
-          "namespaceDef": {
-            "elements": []
+          "def": {
+            "elements": [
+              {
+                "name": "Speech",
+                "declarations": [
+                  {
+                    "location": {
+                      "filename": "file:///speech.ts",
+                      "line": 1,
+                      "col": 0,
+                      "byteIndex": 27
+                    },
+                    "declarationKind": "export",
+                    "jsDoc": {
+                      "doc": "Some documentation."
+                    },
+                    "kind": "namespace",
+                    "def": {
+                      "elements": []
+                    }
+                  }
+                ]
+              }
+            ]
           }
         }
       ]
     }
-  }
-]
+  ]
+}

@@ -31,111 +31,125 @@ error[missing-jsdoc]: exported symbol is missing JSDoc documentation
    |                      ^
 
 # output.txt
-Defined in file:///mod.ts:6:3
+Defined in file:///mod.ts:5:3
 
 const a: string
   export a doc
 
-Defined in file:///mod.ts:8:3
+Defined in file:///mod.ts:7:3
 
 const b: number
   export b doc
 
-Defined in file:///mod.ts:16:16
+Defined in file:///mod.ts:15:16
 
 const f: string
 
-Defined in file:///mod.ts:16:22
+Defined in file:///mod.ts:15:22
 
 const h: number
 
 
 # output.json
-[
-  {
-    "name": "a",
-    "isDefault": false,
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 6,
-      "col": 2,
-      "byteIndex": 123
+{
+  "symbols": [
+    {
+      "name": "a",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 5,
+            "col": 2,
+            "byteIndex": 123
+          },
+          "declarationKind": "export",
+          "jsDoc": {
+            "doc": "export a doc"
+          },
+          "kind": "variable",
+          "def": {
+            "tsType": {
+              "repr": "string",
+              "kind": "keyword",
+              "value": "string"
+            },
+            "kind": "const"
+          }
+        }
+      ]
     },
-    "declarationKind": "export",
-    "jsDoc": {
-      "doc": "export a doc"
+    {
+      "name": "b",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 7,
+            "col": 2,
+            "byteIndex": 150
+          },
+          "declarationKind": "export",
+          "jsDoc": {
+            "doc": "export b doc"
+          },
+          "kind": "variable",
+          "def": {
+            "tsType": {
+              "repr": "number",
+              "kind": "keyword",
+              "value": "number"
+            },
+            "kind": "const"
+          }
+        }
+      ]
     },
-    "kind": "variable",
-    "variableDef": {
-      "tsType": {
-        "repr": "string",
-        "kind": "keyword",
-        "keyword": "string"
-      },
-      "kind": "const"
+    {
+      "name": "f",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 15,
+            "col": 15,
+            "byteIndex": 250
+          },
+          "declarationKind": "export",
+          "kind": "variable",
+          "def": {
+            "tsType": {
+              "repr": "string",
+              "kind": "keyword",
+              "value": "string"
+            },
+            "kind": "const"
+          }
+        }
+      ]
+    },
+    {
+      "name": "h",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 15,
+            "col": 21,
+            "byteIndex": 256
+          },
+          "declarationKind": "export",
+          "kind": "variable",
+          "def": {
+            "tsType": {
+              "repr": "number",
+              "kind": "keyword",
+              "value": "number"
+            },
+            "kind": "const"
+          }
+        }
+      ]
     }
-  },
-  {
-    "name": "b",
-    "isDefault": false,
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 8,
-      "col": 2,
-      "byteIndex": 150
-    },
-    "declarationKind": "export",
-    "jsDoc": {
-      "doc": "export b doc"
-    },
-    "kind": "variable",
-    "variableDef": {
-      "tsType": {
-        "repr": "number",
-        "kind": "keyword",
-        "keyword": "number"
-      },
-      "kind": "const"
-    }
-  },
-  {
-    "name": "f",
-    "isDefault": false,
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 16,
-      "col": 15,
-      "byteIndex": 250
-    },
-    "declarationKind": "export",
-    "kind": "variable",
-    "variableDef": {
-      "tsType": {
-        "repr": "string",
-        "kind": "keyword",
-        "keyword": "string"
-      },
-      "kind": "const"
-    }
-  },
-  {
-    "name": "h",
-    "isDefault": false,
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 16,
-      "col": 21,
-      "byteIndex": 256
-    },
-    "declarationKind": "export",
-    "kind": "variable",
-    "variableDef": {
-      "tsType": {
-        "repr": "number",
-        "kind": "keyword",
-        "keyword": "number"
-      },
-      "kind": "const"
-    }
-  }
-]
+  ]
+}

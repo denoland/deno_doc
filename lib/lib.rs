@@ -6,6 +6,7 @@ use deno_doc::html::UrlResolveKind;
 use deno_doc::html::UsageComposerEntry;
 use deno_doc::html::UsageToMd;
 use deno_doc::DocParser;
+use deno_doc::Document;
 use deno_graph::ast::CapturingModuleAnalyzer;
 use deno_graph::source::CacheSetting;
 use deno_graph::source::LoadError;
@@ -24,6 +25,7 @@ use import_map::ImportMap;
 use import_map::ImportMapOptions;
 use indexmap::IndexMap;
 use serde::Serialize;
+use serde_wasm_bindgen::Serializer;
 use std::ffi::c_void;
 use std::rc::Rc;
 use std::sync::Arc;
@@ -267,6 +269,18 @@ async fn inner_doc(
   let serializer =
     serde_wasm_bindgen::Serializer::new().serialize_maps_as_objects(true);
   Ok(entries.serialize(&serializer).unwrap())
+}
+
+#[wasm_bindgen]
+pub fn docnodes_v1_to_v2(v1_nodes: JsValue) -> Result<JsValue, JsValue> {
+  console_error_panic_hook::set_once();
+  let value: serde_json::Value = serde_wasm_bindgen::from_value(v1_nodes)
+    .map_err(|err| JsValue::from(js_sys::Error::new(&err.to_string())))?;
+  let document = deno_doc::docnodes_v1_to_v2(value);
+  let serializer = Serializer::new().serialize_maps_as_objects(true);
+  document
+    .serialize(&serializer)
+    .map_err(|err| JsValue::from(js_sys::Error::new(&err.to_string())))
 }
 
 #[allow(clippy::too_many_arguments)]
@@ -566,7 +580,7 @@ fn generate_html_inner(
   >(default_symbol_map)
   .map_err(|err| anyhow!("defaultSymbolMap: {}", err))?;
 
-  let doc_nodes_by_url: IndexMap<ModuleSpecifier, Vec<deno_doc::DocNode>> =
+  let doc_nodes_by_url: IndexMap<ModuleSpecifier, Document> =
     serde_wasm_bindgen::from_value(doc_nodes_by_url)
       .map_err(|err| anyhow!("docNodesByUrl: {}", err))?;
 

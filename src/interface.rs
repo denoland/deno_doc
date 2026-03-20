@@ -23,13 +23,19 @@ pub struct InterfaceDef {
   #[serde(skip_serializing_if = "Option::is_none", default)]
   /// set when the interface is a default export
   pub def_name: Option<String>,
+  #[serde(skip_serializing_if = "Vec::is_empty", default)]
   pub extends: Vec<TsTypeDef>,
-  #[serde(default)]
+  #[serde(skip_serializing_if = "Vec::is_empty", default)]
   pub constructors: Vec<ConstructorDef>,
+  #[serde(skip_serializing_if = "Vec::is_empty", default)]
   pub methods: Vec<MethodDef>,
+  #[serde(skip_serializing_if = "Vec::is_empty", default)]
   pub properties: Vec<PropertyDef>,
+  #[serde(skip_serializing_if = "Vec::is_empty", default)]
   pub call_signatures: Vec<CallSignatureDef>,
+  #[serde(skip_serializing_if = "Vec::is_empty", default)]
   pub index_signatures: Vec<IndexSignatureDef>,
+  #[serde(skip_serializing_if = "<[_]>::is_empty", default)]
   pub type_params: Box<[TsTypeParamDef]>,
 }
 
@@ -78,9 +84,7 @@ pub fn get_doc_for_ts_interface_decl(
   module_info: &EsModuleInfo,
   interface_decl: &deno_ast::swc::ast::TsInterfaceDecl,
   def_name: Option<String>,
-) -> (String, InterfaceDef) {
-  let interface_name = interface_decl.id.sym.to_string();
-
+) -> InterfaceDef {
   let mut constructors = vec![];
   let mut methods = vec![];
   let mut properties = vec![];
@@ -306,7 +310,7 @@ pub fn get_doc_for_ts_interface_decl(
     .map(|expr| TsTypeDef::ts_expr_with_type_args(module_info, expr))
     .collect::<Vec<TsTypeDef>>();
 
-  let interface_def = InterfaceDef {
+  InterfaceDef {
     def_name,
     extends,
     constructors,
@@ -315,7 +319,5 @@ pub fn get_doc_for_ts_interface_decl(
     call_signatures,
     index_signatures,
     type_params,
-  };
-
-  (interface_name, interface_def)
+  }
 }
