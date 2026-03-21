@@ -9,8 +9,8 @@ use crate::js_doc::JsDoc;
 use crate::js_doc::JsDocTag;
 use crate::node::DeclarationDef;
 use crate::node::DeclarationKind;
-use crate::node::Document;
 use crate::node::Symbol;
+use crate::parser::ParseOutput;
 
 use deno_terminal::colors;
 use deno_terminal::colors::Style;
@@ -25,19 +25,19 @@ fn italic_cyan<'a, S: Display + 'a>(s: S) -> Style<Style<S>> {
 }
 
 pub struct DocPrinter<'a> {
-  document: &'a Document,
+  output: &'a ParseOutput,
   use_color: bool,
   private: bool,
 }
 
 impl DocPrinter<'_> {
   pub fn new(
-    document: &Document,
+    output: &ParseOutput,
     use_color: bool,
     private: bool,
   ) -> DocPrinter<'_> {
     DocPrinter {
-      document,
+      output,
       use_color,
       private,
     }
@@ -45,17 +45,24 @@ impl DocPrinter<'_> {
 
   pub fn format(&self, w: &mut Formatter<'_>) -> FmtResult {
     colors::set_use_color(self.use_color);
-    if !self.document.module_doc.is_empty() {
-      if let Some(doc) = &self.document.module_doc.doc {
-        render_markdown(w, doc, 0)?;
+    let multiple = self.output.len() > 1;
+    for (specifier, document) in self.output {
+      if multiple {
+        writeln!(w, "{}\n", colors::bold(specifier.as_str()))?;
       }
-      for tag in &self.document.module_doc.tags {
-        self.format_jsdoc_tag(w, tag, 0)?;
+      if !document.module_doc.is_empty() {
+        if let Some(doc) = &document.module_doc.doc {
+          render_markdown(w, doc, 0)?;
+        }
+        for tag in &document.module_doc.tags {
+          self.format_jsdoc_tag(w, tag, 0)?;
+        }
+        writeln!(w)?;
       }
-      writeln!(w)?;
-    }
 
-    self.format_with_indent(w, &self.document.symbols, 0)
+      self.format_with_indent(w, &document.symbols, 0)?;
+    }
+    Ok(())
   }
 
   fn format_with_indent(
