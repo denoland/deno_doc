@@ -16,7 +16,7 @@ pub struct TsTypeDiff {
 
 impl TsTypeDiff {
   pub fn diff(old: &TsTypeDef, new: &TsTypeDef) -> Option<Self> {
-    if old.repr == new.repr {
+    if old == new {
       return None;
     }
 
@@ -58,17 +58,9 @@ pub struct TsTypeParamDiff {
 
 impl TsTypeParamDiff {
   pub fn diff(old: &TsTypeParamDef, new: &TsTypeParamDef) -> Option<Self> {
-    let constraint_changed = match (&old.constraint, &new.constraint) {
-      (Some(old_c), Some(new_c)) => old_c.repr != new_c.repr,
-      (None, None) => false,
-      _ => true,
-    };
+    let constraint_changed = old.constraint != new.constraint;
 
-    let default_changed = match (&old.default, &new.default) {
-      (Some(old_d), Some(new_d)) => old_d.repr != new_d.repr,
-      (None, None) => false,
-      _ => true,
-    };
+    let default_changed = old.default != new.default;
 
     if !constraint_changed && !default_changed {
       return None;
