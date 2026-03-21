@@ -158,6 +158,7 @@ impl NamespaceNodeCtx {
     if let Some(drilldown_symbols) = symbol.get_drilldown_symbols() {
       subitems.extend(
         drilldown_symbols
+          .into_iter()
           .filter(|symbol| {
             !symbol.drilldown_name.as_ref().unwrap().starts_with('[')
           })

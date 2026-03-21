@@ -18,6 +18,7 @@ use deno_terminal::colors::Style;
 use std::fmt::Display;
 use std::fmt::Formatter;
 use std::fmt::Result as FmtResult;
+use std::sync::Arc;
 
 fn italic_cyan<'a, S: Display + 'a>(s: S) -> Style<Style<S>> {
   colors::italic(colors::cyan(s))
@@ -60,7 +61,7 @@ impl DocPrinter<'_> {
   fn format_with_indent(
     &self,
     w: &mut Formatter<'_>,
-    doc_nodes: &[Symbol],
+    doc_nodes: &[Arc<Symbol>],
     indent: i64,
   ) -> FmtResult {
     colors::set_use_color(self.use_color);

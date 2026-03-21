@@ -23,7 +23,7 @@ use std::borrow::Cow;
 use std::collections::HashMap;
 use std::fmt::Display;
 use std::fmt::Formatter;
-use std::rc::Rc;
+use std::sync::Arc;
 
 lazy_static! {
   static ref TARGET_RE: Regex = Regex::new(r"\s*\* ?|\.").unwrap();
@@ -188,7 +188,7 @@ fn sanitize_id_part(part: &str) -> String {
 /// ["Deno", "errors", "HttpError"]
 #[derive(Clone, Debug)]
 pub(crate) struct NamespacedSymbols(
-  Rc<HashMap<Vec<String>, Option<Rc<ShortPath>>>>,
+  Arc<HashMap<Vec<String>, Option<Arc<ShortPath>>>>,
 );
 
 impl NamespacedSymbols {
@@ -200,10 +200,10 @@ impl NamespacedSymbols {
       ctx,
       Box::new(doc_nodes.iter().map(Cow::Borrowed)),
     );
-    Self(Rc::new(symbols))
+    Self(Arc::new(symbols))
   }
 
-  pub(crate) fn get(&self, path: &[String]) -> Option<&Option<Rc<ShortPath>>> {
+  pub(crate) fn get(&self, path: &[String]) -> Option<&Option<Arc<ShortPath>>> {
     self.0.get(path)
   }
 }
@@ -211,104 +211,68 @@ impl NamespacedSymbols {
 pub fn compute_namespaced_symbols<'a>(
   ctx: &'a GenerateCtx,
   symbols: Box<dyn Iterator<Item = Cow<'a, DocNodeWithContext>> + 'a>,
-) -> HashMap<Vec<String>, Option<Rc<ShortPath>>> {
+) -> HashMap<Vec<String>, Option<Arc<ShortPath>>> {
   let mut namespaced_symbols =
-    HashMap::<Vec<String>, Option<Rc<ShortPath>>>::new();
+    HashMap::<Vec<String>, Option<Arc<ShortPath>>>::new();
+
+  // Reusable buffer for building drilldown paths
+  let mut path_buf = Vec::new();
 
   for symbol in symbols {
-    let name_path: Rc<[String]> = symbol.sub_qualifier().into();
+    let name_path: Arc<[String]> = symbol.sub_qualifier().into();
+    // Precompute prefix (ns_qualifiers) once per symbol
+    let ns_prefix = &*symbol.ns_qualifiers;
+    let origin = Some(symbol.origin.clone());
+
+    // Helper: build a drilldown path by reusing the buffer
+    let mut build_drilldown_path =
+      |member_name: &str, is_static: bool| -> Vec<String> {
+        path_buf.clear();
+        path_buf.extend(ns_prefix.iter().cloned());
+        path_buf.extend(
+          qualify_drilldown_name(symbol.get_name(), member_name, is_static)
+            .split('.')
+            .map(|part| part.to_string()),
+        );
+        path_buf.clone()
+      };
 
     for decl in &symbol.declarations {
       // TODO: handle export aliasing
 
       match &decl.def {
         DeclarationDef::Class(class_def) => {
-          namespaced_symbols.extend(class_def.methods.iter().map(|method| {
-            let mut method_path = symbol.ns_qualifiers.to_vec();
-            method_path.extend(
-              qualify_drilldown_name(
-                symbol.get_name(),
-                &method.name,
-                method.is_static,
-              )
-              .split('.')
-              .map(|part| part.to_string()),
-            );
-            (method_path, Some(symbol.origin.clone()))
-          }));
-
-          namespaced_symbols.extend(class_def.properties.iter().map(
-            |property| {
-              let mut method_path = symbol.ns_qualifiers.to_vec();
-              method_path.extend(
-                qualify_drilldown_name(
-                  symbol.get_name(),
-                  &property.name,
-                  property.is_static,
-                )
-                .split('.')
-                .map(|part| part.to_string()),
-              );
-              (method_path, Some(symbol.origin.clone()))
-            },
-          ));
+          for method in &class_def.methods {
+            let path = build_drilldown_path(&method.name, method.is_static);
+            namespaced_symbols.insert(path, origin.clone());
+          }
+          for property in &class_def.properties {
+            let path = build_drilldown_path(&property.name, property.is_static);
+            namespaced_symbols.insert(path, origin.clone());
+          }
         }
         DeclarationDef::Interface(interface_def) => {
-          namespaced_symbols.extend(interface_def.methods.iter().map(
-            |method| {
-              let mut method_path = symbol.ns_qualifiers.to_vec();
-              method_path.extend(
-                qualify_drilldown_name(symbol.get_name(), &method.name, true)
-                  .split('.')
-                  .map(|part| part.to_string()),
-              );
-              (method_path, Some(symbol.origin.clone()))
-            },
-          ));
-
-          namespaced_symbols.extend(interface_def.properties.iter().map(
-            |property| {
-              let mut method_path = symbol.ns_qualifiers.to_vec();
-              method_path.extend(
-                qualify_drilldown_name(symbol.get_name(), &property.name, true)
-                  .split('.')
-                  .map(|part| part.to_string()),
-              );
-              (method_path, Some(symbol.origin.clone()))
-            },
-          ));
+          for method in &interface_def.methods {
+            let path = build_drilldown_path(&method.name, true);
+            namespaced_symbols.insert(path, origin.clone());
+          }
+          for property in &interface_def.properties {
+            let path = build_drilldown_path(&property.name, true);
+            namespaced_symbols.insert(path, origin.clone());
+          }
         }
         DeclarationDef::TypeAlias(type_alias_def) => {
           if let crate::ts_type::TsTypeDefKind::TypeLiteral(type_literal) =
             &type_alias_def.ts_type.kind
           {
-            namespaced_symbols.extend(type_literal.methods.iter().map(
-              |method| {
-                let mut method_path = symbol.ns_qualifiers.to_vec();
-                method_path.extend(
-                  qualify_drilldown_name(symbol.get_name(), &method.name, true)
-                    .split('.')
-                    .map(|part| part.to_string()),
-                );
-                (method_path, Some(symbol.origin.clone()))
-              },
-            ));
-
-            namespaced_symbols.extend(type_literal.properties.iter().map(
-              |property| {
-                let mut method_path = symbol.ns_qualifiers.to_vec();
-                method_path.extend(
-                  qualify_drilldown_name(
-                    symbol.get_name(),
-                    &property.name,
-                    true,
-                  )
-                  .split('.')
-                  .map(|part| part.to_string()),
-                );
-                (method_path, Some(symbol.origin.clone()))
-              },
-            ));
+            for method in &type_literal.methods {
+              let path = build_drilldown_path(&method.name, true);
+              namespaced_symbols.insert(path, origin.clone());
+            }
+            for property in &type_literal.properties {
+              let path = build_drilldown_path(&property.name, true);
+              namespaced_symbols.insert(path, origin.clone());
+            }
           }
         }
         DeclarationDef::Variable(variable_def) => {
@@ -323,40 +287,20 @@ pub fn compute_namespaced_symbols<'a>(
               }
             })
           {
-            namespaced_symbols.extend(type_literal.methods.iter().map(
-              |method| {
-                let mut method_path = symbol.ns_qualifiers.to_vec();
-                method_path.extend(
-                  qualify_drilldown_name(symbol.get_name(), &method.name, true)
-                    .split('.')
-                    .map(|part| part.to_string()),
-                );
-                (method_path, Some(symbol.origin.clone()))
-              },
-            ));
-
-            namespaced_symbols.extend(type_literal.properties.iter().map(
-              |property| {
-                let mut method_path = symbol.ns_qualifiers.to_vec();
-                method_path.extend(
-                  qualify_drilldown_name(
-                    symbol.get_name(),
-                    &property.name,
-                    true,
-                  )
-                  .split('.')
-                  .map(|part| part.to_string()),
-                );
-                (method_path, Some(symbol.origin.clone()))
-              },
-            ));
+            for method in &type_literal.methods {
+              let path = build_drilldown_path(&method.name, true);
+              namespaced_symbols.insert(path, origin.clone());
+            }
+            for property in &type_literal.properties {
+              let path = build_drilldown_path(&property.name, true);
+              namespaced_symbols.insert(path, origin.clone());
+            }
           }
         }
         _ => {}
       }
 
-      namespaced_symbols
-        .insert(name_path.to_vec(), Some(symbol.origin.clone()));
+      namespaced_symbols.insert(name_path.to_vec(), origin.clone());
 
       if matches!(decl.def, DeclarationDef::Namespace(..)) {
         let children =
@@ -385,11 +329,11 @@ pub fn compute_namespaced_symbols<'a>(
 }
 
 #[derive(Clone, Default)]
-pub struct NamespacedGlobalSymbols(Rc<HashMap<Vec<String>, String>>);
+pub struct NamespacedGlobalSymbols(Arc<HashMap<Vec<String>, String>>);
 
 impl NamespacedGlobalSymbols {
   pub fn new(symbols: HashMap<Vec<String>, String>) -> Self {
-    Self(Rc::new(symbols))
+    Self(Arc::new(symbols))
   }
 
   pub fn get(&self, path: &[String]) -> Option<&String> {
@@ -468,7 +412,7 @@ pub fn href_path_resolve(
 }
 
 /// A trait used to define various functions used to resolve urls.
-pub trait HrefResolver {
+pub trait HrefResolver: Send + Sync {
   fn resolve_path(
     &self,
     current: UrlResolveKind,

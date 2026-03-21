@@ -61,14 +61,17 @@ mod tests;
 
 #[cfg(feature = "rust")]
 pub fn find_nodes_by_name_recursively(
-  symbols: Vec<Symbol>,
+  symbols: Vec<std::sync::Arc<Symbol>>,
   name: &str,
 ) -> Vec<Symbol> {
   let mut parts = name.splitn(2, '.');
   let name = parts.next();
   let leftover = parts.next();
   if name.is_none() {
-    return symbols;
+    return symbols
+      .into_iter()
+      .map(std::sync::Arc::unwrap_or_clone)
+      .collect();
   }
 
   let name = name.unwrap();
@@ -77,6 +80,7 @@ pub fn find_nodes_by_name_recursively(
   let mut found: Vec<Symbol> = vec![];
 
   if let Some(symbol) = symbol {
+    let symbol = std::sync::Arc::unwrap_or_clone(symbol);
     match leftover {
       Some(leftover) => {
         let children = get_children_of_node(symbol);
@@ -90,34 +94,29 @@ pub fn find_nodes_by_name_recursively(
 }
 
 #[cfg(feature = "rust")]
-fn get_children_of_node(node: Symbol) -> Vec<Symbol> {
+fn get_children_of_node(node: Symbol) -> Vec<std::sync::Arc<Symbol>> {
   use node::DeclarationDef;
 
-  let mut doc_nodes: Vec<Symbol> = vec![];
+  let mut doc_nodes: Vec<std::sync::Arc<Symbol>> = vec![];
   for decl in node.declarations {
     match decl.def {
       DeclarationDef::Namespace(namespace_def) => {
-        doc_nodes.extend(
-          namespace_def
-            .elements
-            .into_iter()
-            .map(std::sync::Arc::unwrap_or_clone),
-        );
+        doc_nodes.extend(namespace_def.elements);
       }
       DeclarationDef::Interface(interface_def) => {
         for method in interface_def.methods {
-          doc_nodes.push(method.into());
+          doc_nodes.push(std::sync::Arc::new(method.into()));
         }
         for property in interface_def.properties {
-          doc_nodes.push(property.into());
+          doc_nodes.push(std::sync::Arc::new(property.into()));
         }
       }
       DeclarationDef::Class(class_def) => {
         for method in class_def.methods.into_vec().into_iter() {
-          doc_nodes.push(method.into());
+          doc_nodes.push(std::sync::Arc::new(method.into()));
         }
         for property in class_def.properties.into_vec().into_iter() {
-          doc_nodes.push(property.into());
+          doc_nodes.push(std::sync::Arc::new(property.into()));
         }
       }
       _ => {}
@@ -224,7 +223,7 @@ pub fn docnodes_v1_to_v2(value: serde_json::Value) -> Document {
   Document {
     module_doc,
     imports,
-    symbols: symbols.into_values().collect(),
+    symbols: symbols.into_values().map(std::sync::Arc::new).collect(),
   }
 }
 

@@ -16,6 +16,8 @@ use indexmap::IndexSet;
 use serde::Deserialize;
 use serde::Serialize;
 
+use std::sync::Arc;
+
 use crate::Symbol;
 use crate::node::Declaration;
 use crate::node::DeclarationDef;
@@ -199,7 +201,7 @@ pub struct ModuleDiff {
 }
 
 impl ModuleDiff {
-  pub fn diff(old_nodes: &[Symbol], new_nodes: &[Symbol]) -> Self {
+  pub fn diff(old_nodes: &[Arc<Symbol>], new_nodes: &[Arc<Symbol>]) -> Self {
     let old_map = build_name_map(old_nodes);
     let new_map = build_name_map(new_nodes);
 
@@ -321,8 +323,11 @@ fn try_detect_rename(old: &Symbol, new: &Symbol) -> Option<SymbolDiff> {
   })
 }
 
-fn build_name_map(nodes: &[Symbol]) -> IndexMap<&str, &Symbol> {
-  nodes.iter().map(|n| (n.name.as_ref(), n)).collect()
+fn build_name_map(nodes: &[Arc<Symbol>]) -> IndexMap<&str, &Symbol> {
+  nodes
+    .iter()
+    .map(|n| (n.name.as_ref(), n.as_ref()))
+    .collect()
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

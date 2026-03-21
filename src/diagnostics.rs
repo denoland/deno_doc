@@ -28,6 +28,7 @@ use deno_graph::symbols::ModuleInfoRef;
 use deno_graph::symbols::RootSymbol;
 use deno_graph::symbols::Symbol as GraphSymbol;
 use deno_graph::symbols::UniqueSymbolId;
+use std::sync::Arc;
 
 use std::borrow::Cow;
 use std::collections::HashSet;
@@ -270,9 +271,9 @@ impl<'a> DiagnosticsCollector<'a> {
     inner
   }
 
-  pub fn analyze_doc_nodes(&mut self, doc_nodes: &[Symbol]) {
+  pub fn analyze_doc_nodes(&mut self, doc_nodes: &[Arc<Symbol>]) {
     DiagnosticDocNodeVisitor { diagnostics: self }
-      .visit_doc_nodes(doc_nodes.iter())
+      .visit_doc_nodes(doc_nodes.iter().map(|s| &**s))
   }
 
   fn check_missing_js_doc(&mut self, js_doc: &JsDoc, location: &Location) {

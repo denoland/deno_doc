@@ -6,7 +6,7 @@ use crate::js_doc::JsDocTag;
 use serde::Deserialize;
 use serde::Serialize;
 use std::borrow::Cow;
-use std::rc::Rc;
+use std::sync::Arc;
 
 lazy_static! {
   static ref JSDOC_LINK_RE: regex::Regex = regex::Regex::new(
@@ -152,7 +152,7 @@ pub struct MarkdownToHTMLOptions {
   pub no_toc: bool,
 }
 
-pub type MarkdownStripper = Rc<dyn Fn(&str) -> String>;
+pub type MarkdownStripper = Arc<dyn Fn(&str) -> String + Send + Sync>;
 
 pub fn strip(render_ctx: &RenderContext, md: &str) -> String {
   let md = parse_links(md, render_ctx, true);
@@ -166,8 +166,11 @@ pub type Anchorizer<'a> = &'a js_sys::Function;
 pub type Anchorizer =
   std::sync::Arc<dyn Fn(String, u8) -> String + Send + Sync>;
 
-pub type MarkdownRenderer =
-  Rc<dyn Fn(&str, bool, Option<ShortPath>, Anchorizer) -> Option<String>>;
+pub type MarkdownRenderer = Arc<
+  dyn Fn(&str, bool, Option<ShortPath>, Anchorizer) -> Option<String>
+    + Send
+    + Sync,
+>;
 
 fn render_markdown_inner(
   render_ctx: &RenderContext,
@@ -883,7 +886,7 @@ mod test {
   use crate::{Location, Symbol};
   use deno_ast::ModuleSpecifier;
   use indexmap::IndexMap;
-  use std::rc::Rc;
+  use std::sync::Arc;
 
   use crate::html::RenderContext;
   use crate::html::UrlResolveKind;
@@ -960,8 +963,8 @@ mod test {
       GenerateOptions {
         package_name: None,
         main_entrypoint: None,
-        href_resolver: Rc::new(EmptyResolver),
-        usage_composer: Some(Rc::new(EmptyResolver)),
+        href_resolver: Arc::new(EmptyResolver),
+        usage_composer: Some(Arc::new(EmptyResolver)),
         rewrite_map: None,
         category_docs: None,
         disable_search: false,
@@ -970,7 +973,7 @@ mod test {
         markdown_renderer: crate::html::comrak::create_renderer(
           None, None, None,
         ),
-        markdown_stripper: Rc::new(crate::html::comrak::strip),
+        markdown_stripper: Arc::new(crate::html::comrak::strip),
         head_inject: None,
         id_prefix: None,
         diff_only: false,
@@ -984,7 +987,7 @@ mod test {
             module_doc: Default::default(),
             imports: vec![],
             symbols: vec![
-              Symbol::interface(
+              Arc::new(Symbol::interface(
                 "foo".into(),
                 false,
                 Location::default(),
@@ -1000,8 +1003,8 @@ mod test {
                   index_signatures: vec![],
                   type_params: Box::new([]),
                 },
-              ),
-              Symbol::interface(
+              )),
+              Arc::new(Symbol::interface(
                 "bar".into(),
                 false,
                 Location::default(),
@@ -1017,7 +1020,7 @@ mod test {
                   index_signatures: vec![],
                   type_params: Box::new([]),
                 },
-              ),
+              )),
             ],
           },
         ),
@@ -1026,7 +1029,7 @@ mod test {
           Document {
             module_doc: Default::default(),
             imports: vec![],
-            symbols: vec![Symbol::interface(
+            symbols: vec![Arc::new(Symbol::interface(
               "baz".into(),
               false,
               Location::default(),
@@ -1042,7 +1045,7 @@ mod test {
                 index_signatures: vec![],
                 type_params: Box::new([]),
               },
-            )],
+            ))],
           },
         ),
       ]),

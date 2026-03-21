@@ -11,7 +11,7 @@ pub struct Document {
   pub module_doc: JsDoc,
   #[serde(skip_serializing_if = "Vec::is_empty", default)]
   pub imports: Vec<Import>,
-  pub symbols: Vec<Symbol>,
+  pub symbols: Vec<Arc<Symbol>>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]

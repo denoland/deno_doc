@@ -10,7 +10,6 @@ use serde::Serialize;
 use std::cmp::Ordering;
 use std::collections::HashMap;
 use std::collections::HashSet;
-use std::rc::Rc;
 use std::sync::Arc;
 use std::sync::Mutex;
 
@@ -18,11 +17,11 @@ use std::sync::Mutex;
 pub struct RenderContext<'ctx> {
   pub ctx: &'ctx GenerateCtx,
   scoped_symbols: NamespacedSymbols,
-  current_imports: Rc<HashMap<String, String>>,
-  current_type_params: Rc<HashSet<&'ctx str>>,
+  current_imports: Arc<HashMap<String, String>>,
+  current_type_params: Arc<HashSet<&'ctx str>>,
   current_resolve: UrlResolveKind<'ctx>,
   /// A vector of parts of the current namespace, eg. `vec!["Deno", "errors"]`.
-  namespace_parts: Rc<[String]>,
+  namespace_parts: Arc<[String]>,
   /// Only some when in `FileMode::SingleDts` and using categories
   pub category: Option<&'ctx str>,
   pub toc: HeadingToCAdapter,
@@ -44,10 +43,10 @@ impl<'ctx> RenderContext<'ctx> {
     Self {
       ctx,
       scoped_symbols: NamespacedSymbols::new(ctx, doc_nodes),
-      current_imports: Rc::new(current_imports),
+      current_imports: Arc::new(current_imports),
       current_type_params: Default::default(),
       current_resolve,
-      namespace_parts: Rc::new([]),
+      namespace_parts: Arc::new([]),
       category: None,
       toc: Default::default(),
       disable_links: false,
@@ -59,12 +58,12 @@ impl<'ctx> RenderContext<'ctx> {
     current_type_params: HashSet<&'ctx str>,
   ) -> Self {
     Self {
-      current_type_params: Rc::new(current_type_params),
+      current_type_params: Arc::new(current_type_params),
       ..self.clone()
     }
   }
 
-  pub fn with_namespace(&self, namespace_parts: Rc<[String]>) -> Self {
+  pub fn with_namespace(&self, namespace_parts: Arc<[String]>) -> Self {
     Self {
       namespace_parts,
       ..self.clone()
@@ -112,13 +111,18 @@ impl<'ctx> RenderContext<'ctx> {
       .collect::<Vec<_>>();
 
     if !self.namespace_parts.is_empty() {
-      // TODO: clean this up to not clone and to_vec
-      let mut parts = self.namespace_parts.to_vec();
-      while !parts.is_empty() {
-        let mut current_parts = parts.clone();
-        current_parts.extend_from_slice(&target_symbol_parts);
+      let ns_len = self.namespace_parts.len();
+      let target_len = target_symbol_parts.len();
+      // Reusable buffer: [ns_prefix..., target_parts...]
+      let mut lookup = Vec::with_capacity(ns_len + target_len);
 
-        if let Some(origin) = self.scoped_symbols.get(&current_parts) {
+      // Try progressively shorter namespace prefixes: ns_len, ns_len-1, ..., 1
+      for prefix_len in (1..=ns_len).rev() {
+        lookup.clear();
+        lookup.extend(self.namespace_parts[..prefix_len].iter().cloned());
+        lookup.extend_from_slice(&target_symbol_parts);
+
+        if let Some(origin) = self.scoped_symbols.get(&lookup) {
           return Some(
             self.ctx.resolve_path(
               self.get_current_resolve(),
@@ -128,13 +132,11 @@ impl<'ctx> RenderContext<'ctx> {
                   .get_file()
                   .or_else(|| origin.as_ref().map(|origin| &**origin))
                   .unwrap(),
-                symbol: &current_parts.join("."),
+                symbol: &lookup.join("."),
               },
             ),
           );
         }
-
-        parts.pop();
       }
     }
 
@@ -576,8 +578,8 @@ mod test {
       GenerateOptions {
         package_name: None,
         main_entrypoint: None,
-        href_resolver: Rc::new(TestResolver),
-        usage_composer: Some(Rc::new(TestResolver)),
+        href_resolver: Arc::new(TestResolver),
+        usage_composer: Some(Arc::new(TestResolver)),
         rewrite_map: None,
         category_docs: None,
         disable_search: false,
@@ -586,7 +588,7 @@ mod test {
         markdown_renderer: crate::html::comrak::create_renderer(
           None, None, None,
         ),
-        markdown_stripper: Rc::new(crate::html::comrak::strip),
+        markdown_stripper: Arc::new(crate::html::comrak::strip),
         head_inject: None,
         id_prefix: None,
         diff_only: false,

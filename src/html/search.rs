@@ -108,7 +108,7 @@ pub fn doc_nodes_into_search_index_node(
   }];
 
   if let Some(drilldowns) = symbol.get_drilldown_symbols() {
-    out.extend(drilldowns.flat_map(|drilldown_node| {
+    out.extend(drilldowns.into_iter().flat_map(|drilldown_node| {
       doc_nodes_into_search_index_node(ctx, &drilldown_node, Some(id.clone()))
     }));
   }
