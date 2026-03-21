@@ -854,6 +854,41 @@ pub struct TopSymbolsCtx {
 
 impl TopSymbolsCtx {
   pub fn new(ctx: &RenderContext) -> Option<Self> {
+    fn count_symbols(
+      ctx: &GenerateCtx,
+      nodes: &[DocNodeWithContext],
+    ) -> usize {
+      let mut count = 0;
+      for node in nodes {
+        if node.is_internal(ctx) {
+          continue;
+        }
+        if node
+          .declarations
+          .iter()
+          .any(|d| d.reference_def().is_some())
+        {
+          continue;
+        }
+        count += 1;
+        if let Some(children) = &node.namespace_children {
+          count += count_symbols(ctx, children);
+        }
+      }
+      count
+    }
+
+    let total_symbols: usize = ctx
+      .ctx
+      .doc_nodes
+      .values()
+      .map(|nodes| count_symbols(ctx.ctx, nodes))
+      .sum();
+
+    if total_symbols == 0 {
+      return None;
+    }
+
     let symbols = ctx
       .ctx
       .doc_nodes
@@ -863,12 +898,6 @@ impl TopSymbolsCtx {
       })
       .filter(|node| !node.is_internal(ctx.ctx))
       .collect::<Vec<_>>();
-
-    if symbols.is_empty() {
-      return None;
-    }
-
-    let total_symbols = symbols.len();
 
     let symbols = symbols
       .into_iter()
