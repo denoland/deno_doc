@@ -223,15 +223,7 @@ async fn run() -> anyhow::Result<()> {
         serde_json::to_writer_pretty(std::io::stdout(), &doc_nodes_by_url)?;
         println!();
       } else {
-        let mut merged_doc = deno_doc::Document::default();
-        for doc in doc_nodes_by_url.into_values() {
-          if merged_doc.module_doc.is_empty() {
-            merged_doc.module_doc = doc.module_doc;
-          }
-          merged_doc.symbols.extend(doc.symbols);
-        }
-
-        let result = DocPrinter::new(&merged_doc, true, false);
+        let result = DocPrinter::new(&doc_nodes_by_url, true, false);
         println!("{result}");
       }
     }

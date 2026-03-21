@@ -224,7 +224,7 @@ export function fooFn(a: number) {
     ],
   )
   .await;
-  let document = DocParser::new(
+  let output = DocParser::new(
     &graph,
     &analyzer,
     &[specifier],
@@ -232,10 +232,8 @@ export function fooFn(a: number) {
   )
   .unwrap()
   .parse()
-  .unwrap()
-  .into_values()
-  .next()
   .unwrap();
+  let document = output.values().next().unwrap();
 
   let expected_symbols = json!([
     {
@@ -338,7 +336,7 @@ export function fooFn(a: number) {
   assert_eq!(actual, expected_imports);
 
   assert!(
-    DocPrinter::new(&document, false, false)
+    DocPrinter::new(&output, false, false)
       .to_string()
       .as_str()
       .contains("function fooFn(a: number)")
@@ -363,7 +361,7 @@ export { Hello } from "./reexport.ts";
     ],
   )
   .await;
-  let entries = DocParser::new(
+  let output = DocParser::new(
     &graph,
     &analyzer,
     &[specifier],
@@ -371,11 +369,8 @@ export { Hello } from "./reexport.ts";
   )
   .unwrap()
   .parse()
-  .unwrap()
-  .into_values()
-  .next()
-  .unwrap()
-  .symbols;
+  .unwrap();
+  let entries = &output.values().next().unwrap().symbols;
 
   let expected_json = json!([
     {
@@ -406,17 +401,12 @@ export { Hello } from "./reexport.ts";
       ]
     }
   ]);
-  let actual = serde_json::to_value(&entries).unwrap();
+  let actual = serde_json::to_value(entries).unwrap();
   assert_eq!(actual, expected_json);
 
-  let doc = crate::node::Document {
-    module_doc: Default::default(),
-    imports: vec![],
-    symbols: entries,
-  };
-  let output = DocPrinter::new(&doc, false, false).to_string();
-  assert!(output.contains("class Hello"));
-  assert!(output.contains("interface Hello"));
+  let text = DocPrinter::new(&output, false, false).to_string();
+  assert!(text.contains("class Hello"));
+  assert!(text.contains("interface Hello"));
 }
 
 #[tokio::test]
@@ -434,7 +424,7 @@ async fn deep_reexports() {
     ],
   )
   .await;
-  let entries = DocParser::new(
+  let output = DocParser::new(
     &graph,
     &analyzer,
     &[specifier],
@@ -442,11 +432,8 @@ async fn deep_reexports() {
   )
   .unwrap()
   .parse()
-  .unwrap()
-  .into_values()
-  .next()
-  .unwrap()
-  .symbols;
+  .unwrap();
+  let entries = &output.values().next().unwrap().symbols;
 
   let expected_json = json!([
     {
@@ -471,16 +458,11 @@ async fn deep_reexports() {
       }]
     }
   ]);
-  let actual = serde_json::to_value(&entries).unwrap();
+  let actual = serde_json::to_value(entries).unwrap();
   assert_eq!(actual, expected_json);
 
-  let doc = crate::node::Document {
-    module_doc: Default::default(),
-    imports: vec![],
-    symbols: entries,
-  };
   assert!(
-    DocPrinter::new(&doc, false, false)
+    DocPrinter::new(&output, false, false)
       .to_string()
       .contains("const foo")
   );
