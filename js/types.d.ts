@@ -3,7 +3,7 @@
 export interface Document {
   moduleDoc?: JsDoc;
   imports?: Import[];
-  symbols: DocNode[];
+  symbols: Symbol[];
 }
 
 export interface Import {
@@ -13,7 +13,7 @@ export interface Import {
   src: string;
 }
 
-export interface DocNode {
+export interface Symbol {
   name: string;
   isDefault?: true;
   declarations: Declaration[];
@@ -25,7 +25,6 @@ export interface DocNode {
 export type DeclarationKind = "private" | "export" | "declare";
 
 export type Declaration =
-  | DeclarationModuleDoc
   | DeclarationFunction
   | DeclarationVariable
   | DeclarationEnum
@@ -43,7 +42,6 @@ interface DeclarationBase {
 }
 
 export type DocNodeKind =
-  | "moduleDoc"
   | "function"
   | "variable"
   | "enum"
@@ -52,11 +50,6 @@ export type DocNodeKind =
   | "namespace"
   | "interface"
   | "reference";
-
-export interface DeclarationModuleDoc extends DeclarationBase {
-  kind: "moduleDoc";
-  jsDoc: JsDoc;
-}
 
 export interface DeclarationFunction extends DeclarationBase {
   kind: "function";
@@ -464,7 +457,7 @@ export interface Location {
 export type MethodKind = "method" | "getter" | "setter";
 
 export interface NamespaceDef {
-  elements: DocNode[];
+  elements: Symbol[];
 }
 
 export type ObjectPatPropDef =
