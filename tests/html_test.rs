@@ -832,9 +832,9 @@ async fn diff_comprehensive() {
   insta::assert_json_snapshot!("diff_comprehensive_diff_only", pages);
 }
 
-/// Verify that README headings in the module doc TOC appear before
-/// @example entries, matching the rendered page order where the
-/// markdown body is displayed before the Examples section.
+/// Verify that README headings in the module doc TOC:
+/// 1. Appear before @example entries (matching the rendered page order)
+/// 2. Are not inflated to deeper nesting levels by the offset state
 #[tokio::test]
 async fn readme_toc_order_with_examples() {
   let source = r#"
@@ -922,4 +922,26 @@ export function hello(): string {
   for window in positions.windows(2) {
     assert!(window[0] < window[1], "TOC headings are not in document order");
   }
+
+  // Verify heading levels aren't inflated: README h2 headings should NOT be
+  // nested deeper than the Examples section (level 1). If the offset leaked,
+  // they'd be at level 4 and appear as deeply nested sub-items.
+  // In the correct output, README headings at level 2 nest directly under the
+  // top-level list, not under a third-level nested list.
+  let nav_start = index_html.find("documentNavigation").unwrap();
+  let nav_section = &index_html[nav_start..];
+  let nav_end = nav_section.find("</nav>").unwrap();
+  let nav_html = &nav_section[..nav_end];
+
+  // Count nesting depth of the first README heading (Installation).
+  // It should be in at most one <ul> nesting (the root <ul> + one sub-<ul>
+  // for level 2), not two or more sub-<ul>s which would indicate inflated levels.
+  let before_installation =
+    &nav_html[..nav_html.find("Installation").unwrap()];
+  let ul_depth = before_installation.matches("<ul>").count();
+  assert!(
+    ul_depth <= 2,
+    "README headings are nested too deeply (depth {}), offset likely leaked from Examples",
+    ul_depth
+  );
 }

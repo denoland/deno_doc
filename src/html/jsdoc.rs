@@ -180,16 +180,20 @@ fn render_markdown_inner(
   let toc = render_ctx.toc.clone();
   let no_toc = render_options.no_toc;
 
+  // Snapshot the offset now so that any add_entry calls that happen after
+  // this point (e.g. for Examples sections) don't retroactively inflate the
+  // heading levels of this markdown block.
+  let offset = *toc.offset.lock().unwrap();
+
   let anchorizer = move |content: String, level: u8| {
     let mut anchorizer = toc.anchorizer.lock().unwrap();
-    let offset = toc.offset.lock().unwrap();
 
     let anchor = anchorizer.anchorize(&content);
 
     if !no_toc {
       let mut toc = toc.toc.lock().unwrap();
       toc.push(crate::html::render_context::ToCEntry {
-        level: level + *offset,
+        level: level + offset,
         content,
         anchor: anchor.clone(),
       });
