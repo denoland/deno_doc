@@ -831,3 +831,117 @@ async fn diff_comprehensive() {
 
   insta::assert_json_snapshot!("diff_comprehensive_diff_only", pages);
 }
+
+/// Verify that README headings in the module doc TOC:
+/// 1. Appear before @example entries (matching the rendered page order)
+/// 2. Are not inflated to deeper nesting levels by the offset state
+#[tokio::test]
+async fn readme_toc_order_with_examples() {
+  let source = r#"
+/**
+ * ## Installation
+ *
+ * Install the library.
+ *
+ * ## Usage
+ *
+ * Use the library.
+ *
+ * ## API Reference
+ *
+ * The API reference.
+ *
+ * @example My Example
+ * ```ts
+ * hello();
+ * ```
+ *
+ * @module
+ */
+
+/** A simple function. */
+export function hello(): string {
+  return "hello";
+}
+"#;
+
+  let doc_nodes_by_url = parse_source(source).await;
+
+  let specifier = ModuleSpecifier::parse("file:///mod.ts").unwrap();
+
+  let ctx = GenerateCtx::create_basic(
+    GenerateOptions {
+      package_name: None,
+      main_entrypoint: Some(specifier),
+      href_resolver: Arc::new(EmptyResolver),
+      usage_composer: Some(Arc::new(EmptyResolver)),
+      rewrite_map: None,
+      category_docs: None,
+      disable_search: false,
+      symbol_redirect_map: None,
+      default_symbol_map: None,
+      markdown_renderer: comrak::create_renderer(None, None, None),
+      markdown_stripper: Arc::new(comrak::strip),
+      head_inject: None,
+      id_prefix: None,
+      diff_only: false,
+    },
+    doc_nodes_by_url,
+    None,
+  )
+  .unwrap();
+
+  let files = generate(ctx).unwrap();
+  let index_html = files.get("./index.html").unwrap();
+
+  // README headings should appear before the Examples section in the TOC,
+  // matching the page layout where the markdown body comes before @example sections.
+  let readme_heading_pos = index_html
+    .find("title=\"Installation\"")
+    .expect("Installation heading not found in TOC");
+  let examples_pos = index_html
+    .find("title=\"Examples\"")
+    .expect("Examples heading not found in TOC");
+
+  assert!(
+    readme_heading_pos < examples_pos,
+    "README headings should appear before Examples in the TOC"
+  );
+
+  // Verify README headings are in document order
+  let headings = ["Installation", "Usage", "API Reference"];
+  let positions: Vec<usize> = headings
+    .iter()
+    .map(|h| {
+      index_html
+        .find(&format!("title=\"{}\"", h))
+        .unwrap_or_else(|| panic!("heading '{}' not found in TOC", h))
+    })
+    .collect();
+
+  for window in positions.windows(2) {
+    assert!(window[0] < window[1], "TOC headings are not in document order");
+  }
+
+  // Verify heading levels aren't inflated: README h2 headings should NOT be
+  // nested deeper than the Examples section (level 1). If the offset leaked,
+  // they'd be at level 4 and appear as deeply nested sub-items.
+  // In the correct output, README headings at level 2 nest directly under the
+  // top-level list, not under a third-level nested list.
+  let nav_start = index_html.find("documentNavigation").unwrap();
+  let nav_section = &index_html[nav_start..];
+  let nav_end = nav_section.find("</nav>").unwrap();
+  let nav_html = &nav_section[..nav_end];
+
+  // Count nesting depth of the first README heading (Installation).
+  // It should be in at most one <ul> nesting (the root <ul> + one sub-<ul>
+  // for level 2), not two or more sub-<ul>s which would indicate inflated levels.
+  let before_installation =
+    &nav_html[..nav_html.find("Installation").unwrap()];
+  let ul_depth = before_installation.matches("<ul>").count();
+  assert!(
+    ul_depth <= 2,
+    "README headings are nested too deeply (depth {}), offset likely leaked from Examples",
+    ul_depth
+  );
+}
