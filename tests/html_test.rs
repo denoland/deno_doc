@@ -831,3 +831,95 @@ async fn diff_comprehensive() {
 
   insta::assert_json_snapshot!("diff_comprehensive_diff_only", pages);
 }
+
+/// Verify that README headings in the module doc TOC appear before
+/// @example entries, matching the rendered page order where the
+/// markdown body is displayed before the Examples section.
+#[tokio::test]
+async fn readme_toc_order_with_examples() {
+  let source = r#"
+/**
+ * ## Installation
+ *
+ * Install the library.
+ *
+ * ## Usage
+ *
+ * Use the library.
+ *
+ * ## API Reference
+ *
+ * The API reference.
+ *
+ * @example My Example
+ * ```ts
+ * hello();
+ * ```
+ *
+ * @module
+ */
+
+/** A simple function. */
+export function hello(): string {
+  return "hello";
+}
+"#;
+
+  let doc_nodes_by_url = parse_source(source).await;
+
+  let specifier = ModuleSpecifier::parse("file:///mod.ts").unwrap();
+
+  let ctx = GenerateCtx::create_basic(
+    GenerateOptions {
+      package_name: None,
+      main_entrypoint: Some(specifier),
+      href_resolver: Arc::new(EmptyResolver),
+      usage_composer: Some(Arc::new(EmptyResolver)),
+      rewrite_map: None,
+      category_docs: None,
+      disable_search: false,
+      symbol_redirect_map: None,
+      default_symbol_map: None,
+      markdown_renderer: comrak::create_renderer(None, None, None),
+      markdown_stripper: Arc::new(comrak::strip),
+      head_inject: None,
+      id_prefix: None,
+      diff_only: false,
+    },
+    doc_nodes_by_url,
+    None,
+  )
+  .unwrap();
+
+  let files = generate(ctx).unwrap();
+  let index_html = files.get("./index.html").unwrap();
+
+  // README headings should appear before the Examples section in the TOC,
+  // matching the page layout where the markdown body comes before @example sections.
+  let readme_heading_pos = index_html
+    .find("title=\"Installation\"")
+    .expect("Installation heading not found in TOC");
+  let examples_pos = index_html
+    .find("title=\"Examples\"")
+    .expect("Examples heading not found in TOC");
+
+  assert!(
+    readme_heading_pos < examples_pos,
+    "README headings should appear before Examples in the TOC"
+  );
+
+  // Verify README headings are in document order
+  let headings = ["Installation", "Usage", "API Reference"];
+  let positions: Vec<usize> = headings
+    .iter()
+    .map(|h| {
+      index_html
+        .find(&format!("title=\"{}\"", h))
+        .unwrap_or_else(|| panic!("heading '{}' not found in TOC", h))
+    })
+    .collect();
+
+  for window in positions.windows(2) {
+    assert!(window[0] < window[1], "TOC headings are not in document order");
+  }
+}

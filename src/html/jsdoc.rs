@@ -818,11 +818,11 @@ impl ModuleDocCtx {
           }
         });
 
+        let html = jsdoc_body_to_html(render_ctx, js_doc, summary);
+
         if let Some(examples) = jsdoc_examples(render_ctx, js_doc) {
           sections.push(examples);
         }
-
-        let html = jsdoc_body_to_html(render_ctx, js_doc, summary);
 
         (deprecated, html)
       } else {
