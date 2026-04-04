@@ -25,6 +25,88 @@ lazy_static! {
   static ref IDENTIFIER_RE: Regex = Regex::new(r"[^a-zA-Z$_]").unwrap();
 }
 
+/// JavaScript/TypeScript reserved words that cannot be used as identifiers.
+const JS_RESERVED_WORDS: &[&str] = &[
+  "abstract",
+  "arguments",
+  "async",
+  "await",
+  "boolean",
+  "break",
+  "byte",
+  "case",
+  "catch",
+  "char",
+  "class",
+  "const",
+  "continue",
+  "debugger",
+  "default",
+  "delete",
+  "do",
+  "double",
+  "else",
+  "enum",
+  "eval",
+  "export",
+  "extends",
+  "false",
+  "final",
+  "finally",
+  "float",
+  "for",
+  "function",
+  "goto",
+  "if",
+  "implements",
+  "import",
+  "in",
+  "instanceof",
+  "int",
+  "interface",
+  "let",
+  "long",
+  "native",
+  "new",
+  "null",
+  "package",
+  "private",
+  "protected",
+  "public",
+  "return",
+  "short",
+  "static",
+  "super",
+  "switch",
+  "synchronized",
+  "this",
+  "throw",
+  "throws",
+  "transient",
+  "true",
+  "try",
+  "typeof",
+  "var",
+  "void",
+  "volatile",
+  "while",
+  "with",
+  "yield",
+];
+
+fn is_reserved_word(s: &str) -> bool {
+  JS_RESERVED_WORDS.contains(&s)
+}
+
+/// Capitalize the first letter of a string.
+fn capitalize_first(s: &str) -> String {
+  let mut chars = s.chars();
+  match chars.next() {
+    None => String::new(),
+    Some(c) => c.to_uppercase().to_string() + chars.as_str(),
+  }
+}
+
 fn render_css_for_usage(name: &str) -> String {
   format!(
     r#"
@@ -202,7 +284,14 @@ fn get_identifier_for_file(
 
   maybe_identifier.as_ref().map_or_else(
     || "mod".to_string(),
-    |identifier| IDENTIFIER_RE.replace_all(identifier, "_").to_string(),
+    |identifier| {
+      let sanitized = IDENTIFIER_RE.replace_all(identifier, "_").to_string();
+      if is_reserved_word(&sanitized) {
+        capitalize_first(&sanitized)
+      } else {
+        sanitized
+      }
+    },
   )
 }
 
@@ -359,4 +448,45 @@ pub trait UsageComposer: Send + Sync {
     current_resolve: UrlResolveKind,
     usage_to_md: UsageToMd,
   ) -> IndexMap<UsageComposerEntry, String>;
+}
+
+#[cfg(test)]
+mod tests {
+  use super::*;
+
+  #[test]
+  fn test_is_reserved_word() {
+    assert!(is_reserved_word("enum"));
+    assert!(is_reserved_word("class"));
+    assert!(is_reserved_word("function"));
+    assert!(is_reserved_word("import"));
+    assert!(is_reserved_word("export"));
+    assert!(is_reserved_word("let"));
+    assert!(is_reserved_word("const"));
+    assert!(is_reserved_word("var"));
+    assert!(is_reserved_word("yield"));
+    assert!(is_reserved_word("await"));
+
+    assert!(!is_reserved_word("foo"));
+    assert!(!is_reserved_word("myEnum"));
+    assert!(!is_reserved_word("Enum"));
+    assert!(!is_reserved_word(""));
+  }
+
+  #[test]
+  fn test_capitalize_first() {
+    assert_eq!(capitalize_first("enum"), "Enum");
+    assert_eq!(capitalize_first("class"), "Class");
+    assert_eq!(capitalize_first("foo"), "Foo");
+    assert_eq!(capitalize_first(""), "");
+    assert_eq!(capitalize_first("a"), "A");
+    assert_eq!(capitalize_first("ABC"), "ABC");
+  }
+
+  #[test]
+  fn test_identifier_re_sanitization() {
+    assert_eq!(IDENTIFIER_RE.replace_all("foo-bar", "_"), "foo_bar");
+    assert_eq!(IDENTIFIER_RE.replace_all("@scope/pkg", "_"), "_scope_pkg");
+    assert_eq!(IDENTIFIER_RE.replace_all("hello_world", "_"), "hello_world");
+  }
 }
