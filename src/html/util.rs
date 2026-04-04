@@ -31,6 +31,7 @@ lazy_static! {
 
 pub enum IdKind {
   Constructor,
+  ConstructSignature,
   Property,
   Method,
   Function,
@@ -54,6 +55,7 @@ impl IdKind {
   fn as_str(&self) -> &'static str {
     match self {
       IdKind::Constructor => "constructor",
+      IdKind::ConstructSignature => "construct_signature",
       IdKind::Property => "property",
       IdKind::Method => "method",
       IdKind::Function => "function",
