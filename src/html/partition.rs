@@ -1,12 +1,14 @@
 use super::DocNodeWithContext;
 use super::GenerateCtx;
 use crate::DeclarationDef;
+use crate::Location;
 use crate::js_doc::JsDocTag;
 use indexmap::IndexMap;
 use std::borrow::Cow;
 use std::cell::RefCell;
 use std::cmp::Ordering;
 use std::collections::HashMap;
+use std::collections::HashSet;
 
 pub type Partitions<T> = IndexMap<T, Vec<DocNodeWithContext>>;
 
@@ -26,6 +28,7 @@ where
     doc_nodes: Box<dyn Iterator<Item = Cow<'a, DocNodeWithContext>> + 'a>,
     flatten_namespaces: bool,
     process: &F,
+    visited_refs: &mut HashSet<Location>,
   ) where
     F: Fn(&mut IndexMap<T, Vec<DocNodeWithContext>>, &DocNodeWithContext),
   {
@@ -50,19 +53,24 @@ where
             ),
             true,
             process,
+            visited_refs,
           );
         }
 
         if let Some(reference) = decl.reference_def() {
           has_reference = true;
-          partitioner_inner(
-            ctx,
-            partitions,
-            parent_node,
-            Box::new(ctx.resolve_reference(parent_node, &reference.target)),
-            flatten_namespaces,
-            process,
-          );
+          if visited_refs.insert(reference.target.clone()) {
+            partitioner_inner(
+              ctx,
+              partitions,
+              parent_node,
+              Box::new(ctx.resolve_reference(parent_node, &reference.target)),
+              flatten_namespaces,
+              process,
+              visited_refs,
+            );
+            visited_refs.remove(&reference.target);
+          }
         }
       }
 
@@ -97,6 +105,7 @@ where
     Box::new(doc_nodes),
     flatten_namespaces,
     process,
+    &mut HashSet::new(),
   );
 
   partitions
@@ -233,6 +242,7 @@ pub fn flatten_namespace<'a>(
     out: &mut Vec<Cow<'a, DocNodeWithContext>>,
     parent_node: Option<&DocNodeWithContext>,
     doc_nodes: Box<dyn Iterator<Item = Cow<'a, DocNodeWithContext>> + 'a>,
+    visited_refs: &mut HashSet<Location>,
   ) {
     let nodes: Vec<_> = doc_nodes.collect();
 
@@ -253,21 +263,26 @@ pub fn flatten_namespace<'a>(
             out,
             Some(&**node),
             Box::new(children.into_iter().map(Cow::Owned)),
+            visited_refs,
           );
         }
 
         if let Some(reference) = decl.reference_def() {
           has_reference = true;
-          let resolved: Vec<_> = ctx
-            .resolve_reference(parent_node, &reference.target)
-            .map(|c| c.into_owned())
-            .collect();
-          partitioner_inner(
-            ctx,
-            out,
-            parent_node,
-            Box::new(resolved.into_iter().map(Cow::Owned)),
-          );
+          if visited_refs.insert(reference.target.clone()) {
+            let resolved: Vec<_> = ctx
+              .resolve_reference(parent_node, &reference.target)
+              .map(|c| c.into_owned())
+              .collect();
+            partitioner_inner(
+              ctx,
+              out,
+              parent_node,
+              Box::new(resolved.into_iter().map(Cow::Owned)),
+              visited_refs,
+            );
+            visited_refs.remove(&reference.target);
+          }
         }
       }
 
@@ -295,7 +310,13 @@ pub fn flatten_namespace<'a>(
 
   let mut out = vec![];
 
-  partitioner_inner(ctx, &mut out, None, Box::new(doc_nodes));
+  partitioner_inner(
+    ctx,
+    &mut out,
+    None,
+    Box::new(doc_nodes),
+    &mut HashSet::new(),
+  );
 
   out
 }
