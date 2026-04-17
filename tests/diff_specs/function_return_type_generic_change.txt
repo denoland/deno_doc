@@ -1,0 +1,99 @@
+# old/mod.ts
+export function doc(): Promise<Record<string, Array<DocNode>>> { return {} as any; }
+
+# new/mod.ts
+export function doc(): Promise<Record<string, Document>> { return {} as any; }
+
+# output.json
+{
+  "modifiedModules": {
+    "file:///mod.ts": {
+      "modified": [
+        {
+          "name": "doc",
+          "declarations": {
+            "modified": [
+              {
+                "kind": "function",
+                "defChanges": {
+                  "type": "function",
+                  "returnTypeChange": {
+                    "old": {
+                      "repr": "Promise",
+                      "kind": "typeRef",
+                      "value": {
+                        "typeParams": [
+                          {
+                            "repr": "Record",
+                            "kind": "typeRef",
+                            "value": {
+                              "typeParams": [
+                                {
+                                  "repr": "string",
+                                  "kind": "keyword",
+                                  "value": "string"
+                                },
+                                {
+                                  "repr": "Array",
+                                  "kind": "typeRef",
+                                  "value": {
+                                    "typeParams": [
+                                      {
+                                        "repr": "DocNode",
+                                        "kind": "typeRef",
+                                        "value": {
+                                          "typeName": "DocNode"
+                                        }
+                                      }
+                                    ],
+                                    "typeName": "Array"
+                                  }
+                                }
+                              ],
+                              "typeName": "Record"
+                            }
+                          }
+                        ],
+                        "typeName": "Promise"
+                      }
+                    },
+                    "new": {
+                      "repr": "Promise",
+                      "kind": "typeRef",
+                      "value": {
+                        "typeParams": [
+                          {
+                            "repr": "Record",
+                            "kind": "typeRef",
+                            "value": {
+                              "typeParams": [
+                                {
+                                  "repr": "string",
+                                  "kind": "keyword",
+                                  "value": "string"
+                                },
+                                {
+                                  "repr": "Document",
+                                  "kind": "typeRef",
+                                  "value": {
+                                    "typeName": "Document"
+                                  }
+                                }
+                              ],
+                              "typeName": "Record"
+                            }
+                          }
+                        ],
+                        "typeName": "Promise"
+                      }
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  }
+}
