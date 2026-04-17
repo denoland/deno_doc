@@ -1,4 +1,6 @@
 use crate::Declaration;
+use crate::DeclarationDef;
+use crate::class::ClassDef;
 use crate::class::ClassMethodDef;
 use crate::class::ClassPropertyDef;
 use crate::diff::ConstructorDiff;
@@ -12,14 +14,70 @@ use crate::html::parameters::render_params;
 use crate::html::render_context::RenderContext;
 use crate::html::types::render_type_def_colon;
 use crate::html::util::*;
+use crate::interface::InterfaceDef;
 use crate::js_doc::JsDocTag;
+use crate::ts_type::TsTypeDefKind;
 use deno_ast::swc::ast::Accessibility;
 use deno_ast::swc::ast::MethodKind;
 use indexmap::IndexMap;
 use serde::Deserialize;
 use serde::Serialize;
 use std::collections::BTreeMap;
+use std::collections::HashMap;
 use std::collections::HashSet;
+
+/// Collects method and property documentation from all interfaces
+/// implemented by a class, to be used as fallback when the class
+/// member lacks its own documentation.
+fn collect_inherited_docs(
+  ctx: &RenderContext,
+  class_def: &ClassDef,
+) -> HashMap<String, String> {
+  let mut inherited = HashMap::new();
+
+  for implement in class_def.implements.iter() {
+    let interface_name = match &implement.kind {
+      TsTypeDefKind::TypeRef(type_ref) => &type_ref.type_name,
+      _ => continue,
+    };
+
+    // Search all doc nodes for a matching interface
+    for nodes in ctx.ctx.doc_nodes.values() {
+      for node in nodes {
+        if node.get_name() != interface_name {
+          continue;
+        }
+        for decl in &node.declarations {
+          if let DeclarationDef::Interface(iface) = &decl.def {
+            collect_docs_from_interface(&mut inherited, iface);
+          }
+        }
+      }
+    }
+  }
+
+  inherited
+}
+
+fn collect_docs_from_interface(
+  inherited: &mut HashMap<String, String>,
+  iface: &InterfaceDef,
+) {
+  for method in &iface.methods {
+    if let Some(doc) = &method.js_doc.doc {
+      inherited
+        .entry(method.name.clone())
+        .or_insert_with(|| doc.to_string());
+    }
+  }
+  for property in &iface.properties {
+    if let Some(doc) = &property.js_doc.doc {
+      inherited
+        .entry(property.name.clone())
+        .or_insert_with(|| doc.to_string());
+    }
+  }
+}
 
 pub(crate) fn render_class(
   ctx: &RenderContext,
@@ -46,6 +104,8 @@ pub(crate) fn render_class(
       )
       .and_then(|d| d.as_class())
   });
+
+  let inherited_docs = collect_inherited_docs(ctx, class_def);
 
   let class_items = partition_class_items(
     class_def.properties.clone(),
@@ -89,6 +149,7 @@ pub(crate) fn render_class(
     class_items.static_properties,
     class_items.static_property_changes.as_ref(),
     class_items.static_method_changes.as_ref(),
+    &inherited_docs,
   );
 
   if !static_properties.is_empty() {
@@ -104,6 +165,7 @@ pub(crate) fn render_class(
     name,
     class_items.static_methods,
     class_items.static_method_changes.as_ref(),
+    &inherited_docs,
   );
 
   if !static_methods.is_empty() {
@@ -120,6 +182,7 @@ pub(crate) fn render_class(
     class_items.properties,
     class_items.property_changes.as_ref(),
     class_items.method_changes.as_ref(),
+    &inherited_docs,
   );
 
   if !properties.is_empty() {
@@ -135,6 +198,7 @@ pub(crate) fn render_class(
     name,
     class_items.methods,
     class_items.method_changes.as_ref(),
+    &inherited_docs,
   );
 
   if !methods.is_empty() {
@@ -585,6 +649,7 @@ fn render_class_accessor(
   getter: Option<&ClassMethodDef>,
   setter: Option<&ClassMethodDef>,
   method_changes: Option<&MethodsDiff>,
+  inherited_docs: &HashMap<String, String>,
 ) -> DocEntryCtx {
   let getter_or_setter = getter.or(setter).unwrap();
 
@@ -605,7 +670,11 @@ fn render_class_accessor(
       })
     })
     .map_or_else(String::new, |ts_type| render_type_def_colon(ctx, ts_type));
-  let js_doc = getter_or_setter.js_doc.doc.as_deref();
+  let js_doc = getter_or_setter
+    .js_doc
+    .doc
+    .as_deref()
+    .or_else(|| inherited_docs.get(&**name).map(|s| s.as_str()));
 
   let mut tags = Tag::from_js_doc(&getter_or_setter.js_doc);
   if let Some(tag) = Tag::from_accessibility(getter_or_setter.accessibility) {
@@ -689,6 +758,7 @@ fn render_class_method(
   method: &ClassMethodDef,
   i: usize,
   method_changes: Option<&MethodsDiff>,
+  inherited_docs: &HashMap<String, String>,
 ) -> Option<DocEntryCtx> {
   if method.function_def.has_body && i != 0 {
     return None;
@@ -750,6 +820,12 @@ fn render_class_method(
     (None, None, None)
   };
 
+  let doc = method
+    .js_doc
+    .doc
+    .as_deref()
+    .or_else(|| inherited_docs.get(&*method.name).map(|s| s.as_str()));
+
   Some(DocEntryCtx::new(
     ctx,
     id,
@@ -766,7 +842,7 @@ fn render_class_method(
       &method.function_def.return_type,
     ),
     tags,
-    method.js_doc.doc.as_deref(),
+    doc,
     &method.location,
     diff_status,
     old_content,
@@ -780,6 +856,7 @@ fn render_class_property(
   class_name: &str,
   property: &ClassPropertyDef,
   property_changes: Option<&PropertiesDiff>,
+  inherited_docs: &HashMap<String, String>,
 ) -> DocEntryCtx {
   let id = IdBuilder::new(ctx)
     .kind(IdKind::Property)
@@ -835,6 +912,12 @@ fn render_class_property(
     (None, None, None)
   };
 
+  let doc = property
+    .js_doc
+    .doc
+    .as_deref()
+    .or_else(|| inherited_docs.get(&*property.name).map(|s| s.as_str()));
+
   DocEntryCtx::new(
     ctx,
     id,
@@ -846,7 +929,7 @@ fn render_class_property(
     )),
     &ts_type,
     tags,
-    property.js_doc.doc.as_deref(),
+    doc,
     &property.location,
     diff_status,
     old_content,
@@ -906,15 +989,20 @@ fn render_class_properties(
   properties: Vec<PropertyOrMethod>,
   property_changes: Option<&PropertiesDiff>,
   method_changes: Option<&MethodsDiff>,
+  inherited_docs: &HashMap<String, String>,
 ) -> Vec<DocEntryCtx> {
   let mut properties = properties.into_iter().peekable();
   let mut out = vec![];
 
   while let Some(property) = properties.next() {
     let content = match property {
-      PropertyOrMethod::Property(property) => {
-        render_class_property(ctx, class_name, &property, property_changes)
-      }
+      PropertyOrMethod::Property(property) => render_class_property(
+        ctx,
+        class_name,
+        &property,
+        property_changes,
+        inherited_docs,
+      ),
       PropertyOrMethod::Method(method) => {
         let (getter, setter) = if method.kind == MethodKind::Getter {
           let next_is_setter = properties
@@ -945,6 +1033,7 @@ fn render_class_properties(
           getter,
           setter.as_ref(),
           method_changes,
+          inherited_docs,
         )
       }
     };
@@ -1044,12 +1133,20 @@ fn render_class_methods(
   class_name: &str,
   methods: BTreeMap<Box<str>, Vec<ClassMethodDef>>,
   method_changes: Option<&MethodsDiff>,
+  inherited_docs: &HashMap<String, String>,
 ) -> Vec<DocEntryCtx> {
   let mut out: Vec<DocEntryCtx> = methods
     .values()
     .flat_map(|methods| {
       methods.iter().enumerate().filter_map(|(i, method)| {
-        render_class_method(ctx, class_name, method, i, method_changes)
+        render_class_method(
+          ctx,
+          class_name,
+          method,
+          i,
+          method_changes,
+          inherited_docs,
+        )
       })
     })
     .collect();

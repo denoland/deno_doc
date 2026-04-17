@@ -148,6 +148,60 @@ pub(crate) fn render_type_def(
             .name(&type_ref.type_name)
             .build_unregistered()
         ))
+      } else if let Some(resolution) = &type_ref.resolution {
+        match resolution {
+          crate::ts_type::TypeRefResolution::TypeParam {
+            declaring_name,
+            ..
+          } => {
+            if let Some(name) = declaring_name {
+              ctx.lookup_symbol_href(name).map(|href| {
+                format!(
+                  "{}#{}",
+                  href,
+                  IdBuilder::new(ctx)
+                    .kind(IdKind::TypeParam)
+                    .name(&type_ref.type_name)
+                    .build_unregistered()
+                )
+              })
+            } else {
+              Some(format!(
+                "#{}",
+                IdBuilder::new(ctx)
+                  .kind(IdKind::TypeParam)
+                  .name(&type_ref.type_name)
+                  .build_unregistered()
+              ))
+            }
+          }
+          crate::ts_type::TypeRefResolution::Import { specifier, name } => {
+            // Try the normal lookup first, fall back to import href
+            ctx.lookup_symbol_href(&type_ref.type_name).or_else(|| {
+              let symbol_name = if let Some(name) = name.as_deref() {
+                // Named import: use the original export name
+                name.to_string()
+              } else {
+                // Star import (import * as ns): type_name is "ns.Foo.Bar",
+                // strip the namespace prefix to get "Foo.Bar"
+                type_ref.type_name.split_once('.').map_or_else(
+                  || type_ref.type_name.clone(),
+                  |(_, rest)| rest.to_string(),
+                )
+              };
+              ctx.ctx.href_resolver.resolve_import_href(
+                &symbol_name
+                  .split('.')
+                  .map(|s| s.to_string())
+                  .collect::<Vec<_>>(),
+                specifier,
+              )
+            })
+          }
+          crate::ts_type::TypeRefResolution::Local => {
+            ctx.lookup_symbol_href(&type_ref.type_name)
+          }
+        }
       } else {
         ctx.lookup_symbol_href(&type_ref.type_name)
       };

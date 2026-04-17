@@ -145,7 +145,7 @@ expression: files.get(file_name).unwrap()
   </defs>
 </svg>
 </a>
-<span class="font-bold">Hello.computedMethod</span><span class="font-medium">(<span><span>a<span>: <span class="td-ref">T</span> <span class="td-kw">extends</span> () =&gt; <span class="td-kw">infer </span><span><span class="td-tp">R</span></span> <span class="td-op">?</span> <span class="td-ref">R</span> <span class="td-op">:</span> <span class="td-kw">any</span></span></span></span>)<span>: <span class="td-kw">void</span></span> </span>
+<span class="font-bold">Hello.computedMethod</span><span class="font-medium">(<span><span>a<span>: <a href="../././~/Hello.html#type_param_t" class="link td-ref">T</a> <span class="td-kw">extends</span> () =&gt; <span class="td-kw">infer </span><span><span class="td-tp">R</span></span> <span class="td-op">?</span> <a href="../././~/Hello.html#type_param_r" class="link td-ref">R</a> <span class="td-op">:</span> <span class="td-kw">any</span></span></span></span>)<span>: <span class="td-kw">void</span></span> </span>
       </code><div class="space-y-7" id=""><section class="section"  id="parameters"><div>
       <h2 class="anchorable mb-1"><a href="#parameters" class="anchor" aria-label="Anchor" tabIndex="-1"><svg
   width="16"
@@ -194,7 +194,7 @@ Parameters</h2></div><div class="space-y-8"><div class="anchorable docEntry" id=
   </defs>
 </svg>
 </a>
-<span class="font-bold font-lg">a</span><span class="font-medium text-stone-500 dark:text-stone-200"><span>: <span class="td-ref">T</span> <span class="td-kw">extends</span> () =&gt; <span class="td-kw">infer </span><span><span class="td-tp">R</span></span> <span class="td-op">?</span> <span class="td-ref">R</span> <span class="td-op">:</span> <span class="td-kw">any</span></span></span>
+<span class="font-bold font-lg">a</span><span class="font-medium text-stone-500 dark:text-stone-200"><span>: <a href="../././~/Hello.html#type_param_t" class="link td-ref">T</a> <span class="td-kw">extends</span> () =&gt; <span class="td-kw">infer </span><span><span class="td-tp">R</span></span> <span class="td-op">?</span> <a href="../././~/Hello.html#type_param_r" class="link td-ref">R</a> <span class="td-op">:</span> <span class="td-kw">any</span></span></span>
       </code>
     </div></div></div>
 </div></section>

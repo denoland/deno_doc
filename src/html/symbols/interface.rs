@@ -52,6 +52,14 @@ pub(crate) fn render_interface(
     sections.push(index_signatures);
   }
 
+  if let Some(construct_signatures) = render_construct_signatures(
+    ctx,
+    &interface_def.constructors,
+    interface_diff.and_then(|d| d.constructor_changes.as_ref()),
+  ) {
+    sections.push(construct_signatures);
+  }
+
   if let Some(call_signatures) = render_call_signatures(
     ctx,
     &interface_def.call_signatures,
@@ -106,6 +114,147 @@ pub(crate) fn render_index_signatures(
       }
     },
   )
+}
+
+pub(crate) fn render_construct_signatures(
+  ctx: &RenderContext,
+  constructors: &[crate::ts_type::ConstructorDef],
+  constructor_changes: Option<&crate::diff::InterfaceConstructorsDiff>,
+) -> Option<SectionCtx> {
+  if constructors.is_empty()
+    && constructor_changes.is_none_or(|d| d.removed.is_empty())
+  {
+    return None;
+  }
+
+  let mut items = constructors
+    .iter()
+    .enumerate()
+    .map(|(i, constructor)| {
+      let id = IdBuilder::new(ctx)
+        .kind(IdKind::ConstructSignature)
+        .index(i)
+        .build();
+
+      let return_type = constructor
+        .return_type
+        .as_ref()
+        .map(|ts_type| render_type_def_colon(ctx, ts_type))
+        .unwrap_or_default();
+
+      let tags = Tag::from_js_doc(&constructor.js_doc);
+
+      let ctor_diff = constructor_changes.and_then(|d| {
+        d.modified
+          .iter()
+          .find(|m| m.param_count == constructor.params.len())
+      });
+
+      let diff_status = if let Some(diff) = constructor_changes {
+        if diff.added.iter().any(|a| a == constructor) {
+          Some(DiffStatus::Added)
+        } else if ctor_diff.is_some() {
+          Some(DiffStatus::Modified)
+        } else {
+          None
+        }
+      } else {
+        None
+      };
+
+      let old_tags = if matches!(
+        diff_status,
+        Some(DiffStatus::Modified | DiffStatus::Renamed { .. })
+      ) {
+        Some(super::compute_old_tags(&tags, None, None, None, None))
+      } else {
+        None
+      };
+
+      let old_content = if matches!(diff_status, Some(DiffStatus::Modified)) {
+        ctor_diff.and_then(|cd| {
+          super::function::render_old_function_summary(
+            ctx,
+            &constructor.type_params,
+            &constructor.params,
+            &constructor.return_type,
+            cd.type_params_change.as_ref(),
+            cd.params_change.as_ref(),
+            cd.return_type_change.as_ref(),
+          )
+        })
+      } else {
+        None
+      };
+
+      let mut entry = DocEntryCtx::new(
+        ctx,
+        id,
+        None,
+        None,
+        &format!(
+          "{}({}){return_type}",
+          type_params_summary(ctx, &constructor.type_params),
+          render_params(ctx, &constructor.params),
+        ),
+        tags,
+        constructor.js_doc.doc.as_deref(),
+        &constructor.location,
+        diff_status,
+        old_content,
+        old_tags,
+        ctor_diff.and_then(|cd| cd.js_doc_change.as_ref()),
+      );
+      entry.name_prefix = Some("new".into());
+
+      entry
+    })
+    .collect::<Vec<DocEntryCtx>>();
+
+  if let Some(diff) = constructor_changes {
+    for constructor in &diff.removed {
+      let id = IdBuilder::new(ctx)
+        .kind(IdKind::ConstructSignature)
+        .index(items.len())
+        .build();
+
+      let tags = Tag::from_js_doc(&constructor.js_doc);
+
+      let return_type = constructor
+        .return_type
+        .as_ref()
+        .map(|ts_type| render_type_def_colon(ctx, ts_type))
+        .unwrap_or_default();
+
+      let mut entry = DocEntryCtx::removed(
+        ctx,
+        id,
+        None,
+        None,
+        &format!(
+          "{}({}){return_type}",
+          type_params_summary(ctx, &constructor.type_params),
+          render_params(ctx, &constructor.params),
+        ),
+        tags,
+        constructor.js_doc.doc.as_deref(),
+        &constructor.location,
+      );
+      entry.name_prefix = Some("new".into());
+
+      items.push(entry);
+    }
+  }
+
+  if items.is_empty() {
+    return None;
+  }
+
+  Some(SectionCtx::new(
+    ctx,
+    "Constructors",
+    SectionContentCtx::DocEntry(items),
+  ))
 }
 
 pub(crate) fn render_call_signatures(

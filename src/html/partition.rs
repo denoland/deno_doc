@@ -32,7 +32,9 @@ where
   ) where
     F: Fn(&mut IndexMap<T, Vec<DocNodeWithContext>>, &DocNodeWithContext),
   {
-    'outer: for node in doc_nodes {
+    for node in doc_nodes {
+      let mut has_reference = false;
+
       for decl in &node.declarations {
         if flatten_namespaces
           && matches!(decl.def, DeclarationDef::Namespace(..))
@@ -56,6 +58,7 @@ where
         }
 
         if let Some(reference) = decl.reference_def() {
+          has_reference = true;
           if visited_refs.insert(reference.target.clone()) {
             partitioner_inner(
               ctx,
@@ -68,12 +71,28 @@ where
             );
             visited_refs.remove(&reference.target);
           }
-          // hack until reference nodes are separate from normal symbols
-          continue 'outer;
         }
       }
 
-      process(partitions, &node);
+      if has_reference {
+        // If the symbol has non-reference declarations alongside
+        // references, emit a node containing only the non-reference
+        // declarations so they are not lost.
+        let non_ref_decls: Vec<_> = node
+          .declarations
+          .iter()
+          .filter(|d| d.reference_def().is_none())
+          .cloned()
+          .collect();
+        if !non_ref_decls.is_empty() {
+          let mut stripped = (*node).clone();
+          std::sync::Arc::make_mut(&mut stripped.inner).declarations =
+            non_ref_decls;
+          process(partitions, &stripped);
+        }
+      } else {
+        process(partitions, &node);
+      }
     }
   }
 
@@ -227,7 +246,9 @@ pub fn flatten_namespace<'a>(
   ) {
     let nodes: Vec<_> = doc_nodes.collect();
 
-    'outer: for node in &nodes {
+    for node in &nodes {
+      let mut has_reference = false;
+
       for decl in &node.declarations {
         if matches!(decl.def, DeclarationDef::Namespace(..)) {
           let children: Vec<_> = node
@@ -247,6 +268,7 @@ pub fn flatten_namespace<'a>(
         }
 
         if let Some(reference) = decl.reference_def() {
+          has_reference = true;
           if visited_refs.insert(reference.target.clone()) {
             let resolved: Vec<_> = ctx
               .resolve_reference(parent_node, &reference.target)
@@ -261,12 +283,28 @@ pub fn flatten_namespace<'a>(
             );
             visited_refs.remove(&reference.target);
           }
-          // hack until reference nodes are separate from normal symbols
-          continue 'outer;
         }
       }
 
-      out.push((*node).clone());
+      if has_reference {
+        // If the symbol has non-reference declarations alongside
+        // references, emit a node containing only the non-reference
+        // declarations so they are not lost.
+        let non_ref_decls: Vec<_> = node
+          .declarations
+          .iter()
+          .filter(|d| d.reference_def().is_none())
+          .cloned()
+          .collect();
+        if !non_ref_decls.is_empty() {
+          let mut stripped = (**node).clone();
+          std::sync::Arc::make_mut(&mut stripped.inner).declarations =
+            non_ref_decls;
+          out.push(Cow::Owned(stripped));
+        }
+      } else {
+        out.push((*node).clone());
+      }
     }
   }
 
