@@ -175,10 +175,7 @@ pub(crate) fn render_type_def(
               ))
             }
           }
-          crate::ts_type::TypeRefResolution::Import {
-            specifier,
-            name,
-          } => {
+          crate::ts_type::TypeRefResolution::Import { specifier, name } => {
             // Try the normal lookup first, fall back to import href
             ctx.lookup_symbol_href(&type_ref.type_name).or_else(|| {
               let symbol_name = if let Some(name) = name.as_deref() {
@@ -187,13 +184,10 @@ pub(crate) fn render_type_def(
               } else {
                 // Star import (import * as ns): type_name is "ns.Foo.Bar",
                 // strip the namespace prefix to get "Foo.Bar"
-                type_ref
-                  .type_name
-                  .split_once('.')
-                  .map_or_else(
-                    || type_ref.type_name.clone(),
-                    |(_, rest)| rest.to_string(),
-                  )
+                type_ref.type_name.split_once('.').map_or_else(
+                  || type_ref.type_name.clone(),
+                  |(_, rest)| rest.to_string(),
+                )
               };
               ctx.ctx.href_resolver.resolve_import_href(
                 &symbol_name

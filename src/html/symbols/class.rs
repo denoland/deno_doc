@@ -996,9 +996,13 @@ fn render_class_properties(
 
   while let Some(property) = properties.next() {
     let content = match property {
-      PropertyOrMethod::Property(property) => {
-        render_class_property(ctx, class_name, &property, property_changes, inherited_docs)
-      }
+      PropertyOrMethod::Property(property) => render_class_property(
+        ctx,
+        class_name,
+        &property,
+        property_changes,
+        inherited_docs,
+      ),
       PropertyOrMethod::Method(method) => {
         let (getter, setter) = if method.kind == MethodKind::Getter {
           let next_is_setter = properties
@@ -1135,7 +1139,14 @@ fn render_class_methods(
     .values()
     .flat_map(|methods| {
       methods.iter().enumerate().filter_map(|(i, method)| {
-        render_class_method(ctx, class_name, method, i, method_changes, inherited_docs)
+        render_class_method(
+          ctx,
+          class_name,
+          method,
+          i,
+          method_changes,
+          inherited_docs,
+        )
       })
     })
     .collect();

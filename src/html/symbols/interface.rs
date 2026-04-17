@@ -144,8 +144,11 @@ pub(crate) fn render_construct_signatures(
 
       let tags = Tag::from_js_doc(&constructor.js_doc);
 
-      let ctor_diff = constructor_changes
-        .and_then(|d| d.modified.iter().find(|m| m.param_count == constructor.params.len()));
+      let ctor_diff = constructor_changes.and_then(|d| {
+        d.modified
+          .iter()
+          .find(|m| m.param_count == constructor.params.len())
+      });
 
       let diff_status = if let Some(diff) = constructor_changes {
         if diff.added.iter().any(|a| a == constructor) {
