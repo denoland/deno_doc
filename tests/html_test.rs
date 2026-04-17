@@ -920,7 +920,10 @@ export function hello(): string {
     .collect();
 
   for window in positions.windows(2) {
-    assert!(window[0] < window[1], "TOC headings are not in document order");
+    assert!(
+      window[0] < window[1],
+      "TOC headings are not in document order"
+    );
   }
 
   // Verify heading levels aren't inflated: README h2 headings should NOT be
@@ -936,8 +939,7 @@ export function hello(): string {
   // Count nesting depth of the first README heading (Installation).
   // It should be in at most one <ul> nesting (the root <ul> + one sub-<ul>
   // for level 2), not two or more sub-<ul>s which would indicate inflated levels.
-  let before_installation =
-    &nav_html[..nav_html.find("Installation").unwrap()];
+  let before_installation = &nav_html[..nav_html.find("Installation").unwrap()];
   let ul_depth = before_installation.matches("<ul>").count();
   assert!(
     ul_depth <= 2,
