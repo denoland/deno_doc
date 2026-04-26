@@ -1,0 +1,97 @@
+# mod.ts
+/**
+ * The module docs.
+ *
+ * @module
+ */
+
+export function foo() {}
+
+/** This is the bar function. */
+export function bar() {}
+
+# diagnostics
+error[missing-jsdoc]: exported symbol is missing JSDoc documentation
+ --> /mod.ts:7:1
+  | 
+7 | export function foo() {}
+  | ^
+
+# output.txt
+The module docs.
+@module
+
+Defined in file:///mod.ts:9:1
+
+function bar(): void
+  This is the bar function.
+
+Defined in file:///mod.ts:6:1
+
+function foo(): void
+
+
+# output.json
+{
+  "module_doc": {
+    "doc": "The module docs.\n",
+    "tags": [
+      {
+        "kind": "module"
+      }
+    ]
+  },
+  "symbols": [
+    {
+      "name": "foo",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 6,
+            "col": 0,
+            "byteIndex": 43
+          },
+          "declarationKind": "export",
+          "kind": "function",
+          "def": {
+            "params": [],
+            "returnType": {
+              "repr": "void",
+              "kind": "keyword",
+              "value": "void"
+            },
+            "hasBody": true
+          }
+        }
+      ]
+    },
+    {
+      "name": "bar",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 9,
+            "col": 0,
+            "byteIndex": 102
+          },
+          "declarationKind": "export",
+          "jsDoc": {
+            "doc": "This is the bar function."
+          },
+          "kind": "function",
+          "def": {
+            "params": [],
+            "returnType": {
+              "repr": "void",
+              "kind": "keyword",
+              "value": "void"
+            },
+            "hasBody": true
+          }
+        }
+      ]
+    }
+  ]
+}
