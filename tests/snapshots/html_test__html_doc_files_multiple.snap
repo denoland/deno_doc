@@ -311,7 +311,7 @@ Interfaces</h2></div><div class="namespaceSection"><div id="namespace_hello" cla
                 <a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;Hello.html#method_computedmethod_0">
                   <span>computedMethod</span><span>(<span><span>a<span>: <span class="td-ref">T</span> <span class="td-kw">extends</span> () =&gt; <span class="td-kw">infer </span><span><span class="td-tp">R</span></span> <span class="td-op">?</span> <span class="td-ref">R</span> <span class="td-op">:</span> <span class="td-kw">any</span></span></span></span>)<span>: <span class="td-kw">void</span></span></span></a></li><li>
                 <a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;Hello.html#method_optionalmethod_0">
-                  <span>optionalMethod</span><span>()<span>: <span>[<span class="td-kw">string</span>]</span></span></span></a></li><li>
+                  <span>optionalMethod</span><span>()<span>: <span>[<span class="td-kw">string</span>?]</span></span></span></a></li><li>
                 <a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;Hello.html#property_test">
                   <span>test</span><span>: <span class="td-str">"test"</span></span></a><div class="namespaceItemContentDoc"><div class="markdown_summary"><p>Some docs</p>
 </div></div></li><li>
