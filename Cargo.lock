@@ -647,9 +647,9 @@ dependencies = [
 
 [[package]]
 name = "deno_ast"
-version = "0.53.0"
+version = "0.53.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8ac5df28715465cff3f03294564f38c9cd3c24c4cfb965a32fd1327efa111b02"
+checksum = "05792fb2b77938767ffeb0853289e86501fddc84b1cdba9e5dc860c52baa2ff7"
 dependencies = [
  "base64",
  "capacity_builder",
@@ -762,9 +762,9 @@ dependencies = [
 
 [[package]]
 name = "deno_graph"
-version = "0.107.0"
+version = "0.108.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e8a89f45d0d890dc0b1230ffefed23e2b3b6d93873494839256aaa8d4711c1fc"
+checksum = "b0ece7ecde2db52b86b1a1ebbe368bedded631e449dd0293a2c317bb25f7641c"
 dependencies = [
  "async-trait",
  "boxed_error",
@@ -780,7 +780,7 @@ dependencies = [
  "futures",
  "indexmap 2.11.0",
  "log",
- "monch",
+ "monch 0.6.0",
  "once_cell",
  "parking_lot",
  "regex",
@@ -828,7 +828,7 @@ dependencies = [
  "deno_error",
  "ecow",
  "hipstr",
- "monch",
+ "monch 0.5.0",
  "once_cell",
  "serde",
  "thiserror",
@@ -1519,6 +1519,12 @@ name = "monch"
 version = "0.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b52c1b33ff98142aecea13138bd399b68aa7ab5d9546c300988c345004001eea"
+
+[[package]]
+name = "monch"
+version = "0.6.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "6bcc6ad3b93f756f2532d29f7c7291b8d246a2c460a99a3611327bb726830014"
 
 [[package]]
 name = "new_debug_unreachable"
