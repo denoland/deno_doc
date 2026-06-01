@@ -273,6 +273,16 @@ impl DocPrinter<'_> {
         )?;
         self.format_jsdoc_tag_maybe_doc(w, doc, indent)
       }
+      JsDocTag::Event { name, doc } => {
+        writeln!(
+          w,
+          "{}@{} {}",
+          Indent(indent),
+          colors::magenta("event"),
+          colors::bold(name)
+        )?;
+        self.format_jsdoc_tag_maybe_doc(w, doc, indent)
+      }
       JsDocTag::Example { doc } => {
         writeln!(w, "{}@{}", Indent(indent), colors::magenta("example"))?;
         self.format_jsdoc_tag_doc(w, doc, indent)
@@ -290,11 +300,31 @@ impl DocPrinter<'_> {
         )?;
         self.format_jsdoc_tag_maybe_doc(w, doc, indent)
       }
+      JsDocTag::Fires { name, doc } => {
+        writeln!(
+          w,
+          "{}@{} {}",
+          Indent(indent),
+          colors::magenta("fires"),
+          colors::bold(name)
+        )?;
+        self.format_jsdoc_tag_maybe_doc(w, doc, indent)
+      }
       JsDocTag::Ignore => {
         writeln!(w, "{}@{}", Indent(indent), colors::magenta("ignore"))
       }
       JsDocTag::Internal => {
         writeln!(w, "{}@{}", Indent(indent), colors::magenta("internal"))
+      }
+      JsDocTag::Listens { name, doc } => {
+        writeln!(
+          w,
+          "{}@{} {}",
+          Indent(indent),
+          colors::magenta("listens"),
+          colors::bold(name)
+        )?;
+        self.format_jsdoc_tag_maybe_doc(w, doc, indent)
       }
       JsDocTag::Module { name } => {
         writeln!(w, "{}@{}", Indent(indent), colors::magenta("module"))?;
