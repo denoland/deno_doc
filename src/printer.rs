@@ -1024,7 +1024,16 @@ fn render_markdown(
               format!("```{}", cb.info)
             };
             self.push_output(&format!("{}\n", colors::gray(&fence_open)))?;
-            for line in cb.literal.lines() {
+            // Hide "hidden" lines (rustdoc style) from example code blocks.
+            let processed = crate::util::example_code::process_example_code(
+              Some(&cb.info),
+              &cb.literal,
+            );
+            let displayed = processed
+              .as_ref()
+              .map(|example| example.displayed.as_str())
+              .unwrap_or(cb.literal.as_str());
+            for line in displayed.lines() {
               self.push_output(&format!("{}\n", colors::gray(line)))?;
             }
             self.push_output(&format!("{}\n", colors::gray("```")))?;
@@ -1400,6 +1409,27 @@ mod render_markdown_tests {
   fn code_block_no_lang() {
     let output = render("```\nplain code\n```");
     assert_eq!(output, "```\nplain code\n```\n");
+  }
+
+  #[test]
+  fn code_block_hidden_lines() {
+    // Lines beginning with `# ` are hidden from rendered example output.
+    let output = render("```ts\n# const x = 1;\nconsole.log(x);\n```");
+    assert_eq!(output, "```ts\nconsole.log(x);\n```\n");
+  }
+
+  #[test]
+  fn code_block_hidden_lines_escape() {
+    // `##` escapes to a literal leading `#`.
+    let output = render("```ts\n## not hidden\n```");
+    assert_eq!(output, "```ts\n# not hidden\n```\n");
+  }
+
+  #[test]
+  fn code_block_hidden_lines_only_examples() {
+    // Non-example languages are left untouched.
+    let output = render("```sh\n# install\ndeno install\n```");
+    assert_eq!(output, "```sh\n# install\ndeno install\n```\n");
   }
 
   #[test]
