@@ -11,7 +11,7 @@ repository = "https://github.com/denoland/deno_doc"
 members = ["lib"]
 
 [workspace.dependencies]
-deno_graph = { path = "../deno_graph", default-features = false, features = [
+deno_graph = { git = "https://github.com/nathanwhit/deno_graph", branch = "oxc-port", default-features = false, features = [
   "swc",
   "symbols",
 ] }
@@ -19,9 +19,6 @@ deno_ast = { git = "https://github.com/nathanwhit/deno_ast", branch = "oxc-port"
 import_map = "0.25.0"
 serde = { version = "1.0.204", features = ["derive"] }
 serde_json = { version = "1.0.122", features = ["preserve_order"] }
-
-[patch."https://github.com/nathanwhit/deno_ast"]
-deno_ast = { path = "../deno_ast" }
 
 [lib]
 name = "deno_doc"

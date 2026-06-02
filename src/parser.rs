@@ -565,41 +565,40 @@ impl<'a> DocParser<'a> {
     for stmt in module_info.statements() {
       if let Statement::ImportDeclaration(import_decl) = stmt
         && let Some(js_doc) = js_doc_for_range(module_info, import_decl.span)
+        && let Some(specifiers) = &import_decl.specifiers
       {
-        if let Some(specifiers) = &import_decl.specifiers {
-          for specifier in specifiers {
-            let (imported_name, original_name, src) = match specifier {
-              ImportDeclarationSpecifier::ImportSpecifier(named_specifier) => (
-                named_specifier.local.name.to_string(),
-                Some(module_export_name_value(&named_specifier.imported)),
-                &import_decl.source.value,
-              ),
-              ImportDeclarationSpecifier::ImportDefaultSpecifier(
-                default_specifier,
-              ) => (
-                default_specifier.local.name.to_string(),
-                Some("default".to_string()),
-                &import_decl.source.value,
-              ),
-              ImportDeclarationSpecifier::ImportNamespaceSpecifier(
-                namespace_specifier,
-              ) => (
-                namespace_specifier.local.name.to_string(),
-                None,
-                &import_decl.source.value,
-              ),
-            };
+        for specifier in specifiers {
+          let (imported_name, original_name, src) = match specifier {
+            ImportDeclarationSpecifier::ImportSpecifier(named_specifier) => (
+              named_specifier.local.name.to_string(),
+              Some(module_export_name_value(&named_specifier.imported)),
+              &import_decl.source.value,
+            ),
+            ImportDeclarationSpecifier::ImportDefaultSpecifier(
+              default_specifier,
+            ) => (
+              default_specifier.local.name.to_string(),
+              Some("default".to_string()),
+              &import_decl.source.value,
+            ),
+            ImportDeclarationSpecifier::ImportNamespaceSpecifier(
+              namespace_specifier,
+            ) => (
+              namespace_specifier.local.name.to_string(),
+              None,
+              &import_decl.source.value,
+            ),
+          };
 
-            let resolved_specifier =
-              self.resolve_dependency(&src.to_string(), referrer)?;
+          let resolved_specifier =
+            self.resolve_dependency(src.as_ref(), referrer)?;
 
-            imports.push(Import {
-              imported_name: imported_name.into_boxed_str(),
-              js_doc: js_doc.clone(),
-              src: resolved_specifier.to_string(),
-              original_name,
-            });
-          }
+          imports.push(Import {
+            imported_name: imported_name.into_boxed_str(),
+            js_doc: js_doc.clone(),
+            src: resolved_specifier.to_string(),
+            original_name,
+          });
         }
       }
     }

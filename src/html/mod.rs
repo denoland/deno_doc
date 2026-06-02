@@ -10,6 +10,7 @@ use serde::Serialize;
 use std::borrow::Cow;
 use std::cmp::Ordering;
 use std::collections::HashMap;
+use std::path::Path;
 use std::path::PathBuf;
 use std::sync::Arc;
 
@@ -1766,8 +1767,7 @@ pub fn find_common_ancestor<'a>(
     }
   }
 
-  if common_ancestor.as_os_str().is_empty()
-    || common_ancestor == PathBuf::from("/")
+  if common_ancestor.as_os_str().is_empty() || common_ancestor == Path::new("/")
   {
     None
   } else {

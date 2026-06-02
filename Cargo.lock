@@ -618,6 +618,7 @@ checksum = "be1e0bca6c3637f992fc1cc7cbc52a78c1ef6db076dbf1059c4323d6a2048376"
 [[package]]
 name = "deno_ast"
 version = "0.53.2"
+source = "git+https://github.com/nathanwhit/deno_ast?branch=oxc-port#adc326fa89885400fc7d7baeb007b833138f5aff"
 dependencies = [
  "base64",
  "capacity_builder",
@@ -717,6 +718,7 @@ dependencies = [
 [[package]]
 name = "deno_graph"
 version = "0.108.2"
+source = "git+https://github.com/nathanwhit/deno_graph?branch=oxc-port#7f786030d26b7aca8937c362436d56e1145168d8"
 dependencies = [
  "async-trait",
  "boxed_error",
@@ -2879,7 +2881,7 @@ version = "0.1.10"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0978bf7171b3d90bac376700cb56d606feb40f251a475a5d6634613564460b22"
 dependencies = [
- "windows-sys 0.59.0",
+ "windows-sys 0.60.2",
 ]
 
 [[package]]
