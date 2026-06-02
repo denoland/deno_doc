@@ -51,51 +51,58 @@ error[missing-jsdoc]: exported symbol is missing JSDoc documentation
   | ^
 
 # output.txt
-Defined in file:///mod.ts:1:1
+Defined in file:///mod.ts:0:1
 
 type PrivatePropThroughNamespaceRef = typeof MyNamespace.Export.someProp
 
-Defined in file:///mod.ts:3:1
+Defined in file:///mod.ts:2:1
 
 private namespace MyNamespace
 
 
 
 # output.json
-[
-  {
-    "name": "PrivatePropThroughNamespaceRef",
-    "isDefault": false,
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 1,
-      "col": 0,
-      "byteIndex": 0
+{
+  "symbols": [
+    {
+      "name": "PrivatePropThroughNamespaceRef",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 0,
+            "col": 0,
+            "byteIndex": 0
+          },
+          "declarationKind": "export",
+          "kind": "typeAlias",
+          "def": {
+            "tsType": {
+              "repr": "MyNamespace.Export.someProp",
+              "kind": "typeQuery",
+              "value": "MyNamespace.Export.someProp"
+            }
+          }
+        }
+      ]
     },
-    "declarationKind": "export",
-    "kind": "typeAlias",
-    "typeAliasDef": {
-      "tsType": {
-        "repr": "MyNamespace.Export.someProp",
-        "kind": "typeQuery",
-        "typeQuery": "MyNamespace.Export.someProp"
-      },
-      "typeParams": []
+    {
+      "name": "MyNamespace",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 2,
+            "col": 0,
+            "byteIndex": 82
+          },
+          "declarationKind": "private",
+          "kind": "namespace",
+          "def": {
+            "elements": []
+          }
+        }
+      ]
     }
-  },
-  {
-    "name": "MyNamespace",
-    "isDefault": false,
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 3,
-      "col": 0,
-      "byteIndex": 82
-    },
-    "declarationKind": "private",
-    "kind": "namespace",
-    "namespaceDef": {
-      "elements": []
-    }
-  }
-]
+  ]
+}

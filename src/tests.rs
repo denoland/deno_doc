@@ -519,8 +519,8 @@ export * as b from "./mod_doc.ts";
         "location": {
           "filename": "file:///ns.ts",
           "line": 1,
-          "col": 7,
-          "byteIndex": 8
+          "col": 0,
+          "byteIndex": 1
         },
         "declarationKind": "export",
         "jsDoc": {

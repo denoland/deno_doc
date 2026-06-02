@@ -1413,8 +1413,14 @@ impl<'a> DocParser<'a> {
         self.get_doc_for_export_default_decl(module_info, n)
       }
       SymbolNodeRef::ExportDefaultExpr(n) => {
-        let js_doc = js_doc_for_range(module_info, n.span())?;
-        let location = get_location(module_info, n.span().start);
+        let (js_doc, location) = self
+          .export_default_expr_context(module_info, n)
+          .unwrap_or_else(|| {
+            (
+              js_doc_for_range(module_info, n.span()).unwrap_or_default(),
+              get_location(module_info, n.span().start),
+            )
+          });
         self.get_decl_for_export_default_expr(module_info, n, js_doc, location)
       }
       SymbolNodeRef::FnDecl(n) => {
@@ -1528,6 +1534,26 @@ impl<'a> DocParser<'a> {
         false
       }
     }
+  }
+
+  fn export_default_expr_context(
+    &self,
+    module_info: &EsModuleInfo,
+    export_expr: &ExportDefaultDeclarationKind,
+  ) -> Option<(JsDoc, Location)> {
+    let expr_span = export_expr.span();
+    for stmt in module_info.statements() {
+      let Statement::ExportDefaultDeclaration(export_default) = stmt else {
+        continue;
+      };
+      if export_default.declaration.span() == expr_span {
+        return Some((
+          js_doc_for_range(module_info, export_default.span)?,
+          get_location(module_info, export_default.span.start),
+        ));
+      }
+    }
+    None
   }
 
   fn get_declare_for_export_decl_declaration(

@@ -41,7 +41,7 @@ Defined in file:///mod.ts:1:1
 namespace a
   Description.
 
-  private const a: string
+  const a: string
     Description.
 
 Defined in file:///mod.ts:8:1
@@ -88,7 +88,7 @@ namespace f
             "col": 0,
             "byteIndex": 20
           },
-          "declarationKind": "private",
+          "declarationKind": "export",
           "jsDoc": {
             "doc": "Description."
           },

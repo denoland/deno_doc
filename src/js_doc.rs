@@ -74,7 +74,9 @@ pub fn parse_jsdoc_type(
     type_alias,
   ) = type_alias
   {
-    Some(TsTypeDef::new(module_info, &type_alias.type_annotation))
+    let mut ts_type = TsTypeDef::new(module_info, &type_alias.type_annotation);
+    ts_type.clear_resolutions();
+    Some(ts_type)
   } else {
     None
   }
@@ -615,7 +617,6 @@ mod tests {
   ) -> serde_json::Value {
     let mut value = serde_json::json!({
       "typeName": name,
-      "resolution": { "kind": "typeParam" },
     });
     if let Some(tp) = type_params {
       value["typeParams"] = serde_json::json!(tp);

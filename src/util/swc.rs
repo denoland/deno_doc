@@ -83,37 +83,26 @@ pub(crate) fn module_js_doc_for_source(
 ) -> Option<Option<(JsDoc, Span)>> {
   let source_text = module_info.source_text();
   let comments = module_info.comments();
-  let statements = module_info.statements();
 
-  // Find the start of the first statement (or end of file)
-  let first_stmt_start = statements
-    .first()
-    .map(|s| {
-      use deno_ast::oxc::span::GetSpan;
-      s.span().start
-    })
-    .unwrap_or(u32::MAX);
-
-  // Find leading block comments before the first statement that look like JSDoc
-  let js_doc_comment = comments.iter().find(|comment| {
-    comment.span.start < first_stmt_start && comment.is_block() && {
+  for js_doc_comment in comments.iter().filter(|comment| {
+    comment.is_block() && {
       let content_span = comment.content_span();
       let text =
         &source_text[content_span.start as usize..content_span.end as usize];
       text.starts_with('*')
     }
-  })?;
-
-  let js_doc = parse_js_doc(source_text, js_doc_comment, module_info);
-  if js_doc
-    .tags
-    .iter()
-    .any(|tag| matches!(tag, JsDocTag::Module { .. }))
-  {
-    if js_doc.tags.contains(&JsDocTag::Ignore) {
-      return Some(None);
+  }) {
+    let js_doc = parse_js_doc(source_text, js_doc_comment, module_info);
+    if js_doc
+      .tags
+      .iter()
+      .any(|tag| matches!(tag, JsDocTag::Module { .. }))
+    {
+      if js_doc.tags.contains(&JsDocTag::Ignore) {
+        return Some(None);
+      }
+      return Some(Some((js_doc, js_doc_comment.span)));
     }
-    return Some(Some((js_doc, js_doc_comment.span)));
   }
   None
 }
@@ -132,33 +121,15 @@ pub fn get_text_info_location(
   pos: u32,
 ) -> Location {
   let byte_index = pos as usize;
-  let line_and_column_index = text_info.line_and_column_display(byte_index);
-
-  // Adjust column for tab indentation (tabs count as 4 spaces for display,
-  // matching the old SWC behavior with indent_width=4)
-  let line_start_byte = byte_index - (line_and_column_index.column_number - 1);
   let text = text_info.text();
-  let col = if line_start_byte < text.len() {
-    let line_prefix = &text[line_start_byte..byte_index];
-    let mut col = 0usize;
-    for ch in line_prefix.chars() {
-      if ch == '\t' {
-        // Round up to next multiple of 4
-        col = (col + 4) & !3;
-      } else {
-        col += 1;
-      }
-    }
-    col
-  } else {
-    line_and_column_index.column_number - 1
-  };
+  let lookup_byte_index = byte_index.min(text.len());
+  let line_and_column_index =
+    text_info.line_and_column_display(lookup_byte_index);
 
   Location {
     filename: specifier.into(),
-    // todo(#150): make 0-indexed
-    line: line_and_column_index.line_number,
-    col,
+    line: line_and_column_index.line_number - 1,
+    col: line_and_column_index.column_number - 1,
     byte_index,
   }
 }

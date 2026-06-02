@@ -166,13 +166,7 @@ pub(crate) fn render_type_def(
                 )
               })
             } else {
-              Some(format!(
-                "#{}",
-                IdBuilder::new(ctx)
-                  .kind(IdKind::TypeParam)
-                  .name(&type_ref.type_name)
-                  .build_unregistered()
-              ))
+              None
             }
           }
           crate::ts_type::TypeRefResolution::Import { specifier, name } => {
