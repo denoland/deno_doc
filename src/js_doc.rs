@@ -21,7 +21,7 @@ lazy_static! {
   /// @tag value
   static ref JS_DOC_TAG_WITH_VALUE_RE: Regex = Regex::new(r"(?s)^\s*@(category|group|see|example|tags|since|priority|summary|description)(?:\s+(.+))").unwrap();
   /// @tag name maybe_value
-  static ref JS_DOC_TAG_NAMED_WITH_MAYBE_VALUE_RE: Regex = Regex::new(r"(?s)^\s*@(callback|template|typeparam|typeParam)\s+([a-zA-Z_$]\S*)(?:\s+(?:-\s+)?(.+))?").unwrap();
+  static ref JS_DOC_TAG_NAMED_WITH_MAYBE_VALUE_RE: Regex = Regex::new(r"(?s)^\s*@(callback|template|typeparam|typeParam|event|fires|emits|listens)\s+([a-zA-Z_$]\S*)(?:\s+(?:-\s+)?(.+))?").unwrap();
   /// @tag {type} name maybe_value
   static ref JS_DOC_TAG_NAMED_TYPED_RE: Regex = Regex::new(r"(?s)^\s*@(prop(?:erty)?|typedef)\s+\{([^}]+)\}\s+([a-zA-Z_$]\S*)(?:\s+(?:-\s+)?(.+))?").unwrap();
   /// @tag {type} name maybe_value
@@ -254,6 +254,12 @@ pub enum JsDocTag {
     #[serde(skip_serializing_if = "Option::is_none", default)]
     doc: Option<Box<str>>,
   },
+  /// `@event name comment`
+  Event {
+    name: Box<str>,
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    doc: Option<Box<str>>,
+  },
   /// `@example comment`
   Example {
     #[serde(default)]
@@ -268,10 +274,22 @@ pub enum JsDocTag {
     #[serde(skip_serializing_if = "Option::is_none", default)]
     doc: Option<Box<str>>,
   },
+  /// `@fires name comment` or `@emits name comment`
+  Fires {
+    name: Box<str>,
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    doc: Option<Box<str>>,
+  },
   /// `@ignore`
   Ignore,
   /// `@internal`
   Internal,
+  /// `@listens name comment`
+  Listens {
+    name: Box<str>,
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    doc: Option<Box<str>>,
+  },
   /// `@module`
   /// `@module name`
   Module {
@@ -405,6 +423,9 @@ impl JsDocTag {
       match kind {
         "callback" => Self::Callback { name, doc },
         "template" | "typeparam" | "typeParam" => Self::Template { name, doc },
+        "event" => Self::Event { name, doc },
+        "fires" | "emits" => Self::Fires { name, doc },
+        "listens" => Self::Listens { name, doc },
         _ => unreachable!("kind unexpected: {}", kind),
       }
     } else if let Some(caps) =
@@ -762,6 +783,70 @@ class Foo {}
             "kind": "template",
             "name": "T",
             "doc": "more docs\n\nnew paragraph",
+          }
+        ]
+      })
+    );
+    assert_eq!(
+      serde_json::to_value(parse_jsdoc(
+        "@event Hurl#snowball Fired when a snowball is thrown"
+      ))
+      .unwrap(),
+      serde_json::json!({
+        "tags": [
+          {
+            "kind": "event",
+            "name": "Hurl#snowball",
+            "doc": "Fired when a snowball is thrown",
+          }
+        ]
+      })
+    );
+    assert_eq!(
+      serde_json::to_value(parse_jsdoc("@event open")).unwrap(),
+      serde_json::json!({
+        "tags": [
+          {
+            "kind": "event",
+            "name": "open",
+          }
+        ]
+      })
+    );
+    assert_eq!(
+      serde_json::to_value(parse_jsdoc("@fires Hurl#snowball")).unwrap(),
+      serde_json::json!({
+        "tags": [
+          {
+            "kind": "fires",
+            "name": "Hurl#snowball",
+          }
+        ]
+      })
+    );
+    assert_eq!(
+      serde_json::to_value(parse_jsdoc(
+        "@emits open - when the connection opens"
+      ))
+      .unwrap(),
+      serde_json::json!({
+        "tags": [
+          {
+            "kind": "fires",
+            "name": "open",
+            "doc": "when the connection opens",
+          }
+        ]
+      })
+    );
+    assert_eq!(
+      serde_json::to_value(parse_jsdoc("@listens module:hurler~snowball"))
+        .unwrap(),
+      serde_json::json!({
+        "tags": [
+          {
+            "kind": "listens",
+            "name": "module:hurler~snowball",
           }
         ]
       })
@@ -1564,6 +1649,40 @@ multi-line
       json!({
         "kind": "template",
         "name": "T",
+      })
+    );
+    assert_eq!(
+      serde_json::to_value(JsDocTag::Event {
+        name: "snowball".into(),
+        doc: Some("fired when a snowball is thrown".into()),
+      })
+      .unwrap(),
+      json!({
+        "kind": "event",
+        "name": "snowball",
+        "doc": "fired when a snowball is thrown",
+      })
+    );
+    assert_eq!(
+      serde_json::to_value(JsDocTag::Fires {
+        name: "Hurl#snowball".into(),
+        doc: None,
+      })
+      .unwrap(),
+      json!({
+        "kind": "fires",
+        "name": "Hurl#snowball",
+      })
+    );
+    assert_eq!(
+      serde_json::to_value(JsDocTag::Listens {
+        name: "module:hurler~snowball".into(),
+        doc: None,
+      })
+      .unwrap(),
+      json!({
+        "kind": "listens",
+        "name": "module:hurler~snowball",
       })
     );
     assert_eq!(
