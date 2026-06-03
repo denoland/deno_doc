@@ -2,6 +2,7 @@
 
 use crate::Location;
 use crate::js_doc::JsDoc;
+use crate::js_doc::JsDocTag;
 use crate::node::DeclarationDef;
 use crate::node::DeclarationKind;
 use crate::node::NamespaceDef;
@@ -181,6 +182,24 @@ impl Diagnostic for DocDiagnostic {
   }
 }
 
+/// Whether a JSDoc block documents its symbol through a tag, even though it has
+/// no top-level description.
+///
+/// A `@deprecated` notice that carries an explanation counts as documentation.
+/// When `@deprecated` is the first block of a comment, any description that
+/// follows it is absorbed into the tag (per JSDoc semantics, the description
+/// must precede all tags), so the symbol ends up with no `doc` field even
+/// though it is clearly documented. Treating such a symbol as missing JSDoc
+/// would be a false positive.
+fn has_documenting_tag(js_doc: &JsDoc) -> bool {
+  js_doc.tags.iter().any(|tag| {
+    matches!(
+      tag,
+      JsDocTag::Deprecated { doc: Some(doc) } if !doc.trim().is_empty()
+    )
+  })
+}
+
 pub struct DiagnosticsCollector<'a> {
   root_symbol: Rc<RootSymbol<'a>>,
   seen_private_types_in_public: HashSet<(UniqueSymbolId, UniqueSymbolId)>,
@@ -278,6 +297,7 @@ impl<'a> DiagnosticsCollector<'a> {
 
   fn check_missing_js_doc(&mut self, js_doc: &JsDoc, location: &Location) {
     if js_doc.doc.is_none()
+      && !has_documenting_tag(js_doc)
       && !has_ignorable_js_doc_tag(js_doc)
       && self.seen_jsdoc_missing.insert(location.clone())
       && let Some(text_info) = self.maybe_get_text_info(location)
