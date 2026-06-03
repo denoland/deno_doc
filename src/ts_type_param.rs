@@ -1,8 +1,8 @@
 // Copyright 2018-2024 the Deno authors. All rights reserved. MIT license.
 
 use crate::ts_type::TsTypeDef;
-use deno_ast::swc::ast::TsTypeParam;
-use deno_ast::swc::ast::TsTypeParamDecl;
+use deno_ast::oxc::ast::ast::TSTypeParameter;
+use deno_ast::oxc::ast::ast::TSTypeParameterDeclaration;
 use deno_graph::symbols::EsModuleInfo;
 use serde::Deserialize;
 use serde::Serialize;
@@ -36,8 +36,8 @@ impl Display for TsTypeParamDef {
 }
 
 impl TsTypeParamDef {
-  pub fn new(module_info: &EsModuleInfo, param: &TsTypeParam) -> Self {
-    let name = param.name.sym.to_string();
+  pub fn new(module_info: &EsModuleInfo, param: &TSTypeParameter) -> Self {
+    let name = param.name.name.to_string();
     let constraint = param
       .constraint
       .as_ref()
@@ -57,7 +57,7 @@ impl TsTypeParamDef {
 
 pub(crate) fn maybe_type_param_decl_to_type_param_defs(
   module_info: &EsModuleInfo,
-  maybe_type_param_decl: Option<&TsTypeParamDecl>,
+  maybe_type_param_decl: Option<&TSTypeParameterDeclaration>,
 ) -> Box<[TsTypeParamDef]> {
   if let Some(type_params_decl) = maybe_type_param_decl {
     type_params_decl

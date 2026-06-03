@@ -550,14 +550,14 @@ fn inject_removed_subitems(
         for method in &mc.removed {
           if matches!(
             method.accessibility,
-            Some(deno_ast::swc::ast::Accessibility::Private)
+            Some(crate::util::types::Accessibility::Private)
           ) {
             continue;
           }
           let target_id = if matches!(
             method.kind,
-            deno_ast::swc::ast::MethodKind::Getter
-              | deno_ast::swc::ast::MethodKind::Setter
+            crate::util::types::MethodKind::Getter
+              | crate::util::types::MethodKind::Setter
           ) {
             IdBuilder::new(ctx)
               .kind(IdKind::Accessor)
@@ -596,7 +596,7 @@ fn inject_removed_subitems(
         for prop in &pc.removed {
           if matches!(
             prop.accessibility,
-            Some(deno_ast::swc::ast::Accessibility::Private)
+            Some(crate::util::types::Accessibility::Private)
           ) {
             continue;
           }
@@ -629,8 +629,8 @@ fn inject_removed_subitems(
         for method in &mc.removed {
           let target_id = if matches!(
             method.kind,
-            deno_ast::swc::ast::MethodKind::Getter
-              | deno_ast::swc::ast::MethodKind::Setter
+            crate::util::types::MethodKind::Getter
+              | crate::util::types::MethodKind::Setter
           ) {
             IdBuilder::new(ctx)
               .kind(IdKind::Accessor)

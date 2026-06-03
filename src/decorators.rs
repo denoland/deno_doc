@@ -3,9 +3,9 @@
 use crate::node::Location;
 use crate::util::swc::get_location;
 
-use deno_ast::SourceRangedForSpanned;
-use deno_ast::swc::ast::Decorator;
-use deno_ast::swc::ast::Expr;
+use deno_ast::oxc::ast::ast::Decorator;
+use deno_ast::oxc::ast::ast::Expression;
+use deno_ast::oxc::span::GetSpan;
 use deno_graph::symbols::EsModuleInfo;
 use deno_terminal::colors;
 use serde::Deserialize;
@@ -44,40 +44,39 @@ impl DecoratorDef {
     module_info: &EsModuleInfo,
     decorator: &Decorator,
   ) -> Self {
-    match decorator.expr.as_ref() {
-      Expr::Call(call_expr) => {
-        if let Some(expr) = call_expr.callee.clone().expr()
-          && let Expr::Ident(ident) = expr.as_ref()
-        {
+    match &decorator.expression {
+      Expression::CallExpression(call_expr) => {
+        if let Expression::Identifier(ident) = &call_expr.callee {
           let args = call_expr
-            .args
+            .arguments
             .iter()
             .map(|a| {
-              a.text_fast(module_info.source().text_info_lazy())
+              let span = a.span();
+              module_info.source_text()[span.start as usize..span.end as usize]
                 .to_string()
             })
             .collect();
           return Self {
-            name: ident.sym.to_string(),
+            name: ident.name.to_string(),
             args,
-            location: get_location(module_info, ident.start()),
+            location: get_location(module_info, ident.span.start),
           };
         }
         Self {
           name: "[UNSUPPORTED]".to_string(),
           args: vec![],
-          location: get_location(module_info, call_expr.start()),
+          location: get_location(module_info, call_expr.span.start),
         }
       }
-      Expr::Ident(ident) => Self {
-        name: ident.sym.to_string(),
+      Expression::Identifier(ident) => Self {
+        name: ident.name.to_string(),
         args: vec![],
-        location: get_location(module_info, ident.start()),
+        location: get_location(module_info, ident.span.start),
       },
       _ => Self {
         name: "[UNSUPPORTED]".to_string(),
         args: vec![],
-        location: get_location(module_info, decorator.start()),
+        location: get_location(module_info, decorator.span.start),
       },
     }
   }

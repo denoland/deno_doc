@@ -161,9 +161,11 @@ async fn parse_sources(
   let mut source_files = source_files;
   source_files.sort();
 
+  let allocator = deno_ast::oxc::allocator::Allocator::default();
   let parser = DocParser::new(
     &graph,
     &analyzer,
+    &allocator,
     &source_files,
     DocParserOptions {
       diagnostics: false,
@@ -257,13 +259,13 @@ async fn run() -> anyhow::Result<()> {
         // This allows comparing renamed modules.
         let old_by_original = old_specifiers
           .iter()
-          .zip(old_docs.into_iter())
+          .zip(old_docs)
           .map(|(orig, (_, nodes))| (orig.clone(), nodes))
           .collect::<IndexMap<_, _>>();
 
         let new_by_original = new_specifiers
           .iter()
-          .zip(new_docs.into_iter())
+          .zip(new_docs)
           .map(|(orig, (_, nodes))| (orig.clone(), nodes))
           .collect::<IndexMap<_, _>>();
 

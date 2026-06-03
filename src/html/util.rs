@@ -13,8 +13,7 @@ use crate::js_doc::JsDoc;
 use crate::js_doc::JsDocTag;
 use crate::node::DeclarationDef;
 use crate::node::DocNodeKind;
-use deno_ast::swc::ast::Accessibility;
-use deno_ast::swc::atoms::once_cell::sync::Lazy;
+use crate::util::types::Accessibility;
 use indexmap::IndexSet;
 use regex::Regex;
 use serde::Deserialize;
@@ -24,6 +23,7 @@ use std::collections::HashMap;
 use std::fmt::Display;
 use std::fmt::Formatter;
 use std::sync::Arc;
+use std::sync::LazyLock;
 
 lazy_static! {
   static ref TARGET_RE: Regex = Regex::new(r"\s*\* ?|\.").unwrap();
@@ -948,8 +948,8 @@ impl ToCCtx {
 }
 
 pub fn slugify(name: &str) -> String {
-  static REJECTED_CHARS: Lazy<Regex> =
-    Lazy::new(|| Regex::new(r"[^\p{L}\p{M}\p{N}\p{Pc} -]").unwrap());
+  static REJECTED_CHARS: LazyLock<Regex> =
+    LazyLock::new(|| Regex::new(r"[^\p{L}\p{M}\p{N}\p{Pc} -]").unwrap());
 
   REJECTED_CHARS
     .replace_all(&name.to_lowercase(), "")

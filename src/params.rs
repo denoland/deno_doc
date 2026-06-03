@@ -6,10 +6,17 @@ use crate::display::SliceDisplayer;
 use crate::display::display_optional;
 use crate::ts_type::TsTypeDef;
 
-use deno_ast::SourceRangedForSpanned;
-use deno_ast::swc::ast::ObjectPatProp;
-use deno_ast::swc::ast::Pat;
-use deno_ast::swc::ast::TsFnParam;
+use deno_ast::oxc::ast::ast::ArrayPattern;
+use deno_ast::oxc::ast::ast::AssignmentPattern;
+use deno_ast::oxc::ast::ast::BindingIdentifier;
+use deno_ast::oxc::ast::ast::BindingPattern;
+use deno_ast::oxc::ast::ast::BindingProperty;
+use deno_ast::oxc::ast::ast::BindingRestElement;
+use deno_ast::oxc::ast::ast::FormalParameter;
+use deno_ast::oxc::ast::ast::FormalParameters;
+use deno_ast::oxc::ast::ast::ObjectPattern;
+use deno_ast::oxc::ast::ast::PropertyKey;
+use deno_ast::oxc::span::GetSpan;
 use deno_graph::symbols::EsModuleInfo;
 use serde::Deserialize;
 use serde::Serialize;
@@ -84,8 +91,6 @@ impl Display for ParamDef {
         if let Some(ts_type) = &self.ts_type {
           write!(f, ": {}", ts_type)?;
         }
-        // TODO(SyrupThinker) As we cannot display expressions the value is just omitted
-        // write!(f, " = {}", right)?;
         Ok(())
       }
       ParamPatternDef::Identifier { name, optional } => {
@@ -131,11 +136,9 @@ impl Display for ObjectPatPropDef {
   fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
     match self {
       ObjectPatPropDef::KeyValue { key, .. } => {
-        // The internal identifier does not need to be exposed
         write!(f, "{}", key)
       }
       ObjectPatPropDef::Assign { key, .. } => {
-        // TODO(SyrupThinker) As we cannot display expressions the value is just omitted
         write!(f, "{}", key)
       }
       ObjectPatPropDef::Rest { arg } => write!(f, "...{}", arg),
@@ -145,78 +148,99 @@ impl Display for ObjectPatPropDef {
 
 pub fn ident_to_param_def(
   module_info: &EsModuleInfo,
-  ident: &deno_ast::swc::ast::BindingIdent,
+  ident: &BindingIdentifier,
+  type_ann: Option<&deno_ast::oxc::ast::ast::TSTypeAnnotation>,
 ) -> ParamDef {
-  let ts_type = ident
-    .type_ann
-    .as_deref()
-    .map(|type_ann| TsTypeDef::new(module_info, &type_ann.type_ann));
+  let ts_type = type_ann
+    .map(|type_ann| TsTypeDef::new(module_info, &type_ann.type_annotation));
 
   ParamDef {
     pattern: ParamPatternDef::Identifier {
-      name: ident.id.sym.to_string(),
-      optional: ident.id.optional,
+      name: ident.name.to_string(),
+      optional: false,
     },
     decorators: Box::new([]),
     ts_type,
   }
 }
 
-fn rest_pat_to_param_def(
+pub fn rest_element_to_param_def(
   module_info: &EsModuleInfo,
-  rest_pat: &deno_ast::swc::ast::RestPat,
+  rest: &BindingRestElement,
+  type_ann: Option<&deno_ast::oxc::ast::ast::TSTypeAnnotation>,
 ) -> ParamDef {
-  let ts_type = rest_pat
-    .type_ann
-    .as_deref()
-    .map(|type_ann| TsTypeDef::new(module_info, &type_ann.type_ann));
+  let ts_type = type_ann
+    .map(|type_ann| TsTypeDef::new(module_info, &type_ann.type_annotation));
 
   ParamDef {
     pattern: ParamPatternDef::Rest {
-      arg: Box::new(pat_to_param_def(module_info, &rest_pat.arg)),
+      arg: Box::new(binding_pat_to_param_def(
+        module_info,
+        &rest.argument,
+        None,
+      )),
     },
     decorators: Box::new([]),
     ts_type,
   }
 }
 
-fn object_pat_prop_to_def(
+fn binding_prop_to_def(
   module_info: &EsModuleInfo,
-  object_pat_prop: &ObjectPatProp,
+  prop: &BindingProperty,
 ) -> ObjectPatPropDef {
-  match object_pat_prop {
-    ObjectPatProp::Assign(assign) => ObjectPatPropDef::Assign {
-      key: assign.key.sym.to_string(),
-      value: assign.value.as_ref().map(|_| "[UNSUPPORTED]".to_string()),
-    },
-    ObjectPatProp::KeyValue(keyvalue) => ObjectPatPropDef::KeyValue {
-      key: prop_name_to_string(module_info, &keyvalue.key),
-      value: Box::new(pat_to_param_def(module_info, &keyvalue.value)),
-    },
-    ObjectPatProp::Rest(rest) => ObjectPatPropDef::Rest {
-      arg: Box::new(pat_to_param_def(module_info, &rest.arg)),
-    },
+  if prop.shorthand {
+    // Shorthand: `{ x }` or `{ x = default }`
+    let key = match &prop.value {
+      BindingPattern::BindingIdentifier(ident) => ident.name.to_string(),
+      BindingPattern::AssignmentPattern(assign) => match &assign.left {
+        BindingPattern::BindingIdentifier(ident) => ident.name.to_string(),
+        _ => "[UNSUPPORTED]".to_string(),
+      },
+      _ => "[UNSUPPORTED]".to_string(),
+    };
+    let value = match &prop.value {
+      BindingPattern::AssignmentPattern(_) => Some("[UNSUPPORTED]".to_string()),
+      _ => None,
+    };
+    ObjectPatPropDef::Assign { key, value }
+  } else {
+    // KeyValue: `{ key: value }`
+    ObjectPatPropDef::KeyValue {
+      key: prop_name_to_string(module_info, &prop.key),
+      value: Box::new(binding_pat_to_param_def(module_info, &prop.value, None)),
+    }
   }
 }
 
 fn object_pat_to_param_def(
   module_info: &EsModuleInfo,
-  object_pat: &deno_ast::swc::ast::ObjectPat,
+  object_pat: &ObjectPattern,
+  type_ann: Option<&deno_ast::oxc::ast::ast::TSTypeAnnotation>,
 ) -> ParamDef {
-  let props = object_pat
-    .props
+  let mut props = object_pat
+    .properties
     .iter()
-    .map(|prop| object_pat_prop_to_def(module_info, prop))
+    .map(|prop| binding_prop_to_def(module_info, prop))
     .collect::<Vec<_>>();
-  let ts_type = object_pat
-    .type_ann
-    .as_deref()
-    .map(|type_ann| TsTypeDef::new(module_info, &type_ann.type_ann));
+
+  if let Some(rest) = &object_pat.rest {
+    props.push(ObjectPatPropDef::Rest {
+      arg: Box::new(binding_pat_to_param_def(
+        module_info,
+        &rest.argument,
+        None,
+      )),
+    });
+  }
+
+  let ts_type = type_ann
+    .map(|type_ann| TsTypeDef::new(module_info, &type_ann.type_annotation));
 
   ParamDef {
     pattern: ParamPatternDef::Object {
       props,
-      optional: object_pat.optional,
+      optional: false,
     },
     decorators: Box::new([]),
     ts_type,
@@ -225,22 +249,41 @@ fn object_pat_to_param_def(
 
 fn array_pat_to_param_def(
   module_info: &EsModuleInfo,
-  array_pat: &deno_ast::swc::ast::ArrayPat,
+  array_pat: &ArrayPattern,
+  type_ann: Option<&deno_ast::oxc::ast::ast::TSTypeAnnotation>,
 ) -> ParamDef {
-  let elements = array_pat
-    .elems
+  let mut elements = array_pat
+    .elements
     .iter()
-    .map(|elem| elem.as_ref().map(|e| pat_to_param_def(module_info, e)))
+    .map(|elem| {
+      elem
+        .as_ref()
+        .map(|e| binding_pat_to_param_def(module_info, e, None))
+    })
     .collect::<Vec<Option<_>>>();
-  let ts_type = array_pat
-    .type_ann
-    .as_deref()
-    .map(|type_ann| TsTypeDef::new(module_info, &type_ann.type_ann));
+
+  // If there's a rest element, add it
+  if let Some(rest) = &array_pat.rest {
+    elements.push(Some(ParamDef {
+      pattern: ParamPatternDef::Rest {
+        arg: Box::new(binding_pat_to_param_def(
+          module_info,
+          &rest.argument,
+          None,
+        )),
+      },
+      decorators: Box::new([]),
+      ts_type: None,
+    }));
+  }
+
+  let ts_type = type_ann
+    .map(|type_ann| TsTypeDef::new(module_info, &type_ann.type_annotation));
 
   ParamDef {
     pattern: ParamPatternDef::Array {
       elements,
-      optional: array_pat.optional,
+      optional: false,
     },
     decorators: Box::new([]),
     ts_type,
@@ -249,9 +292,11 @@ fn array_pat_to_param_def(
 
 pub fn assign_pat_to_param_def(
   module_info: &EsModuleInfo,
-  assign_pat: &deno_ast::swc::ast::AssignPat,
+  assign_pat: &AssignmentPattern,
+  type_ann: Option<&deno_ast::oxc::ast::ast::TSTypeAnnotation>,
 ) -> ParamDef {
-  let mut left = pat_to_param_def(module_info, &assign_pat.left);
+  let mut left =
+    binding_pat_to_param_def(module_info, &assign_pat.left, type_ann);
 
   if left.ts_type.is_none() {
     left.ts_type = crate::ts_type::infer_ts_type_from_expr(
@@ -273,55 +318,113 @@ pub fn assign_pat_to_param_def(
 
 pub fn param_to_param_def(
   module_info: &EsModuleInfo,
-  param: &deno_ast::swc::ast::Param,
+  param: &FormalParameter,
 ) -> ParamDef {
-  let mut def = pat_to_param_def(module_info, &param.pat);
+  let mut def = binding_pat_to_param_def(
+    module_info,
+    &param.pattern,
+    param.type_annotation.as_deref(),
+  );
+  // Set optional from the FormalParameter (BindingIdentifier doesn't have it)
+  if param.optional {
+    match &mut def.pattern {
+      ParamPatternDef::Identifier { optional, .. } => *optional = true,
+      ParamPatternDef::Array { optional, .. } => *optional = true,
+      ParamPatternDef::Object { optional, .. } => *optional = true,
+      _ => {}
+    }
+  }
   def.decorators = decorators_to_defs(module_info, &param.decorators);
+
+  // Wrap in Assign if the parameter has a default initializer
+  if let Some(init) = &param.initializer {
+    let right = crate::interface::expr_to_name(init);
+    // Infer type from initializer if not already set
+    if def.ts_type.is_none() {
+      def.ts_type =
+        crate::ts_type::infer_ts_type_from_expr(module_info, init, false);
+    }
+    def = ParamDef {
+      pattern: ParamPatternDef::Assign {
+        left: Box::new(def),
+        right,
+      },
+      decorators: Box::new([]),
+      ts_type: None,
+    };
+  }
+
   def
 }
 
-pub fn pat_to_param_def(
+pub fn binding_pat_to_param_def(
   module_info: &EsModuleInfo,
-  pat: &deno_ast::swc::ast::Pat,
+  pat: &BindingPattern,
+  type_ann: Option<&deno_ast::oxc::ast::ast::TSTypeAnnotation>,
 ) -> ParamDef {
   match pat {
-    Pat::Ident(ident) => ident_to_param_def(module_info, ident),
-    Pat::Array(array_pat) => array_pat_to_param_def(module_info, array_pat),
-    Pat::Rest(rest_pat) => rest_pat_to_param_def(module_info, rest_pat),
-    Pat::Object(object_pat) => object_pat_to_param_def(module_info, object_pat),
-    Pat::Assign(assign_pat) => assign_pat_to_param_def(module_info, assign_pat),
-    _ => unreachable!(),
+    BindingPattern::BindingIdentifier(ident) => {
+      ident_to_param_def(module_info, ident, type_ann)
+    }
+    BindingPattern::ArrayPattern(array_pat) => {
+      array_pat_to_param_def(module_info, array_pat, type_ann)
+    }
+    BindingPattern::ObjectPattern(object_pat) => {
+      object_pat_to_param_def(module_info, object_pat, type_ann)
+    }
+    BindingPattern::AssignmentPattern(assign_pat) => {
+      assign_pat_to_param_def(module_info, assign_pat, type_ann)
+    }
   }
 }
 
-pub fn ts_fn_param_to_param_def(
+/// Collect all params from FormalParameters, including the rest element.
+pub fn formal_params_to_param_defs(
   module_info: &EsModuleInfo,
-  ts_fn_param: &deno_ast::swc::ast::TsFnParam,
-) -> ParamDef {
-  match ts_fn_param {
-    TsFnParam::Ident(ident) => ident_to_param_def(module_info, ident),
-    TsFnParam::Array(array_pat) => {
-      array_pat_to_param_def(module_info, array_pat)
-    }
-    TsFnParam::Rest(rest_pat) => rest_pat_to_param_def(module_info, rest_pat),
-    TsFnParam::Object(object_pat) => {
-      object_pat_to_param_def(module_info, object_pat)
-    }
+  params: &FormalParameters,
+) -> Vec<ParamDef> {
+  let mut result: Vec<ParamDef> = params
+    .items
+    .iter()
+    .map(|param| param_to_param_def(module_info, param))
+    .collect();
+  if let Some(rest) = &params.rest {
+    result.push(rest_element_to_param_def(
+      module_info,
+      &rest.rest,
+      rest.type_annotation.as_deref(),
+    ));
   }
+  result
 }
 
 pub fn prop_name_to_string(
   module_info: &EsModuleInfo,
-  prop_name: &deno_ast::swc::ast::PropName,
+  prop_key: &PropertyKey,
 ) -> String {
-  use deno_ast::swc::ast::PropName;
-  match prop_name {
-    PropName::Ident(ident) => ident.sym.to_string(),
-    PropName::Str(str_) => str_.value.to_string_lossy().into_owned(),
-    PropName::Num(num) => num.value.to_string(),
-    PropName::BigInt(num) => num.value.to_string(),
-    PropName::Computed(comp_prop_name) => comp_prop_name
-      .text_fast(module_info.source().text_info_lazy())
-      .to_string(),
+  match prop_key {
+    PropertyKey::StaticIdentifier(ident) => ident.name.to_string(),
+    PropertyKey::StringLiteral(str_) => str_.value.to_string(),
+    PropertyKey::NumericLiteral(num) => num.value.to_string(),
+    PropertyKey::BigIntLiteral(num) => num
+      .raw
+      .as_ref()
+      .map(|r| r.as_str().to_string())
+      .unwrap_or_default(),
+    // Computed expression keys - use the PropertyKey's expression nature
+    // Member expressions like Symbol.iterator should produce [Symbol.iterator]
+    PropertyKey::PrivateIdentifier(ident) => {
+      format!("#{}", ident.name)
+    }
+    PropertyKey::StaticMemberExpression(member) => {
+      let left: String = crate::interface::expr_to_name(&member.object);
+      let right = member.property.name.to_string();
+      format!("[{}.{}]", left, right)
+    }
+    _ => {
+      let span = prop_key.span();
+      module_info.source_text()[span.start as usize..span.end as usize]
+        .to_string()
+    }
   }
 }

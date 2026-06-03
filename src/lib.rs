@@ -51,6 +51,7 @@ cfg_if! {
   }
 }
 
+pub use deno_ast::oxc::allocator::Allocator as OxcAllocator;
 pub use parser::DocError;
 pub use parser::DocParser;
 pub use parser::DocParserOptions;
@@ -206,16 +207,16 @@ pub fn docnodes_v1_to_v2(value: serde_json::Value) -> Document {
     let mut declaration = serde_json::Value::Object(obj);
     migrate_declaration(&mut declaration);
 
-    let symbol = symbols.entry(name.clone()).or_insert_with(|| Symbol {
-      name,
-      is_default,
-      declarations: vec![],
-    });
-    // If any entry is marked default, the symbol is default
-    if is_default {
-      symbol.is_default = true;
-    }
     if let Ok(decl) = serde_json::from_value::<Declaration>(declaration) {
+      let symbol = symbols.entry(name.clone()).or_insert_with(|| Symbol {
+        name,
+        is_default,
+        declarations: vec![],
+      });
+      // If any entry is marked default, the symbol is default
+      if is_default {
+        symbol.is_default = true;
+      }
       symbol.declarations.push(decl);
     }
   }
@@ -312,18 +313,21 @@ fn v1_nodes_to_symbols(nodes: Vec<serde_json::Value>) -> serde_json::Value {
     let mut decl = serde_json::Value::Object(obj);
     migrate_declaration(&mut decl);
 
-    let symbol = symbols.entry(name.clone()).or_insert_with(|| {
-      serde_json::json!({
-        "name": name,
-        "declarations": []
-      })
-    });
+    let declaration = serde_json::from_value::<Declaration>(decl.clone());
+    if declaration.is_ok() {
+      let symbol = symbols.entry(name.clone()).or_insert_with(|| {
+        serde_json::json!({
+          "name": name,
+          "declarations": []
+        })
+      });
 
-    if is_default {
-      symbol["isDefault"] = serde_json::Value::Bool(true);
+      if is_default {
+        symbol["isDefault"] = serde_json::Value::Bool(true);
+      }
+
+      symbol["declarations"].as_array_mut().unwrap().push(decl);
     }
-
-    symbol["declarations"].as_array_mut().unwrap().push(decl);
   }
 
   serde_json::Value::Array(symbols.into_values().collect())
