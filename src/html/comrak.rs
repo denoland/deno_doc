@@ -212,6 +212,12 @@ impl SyntaxHighlighterAdapter for ComrakHighlightWrapperAdapter {
     lang: Option<&str>,
     code: &str,
   ) -> std::io::Result<()> {
+    // The markdown parser hands us the info string up to the first whitespace,
+    // so a comma-separated directive such as `ts, no-eval` arrives as `ts,`.
+    // Normalize it to the bare language token so both hidden-line processing and
+    // the downstream highlighter recognize it.
+    let lang = lang.map(crate::util::example_code::language_token);
+
     // Resolve any "hidden" lines (rustdoc style): they are removed from the
     // displayed code but kept in the copyable form so copied snippets still
     // run. Non-example languages are left untouched.
@@ -302,5 +308,18 @@ mod tests {
     let displayed = html.split("</code>").next().unwrap();
     assert!(displayed.contains("# shown"));
     assert!(!displayed.contains("## shown"));
+  }
+
+  #[test]
+  fn comma_in_info_string_is_treated_as_example() {
+    // A comma-separated directive (`ts, no-eval`) leaves the parser handing us
+    // `ts,`; it must still be recognized as a `ts` example so hidden lines are
+    // processed (regression test for broken highlighting on commas).
+    let html = render("```ts, no-eval\n# const x = 1;\nconsole.log(x);\n```");
+    let displayed = html.split("</code>").next().unwrap();
+    assert!(!displayed.contains("const x = 1;"));
+    assert!(displayed.contains("console.log(x);"));
+    // The full snippet is still copyable.
+    assert!(html.contains("const x = 1;"));
   }
 }
