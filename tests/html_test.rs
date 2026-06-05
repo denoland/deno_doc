@@ -761,6 +761,64 @@ export class Foo {
   );
 }
 
+// Regression test for https://github.com/denoland/deno_doc/issues/574:
+// `@param` documentation must render for rest/spread parameters. The rendered
+// parameter name carries a `...` prefix, but the JSDoc `@param` tag name does
+// not, so the doc lookup has to match on the bare identifier.
+#[tokio::test]
+async fn html_rest_param_jsdoc() {
+  let source = r#"
+/**
+ * Sums numbers.
+ *
+ * @param first the leading number
+ * @param rest the trailing numbers
+ */
+export function sum(first: number, ...rest: number[]): number {
+  return first + rest.reduce((a, b) => a + b, 0);
+}
+"#;
+
+  let ctx = GenerateCtx::create_basic(
+    GenerateOptions {
+      package_name: None,
+      main_entrypoint: None,
+      href_resolver: Arc::new(EmptyResolver),
+      usage_composer: Some(Arc::new(EmptyResolver)),
+      rewrite_map: None,
+      category_docs: None,
+      disable_search: false,
+      symbol_redirect_map: None,
+      default_symbol_map: None,
+      markdown_renderer: comrak::create_renderer(None, None, None),
+      markdown_stripper: Arc::new(comrak::strip),
+      head_inject: None,
+      id_prefix: None,
+      diff_only: false,
+    },
+    parse_source(source).await,
+    None,
+  )
+  .unwrap();
+
+  let files = generate(ctx).unwrap();
+
+  let sum_page = files
+    .get("./~/sum.html")
+    .expect("function symbol page should be generated");
+
+  // The non-rest parameter has always rendered its doc.
+  assert!(
+    sum_page.contains("the leading number"),
+    "expected the first parameter's @param doc to render"
+  );
+  // The rest parameter's @param doc must render too (the bug in #574).
+  assert!(
+    sum_page.contains("the trailing numbers"),
+    "expected the rest parameter's @param doc to render"
+  );
+}
+
 #[tokio::test]
 async fn diff_kind_change() {
   let test_dir = std::env::current_dir()
