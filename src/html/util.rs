@@ -377,8 +377,8 @@ pub fn href_path_resolve(
   current: UrlResolveKind,
   target: UrlResolveKind,
 ) -> String {
-  // The number of directories a file's page is nested under, relative to the
-  // output root. A page lives at `{file.path}/index.html` (or, for a symbol,
+  // The number of directories a file's page is nested under, measured from
+  // the output root. A page lives at `{file.path}/index.html` (or, for a symbol,
   // `{file.path}/~/{symbol}.html`), so the depth is the number of segments in
   // `file.path`. The main entrypoint is rewritten to `.`, which adds no
   // directory, so it counts as zero segments. Previously the main entrypoint
