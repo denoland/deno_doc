@@ -212,7 +212,7 @@ expression: search_index
       "name": "Foo.prototype.\"&gt;&lt;img src=x onerror=alert(1)&gt;",
       "file": ".",
       "doc": "",
-      "url": "././~/Foo.prototype.\"><img src=x onerror=alert(1)>.html",
+      "url": "././~/Foo.prototype.%22%3E%3Cimg%20src=x%20onerror=alert(1)%3E.html",
       "deprecated": false
     },
     {

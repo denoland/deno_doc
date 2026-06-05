@@ -352,7 +352,7 @@ async fn html_doc_files_multiple() {
       "./~/Enum2.html",
       "./~/Foo.bar.html",
       "./~/Foo.html",
-      "./~/Foo.prototype.\"><img src=x onerror=alert(1)>.html",
+      "./~/Foo.prototype.%22%3E%3Cimg%20src=x%20onerror=alert(1)%3E.html",
       "./~/Foo.prototype.[Symbol.iterator].html",
       "./~/Foo.prototype.foo.html",
       "./~/Foo.prototype.getter.html",
@@ -695,6 +695,70 @@ async fn parse_source(source: &str) -> ParseOutput {
 async fn parse_file(path: &std::path::Path) -> ParseOutput {
   let content = fs::read_to_string(path).unwrap();
   parse_source(&content).await
+}
+
+// Regression test for https://github.com/denoland/deno_doc/issues/724:
+// a member whose name comes from a string literal can contain characters that
+// are invalid in a file name (Windows reserves `<>:"/\|?*`) or that break a
+// URL. The generated page path must be filesystem- and URL-safe, and the link
+// to it must use the same encoded form so it still resolves.
+#[tokio::test]
+async fn html_symbol_name_unsafe_chars_in_path() {
+  let source = r#"
+export class Foo {
+  "a/b<c>": number = 0;
+}
+"#;
+
+  let ctx = GenerateCtx::create_basic(
+    GenerateOptions {
+      package_name: None,
+      main_entrypoint: None,
+      href_resolver: Arc::new(EmptyResolver),
+      usage_composer: Some(Arc::new(EmptyResolver)),
+      rewrite_map: None,
+      category_docs: None,
+      disable_search: false,
+      symbol_redirect_map: None,
+      default_symbol_map: None,
+      markdown_renderer: comrak::create_renderer(None, None, None),
+      markdown_stripper: Arc::new(comrak::strip),
+      head_inject: None,
+      id_prefix: None,
+      diff_only: false,
+    },
+    parse_source(source).await,
+    None,
+  )
+  .unwrap();
+
+  let files = generate(ctx).unwrap();
+
+  // No generated file path may contain characters that are reserved on common
+  // filesystems or that need escaping in a URL.
+  for name in files.keys() {
+    assert!(
+      !name.contains(['"', '<', '>', '|', '?', '*', '\\', ' ']),
+      "generated file path is not filesystem/URL safe: {name}"
+    );
+  }
+
+  // The member still gets a page, under a percent-encoded name
+  // (`a/b<c>` -> `a%2Fb%3Cc%3E`).
+  assert!(
+    files
+      .keys()
+      .any(|k| k.ends_with("/~/Foo.prototype.a%2Fb%3Cc%3E.html")),
+    "expected a percent-encoded page for the member, got: {:?}",
+    files.keys().collect::<Vec<_>>()
+  );
+
+  // No rendered page may contain the raw (unencoded) link, which would both
+  // 404 and inject markup into the surrounding attribute.
+  assert!(
+    files.values().all(|content| !content.contains("a/b<c>")),
+    "a rendered page contains an unsafe, unencoded symbol link"
+  );
 }
 
 #[tokio::test]
