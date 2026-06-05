@@ -237,7 +237,7 @@ async fn html_doc_files_single() {
       id_prefix: None,
       diff_only: false,
     },
-    get_files("single").await,
+    get_files(std::env::var("PROBE_DS").as_deref().unwrap_or("single")).await,
     None,
   )
   .unwrap();
@@ -946,4 +946,90 @@ export function hello(): string {
     "README headings are nested too deeply (depth {}), offset likely leaked from Examples",
     ul_depth
   );
+}
+
+// Parse every generated HTML file with a real HTML5 parser and assert it has
+// no parse errors (missing closing tags, mismatched/invalid markup, etc.).
+// See issue #634.
+fn assert_generated_html_is_valid(
+  files: &std::collections::HashMap<String, String>,
+) {
+  use html5ever::parse_document;
+  use html5ever::tendril::TendrilSink;
+  use markup5ever_rcdom::RcDom;
+
+  let mut names: Vec<_> = files.keys().collect();
+  names.sort();
+
+  for name in names {
+    if !name.ends_with(".html") {
+      continue;
+    }
+    let content = &files[name];
+    let dom = parse_document(RcDom::default(), Default::default())
+      .from_utf8()
+      .read_from(&mut content.as_bytes())
+      .unwrap();
+    assert!(
+      dom.errors.is_empty(),
+      "generated HTML for {name} is not valid: {:?}",
+      dom.errors
+    );
+  }
+}
+
+#[tokio::test]
+async fn html_output_is_valid() {
+  // Validate the "multiple" fixture: it exercises the widest range of output
+  // (classes, interfaces, enums, type aliases, namespaces, drilldown member
+  // pages, redirects, and the all-symbols/index pages).
+  let multiple_dir = std::env::current_dir()
+    .unwrap()
+    .join("tests")
+    .join("testdata")
+    .join("multiple");
+  let mut rewrite_map = IndexMap::new();
+  rewrite_map.insert(
+    ModuleSpecifier::from_file_path(multiple_dir.join("a.ts")).unwrap(),
+    ".".to_string(),
+  );
+  rewrite_map.insert(
+    ModuleSpecifier::from_file_path(multiple_dir.join("b.ts")).unwrap(),
+    "foo".to_string(),
+  );
+  rewrite_map.insert(
+    ModuleSpecifier::from_file_path(multiple_dir.join("c.ts")).unwrap(),
+    "c".to_string(),
+  );
+  rewrite_map.insert(
+    ModuleSpecifier::from_file_path(multiple_dir.join("_d.ts")).unwrap(),
+    "d".to_string(),
+  );
+
+  let ctx = GenerateCtx::create_basic(
+    GenerateOptions {
+      package_name: None,
+      main_entrypoint: Some(
+        ModuleSpecifier::from_file_path(multiple_dir.join("a.ts")).unwrap(),
+      ),
+      href_resolver: Arc::new(EmptyResolver),
+      usage_composer: Some(Arc::new(EmptyResolver)),
+      rewrite_map: Some(rewrite_map),
+      category_docs: None,
+      disable_search: false,
+      symbol_redirect_map: None,
+      default_symbol_map: None,
+      markdown_renderer: comrak::create_renderer(None, None, None),
+      markdown_stripper: Arc::new(comrak::strip),
+      head_inject: None,
+      id_prefix: None,
+      diff_only: false,
+    },
+    get_files("multiple").await,
+    None,
+  )
+  .unwrap();
+  let files = generate(ctx).unwrap();
+
+  assert_generated_html_is_valid(&files);
 }
