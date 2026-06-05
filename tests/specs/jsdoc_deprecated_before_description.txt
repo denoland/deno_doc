@@ -1,0 +1,117 @@
+# mod.ts
+/**
+ * @deprecated Use {@link bar} instead.
+ *
+ * Does a thing with the given value and returns it unchanged.
+ */
+export function foo(value: string): string {
+  return value;
+}
+
+/** @deprecated */
+export function baz(): void {}
+
+# diagnostics
+error[missing-jsdoc]: exported symbol is missing JSDoc documentation
+  --> /mod.ts:11:1
+   | 
+11 | export function baz(): void {}
+   | ^
+
+# output.txt
+Defined in file:///mod.ts:10:1
+
+function baz(): void
+
+  @deprecated
+
+Defined in file:///mod.ts:5:1
+
+function foo(value: string): string
+
+  @deprecated
+      Use {@link bar} instead.
+
+      Does a thing with the given value and returns it unchanged.
+
+
+
+# output.json
+{
+  "symbols": [
+    {
+      "name": "foo",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 5,
+            "col": 0,
+            "byteIndex": 114
+          },
+          "declarationKind": "export",
+          "jsDoc": {
+            "tags": [
+              {
+                "kind": "deprecated",
+                "doc": "Use {@link bar} instead.\n\nDoes a thing with the given value and returns it unchanged."
+              }
+            ]
+          },
+          "kind": "function",
+          "def": {
+            "params": [
+              {
+                "kind": "identifier",
+                "name": "value",
+                "optional": false,
+                "tsType": {
+                  "repr": "string",
+                  "kind": "keyword",
+                  "value": "string"
+                }
+              }
+            ],
+            "returnType": {
+              "repr": "string",
+              "kind": "keyword",
+              "value": "string"
+            },
+            "hasBody": true
+          }
+        }
+      ]
+    },
+    {
+      "name": "baz",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 10,
+            "col": 0,
+            "byteIndex": 197
+          },
+          "declarationKind": "export",
+          "jsDoc": {
+            "tags": [
+              {
+                "kind": "deprecated"
+              }
+            ]
+          },
+          "kind": "function",
+          "def": {
+            "params": [],
+            "returnType": {
+              "repr": "void",
+              "kind": "keyword",
+              "value": "void"
+            },
+            "hasBody": true
+          }
+        }
+      ]
+    }
+  ]
+}
