@@ -297,13 +297,17 @@ fn render_single_function(
     .enumerate()
     .map(|(i, param)| {
       let (name, str_name) = crate::html::parameters::param_name(param, i);
+      // `@param` tag names are bare identifiers, but the rendered name of a
+      // rest parameter carries a `...` prefix (e.g. `...rest`). Strip it so the
+      // doc lookup matches the tag (see issue #574).
+      let lookup_name = str_name.trim_start_matches('.');
       let id = IdBuilder::new_with_parent(ctx, &overload_id)
         .kind(IdKind::Parameter)
         .name(&str_name)
         .build();
 
       let (mut default, optional) = if let Some((_doc, optional, default)) =
-        param_docs.get(name.as_str())
+        param_docs.get(lookup_name)
       {
         ((**default).to_owned(), *optional)
       } else {
@@ -342,7 +346,7 @@ fn render_single_function(
       };
 
       let param_doc = param_docs
-        .get(name.as_str())
+        .get(lookup_name)
         .and_then(|(doc, _, _)| doc.as_deref());
 
       let (diff_status, old_content) =
