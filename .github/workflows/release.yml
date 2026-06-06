@@ -17,15 +17,31 @@ jobs:
     name: release
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    permissions:
+      contents: read
 
     steps:
       - name: Clone repository
         uses: actions/checkout@v5
         with:
-          token: ${{ secrets.DENOBOT_PAT }}
+          fetch-depth: 0
+          fetch-tags: true
 
       - uses: denoland/setup-deno@v2
       - uses: dsherret/rust-toolchain-file@v1
+
+      - name: Check release token
+        env:
+          GH_TOKEN: ${{ secrets.DENOBOT_PAT }}
+        run: |
+          if [ -z "$GH_TOKEN" ]; then
+            echo "DENOBOT_PAT is required to push release tags and trigger publish workflows." >&2
+            exit 1
+          fi
+          if ! gh api user --jq .login >/dev/null; then
+            echo "DENOBOT_PAT is invalid or expired. Rotate it before running release again." >&2
+            exit 1
+          fi
 
       - name: Tag and release
         env:
@@ -34,4 +50,5 @@ jobs:
         run: |
           git config user.email "denobot@users.noreply.github.com"
           git config user.name "denobot"
+          git remote set-url origin "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
           deno run -A jsr:@deno/rust-automation@0.22.1/tasks/publish-release --${{github.event.inputs.releaseKind}} deno_doc
