@@ -402,7 +402,11 @@ pub fn href_path_resolve(
       symbol: target_symbol,
       ..
     } => {
-      format!("{backs}./{}/~/{target_symbol}.html", target_file.path)
+      format!(
+        "{backs}./{}/~/{}.html",
+        target_file.path,
+        sanitize_symbol_path_part(target_symbol)
+      )
     }
     UrlResolveKind::File { file: target_file } => {
       format!("{backs}./{}/index.html", target_file.path)
@@ -954,4 +958,58 @@ pub fn slugify(name: &str) -> String {
   REJECTED_CHARS
     .replace_all(&name.to_lowercase(), "")
     .replace(' ', "-")
+}
+
+/// Whether a character is unsafe inside the file-name component of a symbol
+/// page, either because it is reserved on common filesystems (Windows forbids
+/// `<>:"/\|?*`) or because it has special meaning in a URL path segment (`#`,
+/// `?`, `%`, whitespace, …).
+fn is_symbol_path_unsafe(c: char) -> bool {
+  c.is_control()
+    || c.is_whitespace()
+    || matches!(
+      c,
+      '"'
+        | '#'
+        | '%'
+        | '<'
+        | '>'
+        | '?'
+        | '`'
+        | '{'
+        | '}'
+        | '|'
+        | '\\'
+        | '^'
+        | '*'
+        | ':'
+        | '/'
+    )
+}
+
+/// Percent-encode any character of a symbol name that is unsafe to use as the
+/// file-name component of its generated page. Symbol names are normally plain
+/// identifiers, for which this is a borrow-only no-op; but a symbol whose name
+/// comes from a string literal (e.g. `obj["a/b"]` or `'"><img …>'`) can contain
+/// characters that would otherwise produce an invalid file path or a broken —
+/// and potentially HTML-injecting — link. The same encoding is applied wherever
+/// such a path is built (the written file name and every link to it) so they
+/// stay consistent. See issue #724.
+pub(crate) fn sanitize_symbol_path_part(name: &str) -> Cow<'_, str> {
+  if !name.chars().any(is_symbol_path_unsafe) {
+    return Cow::Borrowed(name);
+  }
+
+  let mut out = String::with_capacity(name.len());
+  let mut buf = [0u8; 4];
+  for c in name.chars() {
+    if is_symbol_path_unsafe(c) {
+      for b in c.encode_utf8(&mut buf).as_bytes() {
+        out.push_str(&format!("%{b:02X}"));
+      }
+    } else {
+      out.push(c);
+    }
+  }
+  Cow::Owned(out)
 }
