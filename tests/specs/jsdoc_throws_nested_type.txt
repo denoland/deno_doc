@@ -1,0 +1,186 @@
+# mod.ts
+/**
+ * Waits for a value, throwing if it times out or is aborted.
+ *
+ * @throws {DOMException & { name: "TimeoutError" }} if it times out
+ * @throws {DOMException & { name: "AbortError" }} if it is aborted
+ * @returns {Promise<{ value: number }>} the resolved value
+ */
+export function deadline() {}
+
+# output.txt
+Defined in file:///mod.ts:7:1
+
+function deadline(): void
+  Waits for a value, throwing if it times out or is aborted.
+
+  @throws {DOMException & { name: "TimeoutError" }}
+      if it times out
+
+  @throws {DOMException & { name: "AbortError" }}
+      if it is aborted
+
+  @return {Promise<{ value: number }>}
+      the resolved value
+
+
+
+# output.json
+{
+  "symbols": [
+    {
+      "name": "deadline",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 7,
+            "col": 0,
+            "byteIndex": 270
+          },
+          "declarationKind": "export",
+          "jsDoc": {
+            "doc": "Waits for a value, throwing if it times out or is aborted.\n",
+            "tags": [
+              {
+                "kind": "throws",
+                "tsType": {
+                  "repr": "DOMException & { name: \"TimeoutError\" }",
+                  "kind": "intersection",
+                  "value": [
+                    {
+                      "repr": "DOMException",
+                      "kind": "typeRef",
+                      "value": {
+                        "typeName": "DOMException",
+                        "resolution": {
+                          "kind": "typeParam"
+                        }
+                      }
+                    },
+                    {
+                      "kind": "typeLiteral",
+                      "value": {
+                        "properties": [
+                          {
+                            "name": "name",
+                            "location": {
+                              "filename": "file:///mod.ts",
+                              "line": 1,
+                              "col": 26,
+                              "byteIndex": 30
+                            },
+                            "tsType": {
+                              "repr": "TimeoutError",
+                              "kind": "literal",
+                              "value": {
+                                "kind": "string",
+                                "string": "TimeoutError"
+                              }
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                },
+                "doc": "if it times out"
+              },
+              {
+                "kind": "throws",
+                "tsType": {
+                  "repr": "DOMException & { name: \"AbortError\" }",
+                  "kind": "intersection",
+                  "value": [
+                    {
+                      "repr": "DOMException",
+                      "kind": "typeRef",
+                      "value": {
+                        "typeName": "DOMException",
+                        "resolution": {
+                          "kind": "typeParam"
+                        }
+                      }
+                    },
+                    {
+                      "kind": "typeLiteral",
+                      "value": {
+                        "properties": [
+                          {
+                            "name": "name",
+                            "location": {
+                              "filename": "file:///mod.ts",
+                              "line": 1,
+                              "col": 26,
+                              "byteIndex": 30
+                            },
+                            "tsType": {
+                              "repr": "AbortError",
+                              "kind": "literal",
+                              "value": {
+                                "kind": "string",
+                                "string": "AbortError"
+                              }
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                },
+                "doc": "if it is aborted"
+              },
+              {
+                "kind": "return",
+                "tsType": {
+                  "repr": "Promise<{ value: number }>",
+                  "kind": "typeRef",
+                  "value": {
+                    "typeParams": [
+                      {
+                        "kind": "typeLiteral",
+                        "value": {
+                          "properties": [
+                            {
+                              "name": "value",
+                              "location": {
+                                "filename": "file:///mod.ts",
+                                "line": 1,
+                                "col": 19,
+                                "byteIndex": 23
+                              },
+                              "tsType": {
+                                "repr": "number",
+                                "kind": "keyword",
+                                "value": "number"
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    ],
+                    "typeName": "Promise",
+                    "resolution": {
+                      "kind": "typeParam"
+                    }
+                  }
+                },
+                "doc": "the resolved value"
+              }
+            ]
+          },
+          "kind": "function",
+          "def": {
+            "params": [],
+            "returnType": {
+              "repr": "void",
+              "kind": "keyword",
+              "value": "void"
+            },
+            "hasBody": true
+          }
+        }
+      ]
+    }
+  ]
+}

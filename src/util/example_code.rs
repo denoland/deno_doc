@@ -12,6 +12,21 @@
 //!
 //! See <https://doc.rust-lang.org/rustdoc/write-documentation/documentation-tests.html#hiding-portions-of-the-example>.
 
+/// Extracts the language token from a fenced code block's info string.
+///
+/// The info string may carry additional attributes after the language, written
+/// either space-separated (`ts ignore`) or comma-separated (`ts, no-eval` /
+/// `ts,no-eval`). Only the leading token denotes the language. Markdown parsers
+/// typically split the info string at the first whitespace, which leaves a
+/// trailing comma attached (`ts,`); splitting on commas as well as whitespace
+/// recovers the bare language (`ts`).
+pub fn language_token(lang: &str) -> &str {
+  lang
+    .split(|c: char| c.is_whitespace() || c == ',')
+    .next()
+    .unwrap_or("")
+}
+
 /// Whether a fenced code block's language denotes a runnable JavaScript or
 /// TypeScript example.
 ///
@@ -53,9 +68,7 @@ pub fn process_example_code(
   lang: Option<&str>,
   code: &str,
 ) -> Option<ExampleCode> {
-  // The info string may carry additional attributes (e.g. `ts ignore`); only
-  // the first token denotes the language.
-  let lang = lang.unwrap_or("").split_whitespace().next().unwrap_or("");
+  let lang = language_token(lang.unwrap_or(""));
   if !is_example_lang(lang) {
     return None;
   }
@@ -185,6 +198,27 @@ mod tests {
   fn handles_attributes_in_info_string() {
     let code = "# hidden;\nshown;\n";
     assert_eq!(displayed(Some("ts ignore"), code).unwrap(), "shown;\n");
+  }
+
+  #[test]
+  fn language_token_strips_directive_separators() {
+    assert_eq!(language_token("ts"), "ts");
+    assert_eq!(language_token("ts no-eval"), "ts");
+    // A comma-separated directive (markdown parsers leave the comma attached to
+    // the first token, so this arrives as `ts,`).
+    assert_eq!(language_token("ts,"), "ts");
+    assert_eq!(language_token("ts, no-eval"), "ts");
+    assert_eq!(language_token("ts,no-eval"), "ts");
+    assert_eq!(language_token(""), "");
+  }
+
+  #[test]
+  fn handles_comma_separated_info_string() {
+    // Regression test: a comma in the directive (`ts, no-eval`) must not stop
+    // the language from being recognized as a runnable example.
+    let code = "# hidden;\nshown;\n";
+    assert_eq!(displayed(Some("ts,"), code).unwrap(), "shown;\n");
+    assert_eq!(displayed(Some("ts, no-eval"), code).unwrap(), "shown;\n");
   }
 
   #[test]
