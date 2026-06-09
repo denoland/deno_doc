@@ -237,7 +237,7 @@ async fn html_doc_files_single() {
       id_prefix: None,
       diff_only: false,
     },
-    get_files(std::env::var("PROBE_DS").as_deref().unwrap_or("single")).await,
+    get_files("single").await,
     None,
   )
   .unwrap();
