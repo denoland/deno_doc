@@ -1,0 +1,70 @@
+# mod.ts
+interface DumperStateOptions {
+}
+
+/** Options for the dumper. */
+export type DumpOptions = DumperStateOptions;
+
+# output.txt
+Defined in file:///mod.ts:0:1
+
+private interface DumperStateOptions
+
+
+Defined in file:///mod.ts:4:1
+
+type DumpOptions = DumperStateOptions
+  Options for the dumper.
+
+
+# output.json
+{
+  "symbols": [
+    {
+      "name": "DumpOptions",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 4,
+            "col": 0,
+            "byteIndex": 65
+          },
+          "declarationKind": "export",
+          "jsDoc": {
+            "doc": "Options for the dumper."
+          },
+          "kind": "typeAlias",
+          "def": {
+            "tsType": {
+              "repr": "DumperStateOptions",
+              "kind": "typeRef",
+              "value": {
+                "typeName": "DumperStateOptions",
+                "resolution": {
+                  "kind": "local"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "DumperStateOptions",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 0,
+            "col": 0,
+            "byteIndex": 0
+          },
+          "declarationKind": "private",
+          "kind": "interface",
+          "def": {}
+        }
+      ]
+    }
+  ]
+}

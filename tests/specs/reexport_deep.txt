@@ -16,34 +16,6 @@ export declare namespace MessageEntity {
 }
 
 # diagnostics
-error[private-type-ref]: public type 'UrlMessageEntity' references private type 'MessageEntity'
- --> /mod.ts:2:1
-  | 
-2 | export type UrlMessageEntity = MessageEntity.TextLinkMessageEntity;
-  | ^
-  = hint: make the referenced type public or remove the reference
-  | 
-1 | export declare namespace MessageEntity {
-  | - this is the referenced type
-  | 
-
-  info: to ensure documentation is complete all types that are exposed in the public API must be public
-
-
-error[private-type-ref]: public type 'UrlMessageEntity' references private type 'MessageEntity.TextLinkMessageEntity'
- --> /mod.ts:2:1
-  | 
-2 | export type UrlMessageEntity = MessageEntity.TextLinkMessageEntity;
-  | ^
-  = hint: make the referenced type public or remove the reference
-  | 
-2 |   export interface TextLinkMessageEntity {
-  |   - this is the referenced type
-  | 
-
-  info: to ensure documentation is complete all types that are exposed in the public API must be public
-
-
 error[missing-jsdoc]: exported symbol is missing JSDoc documentation
  --> /mod.ts:2:1
   | 
