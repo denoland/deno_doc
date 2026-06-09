@@ -761,6 +761,66 @@ export class Foo {
   );
 }
 
+// Regression test for https://github.com/denoland/deno_doc/issues/590:
+// `@internal` symbols are excluded from the rendered listings but were still
+// emitted into the search index, leaving them findable. This applied to both
+// named and default exports. `@ignore` symbols are already dropped entirely.
+#[tokio::test]
+async fn html_internal_symbols_excluded_from_search() {
+  let source = r#"
+/** @internal */
+export function internalNamed(): void {}
+
+/** A visible function. */
+export function visible(): void {}
+
+/** @internal */
+export default function (): void {}
+"#;
+
+  let ctx = GenerateCtx::create_basic(
+    GenerateOptions {
+      package_name: None,
+      main_entrypoint: Some(ModuleSpecifier::parse("file:///mod.ts").unwrap()),
+      href_resolver: Arc::new(EmptyResolver),
+      usage_composer: Some(Arc::new(EmptyResolver)),
+      rewrite_map: None,
+      category_docs: None,
+      disable_search: false,
+      symbol_redirect_map: None,
+      default_symbol_map: None,
+      markdown_renderer: comrak::create_renderer(None, None, None),
+      markdown_stripper: Arc::new(comrak::strip),
+      head_inject: None,
+      id_prefix: None,
+      diff_only: false,
+    },
+    parse_source(source).await,
+    None,
+  )
+  .unwrap();
+
+  let files = generate(ctx).unwrap();
+  let search = files
+    .get("search_index.js")
+    .expect("search index should be generated");
+
+  // The visible export is searchable.
+  assert!(
+    search.contains("/~/visible.html"),
+    "visible export should be in the search index"
+  );
+  // `@internal` named and default exports must not be searchable.
+  assert!(
+    !search.contains("/~/internalNamed.html"),
+    "@internal named export leaked into the search index"
+  );
+  assert!(
+    !search.contains("/~/default.html"),
+    "@internal default export leaked into the search index"
+  );
+}
+
 #[tokio::test]
 async fn diff_kind_change() {
   let test_dir = std::env::current_dir()
