@@ -211,6 +211,13 @@ async fn html_doc_dts() {
     ]
   );
 
+  let search_js = files.get("search.js").unwrap();
+  assert!(
+    search_js
+      .contains(r#"const rootUrl = new URL(".", document.currentScript.src);"#)
+  );
+  assert!(!search_js.contains("pathToRoot"));
+
   for file_name in file_names {
     if !file_name.ends_with(".css") {
       insta::assert_snapshot!(files.get(file_name).unwrap());
