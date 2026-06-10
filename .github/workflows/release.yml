@@ -26,6 +26,7 @@ jobs:
         with:
           fetch-depth: 0
           fetch-tags: true
+          persist-credentials: false
 
       - uses: denoland/setup-deno@v2
       - uses: dsherret/rust-toolchain-file@v1
