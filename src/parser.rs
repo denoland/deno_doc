@@ -1338,6 +1338,12 @@ impl<'a> DocParser<'a> {
         continue; // ignore
       }
 
+      if decl_with_deps.is_alias_reexport {
+        // a type alias like `export type A = B` is just another name for the
+        // referenced type, which is effectively re-exported through the alias
+        continue;
+      }
+
       let decl_symbol = doc_module_info
         .symbol(decl_with_deps.symbol_id.symbol_id)
         .unwrap();
