@@ -47,7 +47,19 @@ pub(crate) fn js_doc_for_range_include_ignore(
   if let Some(js_doc_comment) = comments.iter().rev().find(|comment| {
     comment.kind == CommentKind::Block && comment.text.starts_with('*')
   }) {
-    parse_js_doc(js_doc_comment, module_info)
+    let js_doc = parse_js_doc(js_doc_comment, module_info);
+    // A `@module` JSDoc block belongs to the file as a whole, not to the
+    // first symbol that happens to follow it. Without this guard the
+    // module-level documentation gets duplicated onto the first
+    // undocumented exported symbol (denoland/deno#30783).
+    if js_doc
+      .tags
+      .iter()
+      .any(|tag| matches!(tag, JsDocTag::Module { .. }))
+    {
+      return JsDoc::default();
+    }
+    js_doc
   } else {
     JsDoc::default()
   }
