@@ -116,7 +116,9 @@ function renderResults(results) {
     }).join("");
 
     html += `<li class="block">
-<a href="${rootUrl.href}${result.file === "." ? "" : `${result.file}/`}~/${result.name}.html" class="flex rounded-lg gap-4 items-center justify-between py-2 px-3 hover:bg-stone-100 dark:hover:bg-stone-800">
+<a href="${rootUrl.href}${
+      result.file === "." ? "" : `${result.file}/`
+    }~/${result.name}.html" class="flex rounded-lg gap-4 items-center justify-between py-2 px-3 hover:bg-stone-100 dark:hover:bg-stone-800">
     <div class="flex items-center gap-2.5">
       <div class="docNodeKindIcon">
         ${kind}
