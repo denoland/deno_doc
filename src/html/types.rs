@@ -437,9 +437,9 @@ pub(crate) fn render_type_def(
         let name = if method.name == "new" {
           r#"<span class="td-kw">new </span>"#.to_string()
         } else if method.computed {
-          format!("[{}]", method.name)
+          format!("[{}]", html_escape::encode_text(&method.name))
         } else {
-          method.name.clone()
+          html_escape::encode_text(&method.name).to_string()
         };
 
         let optional = if method.optional {
