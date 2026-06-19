@@ -144,7 +144,7 @@ expression: files.get(file_name).unwrap()
   </defs>
 </svg>
 </a>
-<span class="font-bold">functionWithOptionalParameters</span><span class="font-medium">(<div class="ml-4"><div><span>foo<span class="td-op">?</span><span>: <span class="td-kw">number</span></span></span>,</div><div><span>bar<span class="td-op">?</span><span>: <span class="td-kw">number</span></span></span>,</div><div><span>baz<span class="td-op">?</span><span>: <span>[<span class="td-kw">number</span>]</span></span></span>,</div><div><span><span class="italic">unnamed 3</span><span class="td-op">?</span><span>: <span class="td-kw">string</span>[]</span></span>,</div><div><span><span class="italic">unnamed 4</span><span class="td-op">?</span><span>: { qux<span>: <span class="td-kw">number</span></span>;  }</span></span></div></div>)<span>: <span class="td-kw">void</span></span> </span>
+<span class="font-bold">functionWithOptionalParameters</span><span class="font-medium">(<div class="ml-4"><div><span>foo<span class="td-op">?</span><span>: <span class="td-kw">number</span></span></span>,</div><div><span>bar<span class="td-op">?</span><span>: <span class="td-kw">number</span></span></span>,</div><div><span>baz<span class="td-op">?</span><span>: <span>[<span class="td-kw">number</span>]</span></span></span>,</div><div><span><span class="italic">arg_3</span><span class="td-op">?</span><span>: <span class="td-kw">string</span>[]</span></span>,</div><div><span><span class="italic">arg_4</span><span class="td-op">?</span><span>: { qux<span>: <span class="td-kw">number</span></span>;  }</span></span></div></div>)<span>: <span class="td-kw">void</span></span> </span>
       </code><div class="space-y-7" id=""><section class="section"  id="parameters"><div>
       <h2 class="anchorable mb-1"><a href="#parameters" class="anchor" aria-label="Anchor" tabIndex="-1"><svg
   width="16"
@@ -255,11 +255,11 @@ Parameters</h2></div><div class="space-y-8"><div class="anchorable docEntry" id=
 <span class="font-bold font-lg">baz</span><span class="font-medium text-stone-500 dark:text-stone-200"><span>: <span>[<span class="td-kw">number</span>]</span></span></span>
       </code>
     </div></div></div>
-<div class="anchorable docEntry" id="function_functionwithoptionalparameters_0_parameter_(unnamed-3)">
+<div class="anchorable docEntry" id="function_functionwithoptionalparameters_0_parameter_arg_3">
 
   <div class="docEntryHeader">
     <div><div class="space-x-1 mb-1"><div class="text-optional border border-optional/50 bg-optional/5 inline-flex items-center gap-0.5 *:flex-none rounded-md leading-none text-sm py-1 px-2">optional</div>
-</div><code><a href="#function_functionwithoptionalparameters_0_parameter_(unnamed-3)" class="anchor" aria-label="Anchor" tabIndex="-1"><svg
+</div><code><a href="#function_functionwithoptionalparameters_0_parameter_arg_3" class="anchor" aria-label="Anchor" tabIndex="-1"><svg
   width="16"
   height="16"
   viewBox="0 0 14 14"
@@ -281,14 +281,14 @@ Parameters</h2></div><div class="space-y-8"><div class="anchorable docEntry" id=
   </defs>
 </svg>
 </a>
-<span class="font-bold font-lg"><span class="italic">unnamed 3</span></span><span class="font-medium text-stone-500 dark:text-stone-200"><span>: <span class="td-kw">string</span>[]</span></span>
+<span class="font-bold font-lg"><span class="italic">arg_3</span></span><span class="font-medium text-stone-500 dark:text-stone-200"><span>: <span class="td-kw">string</span>[]</span></span>
       </code>
     </div></div></div>
-<div class="anchorable docEntry" id="function_functionwithoptionalparameters_0_parameter_(unnamed-4)">
+<div class="anchorable docEntry" id="function_functionwithoptionalparameters_0_parameter_arg_4">
 
   <div class="docEntryHeader">
     <div><div class="space-x-1 mb-1"><div class="text-optional border border-optional/50 bg-optional/5 inline-flex items-center gap-0.5 *:flex-none rounded-md leading-none text-sm py-1 px-2">optional</div>
-</div><code><a href="#function_functionwithoptionalparameters_0_parameter_(unnamed-4)" class="anchor" aria-label="Anchor" tabIndex="-1"><svg
+</div><code><a href="#function_functionwithoptionalparameters_0_parameter_arg_4" class="anchor" aria-label="Anchor" tabIndex="-1"><svg
   width="16"
   height="16"
   viewBox="0 0 14 14"
@@ -310,7 +310,7 @@ Parameters</h2></div><div class="space-y-8"><div class="anchorable docEntry" id=
   </defs>
 </svg>
 </a>
-<span class="font-bold font-lg"><span class="italic">unnamed 4</span></span><span class="font-medium text-stone-500 dark:text-stone-200"><span>: { qux<span>: <span class="td-kw">number</span></span>;  }</span></span>
+<span class="font-bold font-lg"><span class="italic">arg_4</span></span><span class="font-medium text-stone-500 dark:text-stone-200"><span>: { qux<span>: <span class="td-kw">number</span></span>;  }</span></span>
       </code>
     </div></div></div>
 </div></section>
@@ -441,7 +441,7 @@ See</h2></div><ul class="see"><li><div class="markdown"><p><a href="../././~/ano
 </svg>
 </button><code></code></pre>
 </div></div><nav class="documentNavigation">
-          <h3>Document Navigation</h3><ul><li><a href="#parameters" title="Parameters">Parameters</a></li><li><ul><li><a href="#function_functionwithoptionalparameters_0_parameter_foo" title="foo">foo</a></li><li><a href="#function_functionwithoptionalparameters_0_parameter_bar" title="bar">bar</a></li><li><a href="#function_functionwithoptionalparameters_0_parameter_baz" title="baz">baz</a></li><li><a href="#function_functionwithoptionalparameters_0_parameter_(unnamed-3)" title="&lt;span class=&quot;italic&quot;&gt;unnamed 3&lt;/span&gt;"><span class="italic">unnamed 3</span></a></li><li><a href="#function_functionwithoptionalparameters_0_parameter_(unnamed-4)" title="&lt;span class=&quot;italic&quot;&gt;unnamed 4&lt;/span&gt;"><span class="italic">unnamed 4</span></a></li></ul></li><li><a href="#return-type" title="Return Type">Return Type</a></li><li><a href="#throws" title="Throws">Throws</a></li><li><a href="#see" title="See">See</a></li></ul></nav></div>
+          <h3>Document Navigation</h3><ul><li><a href="#parameters" title="Parameters">Parameters</a></li><li><ul><li><a href="#function_functionwithoptionalparameters_0_parameter_foo" title="foo">foo</a></li><li><a href="#function_functionwithoptionalparameters_0_parameter_bar" title="bar">bar</a></li><li><a href="#function_functionwithoptionalparameters_0_parameter_baz" title="baz">baz</a></li><li><a href="#function_functionwithoptionalparameters_0_parameter_arg_3" title="&lt;span class=&quot;italic&quot;&gt;arg_3&lt;/span&gt;"><span class="italic">arg_3</span></a></li><li><a href="#function_functionwithoptionalparameters_0_parameter_arg_4" title="&lt;span class=&quot;italic&quot;&gt;arg_4&lt;/span&gt;"><span class="italic">arg_4</span></a></li></ul></li><li><a href="#return-type" title="Return Type">Return Type</a></li><li><a href="#throws" title="Throws">Throws</a></li><li><a href="#see" title="See">See</a></li></ul></nav></div>
   </div></div>
 </div>
 </div>

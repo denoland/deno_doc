@@ -2935,7 +2935,7 @@ expression: files
                       "id": "function_functionwithoptionalparameters_0"
                     },
                     "name": "functionWithOptionalParameters",
-                    "summary": "(<div class=\"ml-4\"><div><span>foo<span class=\"td-op\">?</span><span>: <span class=\"td-kw\">number</span></span></span>,</div><div><span>bar<span class=\"td-op\">?</span><span>: <span class=\"td-kw\">number</span></span></span>,</div><div><span>baz<span class=\"td-op\">?</span><span>: <span>[<span class=\"td-kw\">number</span>]</span></span></span>,</div><div><span><span class=\"italic\">unnamed 3</span><span class=\"td-op\">?</span><span>: <span class=\"td-kw\">string</span>[]</span></span>,</div><div><span><span class=\"italic\">unnamed 4</span><span class=\"td-op\">?</span><span>: { qux<span>: <span class=\"td-kw\">number</span></span>;  }</span></span></div></div>)<span>: <span class=\"td-kw\">void</span></span>",
+                    "summary": "(<div class=\"ml-4\"><div><span>foo<span class=\"td-op\">?</span><span>: <span class=\"td-kw\">number</span></span></span>,</div><div><span>bar<span class=\"td-op\">?</span><span>: <span class=\"td-kw\">number</span></span></span>,</div><div><span>baz<span class=\"td-op\">?</span><span>: <span>[<span class=\"td-kw\">number</span>]</span></span></span>,</div><div><span><span class=\"italic\">arg_3</span><span class=\"td-op\">?</span><span>: <span class=\"td-kw\">string</span>[]</span></span>,</div><div><span><span class=\"italic\">arg_4</span><span class=\"td-op\">?</span><span>: { qux<span>: <span class=\"td-kw\">number</span></span>;  }</span></span></div></div>)<span>: <span class=\"td-kw\">void</span></span>",
                     "deprecated": null,
                     "content": {
                       "id": "",
@@ -3003,11 +3003,11 @@ expression: files
                               },
                               {
                                 "name_prefix": null,
-                                "name": "<span class=\"italic\">unnamed 3</span>",
+                                "name": "<span class=\"italic\">arg_3</span>",
                                 "name_href": null,
                                 "content": "<span>: <span class=\"td-kw\">string</span>[]</span>",
                                 "anchor": {
-                                  "id": "function_functionwithoptionalparameters_0_parameter_(unnamed-3)"
+                                  "id": "function_functionwithoptionalparameters_0_parameter_arg_3"
                                 },
                                 "tags": [
                                   {
@@ -3019,11 +3019,11 @@ expression: files
                               },
                               {
                                 "name_prefix": null,
-                                "name": "<span class=\"italic\">unnamed 4</span>",
+                                "name": "<span class=\"italic\">arg_4</span>",
                                 "name_href": null,
                                 "content": "<span>: { qux<span>: <span class=\"td-kw\">number</span></span>;  }</span>",
                                 "anchor": {
-                                  "id": "function_functionwithoptionalparameters_0_parameter_(unnamed-4)"
+                                  "id": "function_functionwithoptionalparameters_0_parameter_arg_4"
                                 },
                                 "tags": [
                                   {
@@ -3169,7 +3169,7 @@ expression: files
         "composed": false
       },
       "top_symbols": null,
-      "document_navigation_str": "<ul><li><a href=\"#parameters\" title=\"Parameters\">Parameters</a></li><li><ul><li><a href=\"#function_functionwithoptionalparameters_0_parameter_foo\" title=\"foo\">foo</a></li><li><a href=\"#function_functionwithoptionalparameters_0_parameter_bar\" title=\"bar\">bar</a></li><li><a href=\"#function_functionwithoptionalparameters_0_parameter_baz\" title=\"baz\">baz</a></li><li><a href=\"#function_functionwithoptionalparameters_0_parameter_(unnamed-3)\" title=\"&lt;span class=&quot;italic&quot;&gt;unnamed 3&lt;/span&gt;\"><span class=\"italic\">unnamed 3</span></a></li><li><a href=\"#function_functionwithoptionalparameters_0_parameter_(unnamed-4)\" title=\"&lt;span class=&quot;italic&quot;&gt;unnamed 4&lt;/span&gt;\"><span class=\"italic\">unnamed 4</span></a></li></ul></li><li><a href=\"#return-type\" title=\"Return Type\">Return Type</a></li><li><a href=\"#throws\" title=\"Throws\">Throws</a></li><li><a href=\"#see\" title=\"See\">See</a></li></ul>",
+      "document_navigation_str": "<ul><li><a href=\"#parameters\" title=\"Parameters\">Parameters</a></li><li><ul><li><a href=\"#function_functionwithoptionalparameters_0_parameter_foo\" title=\"foo\">foo</a></li><li><a href=\"#function_functionwithoptionalparameters_0_parameter_bar\" title=\"bar\">bar</a></li><li><a href=\"#function_functionwithoptionalparameters_0_parameter_baz\" title=\"baz\">baz</a></li><li><a href=\"#function_functionwithoptionalparameters_0_parameter_arg_3\" title=\"&lt;span class=&quot;italic&quot;&gt;arg_3&lt;/span&gt;\"><span class=\"italic\">arg_3</span></a></li><li><a href=\"#function_functionwithoptionalparameters_0_parameter_arg_4\" title=\"&lt;span class=&quot;italic&quot;&gt;arg_4&lt;/span&gt;\"><span class=\"italic\">arg_4</span></a></li></ul></li><li><a href=\"#return-type\" title=\"Return Type\">Return Type</a></li><li><a href=\"#throws\" title=\"Throws\">Throws</a></li><li><a href=\"#see\" title=\"See\">See</a></li></ul>",
       "document_navigation": [
         {
           "level": 1,
@@ -3193,13 +3193,13 @@ expression: files
         },
         {
           "level": 2,
-          "content": "<span class=\"italic\">unnamed 3</span>",
-          "anchor": "function_functionwithoptionalparameters_0_parameter_(unnamed-3)"
+          "content": "<span class=\"italic\">arg_3</span>",
+          "anchor": "function_functionwithoptionalparameters_0_parameter_arg_3"
         },
         {
           "level": 2,
-          "content": "<span class=\"italic\">unnamed 4</span>",
-          "anchor": "function_functionwithoptionalparameters_0_parameter_(unnamed-4)"
+          "content": "<span class=\"italic\">arg_4</span>",
+          "anchor": "function_functionwithoptionalparameters_0_parameter_arg_4"
         },
         {
           "level": 1,
