@@ -1,0 +1,513 @@
+# mod.ts
+/** a1 */
+export const a1 = () => {};
+/** a2 */
+export const a2 = () => 1;
+/** a3 */
+export const a3 = (): number => Math.random();
+/** a4 */
+export const a4 = (): void => {};
+/** a5 */
+export const a5: () => void = () => {};
+/** a6 - block body returning a value: cannot infer, must annotate */
+export const a6 = () => { return 1; };
+
+/** b1 */
+export const b1 = function () {};
+/** b2 */
+export const b2 = function (): number { return 1; };
+/** b3 */
+export const b3 = function (): number { return Math.random(); };
+/** b4 */
+export const b4 = function (): void {};
+/** b5 */
+export const b5: () => void = function () {};
+/** b6 - block body returning a value: cannot infer, must annotate */
+export const b6 = function () { return 1; };
+
+/** async arrow */
+export const c1 = async () => {};
+/** async function expression */
+export const c2 = async function () {};
+
+# diagnostics
+error[missing-return-type]: exported function is missing an explicit return type annotation
+ --> /mod.ts:4:14
+  | 
+4 | export const a2 = () => 1;
+  |              ^
+
+
+error[missing-return-type]: exported function is missing an explicit return type annotation
+  --> /mod.ts:12:14
+   | 
+12 | export const a6 = () => { return 1; };
+   |              ^
+
+
+error[missing-return-type]: exported function is missing an explicit return type annotation
+  --> /mod.ts:25:14
+   | 
+25 | export const b6 = function () { return 1; };
+   |              ^
+
+# output.txt
+Defined in file:///mod.ts:1:14
+
+function a1(): void
+  a1
+
+Defined in file:///mod.ts:3:14
+
+function a2()
+  a2
+
+Defined in file:///mod.ts:5:14
+
+function a3(): number
+  a3
+
+Defined in file:///mod.ts:7:14
+
+function a4(): void
+  a4
+
+Defined in file:///mod.ts:9:14
+
+function a5(): void
+  a5
+
+Defined in file:///mod.ts:11:14
+
+function a6()
+  a6 - block body returning a value: cannot infer, must annotate
+
+Defined in file:///mod.ts:14:14
+
+function b1(): void
+  b1
+
+Defined in file:///mod.ts:16:14
+
+function b2(): number
+  b2
+
+Defined in file:///mod.ts:18:14
+
+function b3(): number
+  b3
+
+Defined in file:///mod.ts:20:14
+
+function b4(): void
+  b4
+
+Defined in file:///mod.ts:22:14
+
+function b5(): void
+  b5
+
+Defined in file:///mod.ts:24:14
+
+function b6()
+  b6 - block body returning a value: cannot infer, must annotate
+
+Defined in file:///mod.ts:27:14
+
+async function c1(): Promise<void>
+  async arrow
+
+Defined in file:///mod.ts:29:14
+
+async function c2(): Promise<void>
+  async function expression
+
+
+# output.json
+{
+  "symbols": [
+    {
+      "name": "a1",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 1,
+            "col": 13,
+            "byteIndex": 23
+          },
+          "declarationKind": "export",
+          "jsDoc": {
+            "doc": "a1"
+          },
+          "kind": "function",
+          "def": {
+            "params": [],
+            "returnType": {
+              "repr": "void",
+              "kind": "keyword",
+              "value": "void"
+            },
+            "hasBody": true
+          }
+        }
+      ]
+    },
+    {
+      "name": "a2",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 3,
+            "col": 13,
+            "byteIndex": 61
+          },
+          "declarationKind": "export",
+          "jsDoc": {
+            "doc": "a2"
+          },
+          "kind": "function",
+          "def": {
+            "params": [],
+            "hasBody": true
+          }
+        }
+      ]
+    },
+    {
+      "name": "a3",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 5,
+            "col": 13,
+            "byteIndex": 98
+          },
+          "declarationKind": "export",
+          "jsDoc": {
+            "doc": "a3"
+          },
+          "kind": "function",
+          "def": {
+            "params": [],
+            "returnType": {
+              "repr": "number",
+              "kind": "keyword",
+              "value": "number"
+            },
+            "hasBody": true
+          }
+        }
+      ]
+    },
+    {
+      "name": "a4",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 7,
+            "col": 13,
+            "byteIndex": 155
+          },
+          "declarationKind": "export",
+          "jsDoc": {
+            "doc": "a4"
+          },
+          "kind": "function",
+          "def": {
+            "params": [],
+            "returnType": {
+              "repr": "void",
+              "kind": "keyword",
+              "value": "void"
+            },
+            "hasBody": true
+          }
+        }
+      ]
+    },
+    {
+      "name": "a5",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 9,
+            "col": 13,
+            "byteIndex": 199
+          },
+          "declarationKind": "export",
+          "jsDoc": {
+            "doc": "a5"
+          },
+          "kind": "function",
+          "def": {
+            "params": [],
+            "returnType": {
+              "repr": "void",
+              "kind": "keyword",
+              "value": "void"
+            },
+            "hasBody": true
+          }
+        }
+      ]
+    },
+    {
+      "name": "a6",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 11,
+            "col": 13,
+            "byteIndex": 309
+          },
+          "declarationKind": "export",
+          "jsDoc": {
+            "doc": "a6 - block body returning a value: cannot infer, must annotate"
+          },
+          "kind": "function",
+          "def": {
+            "params": [],
+            "hasBody": true
+          }
+        }
+      ]
+    },
+    {
+      "name": "b1",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 14,
+            "col": 13,
+            "byteIndex": 359
+          },
+          "declarationKind": "export",
+          "jsDoc": {
+            "doc": "b1"
+          },
+          "kind": "function",
+          "def": {
+            "params": [],
+            "returnType": {
+              "repr": "void",
+              "kind": "keyword",
+              "value": "void"
+            },
+            "hasBody": true
+          }
+        }
+      ]
+    },
+    {
+      "name": "b2",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 16,
+            "col": 13,
+            "byteIndex": 403
+          },
+          "declarationKind": "export",
+          "jsDoc": {
+            "doc": "b2"
+          },
+          "kind": "function",
+          "def": {
+            "params": [],
+            "returnType": {
+              "repr": "number",
+              "kind": "keyword",
+              "value": "number"
+            },
+            "hasBody": true
+          }
+        }
+      ]
+    },
+    {
+      "name": "b3",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 18,
+            "col": 13,
+            "byteIndex": 466
+          },
+          "declarationKind": "export",
+          "jsDoc": {
+            "doc": "b3"
+          },
+          "kind": "function",
+          "def": {
+            "params": [],
+            "returnType": {
+              "repr": "number",
+              "kind": "keyword",
+              "value": "number"
+            },
+            "hasBody": true
+          }
+        }
+      ]
+    },
+    {
+      "name": "b4",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 20,
+            "col": 13,
+            "byteIndex": 541
+          },
+          "declarationKind": "export",
+          "jsDoc": {
+            "doc": "b4"
+          },
+          "kind": "function",
+          "def": {
+            "params": [],
+            "returnType": {
+              "repr": "void",
+              "kind": "keyword",
+              "value": "void"
+            },
+            "hasBody": true
+          }
+        }
+      ]
+    },
+    {
+      "name": "b5",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 22,
+            "col": 13,
+            "byteIndex": 591
+          },
+          "declarationKind": "export",
+          "jsDoc": {
+            "doc": "b5"
+          },
+          "kind": "function",
+          "def": {
+            "params": [],
+            "returnType": {
+              "repr": "void",
+              "kind": "keyword",
+              "value": "void"
+            },
+            "hasBody": true
+          }
+        }
+      ]
+    },
+    {
+      "name": "b6",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 24,
+            "col": 13,
+            "byteIndex": 707
+          },
+          "declarationKind": "export",
+          "jsDoc": {
+            "doc": "b6 - block body returning a value: cannot infer, must annotate"
+          },
+          "kind": "function",
+          "def": {
+            "params": [],
+            "hasBody": true
+          }
+        }
+      ]
+    },
+    {
+      "name": "c1",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 27,
+            "col": 13,
+            "byteIndex": 772
+          },
+          "declarationKind": "export",
+          "jsDoc": {
+            "doc": "async arrow"
+          },
+          "kind": "function",
+          "def": {
+            "params": [],
+            "returnType": {
+              "repr": "Promise",
+              "kind": "typeRef",
+              "value": {
+                "typeParams": [
+                  {
+                    "repr": "void",
+                    "kind": "keyword",
+                    "value": "void"
+                  }
+                ],
+                "typeName": "Promise"
+              }
+            },
+            "hasBody": true,
+            "isAsync": true
+          }
+        }
+      ]
+    },
+    {
+      "name": "c2",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 29,
+            "col": 13,
+            "byteIndex": 839
+          },
+          "declarationKind": "export",
+          "jsDoc": {
+            "doc": "async function expression"
+          },
+          "kind": "function",
+          "def": {
+            "params": [],
+            "returnType": {
+              "repr": "Promise",
+              "kind": "typeRef",
+              "value": {
+                "typeParams": [
+                  {
+                    "repr": "void",
+                    "kind": "keyword",
+                    "value": "void"
+                  }
+                ],
+                "typeName": "Promise"
+              }
+            },
+            "hasBody": true,
+            "isAsync": true
+          }
+        }
+      ]
+    }
+  ]
+}
