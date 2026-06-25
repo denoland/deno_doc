@@ -721,13 +721,13 @@ pub(crate) fn render_docs_with_diff(
   Some(format!(r#"<div class="markdown">{inner_html}</div>"#))
 }
 
-pub(crate) fn jsdoc_examples(
+pub(crate) fn jsdoc_example_ctxs(
   ctx: &RenderContext,
   js_doc: &JsDoc,
-) -> Option<SectionCtx> {
+) -> Vec<ExampleCtx> {
   let mut i = 0;
 
-  let examples = js_doc
+  js_doc
     .tags
     .iter()
     .filter_map(|tag| {
@@ -739,7 +739,14 @@ pub(crate) fn jsdoc_examples(
         None
       }
     })
-    .collect::<Vec<ExampleCtx>>();
+    .collect::<Vec<ExampleCtx>>()
+}
+
+pub(crate) fn jsdoc_examples(
+  ctx: &RenderContext,
+  js_doc: &JsDoc,
+) -> Option<SectionCtx> {
+  let examples = jsdoc_example_ctxs(ctx, js_doc);
 
   if !examples.is_empty() {
     Some(SectionCtx::new(

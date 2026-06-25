@@ -279,6 +279,8 @@ fn render_constructors(
         ctor_diff.and_then(|cd| cd.js_doc_change.as_ref()),
       );
       entry.name_prefix = Some("new".into());
+      entry.examples =
+        crate::html::jsdoc::jsdoc_example_ctxs(ctx, &constructor.js_doc);
 
       entry
     })
