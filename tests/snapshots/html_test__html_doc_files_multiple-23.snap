@@ -321,7 +321,7 @@ Constructors</h2></div><div class="space-y-8"><div class="anchorable docEntry" i
 <span class="font-bold font-lg">Foo</span><span class="font-medium text-stone-500 dark:text-stone-200">(<span><span>value<span>: <a href="#type_param_t" class="link td-ref">T</a></span></span></span>)</span>
       </code>
     </div></div><div class="max-w-[75ch]"><div class="markdown"><p>Constructs a new Foo.</p>
-</div></div><div class="space-y-3 mt-3"><div class="anchorable"><a href="#example_0-1" class="anchor" aria-label="Anchor" tabIndex="-1"><svg
+</div></div><div class="space-y-2 mt-3"><div class="anchorable"><a href="#example_0-1" class="anchor" aria-label="Anchor" tabIndex="-1"><svg
   width="16"
   height="16"
   viewBox="0 0 14 14"
