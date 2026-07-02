@@ -555,7 +555,7 @@ Properties</h2></div><div class="space-y-8"><div class="anchorable docEntry" id=
   </defs>
 </svg>
 </a>
-<a class="font-bold font-lg link" href="..&#x2F;.&#x2F;.&#x2F;~&#x2F;Foo.prototype.&quot;&gt;&lt;img src=x onerror=alert(1)&gt;.html">"&gt;&lt;img src=x onerror=alert(1)&gt;</a><span class="font-medium text-stone-500 dark:text-stone-200"><span>: <span class="td-kw">number</span></span></span>
+<a class="font-bold font-lg link" href="..&#x2F;.&#x2F;.&#x2F;~&#x2F;Foo.prototype.%22%3E%3Cimg%20src=x%20onerror=alert(1)%3E.html">"&gt;&lt;img src=x onerror=alert(1)&gt;</a><span class="font-medium text-stone-500 dark:text-stone-200"><span>: <span class="td-kw">number</span></span></span>
       </code>
     </div></div></div>
 <div class="anchorable docEntry" id="property_foo">

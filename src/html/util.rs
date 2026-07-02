@@ -377,17 +377,25 @@ pub fn href_path_resolve(
   current: UrlResolveKind,
   target: UrlResolveKind,
 ) -> String {
-  let backs = match current {
-    UrlResolveKind::File { file } => "../".repeat(if file.is_main {
-      1
+  // The number of directories a file's page is nested under, measured from
+  // the output root. A page lives at `{file.path}/index.html` (or, for a symbol,
+  // `{file.path}/~/{symbol}.html`), so the depth is the number of segments in
+  // `file.path`. The main entrypoint is rewritten to `.`, which adds no
+  // directory, so it counts as zero segments. Previously the main entrypoint
+  // was hard-coded to a depth of 1; that is only correct when its path is `.`
+  // and produced broken `../` links whenever the main module had a deeper path
+  // (e.g. when multiple entrypoints share a common ancestor).
+  fn path_depth(file: &ShortPath) -> usize {
+    if file.path == "." {
+      0
     } else {
       file.path.split('/').count()
-    }),
-    UrlResolveKind::Symbol { file, .. } => "../".repeat(if file.is_main {
-      1
-    } else {
-      file.path.split('/').count() + 1
-    }),
+    }
+  }
+
+  let backs = match current {
+    UrlResolveKind::File { file } => "../".repeat(path_depth(file)),
+    UrlResolveKind::Symbol { file, .. } => "../".repeat(path_depth(file) + 1),
     UrlResolveKind::Root => String::new(),
     UrlResolveKind::AllSymbols => String::from("./"),
     UrlResolveKind::Category { .. } => String::from("./"),
@@ -402,7 +410,11 @@ pub fn href_path_resolve(
       symbol: target_symbol,
       ..
     } => {
-      format!("{backs}./{}/~/{target_symbol}.html", target_file.path)
+      format!(
+        "{backs}./{}/~/{}.html",
+        target_file.path,
+        sanitize_symbol_path_part(target_symbol)
+      )
     }
     UrlResolveKind::File { file: target_file } => {
       format!("{backs}./{}/index.html", target_file.path)
@@ -954,4 +966,142 @@ pub fn slugify(name: &str) -> String {
   REJECTED_CHARS
     .replace_all(&name.to_lowercase(), "")
     .replace(' ', "-")
+}
+
+/// Whether a character is unsafe inside the file-name component of a symbol
+/// page, either because it is reserved on common filesystems (Windows forbids
+/// `<>:"/\|?*`) or because it has special meaning in a URL path segment (`#`,
+/// `?`, `%`, whitespace, …).
+fn is_symbol_path_unsafe(c: char) -> bool {
+  c.is_control()
+    || c.is_whitespace()
+    || matches!(
+      c,
+      '"'
+        | '#'
+        | '%'
+        | '<'
+        | '>'
+        | '?'
+        | '`'
+        | '{'
+        | '}'
+        | '|'
+        | '\\'
+        | '^'
+        | '*'
+        | ':'
+        | '/'
+    )
+}
+
+/// Percent-encode any character of a symbol name that is unsafe to use as the
+/// file-name component of its generated page. Symbol names are normally plain
+/// identifiers, for which this is a borrow-only no-op; but a symbol whose name
+/// comes from a string literal (e.g. `obj["a/b"]` or `'"><img …>'`) can contain
+/// characters that would otherwise produce an invalid file path or a broken —
+/// and potentially HTML-injecting — link. The same encoding is applied wherever
+/// such a path is built (the written file name and every link to it) so they
+/// stay consistent. See issue #724.
+pub(crate) fn sanitize_symbol_path_part(name: &str) -> Cow<'_, str> {
+  if !name.chars().any(is_symbol_path_unsafe) {
+    return Cow::Borrowed(name);
+  }
+
+  let mut out = String::with_capacity(name.len());
+  let mut buf = [0u8; 4];
+  for c in name.chars() {
+    if is_symbol_path_unsafe(c) {
+      for b in c.encode_utf8(&mut buf).as_bytes() {
+        out.push_str(&format!("%{b:02X}"));
+      }
+    } else {
+      out.push(c);
+    }
+  }
+  Cow::Owned(out)
+}
+
+#[cfg(test)]
+mod tests {
+  use super::*;
+  use deno_ast::ModuleSpecifier;
+
+  fn short_path(path: &str, is_main: bool) -> ShortPath {
+    ShortPath {
+      path: path.to_string(),
+      specifier: ModuleSpecifier::parse("file:///mod.ts").unwrap(),
+      is_main,
+    }
+  }
+
+  #[test]
+  fn href_path_resolve_main_entrypoint_depth() {
+    // The main entrypoint rewritten to `.` has no directory of its own, so its
+    // symbol pages live at `./~/Foo.html` (one level deep) and link back to the
+    // root with a single `../`.
+    let main_root = short_path(".", true);
+    assert_eq!(
+      href_path_resolve(
+        UrlResolveKind::Symbol {
+          file: &main_root,
+          symbol: "Foo",
+        },
+        UrlResolveKind::Root,
+      ),
+      "../",
+    );
+
+    // When the main entrypoint has a deeper path (e.g. several entrypoints share
+    // a common ancestor, so the main module is `index.ts`), its symbol page
+    // lives at `index.ts/~/Foo.html` — two levels deep — and must reach the root
+    // with `../../`. Regression test for incorrect `../` links on default-module
+    // subpages.
+    let main_nested = short_path("index.ts", true);
+    assert_eq!(
+      href_path_resolve(
+        UrlResolveKind::Symbol {
+          file: &main_nested,
+          symbol: "Foo",
+        },
+        UrlResolveKind::Root,
+      ),
+      "../../",
+    );
+    // Linking to the all-symbols page from such a subpage must also climb out.
+    assert_eq!(
+      href_path_resolve(
+        UrlResolveKind::Symbol {
+          file: &main_nested,
+          symbol: "Foo",
+        },
+        UrlResolveKind::AllSymbols,
+      ),
+      "../.././all_symbols.html",
+    );
+  }
+
+  #[test]
+  fn href_path_resolve_non_main_unchanged() {
+    let file = short_path("foo", false);
+    // index page: `foo/index.html` -> one level deep.
+    assert_eq!(
+      href_path_resolve(
+        UrlResolveKind::File { file: &file },
+        UrlResolveKind::Root,
+      ),
+      "../",
+    );
+    // symbol page: `foo/~/Bar.html` -> two levels deep.
+    assert_eq!(
+      href_path_resolve(
+        UrlResolveKind::Symbol {
+          file: &file,
+          symbol: "Bar",
+        },
+        UrlResolveKind::Root,
+      ),
+      "../../",
+    );
+  }
 }

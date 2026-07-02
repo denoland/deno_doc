@@ -216,7 +216,7 @@ expression: files
                         {
                           "name_prefix": null,
                           "name": "\"&gt;&lt;img src=x onerror=alert(1)&gt;",
-                          "name_href": "../././~/Foo.prototype.\"><img src=x onerror=alert(1)>.html",
+                          "name_href": "../././~/Foo.prototype.%22%3E%3Cimg%20src=x%20onerror=alert(1)%3E.html",
                           "content": "<span>: <span class=\"td-kw\">number</span></span>",
                           "anchor": {
                             "id": "property_&quot;&gt;&lt;img-src=x-onerror=alert(1)&gt;"
@@ -7841,7 +7841,7 @@ expression: files
         },
         {
           "name": "\"><img src=x onerror=alert(1)>",
-          "href": "../././~/Foo.prototype.\"><img src=x onerror=alert(1)>.html"
+          "href": "../././~/Foo.prototype.%22%3E%3Cimg%20src=x%20onerror=alert(1)%3E.html"
         }
       ]
     },

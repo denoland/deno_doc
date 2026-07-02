@@ -124,7 +124,8 @@ a {
       flex: 1;
       width: 0;
 
-      > a, .namespaceItemContentSubItems > li > a {
+      > a,
+      .namespaceItemContentSubItems > li > a {
         @apply block font-mono underline decoration-stone-300
           dark:decoration-stone-500 hover:no-underline;
 
@@ -406,7 +407,8 @@ pre.highlight {
   }
 }
 
-.sourceButton, .copyButton {
+.sourceButton,
+.copyButton {
   @apply z-10 rounded no-underline p-1.5 cursor-pointer bg-inherit
     hover:bg-stone-200 leading-[0] dark:hover:bg-stone-800 transition
     duration-75;

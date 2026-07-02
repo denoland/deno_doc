@@ -32,9 +32,46 @@ lazy_static! {
   )
   .unwrap();
   /// @tag {maybe_type} maybe_value
-  static ref JS_DOC_TAG_WITH_MAYBE_TYPE_AND_MAYBE_VALUE_RE: Regex = Regex::new(r"(?s)^\s*@(returns?|throws|exception)(?:\s+\{([^}]+)\})?(?:\s+(.+))?").unwrap();
+  ///
+  /// The `{type}` is extracted separately (see [`split_jsdoc_type_and_doc`]) so
+  /// that nested braces are handled correctly; a `([^}]+)` capture would stop at
+  /// the first `}` and truncate a type like `{DOMException & { name: "x" }}`.
+  static ref JS_DOC_TAG_WITH_MAYBE_TYPE_AND_MAYBE_VALUE_RE: Regex = Regex::new(r"(?s)^\s*@(returns?|throws|exception)\b(.*)$").unwrap();
   /// @tag {maybe_type} value
   static ref JS_DOC_TAG_WITH_TYPE_AND_MAYBE_VALUE_RE: Regex = Regex::new(r"(?s)^\s*@(enum|extends|augments|this|type|default)\s+\{([^}]+)\}(?:\s+(.+))?").unwrap();
+}
+
+/// Splits the remainder of a JSDoc tag (everything after the tag name) into an
+/// optional leading `{type}` annotation and the remaining documentation text.
+///
+/// Unlike a `\{([^}]+)\}` regex capture, this honors braces nested inside the
+/// type, so `{DOMException & { name: "x" }} the rest` yields the type
+/// `DOMException & { name: "x" }` and the doc `the rest`.
+fn split_jsdoc_type_and_doc(rest: &str) -> (Option<&str>, Option<&str>) {
+  let trimmed = rest.trim_start();
+  if let Some(after_brace) = trimmed.strip_prefix('{') {
+    let mut depth = 1usize;
+    for (idx, ch) in after_brace.char_indices() {
+      match ch {
+        '{' => depth += 1,
+        '}' => {
+          depth -= 1;
+          if depth == 0 {
+            let ts_type = &after_brace[..idx];
+            let doc = after_brace[idx + 1..].trim_start();
+            return (
+              Some(ts_type),
+              if doc.is_empty() { None } else { Some(doc) },
+            );
+          }
+        }
+        _ => {}
+      }
+    }
+    // Unbalanced braces: fall through and treat the whole thing as doc text.
+  }
+  let doc = rest.trim_start();
+  (None, if doc.is_empty() { None } else { Some(doc) })
 }
 
 fn make_ts_type(type_str: &str, module_info: &EsModuleInfo) -> TsTypeDef {
@@ -517,8 +554,10 @@ impl JsDocTag {
       JS_DOC_TAG_WITH_MAYBE_TYPE_AND_MAYBE_VALUE_RE.captures(&value)
     {
       let kind = caps.get(1).unwrap().as_str();
-      let ts_type = caps.get(2).map(|m| make_ts_type(m.as_str(), module_info));
-      let doc = caps.get(3).map(|m| m.as_str().into());
+      let rest = caps.get(2).map(|m| m.as_str()).unwrap_or("");
+      let (type_str, doc) = split_jsdoc_type_and_doc(rest);
+      let ts_type = type_str.map(|t| make_ts_type(t, module_info));
+      let doc = doc.map(|d| d.into());
       match kind {
         "return" | "returns" => Self::Return { ts_type, doc },
         "throws" | "exception" => Self::Throws { ts_type, doc },
@@ -1383,6 +1422,43 @@ const a = "a";
         }]
       })
     );
+  }
+
+  #[test]
+  fn test_split_jsdoc_type_and_doc() {
+    // Nested braces inside the type must not truncate it at the first `}`
+    // (regression test for `@throws {DOMException & { name: "x" }}`).
+    assert_eq!(
+      split_jsdoc_type_and_doc(
+        " {DOMException & { name: \"TimeoutError\" }} when it times out"
+      ),
+      (
+        Some("DOMException & { name: \"TimeoutError\" }"),
+        Some("when it times out")
+      )
+    );
+    // A type with no trailing doc.
+    assert_eq!(
+      split_jsdoc_type_and_doc(" {{ a: number; b: string }}"),
+      (Some("{ a: number; b: string }"), None)
+    );
+    // Simple type + doc still behaves as before.
+    assert_eq!(
+      split_jsdoc_type_and_doc(" {string} maybe doc"),
+      (Some("string"), Some("maybe doc"))
+    );
+    // No type at all.
+    assert_eq!(
+      split_jsdoc_type_and_doc(" just some docs"),
+      (None, Some("just some docs"))
+    );
+    // Unbalanced braces fall back to treating everything as doc.
+    assert_eq!(
+      split_jsdoc_type_and_doc(" {unterminated"),
+      (None, Some("{unterminated"))
+    );
+    // Empty remainder.
+    assert_eq!(split_jsdoc_type_and_doc(""), (None, None));
   }
 
   #[test]
