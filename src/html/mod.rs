@@ -96,6 +96,13 @@ fn setup_hbs() -> Result<Handlebars<'static>, anyhow::Error> {
   handlebars_helper!(print: |a: Json| println!("{a:#?}"));
   reg.register_helper("print", Box::new(print));
 
+  // Escape a value for use in plain text contexts (such as `<title>`), where
+  // only `&`, `<` and `>` need escaping. The registry-wide escaper is the
+  // stricter `encode_safe`, which also escapes characters like `/` that are
+  // harmless in text content, turning e.g. `I/O` into `I&#x2F;O`.
+  handlebars_helper!(escape_text: |a: str| html_escape::encode_text(a).into_owned());
+  reg.register_helper("escape_text", Box::new(escape_text));
+
   reg.register_template_string(
     ToCCtx::TEMPLATE,
     include_str!("./templates/toc.hbs"),

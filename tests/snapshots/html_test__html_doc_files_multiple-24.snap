@@ -5,7 +5,7 @@ expression: files.get(file_name).unwrap()
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Foo.prototype.&quot;&gt;&lt;img src=x onerror=alert(1)&gt; - default - documentation</title>
+  <title>Foo.prototype."&gt;&lt;img src=x onerror=alert(1)&gt; - default - documentation</title>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="doc-current-file" content=".">
