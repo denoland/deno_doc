@@ -30,44 +30,16 @@ error[private-type-ref]: public type 'PrivatePropThroughNamespaceRef' references
   info: to ensure documentation is complete all types that are exposed in the public API must be public
 
 
-error[private-type-ref]: public type 'PrivatePropThroughNamespaceRef' references private type 'MyNamespace2'
+error[private-type-ref]: public type 'PrivatePropThroughNamespaceRef' references private type 'MyNamespace.Export'
  --> /mod.ts:1:1
   | 
 1 | export type PrivatePropThroughNamespaceRef = typeof MyNamespace.Export.someProp;
   | ^
   = hint: make the referenced type public or remove the reference
   | 
-7 | namespace MyNamespace2 {
-  | - this is the referenced type
+4 |   export import Export = MyNamespace2.MyClass;
+  |   - this is the referenced type
   | 
-
-  info: to ensure documentation is complete all types that are exposed in the public API must be public
-
-
-error[private-type-ref]: public type 'PrivatePropThroughNamespaceRef' references private type 'MyNamespace3'
-  --> /mod.ts:1:1
-   | 
- 1 | export type PrivatePropThroughNamespaceRef = typeof MyNamespace.Export.someProp;
-   | ^
-   = hint: make the referenced type public or remove the reference
-   | 
-11 | namespace MyNamespace3 {
-   | - this is the referenced type
-   | 
-
-  info: to ensure documentation is complete all types that are exposed in the public API must be public
-
-
-error[private-type-ref]: public type 'PrivatePropThroughNamespaceRef' references private type 'MyNamespace3.MyClass'
-  --> /mod.ts:1:1
-   | 
- 1 | export type PrivatePropThroughNamespaceRef = typeof MyNamespace.Export.someProp;
-   | ^
-   = hint: make the referenced type public or remove the reference
-   | 
-12 |   export class MyClass {
-   |   - this is the referenced type
-   | 
 
   info: to ensure documentation is complete all types that are exposed in the public API must be public
 
@@ -87,19 +59,6 @@ Defined in file:///mod.ts:2:1
 
 private namespace MyNamespace
 
-  class Export
-
-Defined in file:///mod.ts:6:1
-
-private namespace MyNamespace2
-
-  class MyClass
-
-Defined in file:///mod.ts:10:1
-
-private namespace MyNamespace3
-
-  class MyClass
 
 
 # output.json
@@ -140,148 +99,7 @@ private namespace MyNamespace3
           "declarationKind": "private",
           "kind": "namespace",
           "def": {
-            "elements": [
-              {
-                "name": "Export",
-                "declarations": [
-                  {
-                    "location": {
-                      "filename": "file:///mod.ts",
-                      "line": 11,
-                      "col": 2,
-                      "byteIndex": 259
-                    },
-                    "declarationKind": "export",
-                    "kind": "class",
-                    "def": {
-                      "properties": [
-                        {
-                          "tsType": {
-                            "repr": "string",
-                            "kind": "keyword",
-                            "value": "string"
-                          },
-                          "isStatic": true,
-                          "name": "someProp",
-                          "location": {
-                            "filename": "file:///mod.ts",
-                            "line": 12,
-                            "col": 4,
-                            "byteIndex": 286
-                          }
-                        }
-                      ]
-                    }
-                  }
-                ]
-              }
-            ]
-          }
-        }
-      ]
-    },
-    {
-      "name": "MyNamespace2",
-      "declarations": [
-        {
-          "location": {
-            "filename": "file:///mod.ts",
-            "line": 6,
-            "col": 0,
-            "byteIndex": 156
-          },
-          "declarationKind": "private",
-          "kind": "namespace",
-          "def": {
-            "elements": [
-              {
-                "name": "MyClass",
-                "declarations": [
-                  {
-                    "location": {
-                      "filename": "file:///mod.ts",
-                      "line": 11,
-                      "col": 2,
-                      "byteIndex": 259
-                    },
-                    "declarationKind": "export",
-                    "kind": "class",
-                    "def": {
-                      "properties": [
-                        {
-                          "tsType": {
-                            "repr": "string",
-                            "kind": "keyword",
-                            "value": "string"
-                          },
-                          "isStatic": true,
-                          "name": "someProp",
-                          "location": {
-                            "filename": "file:///mod.ts",
-                            "line": 12,
-                            "col": 4,
-                            "byteIndex": 286
-                          }
-                        }
-                      ]
-                    }
-                  }
-                ]
-              }
-            ]
-          }
-        }
-      ]
-    },
-    {
-      "name": "MyNamespace3",
-      "declarations": [
-        {
-          "location": {
-            "filename": "file:///mod.ts",
-            "line": 10,
-            "col": 0,
-            "byteIndex": 232
-          },
-          "declarationKind": "private",
-          "kind": "namespace",
-          "def": {
-            "elements": [
-              {
-                "name": "MyClass",
-                "declarations": [
-                  {
-                    "location": {
-                      "filename": "file:///mod.ts",
-                      "line": 11,
-                      "col": 2,
-                      "byteIndex": 259
-                    },
-                    "declarationKind": "export",
-                    "kind": "class",
-                    "def": {
-                      "properties": [
-                        {
-                          "tsType": {
-                            "repr": "string",
-                            "kind": "keyword",
-                            "value": "string"
-                          },
-                          "isStatic": true,
-                          "name": "someProp",
-                          "location": {
-                            "filename": "file:///mod.ts",
-                            "line": 12,
-                            "col": 4,
-                            "byteIndex": 286
-                          }
-                        }
-                      ]
-                    }
-                  }
-                ]
-              }
-            ]
+            "elements": []
           }
         }
       ]

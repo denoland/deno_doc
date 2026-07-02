@@ -1,12 +1,9 @@
 // Copyright 2018-2024 the Deno authors. All rights reserved. MIT license.
 
-use deno_ast::SourcePos;
-use deno_ast::SourceRange;
-use deno_ast::SourceRangedForSpanned;
 use deno_ast::SourceTextInfo;
-use deno_ast::swc::ast::ModuleExportName;
-use deno_ast::swc::common::comments::Comment;
-use deno_ast::swc::common::comments::CommentKind;
+use deno_ast::oxc::ast::ast::Comment;
+use deno_ast::oxc::ast::ast::ModuleExportName;
+use deno_ast::oxc::span::Span;
 use deno_graph::symbols::EsModuleInfo;
 use regex::Regex;
 
@@ -22,8 +19,15 @@ pub(crate) fn is_false(b: &bool) -> bool {
   !b
 }
 
-fn parse_js_doc(js_doc_comment: &Comment, module_info: &EsModuleInfo) -> JsDoc {
-  JsDoc::new(remove_stars_from_js_doc(&js_doc_comment.text), module_info)
+fn parse_js_doc(
+  source_text: &str,
+  comment: &Comment,
+  module_info: &EsModuleInfo,
+) -> JsDoc {
+  let content_span = comment.content_span();
+  let text =
+    &source_text[content_span.start as usize..content_span.end as usize];
+  JsDoc::new(remove_stars_from_js_doc(text), module_info)
 }
 
 fn remove_stars_from_js_doc(text: &str) -> String {
@@ -38,16 +42,22 @@ fn remove_stars_from_js_doc(text: &str) -> String {
 
 pub(crate) fn js_doc_for_range_include_ignore(
   module_info: &EsModuleInfo,
-  range: &SourceRange,
+  span: Span,
 ) -> JsDoc {
-  let Some(comments) = module_info.source().comments().get_leading(range.start)
-  else {
-    return JsDoc::default();
-  };
-  if let Some(js_doc_comment) = comments.iter().rev().find(|comment| {
-    comment.kind == CommentKind::Block && comment.text.starts_with('*')
-  }) {
-    parse_js_doc(js_doc_comment, module_info)
+  let source_text = module_info.source_text();
+  let comments = module_info.comments();
+  if let Some(js_doc_comment) = comments
+    .iter()
+    .rev()
+    .filter(|c| c.attached_to == span.start && c.is_leading() && c.is_block())
+    .find(|c| {
+      let content_span = c.content_span();
+      let text =
+        &source_text[content_span.start as usize..content_span.end as usize];
+      text.starts_with('*')
+    })
+  {
+    parse_js_doc(source_text, js_doc_comment, module_info)
   } else {
     JsDoc::default()
   }
@@ -55,9 +65,9 @@ pub(crate) fn js_doc_for_range_include_ignore(
 
 pub(crate) fn js_doc_for_range(
   module_info: &EsModuleInfo,
-  range: &SourceRange,
+  span: Span,
 ) -> Option<JsDoc> {
-  let js_doc = js_doc_for_range_include_ignore(module_info, range);
+  let js_doc = js_doc_for_range_include_ignore(module_info, span);
   if js_doc.tags.contains(&JsDocTag::Ignore) {
     None
   } else {
@@ -70,38 +80,37 @@ pub(crate) fn js_doc_for_range(
 /// `None`.
 pub(crate) fn module_js_doc_for_source(
   module_info: &EsModuleInfo,
-) -> Option<Option<(JsDoc, SourceRange)>> {
-  module_info
-    .source()
-    .comments()
-    .get_vec()
-    .into_iter()
-    .filter(|comment| {
-      comment.kind == CommentKind::Block && comment.text.starts_with('*')
-    })
-    .find_map(|comment| {
-      let js_doc = parse_js_doc(&comment, module_info);
+) -> Option<Option<(JsDoc, Span)>> {
+  let source_text = module_info.source_text();
+  let comments = module_info.comments();
 
-      if js_doc
-        .tags
-        .iter()
-        .any(|tag| matches!(tag, JsDocTag::Module { .. }))
-      {
-        if js_doc.tags.contains(&JsDocTag::Ignore) {
-          Some(None)
-        } else {
-          Some(Some((js_doc, comment.range())))
-        }
-      } else {
-        None
+  for js_doc_comment in comments.iter().filter(|comment| {
+    comment.is_block() && {
+      let content_span = comment.content_span();
+      let text =
+        &source_text[content_span.start as usize..content_span.end as usize];
+      text.starts_with('*')
+    }
+  }) {
+    let js_doc = parse_js_doc(source_text, js_doc_comment, module_info);
+    if js_doc
+      .tags
+      .iter()
+      .any(|tag| matches!(tag, JsDocTag::Module { .. }))
+    {
+      if js_doc.tags.contains(&JsDocTag::Ignore) {
+        return Some(None);
       }
-    })
+      return Some(Some((js_doc, js_doc_comment.span)));
+    }
+  }
+  None
 }
 
-pub fn get_location(module_info: &EsModuleInfo, pos: SourcePos) -> Location {
+pub fn get_location(module_info: &EsModuleInfo, pos: u32) -> Location {
   get_text_info_location(
     module_info.specifier().as_str(),
-    module_info.source().text_info_lazy(),
+    module_info.source_text_info(),
     pos,
   )
 }
@@ -109,11 +118,14 @@ pub fn get_location(module_info: &EsModuleInfo, pos: SourcePos) -> Location {
 pub fn get_text_info_location(
   specifier: &str,
   text_info: &SourceTextInfo,
-  pos: SourcePos,
+  pos: u32,
 ) -> Location {
+  let byte_index = pos as usize;
+  let text = text_info.text();
+  let lookup_byte_index = byte_index.min(text.len());
   let line_and_column_index =
-    text_info.line_and_column_display_with_indent_width(pos, 2);
-  let byte_index = pos.as_byte_index(text_info.range().start);
+    text_info.line_and_column_display(lookup_byte_index);
+
   Location {
     filename: specifier.into(),
     line: line_and_column_index.line_number - 1,
@@ -126,8 +138,9 @@ pub fn module_export_name_value(
   module_export_name: &ModuleExportName,
 ) -> String {
   match module_export_name {
-    ModuleExportName::Ident(ident) => ident.sym.to_string(),
-    ModuleExportName::Str(str) => str.value.to_string_lossy().into_owned(),
+    ModuleExportName::IdentifierName(ident) => ident.name.to_string(),
+    ModuleExportName::IdentifierReference(ident) => ident.name.to_string(),
+    ModuleExportName::StringLiteral(str) => str.value.to_string(),
   }
 }
 

@@ -86,47 +86,34 @@ fn make_ts_type(type_str: &str, module_info: &EsModuleInfo) -> TsTypeDef {
   }
 }
 
-fn parse_jsdoc_type_source(type_str: &str) -> Option<deno_ast::ParsedSource> {
-  let source = format!("type _temp = {type_str}");
-  let specifier = ModuleSpecifier::parse("file:///jsdoc_type.ts").unwrap();
-  let parsed = deno_ast::parse_module(ParseParams {
-    specifier,
-    text: Arc::from(source.as_str()),
-    media_type: MediaType::TypeScript,
-    capture_tokens: false,
-    scope_analysis: false,
-    maybe_syntax: None,
-  })
-  .ok()?;
-
-  let program_ref = parsed.program_ref();
-  let module = program_ref.unwrap_module();
-  let type_alias = module.body.first()?;
-  if !matches!(
-    type_alias,
-    deno_ast::swc::ast::ModuleItem::Stmt(deno_ast::swc::ast::Stmt::Decl(
-      deno_ast::swc::ast::Decl::TsTypeAlias(_),
-    ))
-  ) {
-    return None;
-  }
-
-  Some(parsed)
-}
-
 pub fn parse_jsdoc_type(
   module_info: &EsModuleInfo,
   type_str: &str,
 ) -> Option<TsTypeDef> {
-  let parsed = parse_jsdoc_type_source(type_str)?;
-  let program_ref = parsed.program_ref();
-  let module = program_ref.unwrap_module();
-  let type_alias = module.body.first()?;
-  if let deno_ast::swc::ast::ModuleItem::Stmt(deno_ast::swc::ast::Stmt::Decl(
-    deno_ast::swc::ast::Decl::TsTypeAlias(type_alias),
-  )) = type_alias
+  let source = format!("type _temp = {type_str}");
+  let specifier = ModuleSpecifier::parse("file:///jsdoc_type.ts").unwrap();
+  let allocator = deno_ast::oxc::allocator::Allocator::default();
+  let parsed = deno_ast::parse_module(
+    &allocator,
+    ParseParams {
+      specifier,
+      text: Arc::from(source.as_str()),
+      media_type: MediaType::TypeScript,
+      capture_tokens: false,
+      scope_analysis: false,
+      maybe_source_type: None,
+    },
+  )
+  .ok()?;
+
+  let type_alias = parsed.program().body.first()?;
+  if let deno_ast::oxc::ast::ast::Statement::TSTypeAliasDeclaration(
+    type_alias,
+  ) = type_alias
   {
-    Some(TsTypeDef::new(module_info, &type_alias.type_ann))
+    let mut ts_type = TsTypeDef::new(module_info, &type_alias.type_annotation);
+    ts_type.clear_resolutions();
+    Some(ts_type)
   } else {
     None
   }
@@ -609,13 +596,48 @@ mod tests {
           },
         )
         .await;
-      let root_symbol = deno_graph::symbols::RootSymbol::new(&graph, &analyzer);
+      let allocator = deno_ast::oxc::allocator::Allocator::default();
+      let root_symbol =
+        deno_graph::symbols::RootSymbol::new(&graph, &analyzer, &allocator);
       let module_info = root_symbol.module_from_specifier(&specifier).unwrap();
       let esm = match module_info {
         deno_graph::symbols::ModuleInfoRef::Esm(esm) => esm,
         _ => panic!("expected esm module"),
       };
       JsDoc::new(input.to_string(), esm)
+    })
+  }
+
+  fn parse_jsdoc_type_source(input: &str) -> Option<TsTypeDef> {
+    let rt = tokio::runtime::Runtime::new().unwrap();
+    rt.block_on(async {
+      let specifier =
+        deno_ast::ModuleSpecifier::parse("file:///test.ts").unwrap();
+      let mut loader = deno_graph::source::MemoryLoader::default();
+      loader.add_source_with_text(specifier.as_str(), "export {};");
+      let analyzer = deno_graph::ast::CapturingModuleAnalyzer::default();
+      let mut graph =
+        deno_graph::ModuleGraph::new(deno_graph::GraphKind::TypesOnly);
+      graph
+        .build(
+          vec![specifier.clone()],
+          Vec::new(),
+          &loader,
+          deno_graph::BuildOptions {
+            module_analyzer: &analyzer,
+            ..Default::default()
+          },
+        )
+        .await;
+      let allocator = deno_ast::oxc::allocator::Allocator::default();
+      let root_symbol =
+        deno_graph::symbols::RootSymbol::new(&graph, &analyzer, &allocator);
+      let module_info = root_symbol.module_from_specifier(&specifier).unwrap();
+      let esm = match module_info {
+        deno_graph::symbols::ModuleInfoRef::Esm(esm) => esm,
+        _ => panic!("expected esm module"),
+      };
+      parse_jsdoc_type(esm, input)
     })
   }
 
@@ -634,7 +656,6 @@ mod tests {
   ) -> serde_json::Value {
     let mut value = serde_json::json!({
       "typeName": name,
-      "resolution": { "kind": "typeParam" },
     });
     if let Some(tp) = type_params {
       value["typeParams"] = serde_json::json!(tp);

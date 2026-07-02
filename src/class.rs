@@ -1,6 +1,12 @@
 // Copyright 2018-2024 the Deno authors. All rights reserved. MIT license.
 
-use deno_ast::SourceRangedForSpanned;
+use deno_ast::oxc::ast::ast::Class;
+use deno_ast::oxc::ast::ast::ClassElement;
+use deno_ast::oxc::ast::ast::Expression;
+use deno_ast::oxc::ast::ast::MethodDefinitionKind;
+use deno_ast::oxc::ast::ast::MethodDefinitionType;
+use deno_ast::oxc::ast::ast::PropertyDefinitionType;
+use deno_ast::oxc::span::GetSpan;
 use deno_graph::symbols::EsModuleInfo;
 use serde::Deserialize;
 use serde::Serialize;
@@ -14,11 +20,9 @@ use crate::function::function_to_function_def;
 use crate::js_doc::JsDoc;
 use crate::node::DeclarationKind;
 use crate::node::Symbol;
-use crate::params::assign_pat_to_param_def;
-use crate::params::ident_to_param_def;
+use crate::params::ParamPatternDef;
 use crate::params::param_to_param_def;
 use crate::params::prop_name_to_string;
-use crate::params::ts_fn_param_to_param_def;
 use crate::ts_type::IndexSignatureDef;
 use crate::ts_type::TsTypeDef;
 use crate::ts_type::infer_ts_type_from_expr;
@@ -28,6 +32,9 @@ use crate::ts_type_param::maybe_type_param_decl_to_type_param_defs;
 use crate::util::swc::get_location;
 use crate::util::swc::is_false;
 use crate::util::swc::js_doc_for_range;
+use crate::util::types::Accessibility;
+use crate::util::types::MethodKind;
+use crate::util::types::VarDeclKind;
 use crate::variable::VariableDef;
 
 cfg_if! {
@@ -54,7 +61,7 @@ cfg_if! {
 #[serde(rename_all = "camelCase")]
 pub struct ClassConstructorParamDef {
   #[serde(skip_serializing_if = "Option::is_none", default)]
-  pub accessibility: Option<deno_ast::swc::ast::Accessibility>,
+  pub accessibility: Option<Accessibility>,
   #[serde(skip_serializing_if = "is_false", default)]
   pub is_override: bool,
   #[serde(flatten)]
@@ -83,7 +90,7 @@ pub struct ClassConstructorDef {
   #[serde(skip_serializing_if = "JsDoc::is_empty", default)]
   pub js_doc: JsDoc,
   #[serde(skip_serializing_if = "Option::is_none", default)]
-  pub accessibility: Option<deno_ast::swc::ast::Accessibility>,
+  pub accessibility: Option<Accessibility>,
   #[serde(skip_serializing_if = "is_false", default)]
   pub is_optional: bool,
   #[serde(skip_serializing_if = "is_false", default)]
@@ -116,7 +123,7 @@ pub struct ClassPropertyDef {
   #[serde(skip_serializing_if = "is_false", default)]
   pub readonly: bool,
   #[serde(skip_serializing_if = "Option::is_none", default)]
-  pub accessibility: Option<deno_ast::swc::ast::Accessibility>,
+  pub accessibility: Option<Accessibility>,
   #[serde(skip_serializing_if = "<[_]>::is_empty", default)]
   pub decorators: Box<[DecoratorDef]>,
   #[serde(skip_serializing_if = "is_false", default)]
@@ -141,7 +148,7 @@ impl From<ClassPropertyDef> for Symbol {
       def.js_doc,
       VariableDef {
         ts_type: def.ts_type,
-        kind: deno_ast::swc::ast::VarDeclKind::Const,
+        kind: VarDeclKind::Const,
       },
     )
   }
@@ -174,7 +181,7 @@ pub struct ClassMethodDef {
   #[serde(skip_serializing_if = "JsDoc::is_empty", default)]
   pub js_doc: JsDoc,
   #[serde(skip_serializing_if = "Option::is_none", default)]
-  pub accessibility: Option<deno_ast::swc::ast::Accessibility>,
+  pub accessibility: Option<Accessibility>,
   #[serde(skip_serializing_if = "is_false", default)]
   pub optional: bool,
   #[serde(skip_serializing_if = "is_false", default)]
@@ -184,7 +191,7 @@ pub struct ClassMethodDef {
   #[serde(skip_serializing_if = "is_false", default)]
   pub is_override: bool,
   pub name: Box<str>,
-  pub kind: deno_ast::swc::ast::MethodKind,
+  pub kind: MethodKind,
   pub function_def: FunctionDef,
   pub location: Location,
 }
@@ -256,22 +263,20 @@ pub struct ClassDef {
 
 pub fn class_to_class_def(
   module_info: &EsModuleInfo,
-  class: &deno_ast::swc::ast::Class,
+  class: &Class,
   def_name: Option<Box<str>>,
 ) -> (ClassDef, JsDoc) {
-  use deno_ast::swc::ast::Expr;
-
   let mut constructors = vec![];
   let mut methods = vec![];
   let mut properties = vec![];
   let mut index_signatures = vec![];
 
-  fn walk_class_extends(expr: &Expr) -> Option<String> {
+  fn walk_class_extends(expr: &Expression) -> Option<String> {
     match expr {
-      Expr::Ident(ident) => Some(ident.sym.to_string()),
-      Expr::Member(member_expr) => {
-        let prop = &member_expr.prop.as_ident()?.sym;
-        let mut string_path = walk_class_extends(&member_expr.obj)?;
+      Expression::Identifier(ident) => Some(ident.name.to_string()),
+      Expression::StaticMemberExpression(member_expr) => {
+        let prop = &member_expr.property.name;
+        let mut string_path = walk_class_extends(&member_expr.object)?;
 
         string_path.push('.');
         string_path.push_str(prop);
@@ -284,7 +289,7 @@ pub fn class_to_class_def(
 
   let extends: Option<Box<str>> = match &class.super_class {
     Some(boxed) => {
-      let expr: &Expr = boxed;
+      let expr: &Expression = boxed;
       walk_class_extends(expr).map(|s| s.into_boxed_str())
     }
     None => None,
@@ -293,94 +298,91 @@ pub fn class_to_class_def(
   let implements = class
     .implements
     .iter()
-    .map(|expr| TsTypeDef::ts_expr_with_type_args(module_info, expr))
+    .map(|expr| TsTypeDef::ts_class_implements(module_info, expr))
     .collect::<Box<[_]>>();
 
-  for member in &class.body {
-    use deno_ast::swc::ast::ClassMember::*;
-
+  for member in &class.body.body {
     match member {
-      Constructor(ctor) => {
-        if let Some(ctor_js_doc) = js_doc_for_range(module_info, &ctor.range())
-        {
+      ClassElement::MethodDefinition(method_def)
+        if method_def.kind == MethodDefinitionKind::Constructor =>
+      {
+        let ctor = method_def;
+        if let Some(ctor_js_doc) = js_doc_for_range(module_info, ctor.span()) {
           let constructor_name = prop_name_to_string(module_info, &ctor.key);
 
           let mut params = vec![];
 
-          for param in &ctor.params {
-            use deno_ast::swc::ast::ParamOrTsParamProp::*;
+          for param in &ctor.value.params.items {
+            let param_def = ClassConstructorParamDef {
+              accessibility: Accessibility::from_oxc(param.accessibility),
+              is_override: param.r#override,
+              param: param_to_param_def(module_info, param),
+              readonly: param.readonly,
+            };
+            params.push(param_def);
+          }
 
-            let param_def = match param {
-              Param(param) => ClassConstructorParamDef {
-                accessibility: None,
-                is_override: false,
-                param: param_to_param_def(module_info, param),
-                readonly: false,
-              },
-              TsParamProp(ts_param_prop) => {
-                use deno_ast::swc::ast::TsParamPropParam;
-
-                let param = match &ts_param_prop.param {
-                  TsParamPropParam::Ident(ident) => {
-                    ident_to_param_def(module_info, ident)
-                  }
-                  TsParamPropParam::Assign(assign_pat) => {
-                    assign_pat_to_param_def(module_info, assign_pat)
-                  }
-                };
-
-                ClassConstructorParamDef {
-                  accessibility: ts_param_prop.accessibility,
-                  is_override: ts_param_prop.is_override,
-                  param,
-                  readonly: ts_param_prop.readonly,
-                }
-              }
+          if let Some(rest) = &ctor.value.params.rest {
+            let param_def = ClassConstructorParamDef {
+              accessibility: None,
+              is_override: false,
+              param: crate::params::rest_element_to_param_def(
+                module_info,
+                &rest.rest,
+                rest.type_annotation.as_deref(),
+              ),
+              readonly: false,
             };
             params.push(param_def);
           }
 
           let constructor_def = ClassConstructorDef {
             js_doc: ctor_js_doc,
-            accessibility: ctor.accessibility,
-            is_optional: ctor.is_optional,
-            has_body: ctor.body.is_some(),
+            accessibility: Accessibility::from_oxc(ctor.accessibility),
+            is_optional: ctor.optional,
+            has_body: ctor.value.body.is_some(),
             name: constructor_name,
             params,
-            location: get_location(module_info, ctor.start()),
+            location: get_location(module_info, ctor.span().start),
           };
           constructors.push(constructor_def);
         }
       }
-      Method(class_method) => {
+      ClassElement::MethodDefinition(class_method) => {
         if let Some(method_js_doc) =
-          js_doc_for_range(module_info, &class_method.range())
+          js_doc_for_range(module_info, class_method.span())
         {
           let method_name = prop_name_to_string(module_info, &class_method.key);
-          let fn_def =
-            function_to_function_def(module_info, &class_method.function, None);
+          let mut fn_def =
+            function_to_function_def(module_info, &class_method.value, None);
+          fn_def.decorators =
+            decorators_to_defs(module_info, &class_method.decorators);
           let method_def = ClassMethodDef {
             js_doc: method_js_doc,
-            accessibility: class_method.accessibility,
-            optional: class_method.is_optional,
-            is_abstract: class_method.is_abstract,
-            is_static: class_method.is_static,
-            is_override: class_method.is_override,
+            accessibility: Accessibility::from_oxc(class_method.accessibility),
+            optional: class_method.optional,
+            is_abstract: class_method.r#type
+              == MethodDefinitionType::TSAbstractMethodDefinition,
+            is_static: class_method.r#static,
+            is_override: class_method.r#override,
             name: method_name.into_boxed_str(),
-            kind: class_method.kind,
+            kind: MethodKind::from(class_method.kind),
             function_def: fn_def,
-            location: get_location(module_info, class_method.start()),
+            location: get_location(module_info, class_method.span().start),
           };
           methods.push(method_def);
         }
       }
-      ClassProp(class_prop) => {
+      ClassElement::PropertyDefinition(class_prop) => {
+        if class_prop.key.is_private_identifier() {
+          continue;
+        }
         if let Some(prop_js_doc) =
-          js_doc_for_range(module_info, &class_prop.range())
+          js_doc_for_range(module_info, class_prop.span())
         {
-          let ts_type = if let Some(type_ann) = &class_prop.type_ann {
+          let ts_type = if let Some(type_ann) = &class_prop.type_annotation {
             // if the property has a type annotation, use it
-            Some(TsTypeDef::new(module_info, &type_ann.type_ann))
+            Some(TsTypeDef::new(module_info, &type_ann.type_annotation))
           } else if let Some(value) = &class_prop.value {
             // else, if it has an initializer, try to infer the type
             infer_ts_type_from_expr(module_info, value, false)
@@ -398,35 +400,46 @@ pub fn class_to_class_def(
             js_doc: prop_js_doc,
             ts_type,
             readonly: class_prop.readonly,
-            optional: class_prop.is_optional,
-            is_abstract: class_prop.is_abstract,
-            is_static: class_prop.is_static,
-            is_override: class_prop.is_override,
-            accessibility: class_prop.accessibility,
+            optional: class_prop.optional,
+            is_abstract: class_prop.r#type
+              == PropertyDefinitionType::TSAbstractPropertyDefinition,
+            is_static: class_prop.r#static,
+            is_override: class_prop.r#override,
+            accessibility: Accessibility::from_oxc(class_prop.accessibility),
             name: prop_name.into_boxed_str(),
             decorators,
-            location: get_location(module_info, class_prop.start()),
+            location: get_location(module_info, class_prop.span().start),
           };
           properties.push(prop_def);
         }
       }
-      TsIndexSignature(ts_index_sig) => {
-        if let Some(js_doc) =
-          js_doc_for_range(module_info, &ts_index_sig.range())
+      ClassElement::TSIndexSignature(ts_index_sig) => {
+        if let Some(js_doc) = js_doc_for_range(module_info, ts_index_sig.span())
         {
           let mut params = vec![];
-          for param in &ts_index_sig.params {
-            let param_def = ts_fn_param_to_param_def(module_info, param);
+          for param in &ts_index_sig.parameters {
+            let ts_type = Some(TsTypeDef::new(
+              module_info,
+              &param.type_annotation.type_annotation,
+            ));
+            let param_def = ParamDef {
+              pattern: ParamPatternDef::Identifier {
+                name: param.name.to_string(),
+                optional: false,
+              },
+              decorators: Box::new([]),
+              ts_type,
+            };
             params.push(param_def);
           }
 
-          let ts_type = ts_index_sig
-            .type_ann
-            .as_ref()
-            .map(|rt| TsTypeDef::new(module_info, &rt.type_ann));
+          let ts_type = Some(TsTypeDef::new(
+            module_info,
+            &ts_index_sig.type_annotation.type_annotation,
+          ));
 
           let index_sig_def = IndexSignatureDef {
-            location: get_location(module_info, ts_index_sig.start()),
+            location: get_location(module_info, ts_index_sig.span().start),
             js_doc,
             readonly: ts_index_sig.readonly,
             params,
@@ -435,21 +448,18 @@ pub fn class_to_class_def(
           index_signatures.push(index_sig_def);
         }
       }
-      // TODO(bartlomieju):
-      PrivateMethod(_) => {}
-      PrivateProp(_) => {}
       _ => {}
     }
   }
 
   let type_params = maybe_type_param_decl_to_type_param_defs(
     module_info,
-    class.type_params.as_deref(),
+    class.type_parameters.as_deref(),
   );
 
   let super_type_params = maybe_type_param_instantiation_to_type_defs(
     module_info,
-    class.super_type_params.as_deref(),
+    class.super_type_arguments.as_deref(),
   );
 
   let decorators = decorators_to_defs(module_info, &class.decorators);
@@ -457,7 +467,7 @@ pub fn class_to_class_def(
   // JSDoc associated with the class may actually be a leading comment on a
   // decorator, and so we should parse out the JSDoc for the first decorator
   let js_doc = if !class.decorators.is_empty() {
-    js_doc_for_range(module_info, &class.decorators[0].range()).unwrap()
+    js_doc_for_range(module_info, class.decorators[0].span()).unwrap()
   } else {
     JsDoc::default()
   };
@@ -465,7 +475,7 @@ pub fn class_to_class_def(
   (
     ClassDef {
       def_name,
-      is_abstract: class.is_abstract,
+      is_abstract: class.r#abstract,
       extends,
       implements,
       constructors: constructors.into_boxed_slice(),
@@ -482,7 +492,7 @@ pub fn class_to_class_def(
 
 pub fn get_doc_for_class_decl(
   module_info: &EsModuleInfo,
-  class_decl: &deno_ast::swc::ast::ClassDecl,
+  class: &Class,
 ) -> (ClassDef, JsDoc) {
-  class_to_class_def(module_info, &class_decl.class, None)
+  class_to_class_def(module_info, class, None)
 }

@@ -24,7 +24,21 @@ error[missing-jsdoc]: exported symbol is missing JSDoc documentation
    |                ^
 
 
+error[missing-explicit-type]: exported symbol is missing an explicit type annotation
+  --> /mod.ts:16:16
+   | 
+16 | export const { f, g: h } = d;
+   |                ^
+
+
 error[missing-jsdoc]: exported symbol is missing JSDoc documentation
+  --> /mod.ts:16:22
+   | 
+16 | export const { f, g: h } = d;
+   |                      ^
+
+
+error[missing-explicit-type]: exported symbol is missing an explicit type annotation
   --> /mod.ts:16:22
    | 
 16 | export const { f, g: h } = d;
@@ -43,11 +57,11 @@ const b: number
 
 Defined in file:///mod.ts:15:16
 
-const f: string
+const f
 
 Defined in file:///mod.ts:15:22
 
-const h: number
+const h
 
 
 # output.json
@@ -118,11 +132,6 @@ const h: number
           "declarationKind": "export",
           "kind": "variable",
           "def": {
-            "tsType": {
-              "repr": "string",
-              "kind": "keyword",
-              "value": "string"
-            },
             "kind": "const"
           }
         }
@@ -141,11 +150,6 @@ const h: number
           "declarationKind": "export",
           "kind": "variable",
           "def": {
-            "tsType": {
-              "repr": "number",
-              "kind": "keyword",
-              "value": "number"
-            },
             "kind": "const"
           }
         }

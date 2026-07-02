@@ -81,10 +81,7 @@ type T<Type> = readonly [P in keyof Type as NewType]: Type[P]
                       "repr": "P",
                       "kind": "typeRef",
                       "value": {
-                        "typeName": "P",
-                        "resolution": {
-                          "kind": "typeParam"
-                        }
+                        "typeName": "P"
                       }
                     }
                   }

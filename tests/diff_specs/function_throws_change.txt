@@ -32,10 +32,7 @@ export function foo(x: number): void {}
                           "repr": "SyntaxError",
                           "kind": "typeRef",
                           "value": {
-                            "typeName": "SyntaxError",
-                            "resolution": {
-                              "kind": "typeParam"
-                            }
+                            "typeName": "SyntaxError"
                           }
                         },
                         "doc": "bad syntax"
@@ -48,10 +45,7 @@ export function foo(x: number): void {}
                           "repr": "TypeError",
                           "kind": "typeRef",
                           "value": {
-                            "typeName": "TypeError",
-                            "resolution": {
-                              "kind": "typeParam"
-                            }
+                            "typeName": "TypeError"
                           }
                         },
                         "doc": "wrong type"
@@ -65,10 +59,7 @@ export function foo(x: number): void {}
                             "repr": "RangeError",
                             "kind": "typeRef",
                             "value": {
-                              "typeName": "RangeError",
-                              "resolution": {
-                                "kind": "typeParam"
-                              }
+                              "typeName": "RangeError"
                             }
                           },
                           "doc": "value out of range"
@@ -79,10 +70,7 @@ export function foo(x: number): void {}
                             "repr": "RangeError",
                             "kind": "typeRef",
                             "value": {
-                              "typeName": "RangeError",
-                              "resolution": {
-                                "kind": "typeParam"
-                              }
+                              "typeName": "RangeError"
                             }
                           },
                           "doc": "updated message"

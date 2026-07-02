@@ -11,10 +11,10 @@ use crate::ts_type::TsTypeDef;
 use crate::util::swc::get_text_info_location;
 use crate::util::swc::has_ignorable_js_doc_tag;
 use crate::util::symbol::symbol_has_ignorable_js_doc_tag;
+use crate::util::types::Accessibility;
 use crate::variable::VariableDef;
 
 use deno_ast::ModuleSpecifier;
-use deno_ast::SourceRange;
 use deno_ast::SourceTextInfo;
 use deno_ast::diagnostics::Diagnostic;
 use deno_ast::diagnostics::DiagnosticLevel;
@@ -24,7 +24,7 @@ use deno_ast::diagnostics::DiagnosticSnippetHighlight;
 use deno_ast::diagnostics::DiagnosticSnippetHighlightStyle;
 use deno_ast::diagnostics::DiagnosticSourcePos;
 use deno_ast::diagnostics::DiagnosticSourceRange;
-use deno_ast::swc::ast::Accessibility;
+use deno_ast::oxc::span::Span;
 use deno_graph::symbols::ModuleInfoRef;
 use deno_graph::symbols::RootSymbol;
 use deno_graph::symbols::Symbol as GraphSymbol;
@@ -223,7 +223,7 @@ impl<'a> DiagnosticsCollector<'a> {
     &mut self,
     decl_module: ModuleInfoRef,
     decl_name: &str,
-    decl_range: SourceRange,
+    decl_range: Span,
     doc_symbol_id: UniqueSymbolId,
     referenced_module: ModuleInfoRef,
     referenced_symbol: &GraphSymbol,

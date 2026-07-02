@@ -29,7 +29,7 @@ error[missing-jsdoc]: exported symbol is missing JSDoc documentation
 # output.txt
 Defined in file:///mod.ts:3:14
 
-const a: { d(e: string): void; h(): string; h(value: string); [[t]](u: string): void; a: string; b: Map<string, number>; c: { d: string; }; f: (g: string) => void; [[s]]: (number | string)[]; }
+const a: { d(e: string): void; h(): string; h(value: string); [t](u: string): void; a: string; b: Map<string, number>; c: { d: string; }; f: (g: string) => void; [s]: (number | string)[]; }
 
 
 # output.json
@@ -118,7 +118,7 @@ const a: { d(e: string): void; h(): string; h(value: string); [[t]](u: string): 
                     ]
                   },
                   {
-                    "name": "[t]",
+                    "name": "t",
                     "kind": "method",
                     "location": {
                       "filename": "file:///mod.ts",
@@ -255,7 +255,7 @@ const a: { d(e: string): void; h(): string; h(value: string); [[t]](u: string): 
                     }
                   },
                   {
-                    "name": "[s]",
+                    "name": "s",
                     "location": {
                       "filename": "file:///mod.ts",
                       "line": 16,

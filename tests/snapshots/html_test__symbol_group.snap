@@ -8555,7 +8555,7 @@ expression: files
                       "id": "function_hello_computedmethod_0"
                     },
                     "name": "Hello.computedMethod",
-                    "summary": "(<span><span>a<span>: <a href=\"../././~/Hello.html#type_param_t\" class=\"link td-ref\">T</a> <span class=\"td-kw\">extends</span> () =&gt; <span class=\"td-kw\">infer </span><span><span class=\"td-tp\">R</span></span> <span class=\"td-op\">?</span> <a href=\"../././~/Hello.html#type_param_r\" class=\"link td-ref\">R</a> <span class=\"td-op\">:</span> <span class=\"td-kw\">any</span></span></span></span>)<span>: <span class=\"td-kw\">void</span></span>",
+                    "summary": "(<span><span>a<span>: <a href=\"../././~/Hello.html#type_param_t\" class=\"link td-ref\">T</a> <span class=\"td-kw\">extends</span> () =&gt; <span class=\"td-kw\">infer </span><span><span class=\"td-tp\">R</span></span> <span class=\"td-op\">?</span> <span class=\"td-ref\">R</span> <span class=\"td-op\">:</span> <span class=\"td-kw\">any</span></span></span></span>)<span>: <span class=\"td-kw\">void</span></span>",
                     "deprecated": null,
                     "content": {
                       "id": "",
@@ -8577,7 +8577,7 @@ expression: files
                                 "name_prefix": null,
                                 "name": "a",
                                 "name_href": null,
-                                "content": "<span>: <a href=\"../././~/Hello.html#type_param_t\" class=\"link td-ref\">T</a> <span class=\"td-kw\">extends</span> () =&gt; <span class=\"td-kw\">infer </span><span><span class=\"td-tp\">R</span></span> <span class=\"td-op\">?</span> <a href=\"../././~/Hello.html#type_param_r\" class=\"link td-ref\">R</a> <span class=\"td-op\">:</span> <span class=\"td-kw\">any</span></span>",
+                                "content": "<span>: <a href=\"../././~/Hello.html#type_param_t\" class=\"link td-ref\">T</a> <span class=\"td-kw\">extends</span> () =&gt; <span class=\"td-kw\">infer </span><span><span class=\"td-tp\">R</span></span> <span class=\"td-op\">?</span> <span class=\"td-ref\">R</span> <span class=\"td-op\">:</span> <span class=\"td-kw\">any</span></span>",
                                 "anchor": {
                                   "id": "function_hello_computedmethod_0_parameter_a"
                                 },

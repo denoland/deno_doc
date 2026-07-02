@@ -1,26 +1,24 @@
 // Copyright 2018-2024 the Deno authors. All rights reserved. MIT license.
 
-use deno_ast::ModuleItemRef;
-use deno_ast::SourceRange;
-use deno_ast::SourceRanged;
-use deno_ast::SourceRangedForSpanned;
-use deno_ast::swc::ast::ClassDecl;
-use deno_ast::swc::ast::Decl;
-use deno_ast::swc::ast::DefaultDecl;
-use deno_ast::swc::ast::ExportDecl;
-use deno_ast::swc::ast::ExportDefaultDecl;
-use deno_ast::swc::ast::ExportDefaultExpr;
-use deno_ast::swc::ast::FnDecl;
-use deno_ast::swc::ast::Ident;
-use deno_ast::swc::ast::ModuleDecl;
-use deno_ast::swc::ast::TsEnumDecl;
-use deno_ast::swc::ast::TsInterfaceDecl;
-use deno_ast::swc::ast::TsModuleDecl;
-use deno_ast::swc::ast::TsModuleName;
-use deno_ast::swc::ast::TsTypeAliasDecl;
-use deno_ast::swc::ast::VarDecl;
-use deno_ast::swc::ast::VarDeclKind;
-use deno_ast::swc::ast::VarDeclarator;
+use deno_ast::oxc::ast::ast::BindingIdentifier as Ident;
+use deno_ast::oxc::ast::ast::Class;
+use deno_ast::oxc::ast::ast::Declaration as OxcDeclaration;
+use deno_ast::oxc::ast::ast::ExportDefaultDeclaration;
+use deno_ast::oxc::ast::ast::ExportDefaultDeclarationKind;
+use deno_ast::oxc::ast::ast::ExportNamedDeclaration;
+use deno_ast::oxc::ast::ast::Expression;
+use deno_ast::oxc::ast::ast::Function as FnDecl;
+use deno_ast::oxc::ast::ast::ImportDeclarationSpecifier;
+use deno_ast::oxc::ast::ast::Statement;
+use deno_ast::oxc::ast::ast::TSEnumDeclaration as TsEnumDecl;
+use deno_ast::oxc::ast::ast::TSInterfaceDeclaration as TsInterfaceDecl;
+use deno_ast::oxc::ast::ast::TSModuleDeclaration as TsModuleDecl;
+use deno_ast::oxc::ast::ast::TSModuleDeclarationName;
+use deno_ast::oxc::ast::ast::TSTypeAliasDeclaration as TsTypeAliasDecl;
+use deno_ast::oxc::ast::ast::VariableDeclaration as VarDecl;
+use deno_ast::oxc::ast::ast::VariableDeclarator as VarDeclarator;
+use deno_ast::oxc::span::GetSpan;
+use deno_ast::oxc::span::Span;
 use deno_graph::Module;
 use deno_graph::ModuleGraph;
 use deno_graph::ModuleSpecifier;
@@ -34,7 +32,6 @@ use deno_graph::symbols::SymbolDecl;
 use deno_graph::symbols::SymbolNodeRef;
 use deno_graph::symbols::UniqueSymbolId;
 use indexmap::IndexMap;
-use std::borrow::Cow;
 use std::cell::RefCell;
 use std::collections::HashSet;
 use std::error::Error;
@@ -64,9 +61,37 @@ use crate::util::swc::js_doc_for_range;
 use crate::util::swc::module_export_name_value;
 use crate::util::swc::module_js_doc_for_source;
 use crate::util::symbol::get_module_info;
+use crate::util::types::VarDeclKind;
 use crate::variable::VariableDef;
 use crate::visibility::SymbolVisibility;
 use crate::{Declaration, Symbol};
+
+type SourceRange = Span;
+
+trait SpanCompat {
+  fn contains(self, other: Span) -> bool;
+}
+
+impl SpanCompat for Span {
+  fn contains(self, other: Span) -> bool {
+    self.contains_inclusive(other)
+  }
+}
+
+trait GetSpanCompat {
+  fn range(&self) -> Span;
+  fn start(&self) -> u32;
+}
+
+impl<T: GetSpan> GetSpanCompat for T {
+  fn range(&self) -> Span {
+    self.span()
+  }
+
+  fn start(&self) -> u32 {
+    self.span().start
+  }
+}
 
 #[derive(Debug)]
 pub enum DocError {
@@ -121,11 +146,13 @@ impl<'a> DocParser<'a> {
   pub fn new(
     graph: &'a ModuleGraph,
     parser: &'a dyn EsParser,
+    allocator: &'a deno_ast::oxc::allocator::Allocator,
     specifiers: &'a [ModuleSpecifier],
     options: DocParserOptions,
   ) -> Result<Self, anyhow::Error> {
-    let root_symbol =
-      Rc::new(deno_graph::symbols::RootSymbol::new(graph, parser));
+    let root_symbol = Rc::new(deno_graph::symbols::RootSymbol::new(
+      graph, parser, allocator,
+    ));
     let visibility = SymbolVisibility::build(graph, &root_symbol)?;
 
     let diagnostics = if options.diagnostics {
@@ -473,18 +500,15 @@ impl<'a> DocParser<'a> {
                   if let ModuleInfoRef::Esm(esm) = export.module {
                     // Find the full export statement range, since the
                     // definition range may start at `*` rather than `export`.
-                    for item in esm.source().program_ref().body() {
-                      if let ModuleItemRef::ModuleDecl(decl) = item {
-                        let decl_range = decl.range();
-                        if decl_range.contains(first_def.range())
-                          && let Some(js_doc) =
-                            js_doc_for_range(esm, &decl_range)
-                        {
-                          if !js_doc.is_empty() {
-                            return js_doc;
-                          }
-                          break;
+                    for item in esm.statements() {
+                      let decl_range = item.span();
+                      if decl_range.contains(*first_def.range())
+                        && let Some(js_doc) = js_doc_for_range(esm, decl_range)
+                      {
+                        if !js_doc.is_empty() {
+                          return js_doc;
                         }
+                        break;
                       }
                     }
                   }
@@ -535,42 +559,39 @@ impl<'a> DocParser<'a> {
     &self,
     module_info: &EsModuleInfo,
   ) -> Result<Vec<Import>, DocError> {
-    let parsed_source = module_info.source();
     let referrer = module_info.specifier();
     let mut imports = vec![];
 
-    for node in parsed_source.program_ref().body() {
-      if let ModuleItemRef::ModuleDecl(ModuleDecl::Import(import_decl)) = node
-        && let Some(js_doc) =
-          js_doc_for_range(module_info, &import_decl.range())
+    for stmt in module_info.statements() {
+      if let Statement::ImportDeclaration(import_decl) = stmt
+        && let Some(js_doc) = js_doc_for_range(module_info, import_decl.span)
+        && let Some(specifiers) = &import_decl.specifiers
       {
-        for specifier in &import_decl.specifiers {
-          use deno_ast::swc::ast::ImportSpecifier::*;
-
+        for specifier in specifiers {
           let (imported_name, original_name, src) = match specifier {
-            Named(named_specifier) => (
-              named_specifier.local.sym.to_string(),
-              named_specifier
-                .imported
-                .as_ref()
-                .map(module_export_name_value)
-                .or_else(|| Some(named_specifier.local.sym.to_string())),
-              &import_decl.src.value,
+            ImportDeclarationSpecifier::ImportSpecifier(named_specifier) => (
+              named_specifier.local.name.to_string(),
+              Some(module_export_name_value(&named_specifier.imported)),
+              &import_decl.source.value,
             ),
-            Default(default_specifier) => (
-              default_specifier.local.sym.to_string(),
+            ImportDeclarationSpecifier::ImportDefaultSpecifier(
+              default_specifier,
+            ) => (
+              default_specifier.local.name.to_string(),
               Some("default".to_string()),
-              &import_decl.src.value,
+              &import_decl.source.value,
             ),
-            Namespace(namespace_specifier) => (
-              namespace_specifier.local.sym.to_string(),
+            ImportDeclarationSpecifier::ImportNamespaceSpecifier(
+              namespace_specifier,
+            ) => (
+              namespace_specifier.local.name.to_string(),
               None,
-              &import_decl.src.value,
+              &import_decl.source.value,
             ),
           };
 
           let resolved_specifier =
-            self.resolve_dependency(&src.to_string_lossy(), referrer)?;
+            self.resolve_dependency(src.as_ref(), referrer)?;
 
           imports.push(Import {
             imported_name: imported_name.into_boxed_str(),
@@ -591,9 +612,8 @@ impl<'a> DocParser<'a> {
     expando_property: ExpandoPropertyRef,
   ) -> Option<Declaration> {
     let location =
-      get_location(module_info, expando_property.prop_name_range().start());
-    let js_doc =
-      js_doc_for_range(module_info, &expando_property.inner().range())?;
+      get_location(module_info, expando_property.prop_name_span().start);
+    let js_doc = js_doc_for_range(module_info, expando_property.inner().span)?;
     let init = expando_property.assignment();
 
     Some(decl_from_expr(module_info, init, location, js_doc))
@@ -605,24 +625,24 @@ impl<'a> DocParser<'a> {
     var_decl: &VarDecl,
     var_declarator: &VarDeclarator,
     ident: &Ident,
-    full_range: &SourceRange,
+    full_range: SourceRange,
   ) -> Option<Declaration> {
-    let full_range = if ident.start() != var_declarator.start() {
-      Cow::Owned(ident.range())
+    let full_range = if ident.span.start != var_declarator.span.start {
+      ident.span
     } else {
-      Cow::Borrowed(full_range)
+      full_range
     };
-    let js_doc = js_doc_for_range(module_info, &full_range)?;
+    let js_doc = js_doc_for_range(module_info, full_range)?;
 
     if let Some(init) = &var_declarator.init
       && matches!(
-        &**init,
-        deno_ast::swc::ast::Expr::Class(_)
-          | deno_ast::swc::ast::Expr::Fn(_)
-          | deno_ast::swc::ast::Expr::Arrow(_)
+        init,
+        Expression::ClassExpression(_)
+          | Expression::FunctionExpression(_)
+          | Expression::ArrowFunctionExpression(_)
       )
     {
-      let location = get_location(module_info, ident.start());
+      let location = get_location(module_info, ident.span.start);
       return Some(decl_from_expr(module_info, init, location, js_doc));
     }
 
@@ -635,9 +655,9 @@ impl<'a> DocParser<'a> {
       var_declarator,
     )
     .into_iter()
-    .find(|(name, _)| name.as_str() == &*ident.sym)
+    .find(|(name, _)| name.as_str() == &*ident.name)
     .map(|(_name, var_def)| {
-      let location = get_location(module_info, ident.start());
+      let location = get_location(module_info, ident.span.start);
       Declaration::variable(location, DeclarationKind::Declare, js_doc, var_def)
     })
   }
@@ -645,16 +665,16 @@ impl<'a> DocParser<'a> {
   fn get_doc_for_class_decl(
     &self,
     module_info: &EsModuleInfo,
-    class_decl: &ClassDecl,
-    full_range: &SourceRange,
+    class_decl: &Class,
+    full_range: SourceRange,
   ) -> Option<Declaration> {
-    let jsdoc_range = match class_decl.class.decorators.first() {
-      Some(decorator) if decorator.start() < full_range.start => {
-        Cow::Owned(SourceRange::new(decorator.start(), full_range.end))
+    let jsdoc_range = match class_decl.decorators.first() {
+      Some(decorator) if decorator.span.start < full_range.start => {
+        SourceRange::new(decorator.span.start, full_range.end)
       }
-      _ => Cow::Borrowed(full_range),
+      _ => full_range,
     };
-    let js_doc = js_doc_for_range(module_info, &jsdoc_range)?;
+    let js_doc = js_doc_for_range(module_info, jsdoc_range)?;
     // declared classes cannot have decorators, so we ignore that return
     let (class_def, _) =
       super::class::get_doc_for_class_decl(module_info, class_decl);
@@ -671,7 +691,7 @@ impl<'a> DocParser<'a> {
     &self,
     module_info: &EsModuleInfo,
     fn_decl: &FnDecl,
-    full_range: &SourceRange,
+    full_range: SourceRange,
   ) -> Option<Declaration> {
     let js_doc = js_doc_for_range(module_info, full_range)?;
     let function_def =
@@ -689,7 +709,7 @@ impl<'a> DocParser<'a> {
     &self,
     module_info: &EsModuleInfo,
     ts_interface_decl: &TsInterfaceDecl,
-    full_range: &SourceRange,
+    full_range: SourceRange,
   ) -> Option<Declaration> {
     let js_doc = js_doc_for_range(module_info, full_range)?;
     let interface_def = super::interface::get_doc_for_ts_interface_decl(
@@ -710,7 +730,7 @@ impl<'a> DocParser<'a> {
     &self,
     module_info: &EsModuleInfo,
     ts_type_alias: &TsTypeAliasDecl,
-    full_range: &SourceRange,
+    full_range: SourceRange,
   ) -> Option<Declaration> {
     let js_doc = js_doc_for_range(module_info, full_range)?;
     let type_alias_def = super::type_alias::get_doc_for_ts_type_alias_decl(
@@ -730,7 +750,7 @@ impl<'a> DocParser<'a> {
     &self,
     module_info: &EsModuleInfo,
     ts_enum: &TsEnumDecl,
-    full_range: &SourceRange,
+    full_range: SourceRange,
   ) -> Option<Declaration> {
     let js_doc = js_doc_for_range(module_info, full_range)?;
     let enum_def =
@@ -749,7 +769,7 @@ impl<'a> DocParser<'a> {
     module_info: &EsModuleInfo,
     ns_symbol: &GraphSymbol,
     ts_module: &TsModuleDecl,
-    full_range: &SourceRange,
+    full_range: SourceRange,
   ) -> Option<Declaration> {
     fn symbol_in_ancestors(
       id: UniqueSymbolId,
@@ -771,13 +791,12 @@ impl<'a> DocParser<'a> {
       .iter()
       .filter_map(|d| {
         d.maybe_node().and_then(|n| match n {
-          SymbolNodeRef::ExportDecl(
-            ExportDecl {
-              decl: Decl::TsModule(n),
-              ..
-            },
-            _,
-          ) => Some(&**n),
+          SymbolNodeRef::ExportDecl(export_decl, _) => {
+            match &export_decl.declaration {
+              Some(OxcDeclaration::TSModuleDeclaration(n)) => Some(&**n),
+              _ => None,
+            }
+          }
           SymbolNodeRef::TsNamespace(n) => Some(n),
           _ => None,
         })
@@ -789,8 +808,8 @@ impl<'a> DocParser<'a> {
     }
 
     let _namespace_name = match &ts_module.id {
-      TsModuleName::Ident(ident) => ident.sym.to_string(),
-      TsModuleName::Str(str_) => str_.value.to_string_lossy().into_owned(),
+      TSModuleDeclarationName::Identifier(ident) => ident.name.to_string(),
+      TSModuleDeclarationName::StringLiteral(str_) => str_.value.to_string(),
     };
     let mut elements = Vec::new();
     let mut handled_symbols = HashSet::new();
@@ -915,18 +934,24 @@ impl<'a> DocParser<'a> {
           .and_then(|n| {
             use deno_graph::symbols::SymbolNodeRef;
             match n {
-              SymbolNodeRef::ClassDecl(n) => Some(n.ident.sym.to_string()),
-              SymbolNodeRef::FnDecl(n) => Some(n.ident.sym.to_string()),
-              SymbolNodeRef::TsEnum(n) => Some(n.id.sym.to_string()),
-              SymbolNodeRef::TsInterface(n) => Some(n.id.sym.to_string()),
-              SymbolNodeRef::TsTypeAlias(n) => Some(n.id.sym.to_string()),
+              SymbolNodeRef::ClassDecl(n) => {
+                n.id.as_ref().map(|id| id.name.to_string())
+              }
+              SymbolNodeRef::FnDecl(n) => {
+                n.id.as_ref().map(|id| id.name.to_string())
+              }
+              SymbolNodeRef::TsEnum(n) => Some(n.id.name.to_string()),
+              SymbolNodeRef::TsInterface(n) => Some(n.id.name.to_string()),
+              SymbolNodeRef::TsTypeAlias(n) => Some(n.id.name.to_string()),
               SymbolNodeRef::TsNamespace(n) => match &n.id {
-                TsModuleName::Ident(ident) => Some(ident.sym.to_string()),
-                TsModuleName::Str(s) => {
-                  Some(s.value.to_string_lossy().into_owned())
+                TSModuleDeclarationName::Identifier(ident) => {
+                  Some(ident.name.to_string())
+                }
+                TSModuleDeclarationName::StringLiteral(s) => {
+                  Some(s.value.to_string())
                 }
               },
-              SymbolNodeRef::Var(_, _, ident) => Some(ident.sym.to_string()),
+              SymbolNodeRef::Var(_, _, ident) => Some(ident.name.to_string()),
               SymbolNodeRef::ExportDefaultDecl(_) => {
                 Some("default".to_string())
               }
@@ -955,21 +980,18 @@ impl<'a> DocParser<'a> {
   fn get_doc_for_export_default_decl(
     &self,
     module_info: &EsModuleInfo,
-    export_default_decl: &ExportDefaultDecl,
+    export_default_decl: &ExportDefaultDeclaration,
   ) -> Option<Declaration> {
-    let js_doc = js_doc_for_range(module_info, &export_default_decl.range())?;
-    let location = get_location(module_info, export_default_decl.start());
-    let doc_node = match &export_default_decl.decl {
-      DefaultDecl::Class(class_expr) => {
-        let default_name = class_expr
-          .ident
+    let js_doc = js_doc_for_range(module_info, export_default_decl.span)?;
+    let location = get_location(module_info, export_default_decl.span.start);
+    let doc_node = match &export_default_decl.declaration {
+      ExportDefaultDeclarationKind::ClassDeclaration(class) => {
+        let default_name = class
+          .id
           .as_ref()
-          .map(|ident| ident.sym.to_string().into_boxed_str());
-        let (class_def, decorator_js_doc) = crate::class::class_to_class_def(
-          module_info,
-          &class_expr.class,
-          default_name,
-        );
+          .map(|ident| ident.name.to_string().into_boxed_str());
+        let (class_def, decorator_js_doc) =
+          crate::class::class_to_class_def(module_info, class, default_name);
         let js_doc = if js_doc.is_empty() {
           decorator_js_doc
         } else {
@@ -977,12 +999,12 @@ impl<'a> DocParser<'a> {
         };
         Declaration::class(location, DeclarationKind::Export, js_doc, class_def)
       }
-      DefaultDecl::Fn(fn_expr) => {
+      ExportDefaultDeclarationKind::FunctionDeclaration(function) => {
         let default_name =
-          fn_expr.ident.as_ref().map(|ident| ident.sym.to_string());
+          function.id.as_ref().map(|ident| ident.name.to_string());
         let function_def = crate::function::function_to_function_def(
           module_info,
-          &fn_expr.function,
+          function,
           default_name,
         );
         Declaration::function(
@@ -992,8 +1014,8 @@ impl<'a> DocParser<'a> {
           function_def,
         )
       }
-      DefaultDecl::TsInterfaceDecl(interface_decl) => {
-        let default_name = interface_decl.id.sym.to_string();
+      ExportDefaultDeclarationKind::TSInterfaceDeclaration(interface_decl) => {
+        let default_name = interface_decl.id.name.to_string();
         let interface_def = crate::interface::get_doc_for_ts_interface_decl(
           module_info,
           interface_decl,
@@ -1006,6 +1028,14 @@ impl<'a> DocParser<'a> {
           interface_def,
         )
       }
+      _ => {
+        return self.get_decl_for_export_default_expr(
+          module_info,
+          &export_default_decl.declaration,
+          js_doc,
+          location,
+        );
+      }
     };
 
     Some(doc_node)
@@ -1014,11 +1044,13 @@ impl<'a> DocParser<'a> {
   fn get_decl_for_export_default_expr(
     &self,
     module_info: &EsModuleInfo,
-    export_expr: &ExportDefaultExpr,
+    export_expr: &ExportDefaultDeclarationKind,
+    js_doc: JsDoc,
+    location: Location,
   ) -> Option<Declaration> {
-    let js_doc = js_doc_for_range(module_info, &export_expr.range())?;
-    let location = get_location(module_info, export_expr.start());
-    if let deno_ast::swc::ast::Expr::Arrow(arrow_expr) = &*export_expr.expr {
+    if let ExportDefaultDeclarationKind::ArrowFunctionExpression(arrow_expr) =
+      export_expr
+    {
       let function_def =
         crate::function::arrow_to_function_def(module_info, arrow_expr);
       Some(Declaration::function(
@@ -1036,7 +1068,7 @@ impl<'a> DocParser<'a> {
           kind: VarDeclKind::Var,
           ts_type: super::ts_type::infer_ts_type_from_expr(
             module_info,
-            export_expr.expr.as_ref(),
+            export_expr.as_expression()?,
             true,
           ),
         },
@@ -1052,7 +1084,7 @@ impl<'a> DocParser<'a> {
     target_range: &SourceRange,
   ) -> Option<Declaration> {
     if let Some(js_doc) =
-      js_doc_for_range(reference_module_info, &reference_range.range())
+      js_doc_for_range(reference_module_info, reference_range.range())
     {
       let location =
         get_location(reference_module_info, reference_range.start());
@@ -1371,7 +1403,7 @@ impl<'a> DocParser<'a> {
   ) -> Option<Declaration> {
     match node {
       SymbolNodeRef::ClassDecl(n) => {
-        self.get_doc_for_class_decl(module_info, n, &n.class.range())
+        self.get_doc_for_class_decl(module_info, n, n.span)
       }
       SymbolNodeRef::ExpandoProperty(n) => {
         self.get_doc_for_expando_property(module_info, n)
@@ -1380,22 +1412,30 @@ impl<'a> DocParser<'a> {
         self.get_doc_for_export_default_decl(module_info, n)
       }
       SymbolNodeRef::ExportDefaultExpr(n) => {
-        self.get_decl_for_export_default_expr(module_info, n)
+        let (js_doc, location) = self
+          .export_default_expr_context(module_info, n)
+          .unwrap_or_else(|| {
+            (
+              js_doc_for_range(module_info, n.span()).unwrap_or_default(),
+              get_location(module_info, n.span().start),
+            )
+          });
+        self.get_decl_for_export_default_expr(module_info, n, js_doc, location)
       }
       SymbolNodeRef::FnDecl(n) => {
-        self.get_decl_for_fn_decl(module_info, n, &n.function.range())
+        self.get_decl_for_fn_decl(module_info, n, n.span)
       }
       SymbolNodeRef::TsEnum(n) => {
-        self.get_decl_for_enum(module_info, n, &n.range())
+        self.get_decl_for_enum(module_info, n, n.range())
       }
       SymbolNodeRef::TsInterface(n) => {
-        self.get_decl_for_interface_decl(module_info, n, &n.range())
+        self.get_decl_for_interface_decl(module_info, n, n.range())
       }
       SymbolNodeRef::TsNamespace(n) => {
-        self.get_decl_for_ts_namespace(module_info, symbol, n, &n.range())
+        self.get_decl_for_ts_namespace(module_info, symbol, n, n.range())
       }
       SymbolNodeRef::TsTypeAlias(n) => {
-        self.get_decl_for_type_alias(module_info, n, &n.range())
+        self.get_decl_for_type_alias(module_info, n, n.range())
       }
       SymbolNodeRef::Var(parent_decl, n, ident) => self
         .get_doc_for_var_declarator_ident(
@@ -1403,7 +1443,7 @@ impl<'a> DocParser<'a> {
           parent_decl,
           n,
           ident,
-          &parent_decl.range(),
+          parent_decl.range(),
         ),
       SymbolNodeRef::UsingVar(_, _, _) => {
         // makes no sense for using declarations to be in the public API
@@ -1411,25 +1451,25 @@ impl<'a> DocParser<'a> {
       }
       SymbolNodeRef::ExportDecl(export_decl, inner) => match inner {
         ExportDeclRef::Class(n) => {
-          self.get_doc_for_class_decl(module_info, n, &export_decl.range())
+          self.get_doc_for_class_decl(module_info, n, export_decl.range())
         }
         ExportDeclRef::Fn(n) => {
-          self.get_decl_for_fn_decl(module_info, n, &export_decl.range())
+          self.get_decl_for_fn_decl(module_info, n, export_decl.range())
         }
         ExportDeclRef::TsEnum(n) => {
-          self.get_decl_for_enum(module_info, n, &export_decl.range())
+          self.get_decl_for_enum(module_info, n, export_decl.range())
         }
         ExportDeclRef::TsModule(n) => self.get_decl_for_ts_namespace(
           module_info,
           symbol,
           n,
-          &export_decl.range(),
+          export_decl.range(),
         ),
         ExportDeclRef::TsInterface(n) => {
-          self.get_decl_for_interface_decl(module_info, n, &export_decl.range())
+          self.get_decl_for_interface_decl(module_info, n, export_decl.range())
         }
         ExportDeclRef::TsTypeAlias(n) => {
-          self.get_decl_for_type_alias(module_info, n, &export_decl.range())
+          self.get_decl_for_type_alias(module_info, n, export_decl.range())
         }
         ExportDeclRef::Var(var_decl, var_declarator, ident) => self
           .get_doc_for_var_declarator_ident(
@@ -1437,8 +1477,9 @@ impl<'a> DocParser<'a> {
             var_decl,
             var_declarator,
             ident,
-            &export_decl.range(),
+            export_decl.range(),
           ),
+        ExportDeclRef::TsImportEquals(_) => None,
       },
       SymbolNodeRef::Module(_)
       | SymbolNodeRef::AutoAccessor(_)
@@ -1462,7 +1503,9 @@ impl<'a> DocParser<'a> {
   fn get_declare_for_symbol_node(&self, node: SymbolNodeRef) -> bool {
     match node {
       SymbolNodeRef::ClassDecl(n) => n.declare,
-      SymbolNodeRef::ExportDecl(n, _) => self.get_declare_for_ast_decl(&n.decl),
+      SymbolNodeRef::ExportDecl(n, _) => {
+        self.get_declare_for_export_decl_declaration(n)
+      }
       SymbolNodeRef::ExportDefaultDecl(_) => false,
       SymbolNodeRef::ExportDefaultExpr(_) => false,
       SymbolNodeRef::FnDecl(n) => n.declare,
@@ -1492,16 +1535,47 @@ impl<'a> DocParser<'a> {
     }
   }
 
-  fn get_declare_for_ast_decl(&self, decl: &Decl) -> bool {
-    match decl {
-      Decl::Class(class_decl) => class_decl.declare,
-      Decl::Fn(fn_decl) => fn_decl.declare,
-      Decl::TsEnum(ts_enum_decl) => ts_enum_decl.declare,
-      Decl::TsInterface(ts_interface_decl) => ts_interface_decl.declare,
-      Decl::TsModule(ts_module_decl) => ts_module_decl.declare,
-      Decl::TsTypeAlias(ts_type_alias_decl) => ts_type_alias_decl.declare,
-      Decl::Var(var_decl) => var_decl.declare,
-      Decl::Using(_) => false,
+  fn export_default_expr_context(
+    &self,
+    module_info: &EsModuleInfo,
+    export_expr: &ExportDefaultDeclarationKind,
+  ) -> Option<(JsDoc, Location)> {
+    let expr_span = export_expr.span();
+    for stmt in module_info.statements() {
+      let Statement::ExportDefaultDeclaration(export_default) = stmt else {
+        continue;
+      };
+      if export_default.declaration.span() == expr_span {
+        return Some((
+          js_doc_for_range(module_info, export_default.span)?,
+          get_location(module_info, export_default.span.start),
+        ));
+      }
+    }
+    None
+  }
+
+  fn get_declare_for_export_decl_declaration(
+    &self,
+    export_decl: &ExportNamedDeclaration,
+  ) -> bool {
+    match &export_decl.declaration {
+      Some(OxcDeclaration::ClassDeclaration(class_decl)) => class_decl.declare,
+      Some(OxcDeclaration::FunctionDeclaration(fn_decl)) => fn_decl.declare,
+      Some(OxcDeclaration::TSEnumDeclaration(ts_enum_decl)) => {
+        ts_enum_decl.declare
+      }
+      Some(OxcDeclaration::TSInterfaceDeclaration(ts_interface_decl)) => {
+        ts_interface_decl.declare
+      }
+      Some(OxcDeclaration::TSModuleDeclaration(ts_module_decl)) => {
+        ts_module_decl.declare
+      }
+      Some(OxcDeclaration::TSTypeAliasDeclaration(ts_type_alias_decl)) => {
+        ts_type_alias_decl.declare
+      }
+      Some(OxcDeclaration::VariableDeclaration(var_decl)) => var_decl.declare,
+      _ => false,
     }
   }
 
@@ -1524,21 +1598,18 @@ impl<'a> DocParser<'a> {
 
 fn decl_from_expr(
   module_info: &EsModuleInfo,
-  expr: &deno_ast::swc::ast::Expr,
+  expr: &Expression,
   location: Location,
   js_doc: JsDoc,
 ) -> Declaration {
   match expr {
-    deno_ast::swc::ast::Expr::Class(class_expr) => {
+    Expression::ClassExpression(class_expr) => {
       let def_name = class_expr
-        .ident
+        .id
         .as_ref()
-        .map(|id| id.sym.to_string().into_boxed_str());
-      let (class_def, decorator_js_doc) = crate::class::class_to_class_def(
-        module_info,
-        &class_expr.class,
-        def_name,
-      );
+        .map(|id| id.name.to_string().into_boxed_str());
+      let (class_def, decorator_js_doc) =
+        crate::class::class_to_class_def(module_info, class_expr, def_name);
       let js_doc = if js_doc.is_empty() {
         decorator_js_doc
       } else {
@@ -1546,11 +1617,11 @@ fn decl_from_expr(
       };
       Declaration::class(location, DeclarationKind::Declare, js_doc, class_def)
     }
-    deno_ast::swc::ast::Expr::Fn(fn_expr) => {
-      let def_name = fn_expr.ident.as_ref().map(|id| id.sym.to_string());
+    Expression::FunctionExpression(fn_expr) => {
+      let def_name = fn_expr.id.as_ref().map(|id| id.name.to_string());
       let function_def = crate::function::function_to_function_def(
         module_info,
-        &fn_expr.function,
+        fn_expr,
         def_name,
       );
       Declaration::function(
@@ -1560,7 +1631,7 @@ fn decl_from_expr(
         function_def,
       )
     }
-    deno_ast::swc::ast::Expr::Arrow(arrow_expr) => {
+    Expression::ArrowFunctionExpression(arrow_expr) => {
       let function_def =
         crate::function::arrow_to_function_def(module_info, arrow_expr);
       Declaration::function(
@@ -1656,12 +1727,10 @@ fn parse_json_module_type(value: &serde_json::Value) -> TsTypeDef {
 }
 
 fn module_has_import(module_info: &EsModuleInfo) -> bool {
-  module_info.source().program_ref().body().any(|m| {
+  module_info.statements().iter().any(|m| {
     matches!(
       m,
-      ModuleItemRef::ModuleDecl(
-        ModuleDecl::Import(_) | ModuleDecl::TsImportEquals(_)
-      )
+      Statement::ImportDeclaration(_) | Statement::TSImportEqualsDeclaration(_)
     )
   })
 }

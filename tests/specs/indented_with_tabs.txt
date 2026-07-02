@@ -70,7 +70,7 @@ namespace Tabs
                     "location": {
                       "filename": "file:///mod.ts",
                       "line": 15,
-                      "col": 2,
+                      "col": 1,
                       "byteIndex": 126
                     },
                     "declarationKind": "export",
@@ -88,7 +88,7 @@ namespace Tabs
                           "location": {
                             "filename": "file:///mod.ts",
                             "line": 23,
-                            "col": 4,
+                            "col": 2,
                             "byteIndex": 212
                           },
                           "tsType": {

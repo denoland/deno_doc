@@ -8,22 +8,24 @@ use crate::display::display_optional;
 use crate::display::display_readonly;
 use crate::interface::expr_to_name;
 use crate::node::Symbol;
-use crate::params::param_to_param_def;
-use crate::params::pat_to_param_def;
+use crate::params::ParamPatternDef;
+use crate::params::formal_params_to_param_defs;
 use crate::params::prop_name_to_string;
-use crate::params::ts_fn_param_to_param_def;
 use crate::ts_type_param::TsTypeParamDef;
 use crate::ts_type_param::maybe_type_param_decl_to_type_param_defs;
 use crate::util::swc::get_location;
 use crate::util::swc::is_false;
 use crate::util::swc::js_doc_for_range;
+use crate::util::types::MethodKind;
+use crate::util::types::VarDeclKind;
 
 use crate::function::FunctionDef;
 use crate::js_doc::JsDoc;
 use crate::node::DeclarationKind;
 use crate::variable::VariableDef;
-use deno_ast::SourceRangedForSpanned;
-use deno_ast::swc::ast::*;
+use deno_ast::oxc::ast::ast::*;
+use deno_ast::oxc::span::GetSpan;
+use deno_ast::oxc::syntax::operator::BinaryOperator;
 use deno_graph::symbols::EsModuleInfo;
 use deno_terminal::colors;
 use serde::Deserialize;
@@ -32,26 +34,107 @@ use std::fmt::Display;
 use std::fmt::Formatter;
 use std::fmt::Result as FmtResult;
 
+/// Mirrors the old SWC `TruePlusMinus` enum with matching serde.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum TruePlusMinus {
+  True,
+  Plus,
+  Minus,
+}
+
+impl Serialize for TruePlusMinus {
+  fn serialize<S: serde::Serializer>(
+    &self,
+    serializer: S,
+  ) -> Result<S::Ok, S::Error> {
+    match self {
+      TruePlusMinus::True => serializer.serialize_bool(true),
+      TruePlusMinus::Plus => serializer.serialize_str("plus"),
+      TruePlusMinus::Minus => serializer.serialize_str("minus"),
+    }
+  }
+}
+
+impl<'de> Deserialize<'de> for TruePlusMinus {
+  fn deserialize<D: serde::Deserializer<'de>>(
+    deserializer: D,
+  ) -> Result<Self, D::Error> {
+    use serde::de;
+    struct TruePlusMinusVisitor;
+    impl<'de> de::Visitor<'de> for TruePlusMinusVisitor {
+      type Value = TruePlusMinus;
+
+      fn expecting(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        f.write_str("true, \"plus\", or \"minus\"")
+      }
+
+      fn visit_bool<E: de::Error>(self, v: bool) -> Result<TruePlusMinus, E> {
+        if v {
+          Ok(TruePlusMinus::True)
+        } else {
+          Err(E::custom("expected true, got false"))
+        }
+      }
+
+      fn visit_str<E: de::Error>(self, v: &str) -> Result<TruePlusMinus, E> {
+        match v {
+          "plus" => Ok(TruePlusMinus::Plus),
+          "minus" => Ok(TruePlusMinus::Minus),
+          _ => Err(E::custom(format!("unknown value: {}", v))),
+        }
+      }
+    }
+    deserializer.deserialize_any(TruePlusMinusVisitor)
+  }
+}
+
+impl From<TSMappedTypeModifierOperator> for TruePlusMinus {
+  fn from(op: TSMappedTypeModifierOperator) -> Self {
+    match op {
+      TSMappedTypeModifierOperator::True => TruePlusMinus::True,
+      TSMappedTypeModifierOperator::Plus => TruePlusMinus::Plus,
+      TSMappedTypeModifierOperator::Minus => TruePlusMinus::Minus,
+    }
+  }
+}
+
 impl TsTypeDef {
-  fn ts_lit_type(module_info: &EsModuleInfo, other: &TsLitType) -> Self {
-    match &other.lit {
-      TsLit::Number(num) => TsTypeDef::number_literal(num),
-      TsLit::Str(str_) => TsTypeDef::string_literal(str_),
-      TsLit::Tpl(tpl) => TsTypeDef::tpl_literal(
+  fn ts_lit_type(module_info: &EsModuleInfo, other: &TSLiteralType) -> Self {
+    match &other.literal {
+      TSLiteral::NumericLiteral(num) => TsTypeDef::number_literal(num),
+      TSLiteral::StringLiteral(str_) => {
+        TsTypeDef::string_value(str_.value.to_string())
+      }
+      TSLiteral::TemplateLiteral(tpl) => TsTypeDef::tpl_literal(
         tpl
-          .types
+          .expressions
           .iter()
-          .map(|types| TsTypeDef::new(module_info, types))
+          .filter_map(|expr| infer_ts_type_from_expr(module_info, expr, true))
           .collect::<Vec<_>>(),
         &tpl.quasis,
       ),
-      TsLit::Bool(bool_) => TsTypeDef::bool_literal(bool_),
-      TsLit::BigInt(bigint_) => TsTypeDef::bigint_literal(bigint_),
+      TSLiteral::BooleanLiteral(bool_) => TsTypeDef::bool_literal(bool_),
+      TSLiteral::BigIntLiteral(bigint_) => TsTypeDef::bigint_literal(bigint_),
+      TSLiteral::UnaryExpression(_) => TsTypeDef::keyword("number"),
     }
   }
 
-  fn ts_array_type(module_info: &EsModuleInfo, other: &TsArrayType) -> Self {
-    let ts_type_def = TsTypeDef::new(module_info, &other.elem_type);
+  fn ts_template_literal_type(
+    module_info: &EsModuleInfo,
+    other: &TSTemplateLiteralType,
+  ) -> Self {
+    TsTypeDef::tpl_literal(
+      other
+        .types
+        .iter()
+        .map(|t| TsTypeDef::new(module_info, t))
+        .collect::<Vec<_>>(),
+      &other.quasis,
+    )
+  }
+
+  fn ts_array_type(module_info: &EsModuleInfo, other: &TSArrayType) -> Self {
+    let ts_type_def = TsTypeDef::new(module_info, &other.element_type);
 
     TsTypeDef {
       kind: TsTypeDefKind::Array(Box::new(ts_type_def)),
@@ -59,11 +142,11 @@ impl TsTypeDef {
     }
   }
 
-  fn ts_tuple_type(module_info: &EsModuleInfo, other: &TsTupleType) -> Self {
+  fn ts_tuple_type(module_info: &EsModuleInfo, other: &TSTupleType) -> Self {
     let type_defs = other
-      .elem_types
+      .element_types
       .iter()
-      .map(|type_box| TsTypeDef::new(module_info, &type_box.ty))
+      .map(|elem| ts_tuple_element_to_ts_type_def(module_info, elem))
       .collect::<Vec<_>>();
 
     TsTypeDef {
@@ -72,69 +155,47 @@ impl TsTypeDef {
     }
   }
 
-  fn ts_union_or_intersection_type(
-    module_info: &EsModuleInfo,
-    other: &TsUnionOrIntersectionType,
-  ) -> Self {
-    use deno_ast::swc::ast::TsUnionOrIntersectionType::*;
+  fn ts_union_type(module_info: &EsModuleInfo, other: &TSUnionType) -> Self {
+    let types_union = other
+      .types
+      .iter()
+      .map(|ts_type| TsTypeDef::new(module_info, ts_type))
+      .collect::<Vec<_>>();
 
-    match other {
-      TsUnionType(union_type) => {
-        let types_union = union_type
-          .types
-          .iter()
-          .map(|ts_type| TsTypeDef::new(module_info, ts_type))
-          .collect::<Vec<_>>();
-
-        TsTypeDef {
-          kind: TsTypeDefKind::Union(types_union),
-          repr: String::new(),
-        }
-      }
-      TsIntersectionType(intersection_type) => {
-        let types_intersection = intersection_type
-          .types
-          .iter()
-          .map(|ts_type| TsTypeDef::new(module_info, ts_type))
-          .collect::<Vec<_>>();
-
-        TsTypeDef {
-          kind: TsTypeDefKind::Intersection(types_intersection),
-          repr: String::new(),
-        }
-      }
+    TsTypeDef {
+      kind: TsTypeDefKind::Union(types_union),
+      repr: String::new(),
     }
   }
 
-  fn ts_keyword_type(other: &TsKeywordType) -> Self {
-    use deno_ast::swc::ast::TsKeywordTypeKind::*;
+  fn ts_intersection_type(
+    module_info: &EsModuleInfo,
+    other: &TSIntersectionType,
+  ) -> Self {
+    let types_intersection = other
+      .types
+      .iter()
+      .map(|ts_type| TsTypeDef::new(module_info, ts_type))
+      .collect::<Vec<_>>();
 
-    let keyword_str = match other.kind {
-      TsAnyKeyword => "any",
-      TsUnknownKeyword => "unknown",
-      TsNumberKeyword => "number",
-      TsObjectKeyword => "object",
-      TsBooleanKeyword => "boolean",
-      TsBigIntKeyword => "bigint",
-      TsStringKeyword => "string",
-      TsSymbolKeyword => "symbol",
-      TsVoidKeyword => "void",
-      TsUndefinedKeyword => "undefined",
-      TsNullKeyword => "null",
-      TsNeverKeyword => "never",
-      TsIntrinsicKeyword => "intrinsic",
-    };
-
-    TsTypeDef::keyword(keyword_str)
+    TsTypeDef {
+      kind: TsTypeDefKind::Intersection(types_intersection),
+      repr: String::new(),
+    }
   }
 
   fn ts_type_operator(
     module_info: &EsModuleInfo,
-    other: &TsTypeOperator,
+    other: &TSTypeOperator,
   ) -> Self {
-    let ts_type = TsTypeDef::new(module_info, &other.type_ann);
+    let ts_type = TsTypeDef::new(module_info, &other.type_annotation);
+    let operator = match other.operator {
+      TSTypeOperatorOperator::Keyof => "keyof",
+      TSTypeOperatorOperator::Unique => "unique",
+      TSTypeOperatorOperator::Readonly => "readonly",
+    };
     let type_operator_def = TsTypeOperatorDef {
-      operator: other.op.as_str().to_string(),
+      operator: operator.to_string(),
       ts_type,
     };
 
@@ -146,9 +207,9 @@ impl TsTypeDef {
 
   fn ts_parenthesized_type(
     module_info: &EsModuleInfo,
-    other: &TsParenthesizedType,
+    other: &TSParenthesizedType,
   ) -> Self {
-    let ts_type = TsTypeDef::new(module_info, &other.type_ann);
+    let ts_type = TsTypeDef::new(module_info, &other.type_annotation);
 
     TsTypeDef {
       kind: TsTypeDefKind::Parenthesized(Box::new(ts_type)),
@@ -156,8 +217,8 @@ impl TsTypeDef {
     }
   }
 
-  fn ts_rest_type(module_info: &EsModuleInfo, other: &TsRestType) -> Self {
-    let ts_type = TsTypeDef::new(module_info, &other.type_ann);
+  fn ts_rest_type(module_info: &EsModuleInfo, other: &TSRestType) -> Self {
+    let ts_type = TsTypeDef::new(module_info, &other.type_annotation);
 
     TsTypeDef {
       kind: TsTypeDefKind::Rest(Box::new(ts_type)),
@@ -167,9 +228,9 @@ impl TsTypeDef {
 
   fn ts_optional_type(
     module_info: &EsModuleInfo,
-    other: &TsOptionalType,
+    other: &TSOptionalType,
   ) -> Self {
-    let ts_type = TsTypeDef::new(module_info, &other.type_ann);
+    let ts_type = TsTypeDef::new(module_info, &other.type_annotation);
 
     TsTypeDef {
       kind: TsTypeDefKind::Optional(Box::new(ts_type)),
@@ -177,7 +238,7 @@ impl TsTypeDef {
     }
   }
 
-  fn ts_this_type(_other: &TsThisType) -> Self {
+  fn ts_this_type(_other: &TSThisType) -> Self {
     TsTypeDef {
       repr: "this".to_string(),
       kind: TsTypeDefKind::This,
@@ -186,15 +247,15 @@ impl TsTypeDef {
 
   fn ts_type_predicate(
     module_info: &EsModuleInfo,
-    other: &TsTypePredicate,
+    other: &TSTypePredicate,
   ) -> Self {
     let pred = TsTypePredicateDef {
       asserts: other.asserts,
-      param: (&other.param_name).into(),
+      param: ts_type_predicate_name_to_this_or_ident(&other.parameter_name),
       r#type: other
-        .type_ann
+        .type_annotation
         .as_ref()
-        .map(|t| Box::new(TsTypeDef::new(module_info, &t.type_ann))),
+        .map(|t| Box::new(TsTypeDef::new(module_info, &t.type_annotation))),
     };
     let mut repr_parts = Vec::new();
     if pred.asserts {
@@ -214,15 +275,8 @@ impl TsTypeDef {
     }
   }
 
-  fn ts_type_query(other: &TsTypeQuery) -> Self {
-    use deno_ast::swc::ast::TsTypeQueryExpr::*;
-
-    let type_name = match &other.expr_name {
-      TsEntityName(entity_name) => ts_entity_name_to_name(entity_name),
-      Import(import_type) => {
-        import_type.arg.value.to_string_lossy().into_owned()
-      }
-    };
+  fn ts_type_query(other: &TSTypeQuery) -> Self {
+    let type_name = ts_type_query_expr_name_to_name(&other.expr_name);
 
     TsTypeDef {
       repr: type_name.to_string(),
@@ -230,10 +284,10 @@ impl TsTypeDef {
     }
   }
 
-  fn ts_type_ref(module_info: &EsModuleInfo, other: &TsTypeRef) -> Self {
-    let type_name = ts_entity_name_to_name(&other.type_name);
+  fn ts_type_ref(module_info: &EsModuleInfo, other: &TSTypeReference) -> Self {
+    let type_name = ts_type_name_to_name(&other.type_name);
 
-    let type_params = if let Some(type_params_inst) = &other.type_params {
+    let type_params = if let Some(type_params_inst) = &other.type_arguments {
       let ts_type_defs = type_params_inst
         .params
         .iter()
@@ -245,8 +299,8 @@ impl TsTypeDef {
       None
     };
 
-    let root_ident = ts_entity_name_root_ident(&other.type_name);
-    let resolution = resolve_type_ref(module_info, root_ident);
+    let resolution = ts_type_name_root_ident(&other.type_name)
+      .and_then(|ident| resolve_type_ref(module_info, ident));
 
     TsTypeDef {
       repr: type_name.clone(),
@@ -260,11 +314,11 @@ impl TsTypeDef {
 
   pub fn ts_expr_with_type_args(
     module_info: &EsModuleInfo,
-    other: &TsExprWithTypeArgs,
+    other: &TSClassImplements,
   ) -> Self {
-    let type_name = expr_to_name(&other.expr);
+    let type_name = ts_type_name_to_name(&other.expression);
 
-    let type_params = if let Some(type_params_inst) = &other.type_args {
+    let type_params = if let Some(type_params_inst) = &other.type_arguments {
       let ts_type_defs = type_params_inst
         .params
         .iter()
@@ -276,7 +330,45 @@ impl TsTypeDef {
       None
     };
 
-    let resolution = expr_root_ident(&other.expr)
+    let resolution = ts_type_name_root_ident(&other.expression)
+      .and_then(|i| resolve_type_ref(module_info, i));
+
+    TsTypeDef {
+      repr: type_name.clone(),
+      kind: TsTypeDefKind::TypeRef(TsTypeRefDef {
+        type_params,
+        type_name,
+        resolution,
+      }),
+    }
+  }
+
+  pub fn ts_class_implements(
+    module_info: &EsModuleInfo,
+    other: &TSClassImplements,
+  ) -> Self {
+    Self::ts_expr_with_type_args(module_info, other)
+  }
+
+  pub fn ts_interface_heritage(
+    module_info: &EsModuleInfo,
+    other: &TSInterfaceHeritage,
+  ) -> Self {
+    let type_name = expr_to_name(&other.expression);
+
+    let type_params = if let Some(type_params_inst) = &other.type_arguments {
+      let ts_type_defs = type_params_inst
+        .params
+        .iter()
+        .map(|ts_type| TsTypeDef::new(module_info, ts_type))
+        .collect::<Box<[_]>>();
+
+      Some(ts_type_defs)
+    } else {
+      None
+    };
+
+    let resolution = expr_root_ident(&other.expression)
       .and_then(|i| resolve_type_ref(module_info, i));
 
     TsTypeDef {
@@ -291,11 +383,11 @@ impl TsTypeDef {
 
   fn ts_indexed_access_type(
     module_info: &EsModuleInfo,
-    other: &TsIndexedAccessType,
+    other: &TSIndexedAccessType,
   ) -> Self {
     let indexed_access_def = TsIndexedAccessDef {
-      readonly: other.readonly,
-      obj_type: Box::new(TsTypeDef::new(module_info, &other.obj_type)),
+      readonly: false,
+      obj_type: Box::new(TsTypeDef::new(module_info, &other.object_type)),
       index_type: Box::new(TsTypeDef::new(module_info, &other.index_type)),
     };
 
@@ -305,17 +397,21 @@ impl TsTypeDef {
     }
   }
 
-  fn ts_mapped_type(module_info: &EsModuleInfo, other: &TsMappedType) -> Self {
+  fn ts_mapped_type(module_info: &EsModuleInfo, other: &TSMappedType) -> Self {
     let mapped_type_def = TsMappedTypeDef {
-      readonly: other.readonly,
-      type_param: Box::new(TsTypeParamDef::new(module_info, &other.type_param)),
+      readonly: other.readonly.map(TruePlusMinus::from),
+      type_param: Box::new(TsTypeParamDef {
+        name: other.key.name.to_string(),
+        constraint: Some(TsTypeDef::new(module_info, &other.constraint)),
+        default: None,
+      }),
       name_type: other
         .name_type
         .as_ref()
         .map(|nt| Box::new(TsTypeDef::new(module_info, nt))),
-      optional: other.optional,
+      optional: other.optional.map(TruePlusMinus::from),
       ts_type: other
-        .type_ann
+        .type_annotation
         .as_ref()
         .map(|a| Box::new(TsTypeDef::new(module_info, a))),
     };
@@ -326,7 +422,7 @@ impl TsTypeDef {
     }
   }
 
-  fn ts_type_lit(module_info: &EsModuleInfo, other: &TsTypeLit) -> Self {
+  fn ts_type_lit(module_info: &EsModuleInfo, other: &TSTypeLiteral) -> Self {
     let mut constructors = vec![];
     let mut methods = vec![];
     let mut properties = vec![];
@@ -334,33 +430,32 @@ impl TsTypeDef {
     let mut index_signatures = vec![];
 
     for type_element in &other.members {
-      use deno_ast::swc::ast::TsTypeElement::*;
-
-      match &type_element {
-        TsMethodSignature(ts_method_sig) => {
-          let js_doc = js_doc_for_range(module_info, &ts_method_sig.range())
+      match type_element {
+        TSSignature::TSMethodSignature(ts_method_sig) => {
+          let js_doc = js_doc_for_range(module_info, ts_method_sig.span)
             .unwrap_or_default();
-          let params = ts_method_sig
-            .params
-            .iter()
-            .map(|param| ts_fn_param_to_param_def(module_info, param))
-            .collect::<Vec<_>>();
+          let params =
+            formal_params_to_param_defs(module_info, &ts_method_sig.params);
 
           let maybe_return_type = ts_method_sig
-            .type_ann
+            .return_type
             .as_ref()
-            .map(|rt| TsTypeDef::new(module_info, &rt.type_ann));
+            .map(|rt| TsTypeDef::new(module_info, &rt.type_annotation));
 
           let type_params = maybe_type_param_decl_to_type_param_defs(
             module_info,
-            ts_method_sig.type_params.as_deref(),
+            ts_method_sig.type_parameters.as_deref(),
           );
-          let name = expr_to_name(&ts_method_sig.key);
-          let location = get_location(module_info, ts_method_sig.start());
+          let name = ts_method_sig
+            .key
+            .static_name()
+            .map(|name| name.to_string())
+            .unwrap_or_else(|| "[UNSUPPORTED]".to_string());
+          let location = get_location(module_info, ts_method_sig.span.start);
           let method_def = MethodDef {
             name,
             js_doc,
-            kind: MethodKind::Method,
+            kind: MethodKind::from(ts_method_sig.kind),
             location,
             params,
             computed: ts_method_sig.computed,
@@ -370,64 +465,23 @@ impl TsTypeDef {
           };
           methods.push(method_def);
         }
-        TsGetterSignature(ts_getter_sig) => {
-          let js_doc = js_doc_for_range(module_info, &ts_getter_sig.range())
-            .unwrap_or_default();
-          let maybe_return_type = ts_getter_sig
-            .type_ann
-            .as_ref()
-            .map(|rt| TsTypeDef::new(module_info, &rt.type_ann));
-
-          let name = expr_to_name(&ts_getter_sig.key);
-          let location = get_location(module_info, ts_getter_sig.start());
-          let method_def = MethodDef {
-            name,
-            js_doc,
-            kind: MethodKind::Getter,
-            location,
-            params: vec![],
-            computed: ts_getter_sig.computed,
-            optional: false,
-            return_type: maybe_return_type,
-            type_params: Box::new([]),
-          };
-          methods.push(method_def);
-        }
-        TsSetterSignature(ts_setter_sig) => {
-          let js_doc = js_doc_for_range(module_info, &ts_setter_sig.range())
-            .unwrap_or_default();
-          let name = expr_to_name(&ts_setter_sig.key);
-
-          let params =
-            vec![ts_fn_param_to_param_def(module_info, &ts_setter_sig.param)];
-
-          let location = get_location(module_info, ts_setter_sig.start());
-          let method_def = MethodDef {
-            name,
-            js_doc,
-            kind: MethodKind::Setter,
-            location,
-            params,
-            computed: ts_setter_sig.computed,
-            optional: false,
-            return_type: None,
-            type_params: Box::new([]),
-          };
-          methods.push(method_def);
-        }
-        TsPropertySignature(ts_prop_sig) => {
-          let js_doc = js_doc_for_range(module_info, &ts_prop_sig.range())
-            .unwrap_or_default();
-          let name = expr_to_name(&ts_prop_sig.key);
+        TSSignature::TSPropertySignature(ts_prop_sig) => {
+          let js_doc =
+            js_doc_for_range(module_info, ts_prop_sig.span).unwrap_or_default();
+          let name = ts_prop_sig
+            .key
+            .static_name()
+            .map(|name| name.to_string())
+            .unwrap_or_else(|| "[UNSUPPORTED]".to_string());
 
           let ts_type = ts_prop_sig
-            .type_ann
+            .type_annotation
             .as_ref()
-            .map(|rt| TsTypeDef::new(module_info, &rt.type_ann));
+            .map(|rt| TsTypeDef::new(module_info, &rt.type_annotation));
 
           let type_params =
             maybe_type_param_decl_to_type_param_defs(module_info, None);
-          let location = get_location(module_info, ts_prop_sig.start());
+          let location = get_location(module_info, ts_prop_sig.span.start);
           let prop_def = PropertyDef {
             name,
             js_doc,
@@ -441,26 +495,23 @@ impl TsTypeDef {
           };
           properties.push(prop_def);
         }
-        TsCallSignatureDecl(ts_call_sig) => {
-          let js_doc = js_doc_for_range(module_info, &ts_call_sig.range())
-            .unwrap_or_default();
-          let params = ts_call_sig
-            .params
-            .iter()
-            .map(|param| ts_fn_param_to_param_def(module_info, param))
-            .collect();
+        TSSignature::TSCallSignatureDeclaration(ts_call_sig) => {
+          let js_doc =
+            js_doc_for_range(module_info, ts_call_sig.span).unwrap_or_default();
+          let params =
+            formal_params_to_param_defs(module_info, &ts_call_sig.params);
 
           let ts_type = ts_call_sig
-            .type_ann
+            .return_type
             .as_ref()
-            .map(|rt| TsTypeDef::new(module_info, &rt.type_ann));
+            .map(|rt| TsTypeDef::new(module_info, &rt.type_annotation));
 
           let type_params = maybe_type_param_decl_to_type_param_defs(
             module_info,
-            ts_call_sig.type_params.as_deref(),
+            ts_call_sig.type_parameters.as_deref(),
           );
 
-          let location = get_location(module_info, ts_call_sig.start());
+          let location = get_location(module_info, ts_call_sig.span.start);
           let call_sig_def = CallSignatureDef {
             js_doc,
             location,
@@ -470,21 +521,34 @@ impl TsTypeDef {
           };
           call_signatures.push(call_sig_def);
         }
-        TsIndexSignature(ts_index_sig) => {
-          let js_doc = js_doc_for_range(module_info, &ts_index_sig.range())
+        TSSignature::TSIndexSignature(ts_index_sig) => {
+          let js_doc = js_doc_for_range(module_info, ts_index_sig.span)
             .unwrap_or_default();
           let params = ts_index_sig
-            .params
+            .parameters
             .iter()
-            .map(|param| ts_fn_param_to_param_def(module_info, param))
+            .map(|param| {
+              let ts_type = Some(TsTypeDef::new(
+                module_info,
+                &param.type_annotation.type_annotation,
+              ));
+              ParamDef {
+                pattern: ParamPatternDef::Identifier {
+                  name: param.name.to_string(),
+                  optional: false,
+                },
+                decorators: Box::new([]),
+                ts_type,
+              }
+            })
             .collect();
 
-          let ts_type = ts_index_sig
-            .type_ann
-            .as_ref()
-            .map(|rt| TsTypeDef::new(module_info, &rt.type_ann));
+          let ts_type = Some(TsTypeDef::new(
+            module_info,
+            &ts_index_sig.type_annotation.type_annotation,
+          ));
 
-          let location = get_location(module_info, ts_index_sig.start());
+          let location = get_location(module_info, ts_index_sig.span.start);
           let index_sig_def = IndexSignatureDef {
             js_doc,
             location,
@@ -494,26 +558,23 @@ impl TsTypeDef {
           };
           index_signatures.push(index_sig_def);
         }
-        TsConstructSignatureDecl(ts_construct_sig) => {
-          let js_doc = js_doc_for_range(module_info, &ts_construct_sig.range())
+        TSSignature::TSConstructSignatureDeclaration(ts_construct_sig) => {
+          let js_doc = js_doc_for_range(module_info, ts_construct_sig.span)
             .unwrap_or_default();
-          let params = ts_construct_sig
-            .params
-            .iter()
-            .map(|param| ts_fn_param_to_param_def(module_info, param))
-            .collect();
+          let params =
+            formal_params_to_param_defs(module_info, &ts_construct_sig.params);
 
           let type_params = maybe_type_param_decl_to_type_param_defs(
             module_info,
-            ts_construct_sig.type_params.as_deref(),
+            ts_construct_sig.type_parameters.as_deref(),
           );
 
           let maybe_return_type = ts_construct_sig
-            .type_ann
+            .return_type
             .as_ref()
-            .map(|rt| TsTypeDef::new(module_info, &rt.type_ann));
+            .map(|rt| TsTypeDef::new(module_info, &rt.type_annotation));
 
-          let location = get_location(module_info, ts_construct_sig.start());
+          let location = get_location(module_info, ts_construct_sig.span.start);
           let construct_sig_def = ConstructorDef {
             js_doc,
             location,
@@ -543,7 +604,7 @@ impl TsTypeDef {
 
   fn ts_conditional_type(
     module_info: &EsModuleInfo,
-    other: &TsConditionalType,
+    other: &TSConditionalType,
   ) -> Self {
     let conditional_type_def = TsConditionalDef {
       check_type: Box::new(TsTypeDef::new(module_info, &other.check_type)),
@@ -558,9 +619,12 @@ impl TsTypeDef {
     }
   }
 
-  fn ts_infer_type(module_info: &EsModuleInfo, other: &TsInferType) -> Self {
+  fn ts_infer_type(module_info: &EsModuleInfo, other: &TSInferType) -> Self {
     let infer = TsInferDef {
-      type_param: Box::new(TsTypeParamDef::new(module_info, &other.type_param)),
+      type_param: Box::new(TsTypeParamDef::new(
+        module_info,
+        &other.type_parameter,
+      )),
     };
 
     TsTypeDef {
@@ -569,8 +633,8 @@ impl TsTypeDef {
     }
   }
 
-  fn ts_import_type(module_info: &EsModuleInfo, other: &TsImportType) -> Self {
-    let type_params = if let Some(type_params_inst) = &other.type_args {
+  fn ts_import_type(module_info: &EsModuleInfo, other: &TSImportType) -> Self {
+    let type_params = if let Some(type_params_inst) = &other.type_arguments {
       let ts_type_defs = type_params_inst
         .params
         .iter()
@@ -583,8 +647,11 @@ impl TsTypeDef {
     };
 
     let import_type_def = TsImportTypeDef {
-      specifier: other.arg.value.to_string_lossy().into_owned(),
-      qualifier: other.qualifier.as_ref().map(ts_entity_name_to_name),
+      specifier: other.source.value.to_string(),
+      qualifier: other
+        .qualifier
+        .as_ref()
+        .map(ts_import_type_qualifier_to_name),
       type_params,
     };
 
@@ -594,50 +661,25 @@ impl TsTypeDef {
     }
   }
 
-  fn ts_fn_or_constructor_type(
+  fn ts_fn_type(
     module_info: &EsModuleInfo,
-    other: &TsFnOrConstructorType,
+    ts_fn_type: &TSFunctionType,
   ) -> Self {
-    use deno_ast::swc::ast::TsFnOrConstructorType::*;
+    let params = formal_params_to_param_defs(module_info, &ts_fn_type.params);
 
-    let fn_def = match other {
-      TsFnType(ts_fn_type) => {
-        let params = ts_fn_type
-          .params
-          .iter()
-          .map(|param| ts_fn_param_to_param_def(module_info, param))
-          .collect();
+    let type_params = maybe_type_param_decl_to_type_param_defs(
+      module_info,
+      ts_fn_type.type_parameters.as_deref(),
+    );
 
-        let type_params = maybe_type_param_decl_to_type_param_defs(
-          module_info,
-          ts_fn_type.type_params.as_deref(),
-        );
-
-        TsFnOrConstructorDef {
-          constructor: false,
-          ts_type: TsTypeDef::new(module_info, &ts_fn_type.type_ann.type_ann),
-          params,
-          type_params,
-        }
-      }
-      TsConstructorType(ctor_type) => {
-        let params = ctor_type
-          .params
-          .iter()
-          .map(|param| ts_fn_param_to_param_def(module_info, param))
-          .collect();
-
-        let type_params = maybe_type_param_decl_to_type_param_defs(
-          module_info,
-          ctor_type.type_params.as_deref(),
-        );
-        TsFnOrConstructorDef {
-          constructor: true,
-          ts_type: TsTypeDef::new(module_info, &ctor_type.type_ann.type_ann),
-          params,
-          type_params,
-        }
-      }
+    let fn_def = TsFnOrConstructorDef {
+      constructor: false,
+      ts_type: TsTypeDef::new(
+        module_info,
+        &ts_fn_type.return_type.type_annotation,
+      ),
+      params,
+      type_params,
     };
 
     TsTypeDef {
@@ -646,97 +688,230 @@ impl TsTypeDef {
     }
   }
 
-  pub fn new(module_info: &EsModuleInfo, other: &TsType) -> Self {
-    use deno_ast::swc::ast::TsType::*;
+  fn ts_constructor_type(
+    module_info: &EsModuleInfo,
+    ctor_type: &TSConstructorType,
+  ) -> Self {
+    let params = formal_params_to_param_defs(module_info, &ctor_type.params);
 
+    let type_params = maybe_type_param_decl_to_type_param_defs(
+      module_info,
+      ctor_type.type_parameters.as_deref(),
+    );
+
+    let fn_def = TsFnOrConstructorDef {
+      constructor: true,
+      ts_type: TsTypeDef::new(
+        module_info,
+        &ctor_type.return_type.type_annotation,
+      ),
+      params,
+      type_params,
+    };
+
+    TsTypeDef {
+      kind: TsTypeDefKind::FnOrConstructor(Box::new(fn_def)),
+      repr: String::new(),
+    }
+  }
+
+  fn ts_named_tuple_member(
+    module_info: &EsModuleInfo,
+    other: &TSNamedTupleMember,
+  ) -> Self {
+    ts_tuple_element_to_ts_type_def(module_info, &other.element_type)
+  }
+
+  pub fn new(module_info: &EsModuleInfo, other: &TSType) -> Self {
     match other {
-      TsKeywordType(keyword_type) => TsTypeDef::ts_keyword_type(keyword_type),
-      TsThisType(this_type) => TsTypeDef::ts_this_type(this_type),
-      TsFnOrConstructorType(fn_or_con_type) => {
-        TsTypeDef::ts_fn_or_constructor_type(module_info, fn_or_con_type)
+      TSType::TSAnyKeyword(_) => TsTypeDef::keyword("any"),
+      TSType::TSUnknownKeyword(_) => TsTypeDef::keyword("unknown"),
+      TSType::TSNumberKeyword(_) => TsTypeDef::keyword("number"),
+      TSType::TSObjectKeyword(_) => TsTypeDef::keyword("object"),
+      TSType::TSBooleanKeyword(_) => TsTypeDef::keyword("boolean"),
+      TSType::TSBigIntKeyword(_) => TsTypeDef::keyword("bigint"),
+      TSType::TSStringKeyword(_) => TsTypeDef::keyword("string"),
+      TSType::TSSymbolKeyword(_) => TsTypeDef::keyword("symbol"),
+      TSType::TSVoidKeyword(_) => TsTypeDef::keyword("void"),
+      TSType::TSUndefinedKeyword(_) => TsTypeDef::keyword("undefined"),
+      TSType::TSNullKeyword(_) => TsTypeDef::keyword("null"),
+      TSType::TSNeverKeyword(_) => TsTypeDef::keyword("never"),
+      TSType::TSIntrinsicKeyword(_) => TsTypeDef::keyword("intrinsic"),
+      TSType::TSThisType(this_type) => TsTypeDef::ts_this_type(this_type),
+      TSType::TSFunctionType(fn_type) => {
+        TsTypeDef::ts_fn_type(module_info, fn_type)
       }
-      TsTypeRef(type_ref) => TsTypeDef::ts_type_ref(module_info, type_ref),
-      TsTypeQuery(type_query) => TsTypeDef::ts_type_query(type_query),
-      TsTypeLit(type_literal) => {
+      TSType::TSConstructorType(ctor_type) => {
+        TsTypeDef::ts_constructor_type(module_info, ctor_type)
+      }
+      TSType::TSTypeReference(type_ref) => {
+        TsTypeDef::ts_type_ref(module_info, type_ref)
+      }
+      TSType::TSTypeQuery(type_query) => TsTypeDef::ts_type_query(type_query),
+      TSType::TSTypeLiteral(type_literal) => {
         TsTypeDef::ts_type_lit(module_info, type_literal)
       }
-      TsArrayType(array_type) => {
+      TSType::TSArrayType(array_type) => {
         TsTypeDef::ts_array_type(module_info, array_type)
       }
-      TsTupleType(tuple_type) => {
+      TSType::TSTupleType(tuple_type) => {
         TsTypeDef::ts_tuple_type(module_info, tuple_type)
       }
-      TsOptionalType(optional_type) => {
-        TsTypeDef::ts_optional_type(module_info, optional_type)
+      TSType::TSUnionType(union_type) => {
+        TsTypeDef::ts_union_type(module_info, union_type)
       }
-      TsRestType(rest_type) => TsTypeDef::ts_rest_type(module_info, rest_type),
-      TsUnionOrIntersectionType(union_or_inter) => {
-        TsTypeDef::ts_union_or_intersection_type(module_info, union_or_inter)
+      TSType::TSIntersectionType(intersection_type) => {
+        TsTypeDef::ts_intersection_type(module_info, intersection_type)
       }
-      TsConditionalType(conditional_type) => {
+      TSType::TSConditionalType(conditional_type) => {
         TsTypeDef::ts_conditional_type(module_info, conditional_type)
       }
-      TsInferType(infer_type) => {
+      TSType::TSInferType(infer_type) => {
         TsTypeDef::ts_infer_type(module_info, infer_type)
       }
-      TsParenthesizedType(paren_type) => {
+      TSType::TSParenthesizedType(paren_type) => {
         TsTypeDef::ts_parenthesized_type(module_info, paren_type)
       }
-      TsTypeOperator(type_op_type) => {
+      TSType::TSTypeOperatorType(type_op_type) => {
         TsTypeDef::ts_type_operator(module_info, type_op_type)
       }
-      TsIndexedAccessType(indexed_access_type) => {
+      TSType::TSIndexedAccessType(indexed_access_type) => {
         TsTypeDef::ts_indexed_access_type(module_info, indexed_access_type)
       }
-      TsMappedType(mapped_type) => {
+      TSType::TSMappedType(mapped_type) => {
         TsTypeDef::ts_mapped_type(module_info, mapped_type)
       }
-      TsLitType(lit_type) => TsTypeDef::ts_lit_type(module_info, lit_type),
-      TsTypePredicate(type_predicate_type) => {
+      TSType::TSLiteralType(lit_type) => {
+        TsTypeDef::ts_lit_type(module_info, lit_type)
+      }
+      TSType::TSTypePredicate(type_predicate_type) => {
         TsTypeDef::ts_type_predicate(module_info, type_predicate_type)
       }
-      TsImportType(import_type) => {
+      TSType::TSImportType(import_type) => {
         TsTypeDef::ts_import_type(module_info, import_type)
       }
+      TSType::TSNamedTupleMember(named_tuple_member) => {
+        TsTypeDef::ts_named_tuple_member(module_info, named_tuple_member)
+      }
+      TSType::TSTemplateLiteralType(tpl_type) => {
+        TsTypeDef::ts_template_literal_type(module_info, tpl_type)
+      }
+      TSType::JSDocNullableType(_)
+      | TSType::JSDocNonNullableType(_)
+      | TSType::JSDocUnknownType(_) => TsTypeDef::keyword("unknown"),
     }
   }
 }
 
-fn ts_entity_name_to_name(entity_name: &TsEntityName) -> String {
-  use deno_ast::swc::ast::TsEntityName::*;
+type Id = (String, usize);
 
-  match entity_name {
-    Ident(ident) => ident.sym.to_string(),
-    TsQualifiedName(ts_qualified_name) => {
-      let left = ts_entity_name_to_name(&ts_qualified_name.left);
-      let right = ts_qualified_name.right.sym.to_string();
+fn identifier_reference_to_id(
+  module_info: &EsModuleInfo,
+  ident: &IdentifierReference,
+) -> Id {
+  let ctxt = ident
+    .reference_id
+    .get()
+    .zip(module_info.scoping())
+    .and_then(|(reference_id, scoping)| {
+      scoping.get_reference(reference_id).symbol_id()
+    })
+    .map(|symbol_id| symbol_id.index() + 1)
+    .unwrap_or(0);
+  (ident.name.to_string(), ctxt)
+}
+
+fn ts_type_name_to_name(type_name: &TSTypeName) -> String {
+  match type_name {
+    TSTypeName::IdentifierReference(ident) => ident.name.to_string(),
+    TSTypeName::QualifiedName(ts_qualified_name) => {
+      let left = ts_type_name_to_name(&ts_qualified_name.left);
+      let right = ts_qualified_name.right.name.to_string();
+      format!("{}.{}", left, right)
+    }
+    TSTypeName::ThisExpression(_) => "this".to_string(),
+  }
+}
+
+fn ts_type_name_root_ident<'a>(
+  type_name: &'a TSTypeName<'a>,
+) -> Option<&'a IdentifierReference<'a>> {
+  match type_name {
+    TSTypeName::IdentifierReference(ident) => Some(ident),
+    TSTypeName::QualifiedName(ts_qualified_name) => {
+      ts_type_name_root_ident(&ts_qualified_name.left)
+    }
+    TSTypeName::ThisExpression(_) => None,
+  }
+}
+
+fn ts_type_query_expr_name_to_name(expr_name: &TSTypeQueryExprName) -> String {
+  match expr_name {
+    TSTypeQueryExprName::TSImportType(import_type) => {
+      import_type.source.value.to_string()
+    }
+    TSTypeQueryExprName::IdentifierReference(ident) => ident.name.to_string(),
+    TSTypeQueryExprName::QualifiedName(qualified) => {
+      let left = ts_type_name_to_name(&qualified.left);
+      let right = qualified.right.name.to_string();
+      format!("{}.{}", left, right)
+    }
+    TSTypeQueryExprName::ThisExpression(_) => "this".to_string(),
+  }
+}
+
+fn ts_import_type_qualifier_to_name(
+  qualifier: &TSImportTypeQualifier,
+) -> String {
+  match qualifier {
+    TSImportTypeQualifier::Identifier(ident) => ident.name.to_string(),
+    TSImportTypeQualifier::QualifiedName(qualified) => {
+      let left = ts_import_type_qualifier_to_name(&qualified.left);
+      let right = qualified.right.name.to_string();
       format!("{}.{}", left, right)
     }
   }
 }
 
-fn ts_entity_name_root_ident(entity_name: &TsEntityName) -> &Ident {
-  match entity_name {
-    TsEntityName::Ident(ident) => ident,
-    TsEntityName::TsQualifiedName(ts_qualified_name) => {
-      ts_entity_name_root_ident(&ts_qualified_name.left)
-    }
+fn ts_type_predicate_name_to_this_or_ident(
+  name: &TSTypePredicateName,
+) -> ThisOrIdent {
+  match name {
+    TSTypePredicateName::This(_) => ThisOrIdent::This,
+    TSTypePredicateName::Identifier(ident) => ThisOrIdent::Identifier {
+      name: ident.name.to_string(),
+    },
   }
 }
 
-fn expr_root_ident(expr: &Expr) -> Option<&Ident> {
+fn expr_root_ident<'a>(
+  expr: &'a Expression<'a>,
+) -> Option<&'a IdentifierReference<'a>> {
   match expr {
-    Expr::Ident(ident) => Some(ident),
-    Expr::Member(member_expr) => expr_root_ident(&member_expr.obj),
+    Expression::Identifier(ident) => Some(ident),
+    Expression::StaticMemberExpression(member_expr) => {
+      expr_root_ident(&member_expr.object)
+    }
+    Expression::ComputedMemberExpression(member_expr) => {
+      expr_root_ident(&member_expr.object)
+    }
     _ => None,
   }
 }
 
 fn resolve_type_ref(
   module_info: &EsModuleInfo,
-  ident: &Ident,
+  ident: &IdentifierReference,
 ) -> Option<TypeRefResolution> {
-  if let Some(symbol) = module_info.symbol_from_swc(&ident.to_id()) {
+  let reference_symbol_id = ident
+    .reference_id
+    .get()
+    .zip(module_info.scoping())
+    .and_then(|(reference_id, scoping)| {
+      scoping.get_reference(reference_id).symbol_id()
+    });
+  let id = identifier_reference_to_id(module_info, ident);
+  if let Some(symbol) = module_info.symbol_from_swc(&id) {
     if let Some(file_dep) = symbol.file_dep() {
       Some(TypeRefResolution::Import {
         specifier: file_dep.specifier.clone(),
@@ -745,214 +920,269 @@ fn resolve_type_ref(
     } else {
       Some(TypeRefResolution::Local)
     }
-  } else if ident.ctxt != module_info.source().unresolved_context() {
-    // The identifier has a resolved syntax context but is not a module-level
-    // symbol — it's a type parameter or other locally-scoped binding.
-    let origin = find_type_param_origin(module_info, &ident.to_id());
+  } else if let Some((declaring_name, declaring_kind)) = reference_symbol_id
+    .and_then(|symbol_id| {
+      module_info.scoping().and_then(|scoping| {
+        type_param_declaring_info(module_info, scoping.symbol_span(symbol_id))
+      })
+    })
+  {
     Some(TypeRefResolution::TypeParam {
-      declaring_name: origin.as_ref().map(|o| o.0.clone()),
-      declaring_kind: origin.as_ref().map(|o| o.1.clone()),
+      declaring_name,
+      declaring_kind,
     })
   } else {
-    // Unresolved identifier — a global type (Promise, Array, etc.)
-    // or truly unresolvable.
     None
   }
 }
 
-/// Walks the module AST to find which declaration owns a type parameter.
-fn find_type_param_origin(
+fn type_param_declaring_info(
   module_info: &EsModuleInfo,
-  target_id: &Id,
-) -> Option<(String, TypeParamDeclaringKind)> {
-  use deno_ast::ModuleItemRef;
-
-  let program = module_info.source().program_ref();
-
-  for item in program.body() {
-    match item {
-      ModuleItemRef::ModuleDecl(ModuleDecl::ExportDecl(export)) => {
-        if let Some(origin) = find_type_param_in_decl(&export.decl, target_id) {
-          return Some(origin);
-        }
+  type_param_span: Span,
+) -> Option<(Option<String>, Option<TypeParamDeclaringKind>)> {
+  for stmt in module_info.statements() {
+    let info = match stmt {
+      Statement::FunctionDeclaration(function) => {
+        function_type_param_declaring_info(
+          function,
+          type_param_span,
+          TypeParamDeclaringKind::Function,
+        )
       }
-      ModuleItemRef::Stmt(Stmt::Decl(decl)) => {
-        if let Some(origin) = find_type_param_in_decl(decl, target_id) {
-          return Some(origin);
-        }
+      Statement::ClassDeclaration(class) => class_type_param_declaring_info(
+        class,
+        type_param_span,
+        TypeParamDeclaringKind::Class,
+      ),
+      Statement::TSInterfaceDeclaration(interface_decl) => {
+        named_type_param_declaring_info(
+          &interface_decl.id.name,
+          interface_decl.type_parameters.as_deref(),
+          type_param_span,
+          TypeParamDeclaringKind::Interface,
+        )
       }
-      ModuleItemRef::ModuleDecl(ModuleDecl::ExportDefaultDecl(export)) => {
-        match &export.decl {
-          DefaultDecl::Class(class_expr) => {
-            if let Some(origin) = find_type_param_in_class(
-              &class_expr.class,
-              class_expr
-                .ident
-                .as_ref()
-                .map(|i| i.sym.as_ref())
-                .unwrap_or("default"),
-              target_id,
-            ) {
-              return Some(origin);
-            }
-          }
-          DefaultDecl::Fn(fn_expr) => {
-            if has_type_param(&fn_expr.function.type_params, target_id) {
-              let name = fn_expr
-                .ident
-                .as_ref()
-                .map(|i| i.sym.to_string())
-                .unwrap_or_else(|| "default".to_string());
-              return Some((name, TypeParamDeclaringKind::Function));
-            }
-          }
-          DefaultDecl::TsInterfaceDecl(iface) => {
-            if let Some(origin) = find_type_param_in_interface(iface, target_id)
-            {
-              return Some(origin);
-            }
-          }
-        }
+      Statement::TSTypeAliasDeclaration(type_alias) => {
+        named_type_param_declaring_info(
+          &type_alias.id.name,
+          type_alias.type_parameters.as_deref(),
+          type_param_span,
+          TypeParamDeclaringKind::TypeAlias,
+        )
       }
-      _ => {}
+      Statement::ExportNamedDeclaration(export) => {
+        export.declaration.as_ref().and_then(|decl| {
+          declaration_type_param_declaring_info(decl, type_param_span)
+        })
+      }
+      Statement::ExportDefaultDeclaration(export) => {
+        export_default_type_param_declaring_info(export, type_param_span)
+      }
+      _ => None,
+    };
+    if info.is_some() {
+      return info;
     }
   }
-
   None
 }
 
-fn find_type_param_in_decl(
-  decl: &Decl,
-  target_id: &Id,
-) -> Option<(String, TypeParamDeclaringKind)> {
-  match decl {
-    Decl::Class(class_decl) => find_type_param_in_class(
-      &class_decl.class,
-      class_decl.ident.sym.as_ref(),
-      target_id,
+fn declaration_type_param_declaring_info(
+  declaration: &Declaration,
+  type_param_span: Span,
+) -> Option<(Option<String>, Option<TypeParamDeclaringKind>)> {
+  match declaration {
+    Declaration::FunctionDeclaration(function) => {
+      function_type_param_declaring_info(
+        function,
+        type_param_span,
+        TypeParamDeclaringKind::Function,
+      )
+    }
+    Declaration::ClassDeclaration(class) => class_type_param_declaring_info(
+      class,
+      type_param_span,
+      TypeParamDeclaringKind::Class,
     ),
-    Decl::Fn(fn_decl) => {
-      if has_type_param(&fn_decl.function.type_params, target_id) {
-        Some((
-          fn_decl.ident.sym.to_string(),
-          TypeParamDeclaringKind::Function,
-        ))
-      } else {
-        None
-      }
+    Declaration::TSInterfaceDeclaration(interface_decl) => {
+      named_type_param_declaring_info(
+        &interface_decl.id.name,
+        interface_decl.type_parameters.as_deref(),
+        type_param_span,
+        TypeParamDeclaringKind::Interface,
+      )
     }
-    Decl::TsInterface(iface) => find_type_param_in_interface(iface, target_id),
-    Decl::TsTypeAlias(alias) => {
-      if has_type_param(&alias.type_params, target_id) {
-        Some((alias.id.sym.to_string(), TypeParamDeclaringKind::TypeAlias))
-      } else {
-        None
-      }
-    }
-    Decl::TsModule(ts_module) => {
-      // Check declarations inside namespaces
-      if let Some(TsNamespaceBody::TsModuleBlock(block)) = &ts_module.body {
-        for item in &block.body {
-          let inner_decl = match item {
-            ModuleItem::ModuleDecl(ModuleDecl::ExportDecl(export)) => {
-              Some(&export.decl)
-            }
-            ModuleItem::Stmt(Stmt::Decl(decl)) => Some(decl),
-            _ => None,
-          };
-          if let Some(origin) = inner_decl.and_then(|inner_decl| {
-            find_type_param_in_decl(inner_decl, target_id)
-          }) {
-            return Some(origin);
-          }
-        }
-      }
-      None
+    Declaration::TSTypeAliasDeclaration(type_alias) => {
+      named_type_param_declaring_info(
+        &type_alias.id.name,
+        type_alias.type_parameters.as_deref(),
+        type_param_span,
+        TypeParamDeclaringKind::TypeAlias,
+      )
     }
     _ => None,
   }
 }
 
-fn find_type_param_in_class(
+fn export_default_type_param_declaring_info(
+  export: &ExportDefaultDeclaration,
+  type_param_span: Span,
+) -> Option<(Option<String>, Option<TypeParamDeclaringKind>)> {
+  match &export.declaration {
+    ExportDefaultDeclarationKind::FunctionDeclaration(function) => {
+      function_type_param_declaring_info(
+        function,
+        type_param_span,
+        TypeParamDeclaringKind::Function,
+      )
+    }
+    ExportDefaultDeclarationKind::ClassDeclaration(class) => {
+      class_type_param_declaring_info(
+        class,
+        type_param_span,
+        TypeParamDeclaringKind::Class,
+      )
+    }
+    ExportDefaultDeclarationKind::TSInterfaceDeclaration(interface_decl) => {
+      named_type_param_declaring_info(
+        &interface_decl.id.name,
+        interface_decl.type_parameters.as_deref(),
+        type_param_span,
+        TypeParamDeclaringKind::Interface,
+      )
+    }
+    _ => None,
+  }
+}
+
+fn function_type_param_declaring_info(
+  function: &Function,
+  type_param_span: Span,
+  kind: TypeParamDeclaringKind,
+) -> Option<(Option<String>, Option<TypeParamDeclaringKind>)> {
+  named_type_param_declaring_info(
+    function
+      .id
+      .as_ref()
+      .map(|id| id.name.as_str())
+      .unwrap_or("default"),
+    function.type_parameters.as_deref(),
+    type_param_span,
+    kind,
+  )
+}
+
+fn class_type_param_declaring_info(
   class: &Class,
-  class_name: &str,
-  target_id: &Id,
-) -> Option<(String, TypeParamDeclaringKind)> {
-  if has_type_param(&class.type_params, target_id) {
-    return Some((class_name.to_string(), TypeParamDeclaringKind::Class));
-  }
+  type_param_span: Span,
+  kind: TypeParamDeclaringKind,
+) -> Option<(Option<String>, Option<TypeParamDeclaringKind>)> {
+  named_type_param_declaring_info(
+    class
+      .id
+      .as_ref()
+      .map(|id| id.name.as_str())
+      .unwrap_or("default"),
+    class.type_parameters.as_deref(),
+    type_param_span,
+    kind,
+  )
+}
 
-  // Check method type params
-  for member in &class.body {
-    if let ClassMember::Method(method) = member
-      && has_type_param(&method.function.type_params, target_id)
-    {
-      let method_name = simple_prop_name(&method.key);
-      return Some((method_name, TypeParamDeclaringKind::Method));
+fn named_type_param_declaring_info(
+  declaring_name: &str,
+  type_parameters: Option<&TSTypeParameterDeclaration>,
+  type_param_span: Span,
+  kind: TypeParamDeclaringKind,
+) -> Option<(Option<String>, Option<TypeParamDeclaringKind>)> {
+  if type_parameters?
+    .params
+    .iter()
+    .any(|param| span_contains(param.span, type_param_span))
+  {
+    Some((Some(declaring_name.to_string()), Some(kind)))
+  } else {
+    None
+  }
+}
+
+fn span_contains(container: Span, span: Span) -> bool {
+  container.start <= span.start && span.end <= container.end
+}
+
+fn ts_tuple_element_to_ts_type_def(
+  module_info: &EsModuleInfo,
+  elem: &TSTupleElement,
+) -> TsTypeDef {
+  match elem {
+    TSTupleElement::TSOptionalType(opt) => {
+      TsTypeDef::ts_optional_type(module_info, opt)
     }
-  }
-
-  None
-}
-
-fn find_type_param_in_interface(
-  iface: &TsInterfaceDecl,
-  target_id: &Id,
-) -> Option<(String, TypeParamDeclaringKind)> {
-  if has_type_param(&iface.type_params, target_id) {
-    return Some((iface.id.sym.to_string(), TypeParamDeclaringKind::Interface));
-  }
-
-  // Check method type params
-  for member in &iface.body.body {
-    match member {
-      TsTypeElement::TsMethodSignature(method) => {
-        if has_type_param(&method.type_params, target_id) {
-          let method_name = simple_expr_name(&method.key);
-          return Some((method_name, TypeParamDeclaringKind::Method));
-        }
-      }
-      TsTypeElement::TsConstructSignatureDecl(ctor) => {
-        if has_type_param(&ctor.type_params, target_id) {
-          return Some(("new".to_string(), TypeParamDeclaringKind::Method));
-        }
-      }
-      TsTypeElement::TsCallSignatureDecl(call) => {
-        if has_type_param(&call.type_params, target_id) {
-          return Some(("call".to_string(), TypeParamDeclaringKind::Method));
-        }
-      }
-      _ => {}
+    TSTupleElement::TSRestType(rest) => {
+      TsTypeDef::ts_rest_type(module_info, rest)
     }
+    TSTupleElement::TSAnyKeyword(_) => TsTypeDef::keyword("any"),
+    TSTupleElement::TSUnknownKeyword(_) => TsTypeDef::keyword("unknown"),
+    TSTupleElement::TSNumberKeyword(_) => TsTypeDef::keyword("number"),
+    TSTupleElement::TSObjectKeyword(_) => TsTypeDef::keyword("object"),
+    TSTupleElement::TSBooleanKeyword(_) => TsTypeDef::keyword("boolean"),
+    TSTupleElement::TSBigIntKeyword(_) => TsTypeDef::keyword("bigint"),
+    TSTupleElement::TSStringKeyword(_) => TsTypeDef::keyword("string"),
+    TSTupleElement::TSSymbolKeyword(_) => TsTypeDef::keyword("symbol"),
+    TSTupleElement::TSVoidKeyword(_) => TsTypeDef::keyword("void"),
+    TSTupleElement::TSUndefinedKeyword(_) => TsTypeDef::keyword("undefined"),
+    TSTupleElement::TSNullKeyword(_) => TsTypeDef::keyword("null"),
+    TSTupleElement::TSNeverKeyword(_) => TsTypeDef::keyword("never"),
+    TSTupleElement::TSIntrinsicKeyword(_) => TsTypeDef::keyword("intrinsic"),
+    TSTupleElement::TSThisType(t) => TsTypeDef::ts_this_type(t),
+    TSTupleElement::TSFunctionType(t) => TsTypeDef::ts_fn_type(module_info, t),
+    TSTupleElement::TSConstructorType(t) => {
+      TsTypeDef::ts_constructor_type(module_info, t)
+    }
+    TSTupleElement::TSTypeReference(t) => {
+      TsTypeDef::ts_type_ref(module_info, t)
+    }
+    TSTupleElement::TSTypeQuery(t) => TsTypeDef::ts_type_query(t),
+    TSTupleElement::TSTypeLiteral(t) => TsTypeDef::ts_type_lit(module_info, t),
+    TSTupleElement::TSArrayType(t) => TsTypeDef::ts_array_type(module_info, t),
+    TSTupleElement::TSTupleType(t) => TsTypeDef::ts_tuple_type(module_info, t),
+    TSTupleElement::TSUnionType(t) => TsTypeDef::ts_union_type(module_info, t),
+    TSTupleElement::TSIntersectionType(t) => {
+      TsTypeDef::ts_intersection_type(module_info, t)
+    }
+    TSTupleElement::TSConditionalType(t) => {
+      TsTypeDef::ts_conditional_type(module_info, t)
+    }
+    TSTupleElement::TSInferType(t) => TsTypeDef::ts_infer_type(module_info, t),
+    TSTupleElement::TSParenthesizedType(t) => {
+      TsTypeDef::ts_parenthesized_type(module_info, t)
+    }
+    TSTupleElement::TSTypeOperatorType(t) => {
+      TsTypeDef::ts_type_operator(module_info, t)
+    }
+    TSTupleElement::TSIndexedAccessType(t) => {
+      TsTypeDef::ts_indexed_access_type(module_info, t)
+    }
+    TSTupleElement::TSMappedType(t) => {
+      TsTypeDef::ts_mapped_type(module_info, t)
+    }
+    TSTupleElement::TSLiteralType(t) => TsTypeDef::ts_lit_type(module_info, t),
+    TSTupleElement::TSTypePredicate(t) => {
+      TsTypeDef::ts_type_predicate(module_info, t)
+    }
+    TSTupleElement::TSImportType(t) => {
+      TsTypeDef::ts_import_type(module_info, t)
+    }
+    TSTupleElement::TSNamedTupleMember(t) => {
+      TsTypeDef::ts_named_tuple_member(module_info, t)
+    }
+    TSTupleElement::TSTemplateLiteralType(t) => {
+      TsTypeDef::ts_template_literal_type(module_info, t)
+    }
+    TSTupleElement::JSDocNullableType(_)
+    | TSTupleElement::JSDocNonNullableType(_)
+    | TSTupleElement::JSDocUnknownType(_) => TsTypeDef::keyword("unknown"),
   }
-
-  None
-}
-
-fn simple_prop_name(prop_name: &PropName) -> String {
-  match prop_name {
-    PropName::Ident(ident) => ident.sym.to_string(),
-    PropName::Str(str_) => str_.value.to_string_lossy().into_owned(),
-    PropName::Num(num) => num.value.to_string(),
-    PropName::BigInt(num) => num.value.to_string(),
-    PropName::Computed(_) => "[computed]".to_string(),
-  }
-}
-
-fn simple_expr_name(expr: &Expr) -> String {
-  match expr {
-    Expr::Ident(ident) => ident.sym.to_string(),
-    _ => "[computed]".to_string(),
-  }
-}
-
-fn has_type_param(
-  type_params: &Option<Box<TsTypeParamDecl>>,
-  target_id: &Id,
-) -> bool {
-  type_params
-    .as_ref()
-    .is_some_and(|tp| tp.params.iter().any(|p| p.name.to_id() == *target_id))
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq)]
@@ -1049,20 +1279,21 @@ pub struct TsFnOrConstructorDef {
 }
 
 impl TsFnOrConstructorDef {
-  fn arrow_expr(module_info: &EsModuleInfo, expr: &ArrowExpr) -> Self {
-    let params = expr
-      .params
-      .iter()
-      .map(|pat| pat_to_param_def(module_info, pat))
-      .collect();
+  fn arrow_expr(
+    module_info: &EsModuleInfo,
+    expr: &ArrowFunctionExpression,
+  ) -> Self {
+    let params = formal_params_to_param_defs(module_info, &expr.params);
     let ts_type = expr
       .return_type
       .as_deref()
-      .map(|return_type| TsTypeDef::new(module_info, &return_type.type_ann))
+      .map(|return_type| {
+        TsTypeDef::new(module_info, &return_type.type_annotation)
+      })
       .unwrap_or_else(|| TsTypeDef::keyword("unknown"));
     let type_params = maybe_type_param_decl_to_type_param_defs(
       module_info,
-      expr.type_params.as_deref(),
+      expr.type_parameters.as_deref(),
     );
 
     Self {
@@ -1073,22 +1304,18 @@ impl TsFnOrConstructorDef {
     }
   }
 
-  fn fn_expr(module_info: &EsModuleInfo, expr: &FnExpr) -> Self {
-    let params = expr
-      .function
-      .params
-      .iter()
-      .map(|param| pat_to_param_def(module_info, &param.pat))
-      .collect();
+  fn fn_expr(module_info: &EsModuleInfo, expr: &Function) -> Self {
+    let params = formal_params_to_param_defs(module_info, &expr.params);
     let ts_type = expr
-      .function
       .return_type
       .as_deref()
-      .map(|return_type| TsTypeDef::new(module_info, &return_type.type_ann))
+      .map(|return_type| {
+        TsTypeDef::new(module_info, &return_type.type_annotation)
+      })
       .unwrap_or_else(|| TsTypeDef::keyword("unknown"));
     let type_params = maybe_type_param_decl_to_type_param_defs(
       module_info,
-      expr.function.type_params.as_deref(),
+      expr.type_parameters.as_deref(),
     );
 
     Self {
@@ -1455,18 +1682,6 @@ pub enum ThisOrIdent {
   Identifier { name: String },
 }
 
-impl From<&TsThisTypeOrIdent> for ThisOrIdent {
-  fn from(other: &TsThisTypeOrIdent) -> ThisOrIdent {
-    use TsThisTypeOrIdent::*;
-    match other {
-      TsThisType(_) => Self::This,
-      Ident(ident) => Self::Identifier {
-        name: ident.sym.to_string(),
-      },
-    }
-  }
-}
-
 /// ```ts
 /// function foo(param: any): asserts param is SomeType { ... }
 ///                           ^^^^^^^ ^^^^^    ^^^^^^^^
@@ -1506,7 +1721,180 @@ impl Display for TsTypePredicateDef {
 }
 
 impl TsTypeDef {
-  pub fn number_literal(num: &Number) -> Self {
+  pub(crate) fn clear_resolutions(&mut self) {
+    fn clear_type_param(type_param: &mut TsTypeParamDef) {
+      if let Some(constraint) = &mut type_param.constraint {
+        constraint.clear_resolutions();
+      }
+      if let Some(default) = &mut type_param.default {
+        default.clear_resolutions();
+      }
+    }
+
+    fn clear_param(param: &mut ParamDef) {
+      match &mut param.pattern {
+        ParamPatternDef::Array { elements, .. } => {
+          for element in elements.iter_mut().flatten() {
+            clear_param(element);
+          }
+        }
+        ParamPatternDef::Assign { left, .. } => clear_param(left),
+        ParamPatternDef::Object { props, .. } => {
+          for prop in props {
+            match prop {
+              crate::params::ObjectPatPropDef::KeyValue { value, .. } => {
+                clear_param(value);
+              }
+              crate::params::ObjectPatPropDef::Rest { arg } => {
+                clear_param(arg);
+              }
+              crate::params::ObjectPatPropDef::Assign { .. } => {}
+            }
+          }
+        }
+        ParamPatternDef::Rest { arg } => clear_param(arg),
+        ParamPatternDef::Identifier { .. } => {}
+      }
+      if let Some(ts_type) = &mut param.ts_type {
+        ts_type.clear_resolutions();
+      }
+    }
+
+    match &mut self.kind {
+      TsTypeDefKind::TypeRef(type_ref) => {
+        type_ref.resolution = None;
+        if let Some(type_params) = &mut type_ref.type_params {
+          for type_param in type_params.iter_mut() {
+            type_param.clear_resolutions();
+          }
+        }
+      }
+      TsTypeDefKind::Literal(literal) => {
+        if let Some(ts_types) = &mut literal.ts_types {
+          for ts_type in ts_types {
+            ts_type.clear_resolutions();
+          }
+        }
+      }
+      TsTypeDefKind::Union(types)
+      | TsTypeDefKind::Intersection(types)
+      | TsTypeDefKind::Tuple(types) => {
+        for ts_type in types {
+          ts_type.clear_resolutions();
+        }
+      }
+      TsTypeDefKind::Array(ts_type)
+      | TsTypeDefKind::Parenthesized(ts_type)
+      | TsTypeDefKind::Rest(ts_type)
+      | TsTypeDefKind::Optional(ts_type) => ts_type.clear_resolutions(),
+      TsTypeDefKind::TypeOperator(type_operator) => {
+        type_operator.ts_type.clear_resolutions();
+      }
+      TsTypeDefKind::FnOrConstructor(fn_or_constructor) => {
+        fn_or_constructor.ts_type.clear_resolutions();
+        for param in &mut fn_or_constructor.params {
+          clear_param(param);
+        }
+        for type_param in &mut fn_or_constructor.type_params {
+          clear_type_param(type_param);
+        }
+      }
+      TsTypeDefKind::Conditional(conditional) => {
+        conditional.check_type.clear_resolutions();
+        conditional.extends_type.clear_resolutions();
+        conditional.true_type.clear_resolutions();
+        conditional.false_type.clear_resolutions();
+      }
+      TsTypeDefKind::Infer(infer) => {
+        clear_type_param(&mut infer.type_param);
+      }
+      TsTypeDefKind::IndexedAccess(indexed_access) => {
+        indexed_access.obj_type.clear_resolutions();
+        indexed_access.index_type.clear_resolutions();
+      }
+      TsTypeDefKind::Mapped(mapped) => {
+        clear_type_param(&mut mapped.type_param);
+        if let Some(name_type) = &mut mapped.name_type {
+          name_type.clear_resolutions();
+        }
+        if let Some(ts_type) = &mut mapped.ts_type {
+          ts_type.clear_resolutions();
+        }
+      }
+      TsTypeDefKind::TypeLiteral(type_literal) => {
+        for ctor in &mut type_literal.constructors {
+          for param in &mut ctor.params {
+            clear_param(param);
+          }
+          if let Some(return_type) = &mut ctor.return_type {
+            return_type.clear_resolutions();
+          }
+          for type_param in &mut ctor.type_params {
+            clear_type_param(type_param);
+          }
+        }
+        for method in &mut type_literal.methods {
+          for param in &mut method.params {
+            clear_param(param);
+          }
+          if let Some(return_type) = &mut method.return_type {
+            return_type.clear_resolutions();
+          }
+          for type_param in &mut method.type_params {
+            clear_type_param(type_param);
+          }
+        }
+        for property in &mut type_literal.properties {
+          for param in &mut property.params {
+            clear_param(param);
+          }
+          if let Some(ts_type) = &mut property.ts_type {
+            ts_type.clear_resolutions();
+          }
+          for type_param in &mut property.type_params {
+            clear_type_param(type_param);
+          }
+        }
+        for call_signature in &mut type_literal.call_signatures {
+          for param in &mut call_signature.params {
+            clear_param(param);
+          }
+          if let Some(ts_type) = &mut call_signature.ts_type {
+            ts_type.clear_resolutions();
+          }
+          for type_param in &mut call_signature.type_params {
+            clear_type_param(type_param);
+          }
+        }
+        for index_signature in &mut type_literal.index_signatures {
+          for param in &mut index_signature.params {
+            clear_param(param);
+          }
+          if let Some(ts_type) = &mut index_signature.ts_type {
+            ts_type.clear_resolutions();
+          }
+        }
+      }
+      TsTypeDefKind::TypePredicate(type_predicate) => {
+        if let Some(ts_type) = &mut type_predicate.r#type {
+          ts_type.clear_resolutions();
+        }
+      }
+      TsTypeDefKind::ImportType(import_type) => {
+        if let Some(type_params) = &mut import_type.type_params {
+          for type_param in type_params {
+            type_param.clear_resolutions();
+          }
+        }
+      }
+      TsTypeDefKind::Keyword(_)
+      | TsTypeDefKind::TypeQuery(_)
+      | TsTypeDefKind::This
+      | TsTypeDefKind::Unsupported => {}
+    }
+  }
+
+  pub fn number_literal(num: &NumericLiteral) -> Self {
     Self::number_value(num.value)
   }
 
@@ -1522,8 +1910,8 @@ impl TsTypeDef {
     Self::literal(repr, lit)
   }
 
-  pub fn string_literal(str_node: &Str) -> Self {
-    Self::string_value(str_node.value.to_string_lossy().into_owned())
+  pub fn string_literal(str_node: &StringLiteral) -> Self {
+    Self::string_value(str_node.value.to_string())
   }
 
   pub fn string_value(value: String) -> Self {
@@ -1538,7 +1926,10 @@ impl TsTypeDef {
     Self::literal(repr, lit)
   }
 
-  pub fn tpl_literal(types: Vec<TsTypeDef>, quasis: &[TplElement]) -> Self {
+  pub fn tpl_literal(
+    types: Vec<TsTypeDef>,
+    quasis: &[TemplateElement],
+  ) -> Self {
     let mut types_out: Vec<(Self, String)> = Vec::new();
     for ts_type in types {
       let repr = format!("${{{}}}", ts_type);
@@ -1546,7 +1937,7 @@ impl TsTypeDef {
     }
     let mut qasis_out: Vec<(Self, String)> = Vec::new();
     for quasi in quasis {
-      let repr = quasi.raw.to_string();
+      let repr = quasi.value.raw.to_string();
       let lit = LiteralDef {
         kind: LiteralDefKind::String,
         number: None,
@@ -1580,7 +1971,7 @@ impl TsTypeDef {
     Self::literal(repr, lit)
   }
 
-  pub fn bool_literal(bool_node: &Bool) -> Self {
+  pub fn bool_literal(bool_node: &BooleanLiteral) -> Self {
     Self::bool_value(bool_node.value)
   }
 
@@ -1596,12 +1987,19 @@ impl TsTypeDef {
     Self::literal(repr, lit)
   }
 
-  pub fn bigint_literal(bigint_node: &BigInt) -> Self {
-    let repr = bigint_node.value.to_string();
+  pub fn bigint_literal(bigint_node: &BigIntLiteral) -> Self {
+    let repr = bigint_node
+      .raw
+      .as_ref()
+      .map(|r| {
+        let s = r.as_str();
+        s.strip_suffix('n').unwrap_or(s).to_string()
+      })
+      .unwrap_or_default();
     let lit = LiteralDef {
       kind: LiteralDefKind::BigInt,
       number: None,
-      string: Some(bigint_node.value.to_string()),
+      string: Some(repr.clone()),
       ts_types: None,
       boolean: None,
     };
@@ -1667,86 +2065,120 @@ impl TsTypeDef {
 
 pub(crate) fn infer_ts_type_from_expr(
   module_info: &EsModuleInfo,
-  expr: &Expr,
+  expr: &Expression,
   is_const: bool,
 ) -> Option<TsTypeDef> {
   match expr {
-    Expr::Array(arr_lit) => {
+    Expression::ArrayExpression(arr_lit) => {
       // e.g.) const n = ["a", 1];
       infer_ts_type_from_arr_lit(module_info, arr_lit, false)
     }
-    Expr::Arrow(expr) => {
+    Expression::ArrowFunctionExpression(expr) => {
       // e.g.) const f = (a: string): void => {};
       infer_ts_type_from_arrow_expr(module_info, expr)
     }
-    Expr::Fn(expr) => {
+    Expression::FunctionExpression(expr) => {
       // e.g.) const f = function a(a:string): void {};
       infer_ts_type_from_fn_expr(module_info, expr)
     }
-    Expr::Lit(lit) => {
-      // e.g.) const n = 100;
-      infer_ts_type_from_lit(lit, is_const)
+    Expression::NumericLiteral(num) => {
+      if is_const {
+        Some(TsTypeDef::number_literal(num))
+      } else {
+        Some(TsTypeDef::number_with_repr("number"))
+      }
     }
-    Expr::New(expr) => {
+    Expression::StringLiteral(str_) => {
+      if is_const && str_.value.len() < 100 {
+        Some(TsTypeDef::string_literal(str_))
+      } else {
+        Some(TsTypeDef::string_with_repr("string"))
+      }
+    }
+    Expression::BooleanLiteral(bool_) => {
+      if is_const {
+        Some(TsTypeDef::bool_literal(bool_))
+      } else {
+        Some(TsTypeDef::bool_with_repr("boolean"))
+      }
+    }
+    Expression::BigIntLiteral(bigint_) => {
+      if is_const {
+        Some(TsTypeDef::bigint_literal(bigint_))
+      } else {
+        Some(TsTypeDef::bigint_with_repr("bigint"))
+      }
+    }
+    Expression::RegExpLiteral(regex) => {
+      Some(TsTypeDef::regexp(regex.regex.pattern.text.to_string()))
+    }
+    Expression::NullLiteral(_) => Some(TsTypeDef::keyword("null")),
+    Expression::NewExpression(expr) => {
       // e.g.) const d = new Date()
       infer_ts_type_from_new_expr(module_info, expr)
     }
-    Expr::Tpl(tpl) => {
+    Expression::TemplateLiteral(tpl) => {
       // e.g.) const s = `hello`;
       Some(infer_ts_type_from_tpl(module_info, tpl, is_const))
     }
-    Expr::TsConstAssertion(assertion) => {
-      // e.g.) const s = [] as const;
-      infer_ts_type_from_const_assertion(module_info, assertion)
+    Expression::TSAsExpression(as_expr) => {
+      if is_const_assertion(&as_expr.type_annotation) {
+        match &as_expr.expression {
+          Expression::ArrayExpression(arr) => {
+            infer_ts_type_from_arr_lit(module_info, arr, true)
+          }
+          _ => infer_ts_type_from_expr(module_info, &as_expr.expression, true),
+        }
+      } else {
+        Some(TsTypeDef::new(module_info, &as_expr.type_annotation))
+      }
     }
-    Expr::Call(expr) => {
+    Expression::CallExpression(expr) => {
       // e.g.) const value = Number(123);
       infer_ts_type_from_call_expr(expr)
     }
-    Expr::Object(obj) => {
+    Expression::ObjectExpression(obj) => {
       // e.g.) const value = {foo: "bar"};
       infer_ts_type_from_obj(module_info, obj)
     }
-    Expr::TsSatisfies(satisfies) => {
+    Expression::TSSatisfiesExpression(satisfies) => {
       // e.g.) const value = {foo: "bar"} satifies Record<string, string>;
-      infer_ts_type_from_expr(module_info, &satisfies.expr, is_const)
+      infer_ts_type_from_expr(module_info, &satisfies.expression, is_const)
     }
-    Expr::Update(_) => {
+    Expression::UpdateExpression(_) => {
       // e.g.) let foo = 0;
       //       const bar = foo++;
       Some(TsTypeDef::number_with_repr("number"))
     }
-    Expr::TsTypeAssertion(assertion) => {
+    Expression::TSTypeAssertion(assertion) => {
       // e.g.) export const foo = <string> 1;
-      Some(TsTypeDef::new(module_info, &assertion.type_ann))
+      Some(TsTypeDef::new(module_info, &assertion.type_annotation))
     }
-    Expr::TsAs(as_expr) => {
-      // e.g.) export const foo = 1 as string;
-      Some(TsTypeDef::new(module_info, &as_expr.type_ann))
-    }
-    Expr::Paren(paren) => {
+    Expression::ParenthesizedExpression(paren) => {
       // e.g.) export const foo = (1);
-      infer_ts_type_from_expr(module_info, &paren.expr, is_const)
+      infer_ts_type_from_expr(module_info, &paren.expression, is_const)
     }
-    Expr::Await(await_expr) => {
+    Expression::AwaitExpression(await_expr) => {
       // e.g.) export const foo = await 1;
-      infer_ts_type_from_expr(module_info, &await_expr.arg, is_const)
+      infer_ts_type_from_expr(module_info, &await_expr.argument, is_const)
     }
-    Expr::Cond(cond) => {
+    Expression::ConditionalExpression(cond) => {
       // e.g.) export const foo = true ? "a" : 1;
-      let left = infer_ts_type_from_expr(module_info, &cond.cons, is_const)?;
-      let right = infer_ts_type_from_expr(module_info, &cond.alt, is_const)?;
+      let left =
+        infer_ts_type_from_expr(module_info, &cond.consequent, is_const)?;
+      let right =
+        infer_ts_type_from_expr(module_info, &cond.alternate, is_const)?;
 
       Some(TsTypeDef {
         kind: TsTypeDefKind::Union(vec![left, right]),
         repr: String::new(),
       })
     }
-    Expr::TsNonNull(non_null) => {
+    Expression::TSNonNullExpression(non_null) => {
       // e.g.) export const foo = (true ? "a" : null)!;
       // e.g.) export const foo = null!;
       let with_null =
-        infer_ts_type_from_expr(module_info, &non_null.expr, is_const)?;
+        infer_ts_type_from_expr(module_info, &non_null.expression, is_const)?;
 
       if let TsTypeDefKind::Union(union) = with_null.kind {
         let mut non_null_union = union
@@ -1776,63 +2208,65 @@ pub(crate) fn infer_ts_type_from_expr(
         None
       }
     }
-    Expr::Bin(bin) => {
+    Expression::BinaryExpression(bin) => {
       // e.g.) export const foo = 1 == "bar";
       // e.g.) export const foo = 1 >> 1;
-      match bin.op {
-        BinaryOp::EqEq
-        | BinaryOp::NotEq
-        | BinaryOp::EqEqEq
-        | BinaryOp::NotEqEq
-        | BinaryOp::Lt
-        | BinaryOp::LtEq
-        | BinaryOp::Gt
-        | BinaryOp::GtEq
-        | BinaryOp::In
-        | BinaryOp::InstanceOf => Some(TsTypeDef::bool_with_repr("boolean")),
-        BinaryOp::LShift
-        | BinaryOp::RShift
-        | BinaryOp::ZeroFillRShift
-        | BinaryOp::Sub
-        | BinaryOp::Mul
-        | BinaryOp::Div
-        | BinaryOp::Mod
-        | BinaryOp::BitOr
-        | BinaryOp::BitXor
-        | BinaryOp::BitAnd
-        | BinaryOp::Exp => Some(TsTypeDef::number_with_repr("number")),
-        BinaryOp::LogicalOr
-        | BinaryOp::LogicalAnd
-        | BinaryOp::NullishCoalescing
-        | BinaryOp::Add => None,
+      match bin.operator {
+        BinaryOperator::Equality
+        | BinaryOperator::Inequality
+        | BinaryOperator::StrictEquality
+        | BinaryOperator::StrictInequality
+        | BinaryOperator::LessThan
+        | BinaryOperator::LessEqualThan
+        | BinaryOperator::GreaterThan
+        | BinaryOperator::GreaterEqualThan
+        | BinaryOperator::In
+        | BinaryOperator::Instanceof => {
+          Some(TsTypeDef::bool_with_repr("boolean"))
+        }
+        BinaryOperator::ShiftLeft
+        | BinaryOperator::ShiftRight
+        | BinaryOperator::ShiftRightZeroFill
+        | BinaryOperator::Subtraction
+        | BinaryOperator::Multiplication
+        | BinaryOperator::Division
+        | BinaryOperator::Remainder
+        | BinaryOperator::BitwiseOR
+        | BinaryOperator::BitwiseXOR
+        | BinaryOperator::BitwiseAnd
+        | BinaryOperator::Exponential => {
+          Some(TsTypeDef::number_with_repr("number"))
+        }
+        BinaryOperator::Addition => None,
       }
     }
-    Expr::This(_)
-    | Expr::Unary(_)
-    | Expr::Assign(_)
-    | Expr::Member(_)
-    | Expr::SuperProp(_)
-    | Expr::Seq(_)
-    | Expr::Ident(_)
-    | Expr::TaggedTpl(_)
-    | Expr::Class(_)
-    | Expr::Yield(_)
-    | Expr::MetaProp(_)
-    | Expr::JSXMember(_)
-    | Expr::JSXNamespacedName(_)
-    | Expr::JSXEmpty(_)
-    | Expr::JSXElement(_)
-    | Expr::JSXFragment(_)
-    | Expr::TsInstantiation(_)
-    | Expr::PrivateName(_)
-    | Expr::OptChain(_)
-    | Expr::Invalid(_) => None,
+    Expression::LogicalExpression(_)
+    | Expression::ThisExpression(_)
+    | Expression::UnaryExpression(_)
+    | Expression::AssignmentExpression(_)
+    | Expression::StaticMemberExpression(_)
+    | Expression::ComputedMemberExpression(_)
+    | Expression::PrivateFieldExpression(_)
+    | Expression::Super(_)
+    | Expression::SequenceExpression(_)
+    | Expression::Identifier(_)
+    | Expression::TaggedTemplateExpression(_)
+    | Expression::ClassExpression(_)
+    | Expression::YieldExpression(_)
+    | Expression::MetaProperty(_)
+    | Expression::JSXElement(_)
+    | Expression::JSXFragment(_)
+    | Expression::TSInstantiationExpression(_)
+    | Expression::ChainExpression(_)
+    | Expression::ImportExpression(_)
+    | Expression::PrivateInExpression(_)
+    | Expression::V8IntrinsicExpression(_) => None,
   }
 }
 
 pub(crate) fn infer_simple_ts_type_from_init(
   module_info: &EsModuleInfo,
-  init: Option<&Expr>,
+  init: Option<&Expression>,
   is_const: bool,
 ) -> Option<TsTypeDef> {
   if let Some(init_expr) = init {
@@ -1844,32 +2278,36 @@ pub(crate) fn infer_simple_ts_type_from_init(
 
 fn infer_ts_type_from_arr_lit(
   module_info: &EsModuleInfo,
-  arr_lit: &ArrayLit,
+  arr_lit: &ArrayExpression,
   is_const: bool,
 ) -> Option<TsTypeDef> {
   let mut defs = Vec::new();
-  for expr in arr_lit.elems.iter().flatten() {
-    if expr.spread.is_none() {
-      if let Some(ts_type) =
-        infer_ts_type_from_expr(module_info, &expr.expr, is_const)
-      {
-        if !defs.contains(&ts_type) {
-          defs.push(ts_type);
-        }
-      } else {
-        // it is not a trivial type that can be inferred an so will infer an
-        // an any array.
+  for elem in &arr_lit.elements {
+    match elem {
+      ArrayExpressionElement::SpreadElement(_) => {
         return Some(TsTypeDef {
           repr: "any[]".to_string(),
           kind: TsTypeDefKind::Array(Box::new(TsTypeDef::keyword("any"))),
         });
       }
-    } else {
-      // TODO(@kitsonk) we should recursively unwrap the spread here
-      return Some(TsTypeDef {
-        repr: "any[]".to_string(),
-        kind: TsTypeDefKind::Array(Box::new(TsTypeDef::keyword("any"))),
-      });
+      ArrayExpressionElement::Elision(_) => continue,
+      _ => {
+        let expr = elem.to_expression();
+        if let Some(ts_type) =
+          infer_ts_type_from_expr(module_info, expr, is_const)
+        {
+          if !defs.contains(&ts_type) {
+            defs.push(ts_type);
+          }
+        } else {
+          // it is not a trivial type that can be inferred an so will infer an
+          // an any array.
+          return Some(TsTypeDef {
+            repr: "any[]".to_string(),
+            kind: TsTypeDefKind::Array(Box::new(TsTypeDef::keyword("any"))),
+          });
+        }
+      }
     }
   }
   match defs.len() {
@@ -1893,7 +2331,7 @@ fn infer_ts_type_from_arr_lit(
 
 fn infer_ts_type_from_arrow_expr(
   module_info: &EsModuleInfo,
-  expr: &ArrowExpr,
+  expr: &ArrowFunctionExpression,
 ) -> Option<TsTypeDef> {
   Some(TsTypeDef {
     kind: TsTypeDefKind::FnOrConstructor(Box::new(
@@ -1905,7 +2343,7 @@ fn infer_ts_type_from_arrow_expr(
 
 fn infer_ts_type_from_fn_expr(
   module_info: &EsModuleInfo,
-  expr: &FnExpr,
+  expr: &Function,
 ) -> Option<TsTypeDef> {
   Some(TsTypeDef {
     kind: TsTypeDefKind::FnOrConstructor(Box::new(
@@ -1915,67 +2353,26 @@ fn infer_ts_type_from_fn_expr(
   })
 }
 
-fn infer_ts_type_from_const_assertion(
-  module_info: &EsModuleInfo,
-  assertion: &TsConstAssertion,
-) -> Option<TsTypeDef> {
-  match &*assertion.expr {
-    Expr::Array(arr_lit) => {
-      // e.g.) const n = ["a", 1] as const;
-      infer_ts_type_from_arr_lit(module_info, arr_lit, true)
-    }
-    _ => infer_ts_type_from_expr(module_info, &assertion.expr, true),
-  }
-}
-
-fn infer_ts_type_from_lit(lit: &Lit, is_const: bool) -> Option<TsTypeDef> {
-  match lit {
-    Lit::Num(num) => {
-      if is_const {
-        Some(TsTypeDef::number_literal(num))
-      } else {
-        Some(TsTypeDef::number_with_repr("number"))
-      }
-    }
-    Lit::Str(str_) => {
-      if is_const && str_.value.len() < 100 {
-        Some(TsTypeDef::string_literal(str_))
-      } else {
-        Some(TsTypeDef::string_with_repr("string"))
-      }
-    }
-    Lit::Bool(bool_) => {
-      if is_const {
-        Some(TsTypeDef::bool_literal(bool_))
-      } else {
-        Some(TsTypeDef::bool_with_repr("boolean"))
-      }
-    }
-    Lit::BigInt(bigint_) => {
-      if is_const {
-        Some(TsTypeDef::bigint_literal(bigint_))
-      } else {
-        Some(TsTypeDef::bigint_with_repr("bigint"))
-      }
-    }
-    Lit::Regex(regex) => Some(TsTypeDef::regexp(regex.exp.to_string())),
-    Lit::Null(_null) => Some(TsTypeDef::keyword("null")),
-    Lit::JSXText(_) => None,
-  }
+fn is_const_assertion(ts_type: &TSType) -> bool {
+  matches!(
+    ts_type,
+    TSType::TSTypeReference(type_ref)
+      if matches!(&type_ref.type_name, TSTypeName::IdentifierReference(ident) if ident.name == "const")
+  )
 }
 
 fn infer_ts_type_from_new_expr(
   module_info: &EsModuleInfo,
-  new_expr: &NewExpr,
+  new_expr: &NewExpression,
 ) -> Option<TsTypeDef> {
-  match new_expr.callee.as_ref() {
-    Expr::Ident(ident) => Some(TsTypeDef {
-      repr: ident.sym.to_string(),
+  match &new_expr.callee {
+    Expression::Identifier(ident) => Some(TsTypeDef {
+      repr: ident.name.to_string(),
       kind: TsTypeDefKind::TypeRef(TsTypeRefDef {
-        type_params: new_expr.type_args.as_ref().map(|init| {
+        type_params: new_expr.type_arguments.as_ref().map(|init| {
           maybe_type_param_instantiation_to_type_defs(module_info, Some(init))
         }),
-        type_name: ident.sym.to_string(),
+        type_name: ident.name.to_string(),
         resolution: resolve_type_ref(module_info, ident),
       }),
     }),
@@ -1983,33 +2380,27 @@ fn infer_ts_type_from_new_expr(
   }
 }
 
-fn infer_ts_type_from_call_expr(call_expr: &CallExpr) -> Option<TsTypeDef> {
-  match &call_expr.callee {
-    Callee::Expr(expr) => {
-      if let Expr::Ident(ident) = expr.as_ref() {
-        let sym = ident.sym.to_string();
-        match sym.as_str() {
-          "Symbol" | "Number" | "String" | "BigInt" => {
-            Some(TsTypeDef::keyword_with_repr(
-              &sym.to_ascii_lowercase(),
-              &sym.clone(),
-            ))
-          }
-          "Date" => Some(TsTypeDef::string_with_repr(&sym)),
-          "RegExp" => Some(TsTypeDef::regexp(sym)),
-          _ => None,
-        }
-      } else {
-        None
-      }
+fn infer_ts_type_from_call_expr(
+  call_expr: &CallExpression,
+) -> Option<TsTypeDef> {
+  if let Expression::Identifier(ident) = &call_expr.callee {
+    let sym = ident.name.to_string();
+    match sym.as_str() {
+      "Symbol" | "Number" | "String" | "BigInt" => Some(
+        TsTypeDef::keyword_with_repr(&sym.to_ascii_lowercase(), &sym.clone()),
+      ),
+      "Date" => Some(TsTypeDef::string_with_repr(&sym)),
+      "RegExp" => Some(TsTypeDef::regexp(sym)),
+      _ => None,
     }
-    _ => None,
+  } else {
+    None
   }
 }
 
 fn infer_ts_type_from_obj(
   module_info: &EsModuleInfo,
-  obj: &ObjectLit,
+  obj: &ObjectExpression,
 ) -> Option<TsTypeDef> {
   let (methods, properties) = infer_ts_type_from_obj_inner(module_info, obj);
   if methods.is_empty() && properties.is_empty() {
@@ -2021,24 +2412,27 @@ fn infer_ts_type_from_obj(
 
 fn infer_ts_type_from_obj_inner(
   module_info: &EsModuleInfo,
-  obj: &ObjectLit,
+  obj: &ObjectExpression,
 ) -> (Vec<MethodDef>, Vec<PropertyDef>) {
   let mut methods = Vec::<MethodDef>::new();
   let mut properties = Vec::<PropertyDef>::new();
-  for obj_prop in &obj.props {
-    let Some(js_doc) = js_doc_for_range(module_info, &obj_prop.range()) else {
+  for obj_prop in &obj.properties {
+    let Some(js_doc) = js_doc_for_range(module_info, obj_prop.span()) else {
       continue;
     };
 
     match obj_prop {
-      PropOrSpread::Prop(prop) => match &**prop {
-        Prop::Shorthand(shorthand) => {
-          // TODO(@crowlKats) we should pass previous nodes and take the type
-          // from the previous symbol.
+      ObjectPropertyKind::ObjectProperty(prop) => {
+        if prop.shorthand {
+          let name = prop
+            .key
+            .static_name()
+            .map(|name| name.to_string())
+            .unwrap_or_else(|| "[UNSUPPORTED]".to_string());
           properties.push(PropertyDef {
-            name: shorthand.sym.to_string(),
+            name,
             js_doc,
-            location: get_location(module_info, shorthand.start()),
+            location: get_location(module_info, prop.span.start),
             params: vec![],
             readonly: false,
             computed: false,
@@ -2046,89 +2440,88 @@ fn infer_ts_type_from_obj_inner(
             ts_type: None,
             type_params: Box::new([]),
           });
-        }
-        Prop::KeyValue(kv) => {
-          properties.push(PropertyDef {
-            name: prop_name_to_string(module_info, &kv.key),
-            js_doc,
-            location: get_location(module_info, kv.start()),
-            params: vec![],
-            readonly: false,
-            computed: kv.key.is_computed(),
-            optional: false,
-            ts_type: infer_ts_type_from_expr(module_info, &kv.value, false),
-            type_params: Box::new([]),
-          });
-        }
-        Prop::Assign(_) => unreachable!("This is invalid for object literal!"),
-        Prop::Getter(getter) => {
-          let name = prop_name_to_string(module_info, &getter.key);
-          let computed = getter.key.is_computed();
-          let return_type = getter
-            .type_ann
-            .as_ref()
-            .map(|type_ann| TsTypeDef::new(module_info, &type_ann.type_ann));
+        } else if prop.kind == PropertyKind::Get {
+          let name = prop_name_to_string(module_info, &prop.key);
+          let computed = prop.key.static_name().is_none();
+          let return_type =
+            if let Expression::FunctionExpression(func) = &prop.value {
+              func.return_type.as_ref().map(|type_ann| {
+                TsTypeDef::new(module_info, &type_ann.type_annotation)
+              })
+            } else {
+              None
+            };
           methods.push(MethodDef {
             name,
             js_doc,
             kind: MethodKind::Getter,
-            location: get_location(module_info, getter.start()),
+            location: get_location(module_info, prop.span.start),
             params: vec![],
             computed,
             optional: false,
             return_type,
             type_params: Box::new([]),
           });
-        }
-        Prop::Setter(setter) => {
-          let name = prop_name_to_string(module_info, &setter.key);
-          let computed = setter.key.is_computed();
-          let param = pat_to_param_def(module_info, setter.param.as_ref());
+        } else if prop.kind == PropertyKind::Set {
+          let name = prop_name_to_string(module_info, &prop.key);
+          let computed = prop.key.static_name().is_none();
+          let params = if let Expression::FunctionExpression(func) = &prop.value
+          {
+            formal_params_to_param_defs(module_info, &func.params)
+          } else {
+            vec![]
+          };
           methods.push(MethodDef {
             name,
             js_doc,
             kind: MethodKind::Setter,
-            location: get_location(module_info, setter.start()),
-            params: vec![param],
+            location: get_location(module_info, prop.span.start),
+            params,
             computed,
             optional: false,
             return_type: None,
             type_params: Box::new([]),
           });
-        }
-        Prop::Method(method) => {
-          let name = prop_name_to_string(module_info, &method.key);
-          let computed = method.key.is_computed();
-          let params = method
-            .function
-            .params
-            .iter()
-            .map(|param| param_to_param_def(module_info, param))
-            .collect();
-          let return_type = method
-            .function
-            .return_type
-            .as_ref()
-            .map(|type_ann| TsTypeDef::new(module_info, &type_ann.type_ann));
-          let type_params = maybe_type_param_decl_to_type_param_defs(
-            module_info,
-            method.function.type_params.as_deref(),
-          );
-          methods.push(MethodDef {
-            name,
+        } else if prop.method {
+          let name = prop_name_to_string(module_info, &prop.key);
+          let computed = prop.key.static_name().is_none();
+          if let Expression::FunctionExpression(func) = &prop.value {
+            let params = formal_params_to_param_defs(module_info, &func.params);
+            let return_type = func.return_type.as_ref().map(|type_ann| {
+              TsTypeDef::new(module_info, &type_ann.type_annotation)
+            });
+            let type_params = maybe_type_param_decl_to_type_param_defs(
+              module_info,
+              func.type_parameters.as_deref(),
+            );
+            methods.push(MethodDef {
+              name,
+              js_doc,
+              kind: MethodKind::Method,
+              location: get_location(module_info, prop.span.start),
+              params,
+              computed,
+              optional: false,
+              return_type,
+              type_params,
+            });
+          }
+        } else {
+          properties.push(PropertyDef {
+            name: prop_name_to_string(module_info, &prop.key),
             js_doc,
-            kind: MethodKind::Method,
-            location: get_location(module_info, method.start()),
-            params,
-            computed,
+            location: get_location(module_info, prop.span.start),
+            params: vec![],
+            readonly: false,
+            computed: prop.key.static_name().is_none(),
             optional: false,
-            return_type,
-            type_params,
+            ts_type: infer_ts_type_from_expr(module_info, &prop.value, false),
+            type_params: Box::new([]),
           });
         }
-      },
-      PropOrSpread::Spread(spread) => {
-        if let Expr::Object(obj) = &*spread.expr {
+      }
+      ObjectPropertyKind::SpreadProperty(spread) => {
+        if let Expression::ObjectExpression(obj) = &spread.argument {
           let (spread_methods, spread_properties) =
             infer_ts_type_from_obj_inner(module_info, obj);
           methods.extend(spread_methods);
@@ -2142,11 +2535,11 @@ fn infer_ts_type_from_obj_inner(
 
 fn infer_ts_type_from_tpl(
   module_info: &EsModuleInfo,
-  tpl: &Tpl,
+  tpl: &TemplateLiteral,
   is_const: bool,
 ) -> TsTypeDef {
   let exprs = tpl
-    .exprs
+    .expressions
     .iter()
     .map(|expr| infer_ts_type_from_expr(module_info, expr, is_const))
     .collect::<Option<Vec<_>>>();
@@ -2350,7 +2743,7 @@ impl Display for TsTypeDef {
 
 pub(crate) fn maybe_type_param_instantiation_to_type_defs(
   module_info: &EsModuleInfo,
-  maybe_type_param_instantiation: Option<&TsTypeParamInstantiation>,
+  maybe_type_param_instantiation: Option<&TSTypeParameterInstantiation>,
 ) -> Box<[TsTypeDef]> {
   if let Some(type_param_instantiation) = maybe_type_param_instantiation {
     type_param_instantiation

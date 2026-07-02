@@ -145,9 +145,11 @@ async fn get_files(subpath: &str) -> ParseOutput {
     )
     .await;
 
+  let allocator = deno_ast::oxc::allocator::Allocator::default();
   DocParser::new(
     &graph,
     &analyzer,
+    &allocator,
     &source_files,
     DocParserOptions {
       diagnostics: false,
@@ -678,9 +680,11 @@ async fn parse_source(source: &str) -> ParseOutput {
     )
     .await;
 
+  let allocator = deno_ast::oxc::allocator::Allocator::default();
   DocParser::new(
     &graph,
     &analyzer,
+    &allocator,
     &[specifier],
     DocParserOptions {
       private: false,

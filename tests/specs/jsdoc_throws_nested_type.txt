@@ -52,10 +52,7 @@ function deadline(): void
                       "repr": "DOMException",
                       "kind": "typeRef",
                       "value": {
-                        "typeName": "DOMException",
-                        "resolution": {
-                          "kind": "typeParam"
-                        }
+                        "typeName": "DOMException"
                       }
                     },
                     {
@@ -96,10 +93,7 @@ function deadline(): void
                       "repr": "DOMException",
                       "kind": "typeRef",
                       "value": {
-                        "typeName": "DOMException",
-                        "resolution": {
-                          "kind": "typeParam"
-                        }
+                        "typeName": "DOMException"
                       }
                     },
                     {
@@ -159,10 +153,7 @@ function deadline(): void
                         }
                       }
                     ],
-                    "typeName": "Promise",
-                    "resolution": {
-                      "kind": "typeParam"
-                    }
+                    "typeName": "Promise"
                   }
                 },
                 "doc": "the resolved value"

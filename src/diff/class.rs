@@ -16,7 +16,7 @@ use crate::class::ClassMethodDef;
 use crate::class::ClassPropertyDef;
 use crate::ts_type::IndexSignatureDef;
 use crate::ts_type::TsTypeDef;
-use deno_ast::swc::ast::Accessibility;
+use crate::util::types::Accessibility;
 use indexmap::IndexMap;
 use indexmap::IndexSet;
 use serde::Deserialize;

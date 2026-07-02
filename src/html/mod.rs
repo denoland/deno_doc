@@ -10,6 +10,7 @@ use serde::Serialize;
 use std::borrow::Cow;
 use std::cmp::Ordering;
 use std::collections::HashMap;
+use std::path::Path;
 use std::path::PathBuf;
 use std::sync::Arc;
 
@@ -914,12 +915,12 @@ pub enum MethodKind {
   Setter,
 }
 
-impl From<deno_ast::swc::ast::MethodKind> for MethodKind {
-  fn from(value: deno_ast::swc::ast::MethodKind) -> Self {
+impl From<crate::util::types::MethodKind> for MethodKind {
+  fn from(value: crate::util::types::MethodKind) -> Self {
     match value {
-      deno_ast::swc::ast::MethodKind::Method => Self::Method,
-      deno_ast::swc::ast::MethodKind::Getter => Self::Getter,
-      deno_ast::swc::ast::MethodKind::Setter => Self::Setter,
+      crate::util::types::MethodKind::Method => Self::Method,
+      crate::util::types::MethodKind::Getter => Self::Getter,
+      crate::util::types::MethodKind::Setter => Self::Setter,
     }
   }
 }
@@ -1026,7 +1027,7 @@ impl DocNodeWithContext {
     &self,
     mut method_doc_node: Symbol,
     is_static: bool,
-    method_kind: deno_ast::swc::ast::MethodKind,
+    method_kind: crate::util::types::MethodKind,
   ) -> Self {
     let original_name = method_doc_node.name.clone();
     method_doc_node.name =
@@ -1047,7 +1048,7 @@ impl DocNodeWithContext {
     parent: &Arc<DocNodeWithContext>,
     mut method_doc_node: Symbol,
     is_static: bool,
-    method_kind: deno_ast::swc::ast::MethodKind,
+    method_kind: crate::util::types::MethodKind,
   ) -> Self {
     let original_name = method_doc_node.name.clone();
     method_doc_node.name = qualify_drilldown_name(
@@ -1785,8 +1786,7 @@ pub fn find_common_ancestor<'a>(
     }
   }
 
-  if common_ancestor.as_os_str().is_empty()
-    || common_ancestor == PathBuf::from("/")
+  if common_ancestor.as_os_str().is_empty() || common_ancestor == Path::new("/")
   {
     None
   } else {

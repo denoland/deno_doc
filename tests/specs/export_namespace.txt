@@ -33,10 +33,10 @@ error[missing-jsdoc]: exported symbol is missing JSDoc documentation
 
 
 error[missing-jsdoc]: exported symbol is missing JSDoc documentation
-  --> /mod.ts:15:8
+  --> /mod.ts:15:25
    | 
 15 | export namespace RootNs.OtherNs {
-   |        ^
+   |                         ^
 
 
 error[missing-jsdoc]: exported symbol is missing JSDoc documentation
@@ -202,8 +202,8 @@ namespace RootNs
                     "location": {
                       "filename": "file:///mod.ts",
                       "line": 14,
-                      "col": 7,
-                      "byteIndex": 235
+                      "col": 24,
+                      "byteIndex": 252
                     },
                     "declarationKind": "export",
                     "kind": "namespace",

@@ -494,8 +494,8 @@ impl DocPrinter<'_> {
       self.private
         || node
           .accessibility
-          .unwrap_or(deno_ast::swc::ast::Accessibility::Public)
-          != deno_ast::swc::ast::Accessibility::Private
+          .unwrap_or(crate::util::types::Accessibility::Public)
+          != crate::util::types::Accessibility::Private
     }) {
       for d in node.decorators.iter() {
         writeln!(w, "{}{}", Indent(1), d)?;
@@ -510,8 +510,8 @@ impl DocPrinter<'_> {
       self.private
         || node
           .accessibility
-          .unwrap_or(deno_ast::swc::ast::Accessibility::Public)
-          != deno_ast::swc::ast::Accessibility::Private
+          .unwrap_or(crate::util::types::Accessibility::Public)
+          != crate::util::types::Accessibility::Private
     }) {
       let has_overloads = class_def
         .methods
@@ -814,9 +814,9 @@ impl DocPrinter<'_> {
       Indent(indent),
       fmt_visibility(decl.declaration_kind),
       colors::magenta(match variable_def.kind {
-        deno_ast::swc::ast::VarDeclKind::Const => "const",
-        deno_ast::swc::ast::VarDeclKind::Let => "let",
-        deno_ast::swc::ast::VarDeclKind::Var => "var",
+        crate::util::types::VarDeclKind::Const => "const",
+        crate::util::types::VarDeclKind::Let => "let",
+        crate::util::types::VarDeclKind::Var => "var",
       }),
       colors::bold(&node.name),
     )?;
