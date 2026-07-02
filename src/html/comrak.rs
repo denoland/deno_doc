@@ -212,17 +212,32 @@ impl SyntaxHighlighterAdapter for ComrakHighlightWrapperAdapter {
     lang: Option<&str>,
     code: &str,
   ) -> std::io::Result<()> {
+    // The markdown parser hands us the info string up to the first whitespace,
+    // so a comma-separated directive such as `ts, no-eval` arrives as `ts,`.
+    // Normalize it to the bare language token so both hidden-line processing and
+    // the downstream highlighter recognize it.
+    let lang = lang.map(crate::util::example_code::language_token);
+
+    // Resolve any "hidden" lines (rustdoc style): they are removed from the
+    // displayed code but kept in the copyable form so copied snippets still
+    // run. Non-example languages are left untouched.
+    let processed = crate::util::example_code::process_example_code(lang, code);
+    let (displayed, copyable) = match &processed {
+      Some(example) => (example.displayed.as_str(), example.copyable.as_str()),
+      None => (code, code),
+    };
+
     if let Some(adapter) = &self.0 {
-      adapter.write_highlighted(output, lang, code)?;
+      adapter.write_highlighted(output, lang, displayed)?;
     } else {
-      comrak::html::escape(output, code.as_bytes())?;
+      comrak::html::escape(output, displayed.as_bytes())?;
     }
 
     write!(output, "</code>")?;
     write!(
       output,
       r#"<button class="copyButton" data-copy="{}">{}{}</button>"#,
-      html_escape::encode_double_quoted_attribute(code),
+      html_escape::encode_double_quoted_attribute(copyable),
       include_str!("./templates/icons/copy.svg"),
       include_str!("./templates/icons/check.svg"),
     )?;
@@ -252,5 +267,59 @@ impl SyntaxHighlighterAdapter for ComrakHighlightWrapperAdapter {
     } else {
       comrak::html::write_opening_tag(output, "code", attributes)
     }
+  }
+}
+
+#[cfg(test)]
+mod tests {
+  use super::*;
+
+  fn render(md: &str) -> String {
+    let renderer = create_renderer(None, None, None);
+    let anchorizer: super::super::jsdoc::Anchorizer =
+      Arc::new(|content: String, _level: u8| content);
+    renderer(md, false, None, anchorizer).unwrap()
+  }
+
+  #[test]
+  fn hides_example_code_lines() {
+    let html = render("```ts\n# const x = 1;\nconsole.log(x);\n```");
+
+    // The displayed code (before the closing `</code>`) omits the hidden line.
+    let displayed = html.split("</code>").next().unwrap();
+    assert!(!displayed.contains("const x = 1;"));
+    assert!(displayed.contains("console.log(x);"));
+
+    // The copy button retains the full, runnable snippet.
+    assert!(html.contains("data-copy="));
+    assert!(html.contains("const x = 1;"));
+  }
+
+  #[test]
+  fn does_not_hide_non_example_code_lines() {
+    let html = render("```sh\n# install\ndeno install\n```");
+    let displayed = html.split("</code>").next().unwrap();
+    assert!(displayed.contains("# install"));
+  }
+
+  #[test]
+  fn escapes_double_hash_in_example_code() {
+    let html = render("```ts\n## shown\n```");
+    let displayed = html.split("</code>").next().unwrap();
+    assert!(displayed.contains("# shown"));
+    assert!(!displayed.contains("## shown"));
+  }
+
+  #[test]
+  fn comma_in_info_string_is_treated_as_example() {
+    // A comma-separated directive (`ts, no-eval`) leaves the parser handing us
+    // `ts,`; it must still be recognized as a `ts` example so hidden lines are
+    // processed (regression test for broken highlighting on commas).
+    let html = render("```ts, no-eval\n# const x = 1;\nconsole.log(x);\n```");
+    let displayed = html.split("</code>").next().unwrap();
+    assert!(!displayed.contains("const x = 1;"));
+    assert!(displayed.contains("console.log(x);"));
+    // The full snippet is still copyable.
+    assert!(html.contains("const x = 1;"));
   }
 }

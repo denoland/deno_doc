@@ -212,7 +212,7 @@ expression: search_index
       "name": "Foo.prototype.\"&gt;&lt;img src=x onerror=alert(1)&gt;",
       "file": ".",
       "doc": "",
-      "url": "././~/Foo.prototype.\"><img src=x onerror=alert(1)>.html",
+      "url": "././~/Foo.prototype.%22%3E%3Cimg%20src=x%20onerror=alert(1)%3E.html",
       "deprecated": false
     },
     {
@@ -501,21 +501,6 @@ expression: search_index
       "deprecated": false
     },
     {
-      "id": "namespace_b",
-      "kind": [
-        {
-          "char": "c",
-          "kind": "Class",
-          "title": "Class"
-        }
-      ],
-      "name": "B",
-      "file": ".",
-      "doc": "",
-      "url": "././~/B.html",
-      "deprecated": false
-    },
-    {
       "id": "namespace_qaz",
       "kind": [
         {
@@ -733,21 +718,6 @@ expression: search_index
       "file": ".",
       "doc": "",
       "url": "././~/CompoundType.bufferedAmount.html",
-      "deprecated": false
-    },
-    {
-      "id": "namespace_a",
-      "kind": [
-        {
-          "char": "c",
-          "kind": "Class",
-          "title": "Class"
-        }
-      ],
-      "name": "A",
-      "file": ".",
-      "doc": "",
-      "url": "././~/A.html",
       "deprecated": false
     },
     {
