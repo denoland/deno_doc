@@ -501,21 +501,6 @@ expression: search_index
       "deprecated": false
     },
     {
-      "id": "namespace_b",
-      "kind": [
-        {
-          "char": "c",
-          "kind": "Class",
-          "title": "Class"
-        }
-      ],
-      "name": "B",
-      "file": ".",
-      "doc": "",
-      "url": "././~/B.html",
-      "deprecated": false
-    },
-    {
       "id": "namespace_qaz",
       "kind": [
         {
@@ -733,21 +718,6 @@ expression: search_index
       "file": ".",
       "doc": "",
       "url": "././~/CompoundType.bufferedAmount.html",
-      "deprecated": false
-    },
-    {
-      "id": "namespace_a",
-      "kind": [
-        {
-          "char": "c",
-          "kind": "Class",
-          "title": "Class"
-        }
-      ],
-      "name": "A",
-      "file": ".",
-      "doc": "",
-      "url": "././~/A.html",
       "deprecated": false
     },
     {
