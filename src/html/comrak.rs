@@ -188,7 +188,12 @@ impl comrak::adapters::HeadingAdapter for ComrakHeadingAdapter {
   ) -> std::io::Result<()> {
     let anchor = self.0(heading.content.clone(), heading.level);
 
-    writeln!(output, r#"<h{} id="{anchor}">"#, heading.level)
+    write!(
+      output,
+      r##"<h{level} id="{anchor}" class="anchorable"><a href="#{anchor}" class="anchor" aria-label="Anchor" tabindex="-1">{link}</a>"##,
+      level = heading.level,
+      link = include_str!("./templates/icons/link.svg"),
+    )
   }
 
   fn exit(
