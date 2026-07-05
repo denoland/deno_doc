@@ -37,6 +37,14 @@ import { externalFunction } from "./_d.ts";
  * baz
  */
 export class Foo<T> {
+  /**
+   * Constructs a new Foo.
+   *
+   * @example Create a Foo
+   * ```ts
+   * const foo = new Foo("value");
+   * ```
+   */
   constructor(value: T) {}
 
   static bar: "string";

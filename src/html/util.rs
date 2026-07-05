@@ -754,6 +754,8 @@ pub struct DocEntryCtx {
   pub tags: Vec<TagCtx>,
   js_doc: Option<String>,
   source_href: Option<String>,
+  #[serde(skip_serializing_if = "Vec::is_empty", default)]
+  pub examples: Vec<crate::html::jsdoc::ExampleCtx>,
   #[serde(skip_serializing_if = "Option::is_none")]
   pub diff_status: Option<DiffStatus>,
   #[serde(skip_serializing_if = "Option::is_none")]
@@ -798,6 +800,7 @@ impl DocEntryCtx {
       tags: compute_tag_ctx(tags, old_tags),
       js_doc: maybe_jsdoc,
       source_href,
+      examples: Vec::new(),
       diff_status,
       old_content,
     }

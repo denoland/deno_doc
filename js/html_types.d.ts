@@ -332,6 +332,7 @@ export interface DocEntryCtx {
   tags: TagCtx[];
   js_doc: string | null;
   source_href: string | null;
+  examples?: ExampleCtx[];
   diff_status?: DiffStatus;
   old_content?: string;
 }
