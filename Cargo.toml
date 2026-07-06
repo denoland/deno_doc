@@ -1,6 +1,6 @@
 [package]
 name = "deno_doc"
-version = "0.199.0"
+version = "0.202.0"
 edition = "2024"
 description = "doc generation for deno"
 authors = ["the Deno authors"]
@@ -11,7 +11,7 @@ repository = "https://github.com/denoland/deno_doc"
 members = ["lib"]
 
 [workspace.dependencies]
-deno_graph = { version = "0.108.0", default-features = false, features = [
+deno_graph = { version = "0.110.0", default-features = false, features = [
   "swc",
   "symbols",
 ] }

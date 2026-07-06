@@ -237,7 +237,7 @@ async fn html_doc_files_single() {
       id_prefix: None,
       diff_only: false,
     },
-    get_files(std::env::var("PROBE_DS").as_deref().unwrap_or("single")).await,
+    get_files("single").await,
     None,
   )
   .unwrap();
@@ -819,6 +819,67 @@ export function sum(first: number, ...rest: number[]): number {
   );
 }
 
+// Regression test for https://github.com/denoland/deno_doc/issues/590:
+// `@internal` symbols are excluded from the rendered listings but were still
+// emitted into the search index, leaving them findable. This applied to both
+// named and default exports. `@ignore` symbols are already dropped entirely.
+#[tokio::test]
+async fn html_internal_symbols_excluded_from_search() {
+  let source = r#"
+/** @internal */
+export function internalNamed(): void {}
+
+/** A visible function. */
+export function visible(): void {}
+
+/** @internal */
+export default function (): void {}
+"#;
+
+  let ctx = GenerateCtx::create_basic(
+    GenerateOptions {
+      package_name: None,
+      main_entrypoint: Some(ModuleSpecifier::parse("file:///mod.ts").unwrap()),
+      href_resolver: Arc::new(EmptyResolver),
+      usage_composer: Some(Arc::new(EmptyResolver)),
+      rewrite_map: None,
+      category_docs: None,
+      disable_search: false,
+      symbol_redirect_map: None,
+      default_symbol_map: None,
+      markdown_renderer: comrak::create_renderer(None, None, None),
+      markdown_stripper: Arc::new(comrak::strip),
+      head_inject: None,
+      id_prefix: None,
+      diff_only: false,
+    },
+    parse_source(source).await,
+    None,
+  )
+  .unwrap();
+
+  let files = generate(ctx).unwrap();
+
+  let search = files
+    .get("search_index.js")
+    .expect("search index should be generated");
+
+  // The visible export is searchable.
+  assert!(
+    search.contains("/~/visible.html"),
+    "visible export should be in the search index"
+  );
+  // `@internal` named and default exports must not be searchable.
+  assert!(
+    !search.contains("/~/internalNamed.html"),
+    "@internal named export leaked into the search index"
+  );
+  assert!(
+    !search.contains("/~/default.html"),
+    "@internal default export leaked into the search index"
+  );
+}
+
 #[tokio::test]
 async fn diff_kind_change() {
   let test_dir = std::env::current_dir()
@@ -1154,4 +1215,127 @@ async fn html_output_is_valid() {
   let files = generate(ctx).unwrap();
 
   assert_generated_html_is_valid(&files);
+}
+
+/// The page `<title>` should only escape characters that are unsafe in text
+/// content (`&`, `<`, `>`). Characters like `/` are harmless and must not be
+/// over-escaped into entities like `&#x2F;` (regression test for `I/O`
+/// rendering as `I&#x2F;O`).
+#[tokio::test]
+async fn title_does_not_over_escape_slash() {
+  let source = r#"
+/** A simple function. */
+export function hello(): string {
+  return "hello";
+}
+"#;
+
+  let doc_nodes_by_url = parse_source(source).await;
+
+  let specifier = ModuleSpecifier::parse("file:///mod.ts").unwrap();
+
+  let ctx = GenerateCtx::create_basic(
+    GenerateOptions {
+      // A scoped package name naturally contains a `/`.
+      package_name: Some("@deno/cool".to_string()),
+      main_entrypoint: Some(specifier),
+      href_resolver: Arc::new(EmptyResolver),
+      usage_composer: Some(Arc::new(EmptyResolver)),
+      rewrite_map: None,
+      category_docs: None,
+      disable_search: false,
+      symbol_redirect_map: None,
+      default_symbol_map: None,
+      markdown_renderer: comrak::create_renderer(None, None, None),
+      markdown_stripper: Arc::new(comrak::strip),
+      head_inject: None,
+      id_prefix: None,
+      diff_only: false,
+    },
+    doc_nodes_by_url,
+    None,
+  )
+  .unwrap();
+
+  let files = generate(ctx).unwrap();
+  let index_html = files.get("./index.html").unwrap();
+
+  // Scope the check to the `<title>` element itself: `&#x2F;` is still expected
+  // elsewhere on the page (e.g. in attribute/URL values escaped by the
+  // registry-wide escaper), but the title must read `@deno/cool`, not
+  // `@deno&#x2F;cool`.
+  let title_start = index_html.find("<title>").expect("title tag");
+  let title_end = index_html.find("</title>").expect("title close tag");
+  let title = &index_html[title_start..title_end];
+
+  assert_eq!(
+    title, "<title>@deno/cool documentation",
+    "title should contain an unescaped `/`"
+  );
+  assert!(
+    !title.contains("&#x2F;"),
+    "title should not over-escape `/` into `&#x2F;`"
+  );
+}
+
+/// Symbol names containing HTML-special characters must still be escaped in
+/// the `<title>` so they cannot break out of the element.
+#[tokio::test]
+async fn title_escapes_html_special_chars() {
+  let source = r#"
+/** A class with a dangerous property name. */
+export class Foo {
+  "<script>" = 1;
+}
+"#;
+
+  let doc_nodes_by_url = parse_source(source).await;
+
+  let specifier = ModuleSpecifier::parse("file:///mod.ts").unwrap();
+
+  let ctx = GenerateCtx::create_basic(
+    GenerateOptions {
+      package_name: None,
+      main_entrypoint: Some(specifier),
+      href_resolver: Arc::new(EmptyResolver),
+      usage_composer: Some(Arc::new(EmptyResolver)),
+      rewrite_map: None,
+      category_docs: None,
+      disable_search: false,
+      symbol_redirect_map: None,
+      default_symbol_map: None,
+      markdown_renderer: comrak::create_renderer(None, None, None),
+      markdown_stripper: Arc::new(comrak::strip),
+      head_inject: None,
+      id_prefix: None,
+      diff_only: false,
+    },
+    doc_nodes_by_url,
+    None,
+  )
+  .unwrap();
+
+  let files = generate(ctx).unwrap();
+
+  // Find the generated page whose `<title>` is built from the dangerous
+  // property name, regardless of the exact file name.
+  let title_page = files
+    .iter()
+    .filter(|(name, _)| name.ends_with(".html"))
+    .map(|(_, content)| content)
+    .find(|content| {
+      content
+        .lines()
+        .any(|line| line.contains("<title>") && line.contains("script"))
+    })
+    .expect("a page whose title references the property should exist");
+
+  assert!(
+    !title_page.contains("<title>Foo.prototype.\"<script>\""),
+    "raw `<script>` must not appear unescaped in the title"
+  );
+  assert!(
+    title_page.contains("&lt;script&gt;"),
+    "`<` and `>` in the title must be escaped"
+  );
 }
