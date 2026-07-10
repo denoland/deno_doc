@@ -1,0 +1,295 @@
+# mod.ts
+declare function make(): number;
+
+// deno-doc-ignore
+export const a = make();
+
+/** doc */
+// deno-doc-ignore
+export const b = make();
+
+// deno-doc-ignore
+/** doc */
+export const c = make();
+
+// deno-doc-ignore missing-jsdoc, missing-explicit-type -- both are ignored
+export const d = make();
+
+// deno-doc-ignore missing-jsdoc
+export const e = make();
+
+// deno-doc-ignore missing-explicit-type
+export const f = make();
+
+/** doc */
+// deno-doc-ignore missing-return-type
+export function fn() {
+  return make();
+}
+
+// deno-doc-ignore
+
+export const g = make();
+
+export const h = make(); // deno-doc-ignore
+
+# diagnostics
+error[missing-explicit-type]: exported symbol is missing an explicit type annotation
+  --> /mod.ts:18:14
+   | 
+18 | export const e = make();
+   |              ^
+
+
+error[missing-jsdoc]: exported symbol is missing JSDoc documentation
+  --> /mod.ts:21:14
+   | 
+21 | export const f = make();
+   |              ^
+
+
+error[missing-jsdoc]: exported symbol is missing JSDoc documentation
+  --> /mod.ts:31:14
+   | 
+31 | export const g = make();
+   |              ^
+
+
+error[missing-explicit-type]: exported symbol is missing an explicit type annotation
+  --> /mod.ts:31:14
+   | 
+31 | export const g = make();
+   |              ^
+
+
+error[missing-jsdoc]: exported symbol is missing JSDoc documentation
+  --> /mod.ts:33:14
+   | 
+33 | export const h = make(); // deno-doc-ignore
+   |              ^
+
+
+error[missing-explicit-type]: exported symbol is missing an explicit type annotation
+  --> /mod.ts:33:14
+   | 
+33 | export const h = make(); // deno-doc-ignore
+   |              ^
+
+# output.txt
+Defined in file:///mod.ts:24:1
+
+function fn()
+  doc
+
+Defined in file:///mod.ts:3:14
+
+const a
+
+Defined in file:///mod.ts:7:14
+
+const b
+  doc
+
+Defined in file:///mod.ts:11:14
+
+const c
+  doc
+
+Defined in file:///mod.ts:14:14
+
+const d
+
+Defined in file:///mod.ts:17:14
+
+const e
+
+Defined in file:///mod.ts:20:14
+
+const f
+
+Defined in file:///mod.ts:30:14
+
+const g
+
+Defined in file:///mod.ts:32:14
+
+const h
+
+
+# output.json
+{
+  "symbols": [
+    {
+      "name": "a",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 3,
+            "col": 13,
+            "byteIndex": 66
+          },
+          "declarationKind": "export",
+          "kind": "variable",
+          "def": {
+            "kind": "const"
+          }
+        }
+      ]
+    },
+    {
+      "name": "b",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 7,
+            "col": 13,
+            "byteIndex": 122
+          },
+          "declarationKind": "export",
+          "jsDoc": {
+            "doc": "doc"
+          },
+          "kind": "variable",
+          "def": {
+            "kind": "const"
+          }
+        }
+      ]
+    },
+    {
+      "name": "c",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 11,
+            "col": 13,
+            "byteIndex": 178
+          },
+          "declarationKind": "export",
+          "jsDoc": {
+            "doc": "doc"
+          },
+          "kind": "variable",
+          "def": {
+            "kind": "const"
+          }
+        }
+      ]
+    },
+    {
+      "name": "d",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 14,
+            "col": 13,
+            "byteIndex": 280
+          },
+          "declarationKind": "export",
+          "kind": "variable",
+          "def": {
+            "kind": "const"
+          }
+        }
+      ]
+    },
+    {
+      "name": "e",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 17,
+            "col": 13,
+            "byteIndex": 339
+          },
+          "declarationKind": "export",
+          "kind": "variable",
+          "def": {
+            "kind": "const"
+          }
+        }
+      ]
+    },
+    {
+      "name": "f",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 20,
+            "col": 13,
+            "byteIndex": 406
+          },
+          "declarationKind": "export",
+          "kind": "variable",
+          "def": {
+            "kind": "const"
+          }
+        }
+      ]
+    },
+    {
+      "name": "fn",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 24,
+            "col": 0,
+            "byteIndex": 469
+          },
+          "declarationKind": "export",
+          "jsDoc": {
+            "doc": "doc"
+          },
+          "kind": "function",
+          "def": {
+            "params": [],
+            "hasBody": true
+          }
+        }
+      ]
+    },
+    {
+      "name": "g",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 30,
+            "col": 13,
+            "byteIndex": 545
+          },
+          "declarationKind": "export",
+          "kind": "variable",
+          "def": {
+            "kind": "const"
+          }
+        }
+      ]
+    },
+    {
+      "name": "h",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 32,
+            "col": 13,
+            "byteIndex": 571
+          },
+          "declarationKind": "export",
+          "kind": "variable",
+          "def": {
+            "kind": "const"
+          }
+        }
+      ]
+    }
+  ]
+}

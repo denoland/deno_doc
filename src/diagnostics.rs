@@ -8,6 +8,8 @@ use crate::node::DeclarationKind;
 use crate::node::NamespaceDef;
 use crate::node::Symbol;
 use crate::ts_type::TsTypeDef;
+use crate::util::ignore_directives::IgnoreDirectives;
+use crate::util::ignore_directives::parse_ignore_directives;
 use crate::util::swc::get_text_info_location;
 use crate::util::swc::has_ignorable_js_doc_tag;
 use crate::util::symbol::symbol_has_ignorable_js_doc_tag;
@@ -32,6 +34,7 @@ use deno_graph::symbols::UniqueSymbolId;
 use std::sync::Arc;
 
 use std::borrow::Cow;
+use std::collections::HashMap;
 use std::collections::HashSet;
 use std::rc::Rc;
 
@@ -205,6 +208,7 @@ pub struct DiagnosticsCollector<'a> {
   seen_private_types_in_public: HashSet<(UniqueSymbolId, UniqueSymbolId)>,
   seen_jsdoc_missing: HashSet<Location>,
   seen_missing_type_refs: HashSet<Location>,
+  ignore_directives: HashMap<Box<str>, IgnoreDirectives>,
   diagnostics: Vec<DocDiagnostic>,
 }
 
@@ -215,6 +219,7 @@ impl<'a> DiagnosticsCollector<'a> {
       seen_private_types_in_public: Default::default(),
       seen_jsdoc_missing: Default::default(),
       seen_missing_type_refs: Default::default(),
+      ignore_directives: Default::default(),
       diagnostics: Default::default(),
     }
   }
@@ -246,7 +251,7 @@ impl<'a> DiagnosticsCollector<'a> {
       return;
     };
 
-    self.diagnostics.push(DocDiagnostic {
+    self.add_diagnostic(DocDiagnostic {
       location: get_text_info_location(
         decl_module.specifier().as_str(),
         decl_module.text_info(),
@@ -302,7 +307,7 @@ impl<'a> DiagnosticsCollector<'a> {
       && self.seen_jsdoc_missing.insert(location.clone())
       && let Some(text_info) = self.maybe_get_text_info(location)
     {
-      self.diagnostics.push(DocDiagnostic {
+      self.add_diagnostic(DocDiagnostic {
         location: location.clone(),
         kind: DocDiagnosticKind::MissingJsDoc,
         text_info,
@@ -321,7 +326,7 @@ impl<'a> DiagnosticsCollector<'a> {
       && self.seen_missing_type_refs.insert(location.clone())
       && let Some(text_info) = self.maybe_get_text_info(location)
     {
-      self.diagnostics.push(DocDiagnostic {
+      self.add_diagnostic(DocDiagnostic {
         location: location.clone(),
         kind: DocDiagnosticKind::MissingExplicitType,
         text_info,
@@ -340,12 +345,39 @@ impl<'a> DiagnosticsCollector<'a> {
       && self.seen_missing_type_refs.insert(location.clone())
       && let Some(text_info) = self.maybe_get_text_info(location)
     {
-      self.diagnostics.push(DocDiagnostic {
+      self.add_diagnostic(DocDiagnostic {
         location: location.clone(),
         kind: DocDiagnosticKind::MissingReturnType,
         text_info,
       });
     }
+  }
+
+  /// Stores a diagnostic unless it's suppressed by a `// deno-doc-ignore`
+  /// directive.
+  fn add_diagnostic(&mut self, diagnostic: DocDiagnostic) {
+    if self.is_ignored(&diagnostic) {
+      return;
+    }
+    self.diagnostics.push(diagnostic);
+  }
+
+  fn is_ignored(&mut self, diagnostic: &DocDiagnostic) -> bool {
+    let filename = &diagnostic.location.filename;
+    if !self.ignore_directives.contains_key(filename) {
+      let directives = ModuleSpecifier::parse(filename)
+        .ok()
+        .and_then(|specifier| {
+          self.root_symbol.module_from_specifier(&specifier)
+        })
+        .and_then(|module_info| module_info.esm())
+        .map(parse_ignore_directives)
+        .unwrap_or_default();
+      self.ignore_directives.insert(filename.clone(), directives);
+    }
+
+    self.ignore_directives[filename]
+      .is_ignored(diagnostic.location.line, &diagnostic.code())
   }
 
   fn maybe_get_text_info(&self, location: &Location) -> Option<SourceTextInfo> {
