@@ -1,0 +1,235 @@
+# mod.ts
+/** A doc comment. */
+export interface Foo {
+  /**
+   * @param x - The number to do something with
+   * @returns The number after doing something
+   */
+  foo: (x: number) => number;
+}
+
+/** A doc comment. */
+export type Bar = {
+  /**
+   * @param x - The number to do something with
+   * @returns The number after doing something
+   */
+  bar: (x: number) => number;
+
+  /** Calls the thing. */
+  (y: string): void;
+};
+
+# diagnostics
+error[missing-jsdoc]: exported symbol is missing JSDoc documentation
+ --> /mod.ts:7:3
+  | 
+7 |   foo: (x: number) => number;
+  |   ^
+
+# output.txt
+Defined in file:///mod.ts:1:1
+
+interface Foo
+  A doc comment.
+
+  foo: (x: number) => number
+
+    @param x
+        The number to do something with
+
+    @return
+        The number after doing something
+
+
+Defined in file:///mod.ts:10:1
+
+type Bar
+  A doc comment.
+
+  (y: string): void
+    Calls the thing.
+  bar: (x: number) => number
+
+    @param x
+        The number to do something with
+
+    @return
+        The number after doing something
+
+
+
+# output.json
+{
+  "symbols": [
+    {
+      "name": "Foo",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 1,
+            "col": 0,
+            "byteIndex": 22
+          },
+          "declarationKind": "export",
+          "jsDoc": {
+            "doc": "A doc comment."
+          },
+          "kind": "interface",
+          "def": {
+            "properties": [
+              {
+                "name": "foo",
+                "jsDoc": {
+                  "tags": [
+                    {
+                      "kind": "param",
+                      "name": "x",
+                      "doc": "The number to do something with"
+                    },
+                    {
+                      "kind": "return",
+                      "doc": "The number after doing something"
+                    }
+                  ]
+                },
+                "location": {
+                  "filename": "file:///mod.ts",
+                  "line": 6,
+                  "col": 2,
+                  "byteIndex": 154
+                },
+                "tsType": {
+                  "kind": "fnOrConstructor",
+                  "value": {
+                    "constructor": false,
+                    "tsType": {
+                      "repr": "number",
+                      "kind": "keyword",
+                      "value": "number"
+                    },
+                    "params": [
+                      {
+                        "kind": "identifier",
+                        "name": "x",
+                        "optional": false,
+                        "tsType": {
+                          "repr": "number",
+                          "kind": "keyword",
+                          "value": "number"
+                        }
+                      }
+                    ]
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Bar",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 10,
+            "col": 0,
+            "byteIndex": 207
+          },
+          "declarationKind": "export",
+          "jsDoc": {
+            "doc": "A doc comment."
+          },
+          "kind": "typeAlias",
+          "def": {
+            "tsType": {
+              "kind": "typeLiteral",
+              "value": {
+                "properties": [
+                  {
+                    "name": "bar",
+                    "jsDoc": {
+                      "tags": [
+                        {
+                          "kind": "param",
+                          "name": "x",
+                          "doc": "The number to do something with"
+                        },
+                        {
+                          "kind": "return",
+                          "doc": "The number after doing something"
+                        }
+                      ]
+                    },
+                    "location": {
+                      "filename": "file:///mod.ts",
+                      "line": 15,
+                      "col": 2,
+                      "byteIndex": 336
+                    },
+                    "tsType": {
+                      "kind": "fnOrConstructor",
+                      "value": {
+                        "constructor": false,
+                        "tsType": {
+                          "repr": "number",
+                          "kind": "keyword",
+                          "value": "number"
+                        },
+                        "params": [
+                          {
+                            "kind": "identifier",
+                            "name": "x",
+                            "optional": false,
+                            "tsType": {
+                              "repr": "number",
+                              "kind": "keyword",
+                              "value": "number"
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  }
+                ],
+                "callSignatures": [
+                  {
+                    "jsDoc": {
+                      "doc": "Calls the thing."
+                    },
+                    "location": {
+                      "filename": "file:///mod.ts",
+                      "line": 18,
+                      "col": 2,
+                      "byteIndex": 393
+                    },
+                    "params": [
+                      {
+                        "kind": "identifier",
+                        "name": "y",
+                        "optional": false,
+                        "tsType": {
+                          "repr": "string",
+                          "kind": "keyword",
+                          "value": "string"
+                        }
+                      }
+                    ],
+                    "tsType": {
+                      "repr": "void",
+                      "kind": "keyword",
+                      "value": "void"
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

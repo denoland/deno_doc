@@ -11,7 +11,8 @@ error[missing-jsdoc]: exported symbol is missing JSDoc documentation
 # output.txt
 Defined in file:///mod.ts:0:1
 
-type T = { }
+type T
+
 
 
 # output.json

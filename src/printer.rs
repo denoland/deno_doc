@@ -11,6 +11,7 @@ use crate::node::DeclarationDef;
 use crate::node::DeclarationKind;
 use crate::node::Symbol;
 use crate::parser::ParseOutput;
+use crate::ts_type::TsTypeDefKind;
 
 use deno_terminal::colors;
 use deno_terminal::colors::Style;
@@ -116,6 +117,7 @@ impl DocPrinter<'_> {
           DeclarationDef::Class(..) => self.format_class(w, decl)?,
           DeclarationDef::Enum(..) => self.format_enum(w, decl)?,
           DeclarationDef::Interface(..) => self.format_interface(w, decl)?,
+          DeclarationDef::TypeAlias(..) => self.format_type_alias(w, decl)?,
           DeclarationDef::Namespace(..) => self.format_namespace(w, decl)?,
           _ => {}
         }
@@ -568,6 +570,44 @@ impl DocPrinter<'_> {
     writeln!(w)
   }
 
+  /// Render the members of an interface-like type alias — one whose type is a
+  /// type literal — exactly as an interface's members are rendered, so that the
+  /// JSDoc attached to each member is shown instead of being collapsed into a
+  /// single-line `= { … }` signature. Type aliases of any other kind have no
+  /// members to expand and print nothing here.
+  fn format_type_alias(
+    &self,
+    w: &mut Formatter<'_>,
+    decl: &crate::node::Declaration,
+  ) -> FmtResult {
+    let TsTypeDefKind::TypeLiteral(type_literal) =
+      &decl.type_alias_def().unwrap().ts_type.kind
+    else {
+      return Ok(());
+    };
+
+    for constructor in &type_literal.constructors {
+      writeln!(w, "{}{}", Indent(1), constructor)?;
+      self.format_jsdoc(w, &constructor.js_doc, 2)?;
+    }
+    for call_signature in &type_literal.call_signatures {
+      writeln!(w, "{}{}", Indent(1), call_signature)?;
+      self.format_jsdoc(w, &call_signature.js_doc, 2)?;
+    }
+    for property_def in &type_literal.properties {
+      writeln!(w, "{}{}", Indent(1), property_def)?;
+      self.format_jsdoc(w, &property_def.js_doc, 2)?;
+    }
+    for method_def in &type_literal.methods {
+      writeln!(w, "{}{}", Indent(1), method_def)?;
+      self.format_jsdoc(w, &method_def.js_doc, 2)?;
+    }
+    for index_sign_def in &type_literal.index_signatures {
+      writeln!(w, "{}{}", Indent(1), index_sign_def)?;
+    }
+    writeln!(w)
+  }
+
   fn format_namespace(
     &self,
     w: &mut Formatter<'_>,
@@ -758,6 +798,14 @@ impl DocPrinter<'_> {
         "<{}>",
         SliceDisplayer::new(&type_alias_def.type_params, ", ", false)
       )?;
+    }
+
+    // An interface-like type alias (one whose type is a type literal) has its
+    // members rendered individually by `format_type_alias`, the same way an
+    // interface's are. Inlining the whole literal here as well would both
+    // duplicate them and hide the JSDoc attached to each member.
+    if matches!(type_alias_def.ts_type.kind, TsTypeDefKind::TypeLiteral(_)) {
+      return writeln!(w);
     }
 
     writeln!(w, " = {}", type_alias_def.ts_type)
