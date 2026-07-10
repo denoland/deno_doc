@@ -200,6 +200,55 @@ fn has_documenting_tag(js_doc: &JsDoc) -> bool {
   })
 }
 
+/// Whether `c` may appear within a JavaScript/TypeScript identifier, used to
+/// find identifier boundaries when refining a diagnostic's location.
+fn is_identifier_char(c: char) -> bool {
+  c == '_' || c == '$' || c.is_alphanumeric()
+}
+
+/// Refines a declaration-start `location` to point at the declaration's
+/// identifier.
+///
+/// `deno doc --lint` diagnostics are anchored at the start of a declaration,
+/// which for many forms (`export class Foo`, `get foo()`, `export interface
+/// Foo`, …) is a leading keyword rather than the symbol's name. Only keywords
+/// and whitespace separate a declaration's start from its identifier, so the
+/// first word-boundary occurrence of `name` at or after the declaration start
+/// is the identifier itself. Returns the original location unchanged when
+/// `name` is empty or can't be found (e.g. index signatures, which have no
+/// identifier).
+fn identifier_location(
+  text_info: &SourceTextInfo,
+  location: &Location,
+  name: &str,
+) -> Location {
+  if name.is_empty() {
+    return location.clone();
+  }
+  let text = text_info.text_str();
+  let Some(rest) = text.get(location.byte_index..) else {
+    return location.clone();
+  };
+  let mut base = 0;
+  while let Some(offset) = rest[base..].find(name) {
+    let idx = base + offset;
+    let boundary_before = !rest[..idx]
+      .chars()
+      .next_back()
+      .is_some_and(is_identifier_char);
+    let boundary_after = !rest[idx + name.len()..]
+      .chars()
+      .next()
+      .is_some_and(is_identifier_char);
+    if boundary_before && boundary_after {
+      let pos = text_info.range().start + (location.byte_index + idx);
+      return get_text_info_location(&location.filename, text_info, pos);
+    }
+    base = idx + name.len();
+  }
+  location.clone()
+}
+
 pub struct DiagnosticsCollector<'a> {
   root_symbol: Rc<RootSymbol<'a>>,
   seen_private_types_in_public: HashSet<(UniqueSymbolId, UniqueSymbolId)>,
@@ -295,7 +344,12 @@ impl<'a> DiagnosticsCollector<'a> {
       .visit_doc_nodes(doc_nodes.iter().map(|s| &**s))
   }
 
-  fn check_missing_js_doc(&mut self, js_doc: &JsDoc, location: &Location) {
+  fn check_missing_js_doc(
+    &mut self,
+    js_doc: &JsDoc,
+    location: &Location,
+    name: &str,
+  ) {
     if js_doc.doc.is_none()
       && !has_documenting_tag(js_doc)
       && !has_ignorable_js_doc_tag(js_doc)
@@ -303,7 +357,7 @@ impl<'a> DiagnosticsCollector<'a> {
       && let Some(text_info) = self.maybe_get_text_info(location)
     {
       self.diagnostics.push(DocDiagnostic {
-        location: location.clone(),
+        location: identifier_location(&text_info, location, name),
         kind: DocDiagnosticKind::MissingJsDoc,
         text_info,
       });
@@ -315,6 +369,7 @@ impl<'a> DiagnosticsCollector<'a> {
     ts_type: Option<&TsTypeDef>,
     js_doc: &JsDoc,
     location: &Location,
+    name: &str,
   ) {
     if ts_type.is_none()
       && !has_ignorable_js_doc_tag(js_doc)
@@ -322,7 +377,7 @@ impl<'a> DiagnosticsCollector<'a> {
       && let Some(text_info) = self.maybe_get_text_info(location)
     {
       self.diagnostics.push(DocDiagnostic {
-        location: location.clone(),
+        location: identifier_location(&text_info, location, name),
         kind: DocDiagnosticKind::MissingExplicitType,
         text_info,
       })
@@ -334,6 +389,7 @@ impl<'a> DiagnosticsCollector<'a> {
     return_type: Option<&TsTypeDef>,
     js_doc: &JsDoc,
     location: &Location,
+    name: &str,
   ) {
     if return_type.is_none()
       && !has_ignorable_js_doc_tag(js_doc)
@@ -341,7 +397,7 @@ impl<'a> DiagnosticsCollector<'a> {
       && let Some(text_info) = self.maybe_get_text_info(location)
     {
       self.diagnostics.push(DocDiagnostic {
-        location: location.clone(),
+        location: identifier_location(&text_info, location, name),
         kind: DocDiagnosticKind::MissingReturnType,
         text_info,
       });
@@ -407,13 +463,13 @@ impl DiagnosticDocNodeVisitor<'_, '_> {
         }
 
         if !has_ignorable_js_doc_tag(&decl.js_doc) {
-          self.visit_decl(decl);
+          self.visit_decl(&doc_node.name, decl);
         }
       }
     }
   }
 
-  fn visit_decl(&mut self, decl: &crate::node::Declaration) {
+  fn visit_decl(&mut self, name: &str, decl: &crate::node::Declaration) {
     fn is_js_docable_kind(def: &DeclarationDef) -> bool {
       match def {
         DeclarationDef::Class(..)
@@ -434,7 +490,7 @@ impl DiagnosticDocNodeVisitor<'_, '_> {
     if is_js_docable_kind(&decl.def) {
       self
         .diagnostics
-        .check_missing_js_doc(&decl.js_doc, &decl.location);
+        .check_missing_js_doc(&decl.js_doc, &decl.location, name);
     }
 
     if let Some(def) = &decl.class_def() {
@@ -442,7 +498,7 @@ impl DiagnosticDocNodeVisitor<'_, '_> {
     }
 
     if let Some(def) = &decl.function_def() {
-      self.visit_function_def(decl, def);
+      self.visit_function_def(name, decl, def);
     }
 
     if let Some(def) = &decl.interface_def() {
@@ -454,7 +510,7 @@ impl DiagnosticDocNodeVisitor<'_, '_> {
     }
 
     if let Some(def) = &decl.variable_def() {
-      self.visit_variable_def(decl, def);
+      self.visit_variable_def(name, decl, def);
     }
   }
 
@@ -475,13 +531,16 @@ impl DiagnosticDocNodeVisitor<'_, '_> {
       if prop.accessibility == Some(Accessibility::Private) {
         continue; // don't do diagnostics for private types
       }
-      self
-        .diagnostics
-        .check_missing_js_doc(&prop.js_doc, &prop.location);
+      self.diagnostics.check_missing_js_doc(
+        &prop.js_doc,
+        &prop.location,
+        &prop.name,
+      );
       self.diagnostics.check_missing_explicit_type(
         prop.ts_type.as_ref(),
         &prop.js_doc,
         &prop.location,
+        &prop.name,
       )
     }
 
@@ -489,11 +548,12 @@ impl DiagnosticDocNodeVisitor<'_, '_> {
     for sig in def.index_signatures.iter() {
       self
         .diagnostics
-        .check_missing_js_doc(&sig.js_doc, &sig.location);
+        .check_missing_js_doc(&sig.js_doc, &sig.location, "");
       self.diagnostics.check_missing_explicit_type(
         sig.ts_type.as_ref(),
         &sig.js_doc,
         &sig.location,
+        "",
       )
     }
 
@@ -507,13 +567,16 @@ impl DiagnosticDocNodeVisitor<'_, '_> {
         continue; // skip, it's the implementation signature
       }
 
-      self
-        .diagnostics
-        .check_missing_js_doc(&method.js_doc, &method.location);
+      self.diagnostics.check_missing_js_doc(
+        &method.js_doc,
+        &method.location,
+        &method.name,
+      );
       self.diagnostics.check_missing_return_type(
         method.function_def.return_type.as_ref(),
         &method.js_doc,
         &method.location,
+        &method.name,
       );
 
       last_name = Some(&method.name);
@@ -528,49 +591,59 @@ impl DiagnosticDocNodeVisitor<'_, '_> {
     {
       return;
     }
-    self
-      .diagnostics
-      .check_missing_js_doc(&ctor.js_doc, &ctor.location);
+    self.diagnostics.check_missing_js_doc(
+      &ctor.js_doc,
+      &ctor.location,
+      &ctor.name,
+    );
   }
 
   fn visit_function_def(
     &mut self,
+    name: &str,
     decl: &crate::node::Declaration,
     def: &crate::function::FunctionDef,
   ) {
     self
       .diagnostics
-      .check_missing_js_doc(&decl.js_doc, &decl.location);
+      .check_missing_js_doc(&decl.js_doc, &decl.location, name);
     self.diagnostics.check_missing_return_type(
       def.return_type.as_ref(),
       &decl.js_doc,
       &decl.location,
+      name,
     );
   }
 
   fn visit_interface_def(&mut self, def: &crate::interface::InterfaceDef) {
     // constructors
     for constructor in &def.constructors {
-      self
-        .diagnostics
-        .check_missing_js_doc(&constructor.js_doc, &constructor.location);
+      self.diagnostics.check_missing_js_doc(
+        &constructor.js_doc,
+        &constructor.location,
+        "",
+      );
       self.diagnostics.check_missing_return_type(
         constructor.return_type.as_ref(),
         &constructor.js_doc,
         &constructor.location,
+        "",
       );
     }
 
     // properties
     for prop in &def.properties {
-      self
-        .diagnostics
-        .check_missing_js_doc(&prop.js_doc, &prop.location);
+      self.diagnostics.check_missing_js_doc(
+        &prop.js_doc,
+        &prop.location,
+        &prop.name,
+      );
 
       self.diagnostics.check_missing_explicit_type(
         prop.ts_type.as_ref(),
         &prop.js_doc,
         &prop.location,
+        &prop.name,
       )
     }
 
@@ -578,23 +651,27 @@ impl DiagnosticDocNodeVisitor<'_, '_> {
     for sig in &def.index_signatures {
       self
         .diagnostics
-        .check_missing_js_doc(&sig.js_doc, &sig.location);
+        .check_missing_js_doc(&sig.js_doc, &sig.location, "");
       self.diagnostics.check_missing_explicit_type(
         sig.ts_type.as_ref(),
         &sig.js_doc,
         &sig.location,
+        "",
       );
     }
 
     // methods
     for method in &def.methods {
-      self
-        .diagnostics
-        .check_missing_js_doc(&method.js_doc, &method.location);
+      self.diagnostics.check_missing_js_doc(
+        &method.js_doc,
+        &method.location,
+        &method.name,
+      );
       self.diagnostics.check_missing_return_type(
         method.return_type.as_ref(),
         &method.js_doc,
         &method.location,
+        &method.name,
       );
     }
   }
@@ -605,6 +682,7 @@ impl DiagnosticDocNodeVisitor<'_, '_> {
 
   fn visit_variable_def(
     &mut self,
+    name: &str,
     decl: &crate::node::Declaration,
     def: &VariableDef,
   ) {
@@ -612,6 +690,7 @@ impl DiagnosticDocNodeVisitor<'_, '_> {
       def.ts_type.as_ref(),
       &decl.js_doc,
       &decl.location,
+      name,
     );
   }
 }

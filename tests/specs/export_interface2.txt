@@ -5,10 +5,10 @@ export interface TypedIface<T> {
 
 # diagnostics
 error[missing-jsdoc]: exported symbol is missing JSDoc documentation
- --> /mod.ts:1:1
+ --> /mod.ts:1:18
   | 
 1 | export interface TypedIface<T> {
-  | ^
+  |                  ^
 
 
 error[missing-jsdoc]: exported symbol is missing JSDoc documentation

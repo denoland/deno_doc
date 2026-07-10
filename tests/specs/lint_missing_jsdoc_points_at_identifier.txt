@@ -1,0 +1,283 @@
+# mod.ts
+export class FsFileWrapper extends Error {}
+
+export interface SymlinkOptions {
+  type: "file" | "dir";
+}
+
+export class Command {
+  get cwd(): string {
+    return "";
+  }
+  set cwd(_value: string) {}
+}
+
+export function run() {}
+
+export const value = 1;
+
+# diagnostics
+error[missing-jsdoc]: exported symbol is missing JSDoc documentation
+ --> /mod.ts:1:14
+  | 
+1 | export class FsFileWrapper extends Error {}
+  |              ^
+
+
+error[missing-jsdoc]: exported symbol is missing JSDoc documentation
+ --> /mod.ts:3:18
+  | 
+3 | export interface SymlinkOptions {
+  |                  ^
+
+
+error[missing-jsdoc]: exported symbol is missing JSDoc documentation
+ --> /mod.ts:4:3
+  | 
+4 |   type: "file" | "dir";
+  |   ^
+
+
+error[missing-jsdoc]: exported symbol is missing JSDoc documentation
+ --> /mod.ts:7:14
+  | 
+7 | export class Command {
+  |              ^
+
+
+error[missing-jsdoc]: exported symbol is missing JSDoc documentation
+ --> /mod.ts:8:7
+  | 
+8 |   get cwd(): string {
+  |       ^
+
+
+error[missing-jsdoc]: exported symbol is missing JSDoc documentation
+  --> /mod.ts:14:17
+   | 
+14 | export function run() {}
+   |                 ^
+
+
+error[missing-jsdoc]: exported symbol is missing JSDoc documentation
+  --> /mod.ts:16:14
+   | 
+16 | export const value = 1;
+   |              ^
+
+# output.txt
+Defined in file:///mod.ts:13:1
+
+function run(): void
+
+Defined in file:///mod.ts:15:14
+
+const value: 1
+
+Defined in file:///mod.ts:6:1
+
+class Command
+
+
+Defined in file:///mod.ts:0:1
+
+class FsFileWrapper extends Error
+
+
+Defined in file:///mod.ts:2:1
+
+interface SymlinkOptions
+
+  type: "file" | "dir"
+
+
+# output.json
+{
+  "symbols": [
+    {
+      "name": "FsFileWrapper",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 0,
+            "col": 0,
+            "byteIndex": 0
+          },
+          "declarationKind": "export",
+          "kind": "class",
+          "def": {
+            "extends": "Error"
+          }
+        }
+      ]
+    },
+    {
+      "name": "SymlinkOptions",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 2,
+            "col": 0,
+            "byteIndex": 45
+          },
+          "declarationKind": "export",
+          "kind": "interface",
+          "def": {
+            "properties": [
+              {
+                "name": "type",
+                "location": {
+                  "filename": "file:///mod.ts",
+                  "line": 3,
+                  "col": 2,
+                  "byteIndex": 81
+                },
+                "tsType": {
+                  "kind": "union",
+                  "value": [
+                    {
+                      "repr": "file",
+                      "kind": "literal",
+                      "value": {
+                        "kind": "string",
+                        "string": "file"
+                      }
+                    },
+                    {
+                      "repr": "dir",
+                      "kind": "literal",
+                      "value": {
+                        "kind": "string",
+                        "string": "dir"
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Command",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 6,
+            "col": 0,
+            "byteIndex": 106
+          },
+          "declarationKind": "export",
+          "kind": "class",
+          "def": {
+            "methods": [
+              {
+                "name": "cwd",
+                "kind": "getter",
+                "functionDef": {
+                  "params": [],
+                  "returnType": {
+                    "repr": "string",
+                    "kind": "keyword",
+                    "value": "string"
+                  },
+                  "hasBody": true
+                },
+                "location": {
+                  "filename": "file:///mod.ts",
+                  "line": 7,
+                  "col": 2,
+                  "byteIndex": 131
+                }
+              },
+              {
+                "name": "cwd",
+                "kind": "setter",
+                "functionDef": {
+                  "params": [
+                    {
+                      "kind": "identifier",
+                      "name": "_value",
+                      "optional": false,
+                      "tsType": {
+                        "repr": "string",
+                        "kind": "keyword",
+                        "value": "string"
+                      }
+                    }
+                  ],
+                  "returnType": {
+                    "repr": "void",
+                    "kind": "keyword",
+                    "value": "void"
+                  },
+                  "hasBody": true
+                },
+                "location": {
+                  "filename": "file:///mod.ts",
+                  "line": 10,
+                  "col": 2,
+                  "byteIndex": 172
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "run",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 13,
+            "col": 0,
+            "byteIndex": 202
+          },
+          "declarationKind": "export",
+          "kind": "function",
+          "def": {
+            "params": [],
+            "returnType": {
+              "repr": "void",
+              "kind": "keyword",
+              "value": "void"
+            },
+            "hasBody": true
+          }
+        }
+      ]
+    },
+    {
+      "name": "value",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 15,
+            "col": 13,
+            "byteIndex": 241
+          },
+          "declarationKind": "export",
+          "kind": "variable",
+          "def": {
+            "tsType": {
+              "repr": "1",
+              "kind": "literal",
+              "value": {
+                "kind": "number",
+                "number": 1.0
+              }
+            },
+            "kind": "const"
+          }
+        }
+      ]
+    }
+  ]
+}
