@@ -26,17 +26,17 @@ error[private-type-ref]: public type 'Test.Other' references private type 'YesDi
 
 
 error[missing-jsdoc]: exported symbol is missing JSDoc documentation
- --> /mod.ts:1:1
+ --> /mod.ts:1:18
   | 
 1 | export namespace Test {
-  | ^
+  |                  ^
 
 
 error[missing-jsdoc]: exported symbol is missing JSDoc documentation
- --> /mod.ts:2:3
+ --> /mod.ts:2:16
   | 
 2 |   export class Other extends YesDiagnostic {
-  |   ^
+  |                ^
 
 # output.txt
 Defined in file:///mod.ts:8:1

@@ -13,17 +13,17 @@ error[missing-jsdoc]: exported symbol is missing JSDoc documentation
 
 
 error[missing-jsdoc]: exported symbol is missing JSDoc documentation
- --> /mod.ts:2:1
+ --> /mod.ts:2:10
   | 
 2 | function say(words: string): void { }
-  | ^
+  |          ^
 
 
 error[missing-jsdoc]: exported symbol is missing JSDoc documentation
- --> /mod.ts:3:1
+ --> /mod.ts:4:29
   | 
-3 | function foo(): void { }
-  | ^
+4 | export { hello, say, foo as bar };
+  |                             ^
 
 # output.txt
 Defined in file:///mod.ts:2:1

@@ -12,10 +12,10 @@ export interface 插件描述 {
 
 # diagnostics
 error[missing-jsdoc]: exported symbol is missing JSDoc documentation
- --> /mod.ts:2:1
+ --> /mod.ts:2:18
   | 
 2 | export interface 插件描述 {
-  | ^
+  |                  ^^
 
 
 error[missing-jsdoc]: exported symbol is missing JSDoc documentation
