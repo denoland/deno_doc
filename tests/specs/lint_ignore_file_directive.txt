@@ -1,0 +1,81 @@
+# mod.ts
+// Copyright the Deno authors.
+// deno-doc-ignore-file
+
+export const a = 1;
+
+export function b(x: number) {
+  return x;
+}
+
+# output.txt
+Defined in file:///mod.ts:5:1
+
+function b(x: number)
+
+Defined in file:///mod.ts:3:14
+
+const a: 1
+
+
+# output.json
+{
+  "symbols": [
+    {
+      "name": "a",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 3,
+            "col": 13,
+            "byteIndex": 69
+          },
+          "declarationKind": "export",
+          "kind": "variable",
+          "def": {
+            "tsType": {
+              "repr": "1",
+              "kind": "literal",
+              "value": {
+                "kind": "number",
+                "number": 1.0
+              }
+            },
+            "kind": "const"
+          }
+        }
+      ]
+    },
+    {
+      "name": "b",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 5,
+            "col": 0,
+            "byteIndex": 77
+          },
+          "declarationKind": "export",
+          "kind": "function",
+          "def": {
+            "params": [
+              {
+                "kind": "identifier",
+                "name": "x",
+                "optional": false,
+                "tsType": {
+                  "repr": "number",
+                  "kind": "keyword",
+                  "value": "number"
+                }
+              }
+            ],
+            "hasBody": true
+          }
+        }
+      ]
+    }
+  ]
+}
