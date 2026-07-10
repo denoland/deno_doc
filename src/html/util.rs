@@ -682,12 +682,27 @@ impl Tag {
     }
   }
 
+  /// Builds the chip shown for a `@since <version>` tag, eg. `Since 1.2.0`.
+  ///
+  /// Only the first line of the tag's doc is used: `@since` takes a version,
+  /// and any prose following it on subsequent lines would not fit in a chip.
+  /// A `@since` without a version renders no chip.
+  pub fn from_since(doc: &str) -> Option<Self> {
+    let version = doc.lines().next()?.trim();
+    if version.is_empty() {
+      None
+    } else {
+      Some(Tag::Other(format!("Since {version}").into_boxed_str()))
+    }
+  }
+
   pub fn from_js_doc(js_doc: &JsDoc) -> IndexSet<Tag> {
     js_doc
       .tags
       .iter()
       .filter_map(|tag| match tag {
         JsDocTag::Deprecated { .. } => Some(Tag::Deprecated),
+        JsDocTag::Since { doc } => Tag::from_since(doc),
         _ => None,
       })
       .collect()
