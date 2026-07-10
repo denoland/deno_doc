@@ -1280,3 +1280,80 @@ export class Foo {
     "`<` and `>` in the title must be escaped"
   );
 }
+
+// Regression test for https://github.com/denoland/deno_doc/issues/552:
+// `@since <version>` is parsed into `JsDocTag::Since` and printed by the
+// terminal printer, but the HTML output dropped it entirely. It now renders as
+// a tag chip, both on the symbol page itself and next to class/interface
+// members.
+#[tokio::test]
+async fn html_since_tag_is_rendered() {
+  let source = r#"
+/**
+ * A thing.
+ *
+ * @since 1.2.0
+ */
+export class Foo {
+  /**
+   * A method.
+   *
+   * @since 2.0.0
+   */
+  bar(): void {}
+}
+
+/** @since */
+export function noVersion(): void {}
+"#;
+
+  let specifier = ModuleSpecifier::parse("file:///mod.ts").unwrap();
+
+  let ctx = GenerateCtx::create_basic(
+    GenerateOptions {
+      package_name: None,
+      main_entrypoint: Some(specifier),
+      href_resolver: Arc::new(EmptyResolver),
+      usage_composer: Some(Arc::new(EmptyResolver)),
+      rewrite_map: None,
+      category_docs: None,
+      disable_search: false,
+      symbol_redirect_map: None,
+      default_symbol_map: None,
+      markdown_renderer: comrak::create_renderer(None, None, None),
+      markdown_stripper: Arc::new(comrak::strip),
+      head_inject: None,
+      id_prefix: None,
+      diff_only: false,
+    },
+    parse_source(source).await,
+    None,
+  )
+  .unwrap();
+
+  let files = generate(ctx).unwrap();
+
+  let foo = files
+    .get("./~/Foo.html")
+    .expect("a page for `Foo` should exist");
+
+  // The class' own `@since`, in the large chip on the symbol page.
+  assert!(
+    foo.contains("Since 1.2.0"),
+    "the symbol page should show a `Since 1.2.0` chip"
+  );
+  // The method's `@since`, in the small chip next to the member.
+  assert!(
+    foo.contains("Since 2.0.0"),
+    "the member should show a `Since 2.0.0` chip"
+  );
+
+  // A bare `@since` carries no version, so it renders no chip.
+  let no_version = files
+    .get("./~/noVersion.html")
+    .expect("a page for `noVersion` should exist");
+  assert!(
+    !no_version.to_lowercase().contains("since"),
+    "a `@since` without a version should not render a chip"
+  );
+}
