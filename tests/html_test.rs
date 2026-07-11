@@ -761,6 +761,66 @@ export class Foo {
   );
 }
 
+// Regression test for https://github.com/denoland/deno_doc/issues/801:
+// `@event`, `@fires`/`@emits`, and `@listens` JSDoc tags (parsed since #800)
+// must be rendered in the HTML output. They previously parsed but were dropped
+// from the rendered symbol page.
+#[tokio::test]
+async fn html_event_tags_rendered() {
+  let source = r#"
+/**
+ * A clickable button.
+ *
+ * @event click - fired when the button is clicked
+ * @fires submit
+ * @emits change
+ * @listens keydown
+ */
+export class Button {}
+"#;
+
+  let ctx = GenerateCtx::create_basic(
+    GenerateOptions {
+      package_name: None,
+      main_entrypoint: None,
+      href_resolver: Arc::new(EmptyResolver),
+      usage_composer: Some(Arc::new(EmptyResolver)),
+      rewrite_map: None,
+      category_docs: None,
+      disable_search: false,
+      symbol_redirect_map: None,
+      default_symbol_map: None,
+      markdown_renderer: comrak::create_renderer(None, None, None),
+      markdown_stripper: Arc::new(comrak::strip),
+      head_inject: None,
+      id_prefix: None,
+      diff_only: false,
+    },
+    parse_source(source).await,
+    None,
+  )
+  .unwrap();
+
+  let files = generate(ctx).unwrap();
+
+  let button_page = files
+    .iter()
+    .find(|(k, _)| k.ends_with("/~/Button.html"))
+    .map(|(_, v)| v)
+    .expect("expected a generated page for Button");
+
+  // Each tag family renders as a labeled section, and every event name (with
+  // `@emits` treated the same as `@fires`) appears in the page.
+  for needle in [
+    "Events", "Fires", "Listens", "click", "submit", "change", "keydown",
+  ] {
+    assert!(
+      button_page.contains(needle),
+      "Button page is missing {needle:?}"
+    );
+  }
+}
+
 // Regression test for https://github.com/denoland/deno_doc/issues/590:
 // `@internal` symbols are excluded from the rendered listings but were still
 // emitted into the search index, leaving them findable. This applied to both
