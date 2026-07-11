@@ -499,6 +499,8 @@ fn render_single_function(
     ));
   }
 
+  sections.extend(super::render_event_tag_sections(ctx, &decl.js_doc.tags));
+
   let decl_kind = decl.def.to_kind();
   if ctx.ctx.diff_only
     && !crate::html::diff::is_decl_added(symbol, decl_kind, &ctx.ctx.diff)
