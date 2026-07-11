@@ -499,9 +499,17 @@ impl<'a> DocParser<'a> {
                     .map(|mut node| {
                       let sym = Arc::make_mut(&mut node);
                       let decl = &mut sym.declarations[0];
-                      let target = decl.location.clone();
-                      decl.def =
-                        DeclarationDef::Reference(ReferenceDef { target });
+                      // A nested `export * as` produces a synthetic namespace
+                      // with no concrete symbol to point at. Turning it into a
+                      // reference makes it dangle (there is nothing to resolve
+                      // to) and it gets dropped, so keep it as a nested
+                      // namespace; its own elements are references to concrete
+                      // symbols and resolve normally.
+                      if !matches!(decl.def, DeclarationDef::Namespace(_)) {
+                        let target = decl.location.clone();
+                        decl.def =
+                          DeclarationDef::Reference(ReferenceDef { target });
+                      }
                       decl.location = def_location.clone();
 
                       node

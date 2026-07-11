@@ -1,0 +1,129 @@
+# inner.ts
+/** a deeply nested function */
+export function deep(): void {}
+
+# middle.ts
+/** a middle function */
+export function mid(): void {}
+/** re-export of inner */
+export * as Inner from "./inner.ts";
+
+# mod.ts
+/** re-export of middle */
+export * as Middle from "./middle.ts";
+
+# output.txt
+Defined in file:///mod.ts:1:8
+
+namespace Middle
+  re-export of middle
+
+  function mid(): void
+    a middle function
+  namespace Inner
+    re-export of inner
+
+
+# output.json
+{
+  "symbols": [
+    {
+      "name": "Middle",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 1,
+            "col": 7,
+            "byteIndex": 34
+          },
+          "declarationKind": "export",
+          "jsDoc": {
+            "doc": "re-export of middle"
+          },
+          "kind": "namespace",
+          "def": {
+            "elements": [
+              {
+                "name": "mid",
+                "declarations": [
+                  {
+                    "location": {
+                      "filename": "file:///middle.ts",
+                      "line": 1,
+                      "col": 0,
+                      "byteIndex": 25
+                    },
+                    "declarationKind": "export",
+                    "jsDoc": {
+                      "doc": "a middle function"
+                    },
+                    "kind": "function",
+                    "def": {
+                      "params": [],
+                      "returnType": {
+                        "repr": "void",
+                        "kind": "keyword",
+                        "value": "void"
+                      },
+                      "hasBody": true
+                    }
+                  }
+                ]
+              },
+              {
+                "name": "Inner",
+                "declarations": [
+                  {
+                    "location": {
+                      "filename": "file:///mod.ts",
+                      "line": 1,
+                      "col": 7,
+                      "byteIndex": 34
+                    },
+                    "declarationKind": "export",
+                    "jsDoc": {
+                      "doc": "re-export of inner"
+                    },
+                    "kind": "namespace",
+                    "def": {
+                      "elements": [
+                        {
+                          "name": "deep",
+                          "declarations": [
+                            {
+                              "location": {
+                                "filename": "file:///inner.ts",
+                                "line": 1,
+                                "col": 0,
+                                "byteIndex": 32
+                              },
+                              "declarationKind": "export",
+                              "jsDoc": {
+                                "doc": "a deeply nested function"
+                              },
+                              "kind": "function",
+                              "def": {
+                                "params": [],
+                                "returnType": {
+                                  "repr": "void",
+                                  "kind": "keyword",
+                                  "value": "void"
+                                },
+                                "hasBody": true
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}
