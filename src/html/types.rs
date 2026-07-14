@@ -760,7 +760,7 @@ pub(crate) fn render_type_params(
       .unwrap_or_default();
 
     let (diff_status, old_content) =
-      get_type_param_diff_info(type_params_diff, &type_param.name);
+      get_type_param_diff_info(ctx, type_params_diff, &type_param.name);
 
     let content = DocEntryCtx::new(
       ctx,
@@ -831,6 +831,7 @@ pub(crate) fn render_type_params(
 }
 
 fn get_type_param_diff_info(
+  ctx: &RenderContext,
   type_params_diff: Option<&crate::diff::TypeParamsDiff>,
   name: &str,
 ) -> (Option<crate::html::DiffStatus>, Option<String>) {
@@ -845,15 +846,20 @@ fn get_type_param_diff_info(
 
   if let Some(tp_diff) = diff.modified.iter().find(|tp| tp.name == name) {
     let mut old_parts = Vec::new();
+    // `.repr` is package-controlled and must not be interpolated raw. Route it
+    // through `render_type_def`, which escapes it (like every other producer of
+    // `old_content`); otherwise a string-literal type default renders as
+    // attacker HTML in the diff view.
     if let Some(constraint_change) = &tp_diff.constraint_change
       && let Some(old_constraint) = &constraint_change.old
     {
-      old_parts.push(format!(" extends {}", &old_constraint.repr));
+      old_parts
+        .push(format!(" extends {}", render_type_def(ctx, old_constraint)));
     }
     if let Some(default_change) = &tp_diff.default_change
       && let Some(old_default) = &default_change.old
     {
-      old_parts.push(format!(" = {}", &old_default.repr));
+      old_parts.push(format!(" = {}", render_type_def(ctx, old_default)));
     }
     let old_content = if old_parts.is_empty() {
       None
