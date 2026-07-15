@@ -108,9 +108,18 @@ pub fn doc_nodes_into_search_index_node(
   }];
 
   if let Some(drilldowns) = symbol.get_drilldown_symbols() {
-    out.extend(drilldowns.into_iter().flat_map(|drilldown_node| {
-      doc_nodes_into_search_index_node(ctx, &drilldown_node, Some(id.clone()))
-    }));
+    out.extend(
+      drilldowns
+        .into_iter()
+        .filter(|drilldown_node| !drilldown_node.is_internal(ctx.ctx))
+        .flat_map(|drilldown_node| {
+          doc_nodes_into_search_index_node(
+            ctx,
+            &drilldown_node,
+            Some(id.clone()),
+          )
+        }),
+    );
   }
 
   out
@@ -128,6 +137,11 @@ pub fn generate_search_index(ctx: &GenerateCtx) -> serde_json::Value {
 
   let mut seen = std::collections::HashSet::new();
   let mut doc_nodes = doc_nodes
+    // Symbols hidden from the rendered docs (e.g. `@internal`) must also be
+    // hidden from search, otherwise they remain findable there. `@ignore`
+    // symbols are already dropped earlier, but `is_internal` is only filtered
+    // in the listing views, so the search index has to apply it too. See #590.
+    .filter(|node| !node.is_internal(ctx))
     .flat_map(|node| doc_nodes_into_search_index_node(&render_ctx, &node, None))
     .filter(|node| seen.insert((node.name.clone(), node.file.clone())))
     .collect::<Vec<_>>();

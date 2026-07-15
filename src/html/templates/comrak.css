@@ -6,7 +6,8 @@
   @apply text-blue-400 dark:text-blue-500;
 }
 
-.markdown_summary, .markdown {
+.markdown_summary,
+.markdown {
   a:not(.no_color) {
     @apply link;
   }
@@ -48,7 +49,12 @@
     md:max-w-screen-md lg:max-w-[75ch];
 
   summary {
-    h1, h2, h3, h4, h5, h6 {
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6 {
       display: inline-block;
     }
   }
@@ -83,7 +89,8 @@
     @apply m-2 border-stone-500 dark:border-stone-400;
   }
 
-  ol, ul {
+  ol,
+  ul {
     @apply list-outside ml-4;
   }
 
@@ -101,7 +108,12 @@
       dark:bg-stone-800;
   }
 
-  h1, h2, h3, h4, h5, h6 {
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
     & > code {
       font-size: inherit !important;
     }
@@ -133,7 +145,8 @@
     @apply font-bold text-center py-1.5;
   }
 
-  th, td {
+  th,
+  td {
     @apply border-1.5 border-slate-300 dark:border-stone-700;
   }
 
