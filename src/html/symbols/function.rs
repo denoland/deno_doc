@@ -105,6 +105,19 @@ impl FunctionCtx {
   }
 }
 
+/// The bare identifier a parameter binds, used to match it against its
+/// `@param` JSDoc tag. Unwraps rest (`...rest` → `rest`) and default
+/// (`x = 1` → `x`) parameters. Returns `None` for array/object destructuring
+/// patterns, which bind no single name and so can't be matched by name.
+fn param_doc_name(param: &crate::params::ParamDef) -> Option<&str> {
+  match &param.pattern {
+    ParamPatternDef::Identifier { name, .. } => Some(name),
+    ParamPatternDef::Rest { arg } => param_doc_name(arg),
+    ParamPatternDef::Assign { left, .. } => param_doc_name(left),
+    ParamPatternDef::Array { .. } | ParamPatternDef::Object { .. } => None,
+  }
+}
+
 pub(crate) fn render_function_summary(
   render_ctx: &RenderContext,
   type_params: &[crate::ts_type_param::TsTypeParamDef],
@@ -297,22 +310,23 @@ fn render_single_function(
     .enumerate()
     .map(|(i, param)| {
       let (name, str_name) = crate::html::parameters::param_name(param, i);
-      // `@param` tag names are bare identifiers, but the rendered name of a
-      // rest parameter carries a `...` prefix (e.g. `...rest`). Strip it so the
-      // doc lookup matches the tag (see issue #574).
-      let lookup_name = str_name.trim_start_matches('.');
+      // Match the parameter to its `@param` tag by the bare identifier it
+      // binds. A rest parameter renders as `...rest` but is documented as
+      // `rest`, and a default (`Assign`) wraps the real binding, so unwrap
+      // both. Destructuring patterns bind no single name and so can't be
+      // matched by name (see issue #574).
+      let param_doc = param_doc_name(param).and_then(|n| param_docs.get(n));
       let id = IdBuilder::new_with_parent(ctx, &overload_id)
         .kind(IdKind::Parameter)
         .name(&str_name)
         .build();
 
-      let (mut default, optional) = if let Some((_doc, optional, default)) =
-        param_docs.get(lookup_name)
-      {
-        ((**default).to_owned(), *optional)
-      } else {
-        (None, false)
-      };
+      let (mut default, optional) =
+        if let Some((_doc, optional, default)) = param_doc {
+          ((**default).to_owned(), *optional)
+        } else {
+          (None, false)
+        };
 
       let ts_type =
         if let ParamPatternDef::Assign { left, right } = &param.pattern {
@@ -345,9 +359,7 @@ fn render_single_function(
         IndexSet::new()
       };
 
-      let param_doc = param_docs
-        .get(lookup_name)
-        .and_then(|(doc, _, _)| doc.as_deref());
+      let param_doc = param_doc.and_then(|(doc, _, _)| doc.as_deref());
 
       let (diff_status, old_content) =
         get_param_diff_info(ctx, func_diff, i, param);
