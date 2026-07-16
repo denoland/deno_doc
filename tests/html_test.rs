@@ -761,6 +761,122 @@ export class Foo {
   );
 }
 
+// Regression test for https://github.com/denoland/deno_doc/issues/574:
+// `@param` documentation must render for rest/spread parameters. The rendered
+// parameter name carries a `...` prefix, but the JSDoc `@param` tag name does
+// not, so the doc lookup has to match on the bare identifier.
+#[tokio::test]
+async fn html_rest_param_jsdoc() {
+  let source = r#"
+/**
+ * Sums numbers.
+ *
+ * @param first the leading number
+ * @param rest the trailing numbers
+ */
+export function sum(first: number, ...rest: number[]): number {
+  return first + rest.reduce((a, b) => a + b, 0);
+}
+"#;
+
+  let ctx = GenerateCtx::create_basic(
+    GenerateOptions {
+      package_name: None,
+      main_entrypoint: None,
+      href_resolver: Arc::new(EmptyResolver),
+      usage_composer: Some(Arc::new(EmptyResolver)),
+      rewrite_map: None,
+      category_docs: None,
+      disable_search: false,
+      symbol_redirect_map: None,
+      default_symbol_map: None,
+      markdown_renderer: comrak::create_renderer(None, None, None),
+      markdown_stripper: Arc::new(comrak::strip),
+      head_inject: None,
+      id_prefix: None,
+      diff_only: false,
+    },
+    parse_source(source).await,
+    None,
+  )
+  .unwrap();
+
+  let files = generate(ctx).unwrap();
+
+  let sum_page = files
+    .get("./~/sum.html")
+    .expect("function symbol page should be generated");
+
+  // The non-rest parameter has always rendered its doc.
+  assert!(
+    sum_page.contains("the leading number"),
+    "expected the first parameter's @param doc to render"
+  );
+  // The rest parameter's @param doc must render too (the bug in #574).
+  assert!(
+    sum_page.contains("the trailing numbers"),
+    "expected the rest parameter's @param doc to render"
+  );
+}
+
+// Follow-up to #574: matching `@param` tags to parameters is done by the bare
+// identifier the parameter binds, unwrapping rest/default parameters. A
+// destructuring pattern binds no single name, so it must not be matched by name
+// (it would otherwise attach an unrelated tag's doc). A rest parameter that
+// coexists with destructuring must still resolve correctly.
+#[tokio::test]
+async fn html_param_jsdoc_destructuring() {
+  let source = r#"
+/**
+ * @param opts the options bag
+ * @param rest the trailing numbers
+ */
+export function f(
+  { a, b }: { a: number; b: number },
+  ...rest: number[]
+): void {}
+"#;
+
+  let ctx = GenerateCtx::create_basic(
+    GenerateOptions {
+      package_name: None,
+      main_entrypoint: None,
+      href_resolver: Arc::new(EmptyResolver),
+      usage_composer: Some(Arc::new(EmptyResolver)),
+      rewrite_map: None,
+      category_docs: None,
+      disable_search: false,
+      symbol_redirect_map: None,
+      default_symbol_map: None,
+      markdown_renderer: comrak::create_renderer(None, None, None),
+      markdown_stripper: Arc::new(comrak::strip),
+      head_inject: None,
+      id_prefix: None,
+      diff_only: false,
+    },
+    parse_source(source).await,
+    None,
+  )
+  .unwrap();
+
+  let files = generate(ctx).unwrap();
+  let page = files
+    .get("./~/f.html")
+    .expect("function symbol page should be generated");
+
+  // The rest parameter still resolves its doc by bare identifier.
+  assert!(
+    page.contains("the trailing numbers"),
+    "expected the rest parameter's @param doc to render"
+  );
+  // The destructuring parameter binds no name, so the `@param opts` tag (whose
+  // name matches no parameter) must not be attached to it.
+  assert!(
+    !page.contains("the options bag"),
+    "an unrelated @param tag was wrongly attached to a destructuring parameter"
+  );
+}
+
 // Regression test for https://github.com/denoland/deno_doc/issues/590:
 // `@internal` symbols are excluded from the rendered listings but were still
 // emitted into the search index, leaving them findable. This applied to both
@@ -801,6 +917,7 @@ export default function (): void {}
   .unwrap();
 
   let files = generate(ctx).unwrap();
+
   let search = files
     .get("search_index.js")
     .expect("search index should be generated");
