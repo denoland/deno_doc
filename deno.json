@@ -1,7 +1,7 @@
 {
   "minimumDependencyAge": 0,
   "tasks": {
-    "build": "cp LICENSE js/LICENSE && deno run -A --min-dep-age=0 jsr:@deno/wasmbuild@0.22.0 --project deno_doc_wasm --out js",
+    "build": "cp LICENSE js/LICENSE && deno run -A jsr:@deno/wasmbuild@0.22.0 --project deno_doc_wasm --out js",
     "test": "deno test -A",
     "tailwind": "deno run -A build_css.ts",
     "gen_html": "cargo run --example ddoc -- doc --name=gen_html --output generated_docs/ --html",
