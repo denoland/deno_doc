@@ -1,7 +1,8 @@
 /target
-/js/deno_doc_wasm_bg.wasm
-/js/deno_doc_wasm.generated.d.ts
-/js/deno_doc_wasm.generated.js
+/js/deno_doc_wasm.wasm
+/js/deno_doc_wasm.d.ts
+/js/deno_doc_wasm.js
+/js/deno_doc_wasm.internal.js
 /js/LICENSE
 .vscode
 .claude
