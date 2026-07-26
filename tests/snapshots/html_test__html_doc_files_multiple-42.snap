@@ -145,7 +145,7 @@ expression: files.get(file_name).unwrap()
   </defs>
 </svg>
 </a>
-<span class="font-bold">Hello.optionalMethod</span><span class="font-medium">()<span>: <span>[<span class="td-kw">string</span>]</span></span> </span>
+<span class="font-bold">Hello.optionalMethod</span><span class="font-medium">()<span>: <span>[<span class="td-kw">string</span>?]</span></span> </span>
       </code><div class="space-y-7" id=""><section class="section"  id="return-type"><div>
       <h2 class="anchorable mb-1"><a href="#return-type" class="anchor" aria-label="Anchor" tabIndex="-1"><svg
   width="16"
@@ -172,7 +172,7 @@ expression: files.get(file_name).unwrap()
 Return Type</h2></div><div class="space-y-8"><div class=" docEntry" id="function_hello_optionalmethod_0_return">
 
   <div class="docEntryHeader">
-    <div><code><span class="font-medium text-stone-500 dark:text-stone-200"><span>[<span class="td-kw">string</span>]</span></span>
+    <div><code><span class="font-medium text-stone-500 dark:text-stone-200"><span>[<span class="td-kw">string</span>?]</span></span>
       </code>
     </div></div></div>
 </div></section>

@@ -1248,7 +1248,7 @@ expression: files
                           "name_prefix": null,
                           "name": "optionalMethod",
                           "name_href": "../././~/Hello.optionalMethod.html",
-                          "content": "()<span>: <span>[<span class=\"td-kw\">string</span>]</span></span>",
+                          "content": "()<span>: <span>[<span class=\"td-kw\">string</span>?]</span></span>",
                           "anchor": {
                             "id": "method_optionalmethod_0"
                           },
@@ -8403,7 +8403,7 @@ expression: files
                       "id": "function_hello_optionalmethod_0"
                     },
                     "name": "Hello.optionalMethod",
-                    "summary": "()<span>: <span>[<span class=\"td-kw\">string</span>]</span></span>",
+                    "summary": "()<span>: <span>[<span class=\"td-kw\">string</span>?]</span></span>",
                     "deprecated": null,
                     "content": {
                       "id": "",
@@ -8425,7 +8425,7 @@ expression: files
                                 "name_prefix": null,
                                 "name": null,
                                 "name_href": null,
-                                "content": "<span>[<span class=\"td-kw\">string</span>]</span>",
+                                "content": "<span>[<span class=\"td-kw\">string</span>?]</span>",
                                 "anchor": {
                                   "id": "function_hello_optionalmethod_0_return"
                                 },

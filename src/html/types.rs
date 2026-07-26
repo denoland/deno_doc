@@ -250,7 +250,13 @@ pub(crate) fn render_type_def(
     TsTypeDefKind::Rest(inner) => {
       format!("...{}", render_type_def(ctx, inner))
     }
-    TsTypeDefKind::Optional(inner) => render_type_def(ctx, inner),
+    TsTypeDefKind::Optional(inner) => {
+      // Tuple optional elements (`[T, U?]`) parse the trailing `U?` as an
+      // optional type. Drop the `?` here and the HTML output silently
+      // becomes `[T, U]` (denoland/deno#29669). The text-mode `Display`
+      // already appends the `?`; mirror that for HTML.
+      format!("{}?", render_type_def(ctx, inner))
+    }
     TsTypeDefKind::TypeQuery(query) => {
       if !ctx.disable_links
         && let Some(href) = ctx.lookup_symbol_href(query)
