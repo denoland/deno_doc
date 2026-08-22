@@ -157,7 +157,7 @@ Classes</h2></div><div class="namespaceSection"><div id="namespace_foobar" class
 		    <a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;Foo.html" title="Foo">
 			    <span>Foo</span><span><span>&lt;<span><span class="td-tp">T</span></span>&gt;</span>(<span><span>value<span>: <span class="td-ref">T</span></span></span></span>)</span></a><div class="namespaceItemContentDoc"><div class="markdown_summary"><p>some Foo docs <code>Bar</code></p>
 </div></div><ul class="namespaceItemContentSubItems"><li>
-                <a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;Foo.html#property_&amp;quot;&amp;gt;&amp;lt;img-src=x-onerror=alert(1)&amp;gt;">
+                <a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;Foo.html#property_&quot;&gt;&lt;img-src=x-onerror=alert(1)&gt;">
                   <span>&quot;&gt;&lt;img src=x onerror=alert(1)&gt;</span><span>: <span class="td-kw">number</span></span></a></li><li>
                 <a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;Foo.html#property_bar">
                   <span>bar</span><span>: <span class="td-str">"string"</span></span></a></li><li>

@@ -177,9 +177,14 @@ impl AsRef<str> for Id {
   }
 }
 
+/// Anchors are stored unescaped; every site that writes one into markup
+/// escapes it there (handlebars does it for templates, and the two hand-written
+/// emitters -- the table of contents and the markdown heading adapter -- do it
+/// explicitly). Escaping here too would double-escape the `id` attributes that
+/// go through handlebars, leaving them unable to match the `href`s pointing at
+/// them.
 fn sanitize_id_part(part: &str) -> String {
-  html_escape::encode_quoted_attribute(&TARGET_RE.replace_all(part, "_"))
-    .into_owned()
+  TARGET_RE.replace_all(part, "_").into_owned()
 }
 
 /// A container to hold a list of symbols with their namespaces:

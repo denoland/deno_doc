@@ -1588,3 +1588,85 @@ export function f(
     "an unrelated @param tag was wrongly attached to a destructuring parameter"
   );
 }
+
+// Anchors are stored unescaped and escaped by whoever writes them into markup.
+// Two sites write them by hand -- the table of contents and the markdown
+// heading adapter -- and the anchorizer keeps `"`, `<` and `&` (its character
+// class has ` -_` as a range over U+0020..=U+005F, not three literals). An
+// unescaped anchor there breaks out of the attribute; escaping it twice instead
+// leaves the `href` unable to match the `id` it points at.
+#[tokio::test]
+async fn html_anchors_are_escaped_once_everywhere() {
+  let source = r#"
+/**
+ * A class.
+ *
+ * ## h"eading
+ *
+ * body
+ */
+export class A {
+  '"><img src=x onerror=alert(1)>' = 0;
+}
+"#;
+
+  let ctx = GenerateCtx::create_basic(
+    GenerateOptions {
+      package_name: None,
+      main_entrypoint: None,
+      href_resolver: Arc::new(EmptyResolver),
+      usage_composer: Some(Arc::new(EmptyResolver)),
+      rewrite_map: None,
+      category_docs: None,
+      disable_search: false,
+      symbol_redirect_map: None,
+      default_symbol_map: None,
+      markdown_renderer: comrak::create_renderer(None, None, None),
+      markdown_stripper: Arc::new(comrak::strip),
+      head_inject: None,
+      id_prefix: None,
+      diff_only: false,
+    },
+    parse_source(source).await,
+    None,
+  )
+  .unwrap();
+
+  let files = generate(ctx).unwrap();
+  let page = files
+    .get("./~/A.html")
+    .expect("a page for `A` should exist");
+
+  // Nothing may break out of an attribute: every `"` from the source has to
+  // have become an entity by the time it lands in an `id` or `href`.
+  assert!(
+    !page.contains(r##"href="#h"eading"##),
+    "the table-of-contents href broke out of its attribute"
+  );
+  assert!(
+    !page.contains(r#"id="h"eading"#),
+    "the heading id broke out of its attribute"
+  );
+
+  // Escaped exactly once, so the fragment still resolves to the element.
+  assert!(
+    !page.contains("&amp;quot;"),
+    "an anchor was escaped twice, leaving hrefs unable to match their ids"
+  );
+
+  // Each anchor that is linked to must exist as an id on the page, spelled
+  // identically -- for a markdown heading and for a symbol name alike.
+  for anchor in [
+    "h&quot;eading",
+    "property_&quot;&gt;&lt;img-src=x-onerror=alert(1)&gt;",
+  ] {
+    assert!(
+      page.contains(&format!(r#"id="{anchor}""#)),
+      "expected an element with id {anchor:?}"
+    );
+    assert!(
+      page.contains(&format!(r##"href="#{anchor}""##)),
+      "expected a link to #{anchor}"
+    );
+  }
+}
