@@ -314,6 +314,11 @@ pub struct GenerateCtx {
   reference_index: std::sync::OnceLock<
     HashMap<crate::Location, Vec<(usize, DocNodeWithContext)>>,
   >,
+  /// Per-file sets of linkable symbols, used to verify that a symbol exists
+  /// in another documented file before linking to it. Built lazily on first
+  /// access.
+  linkable_symbols:
+    std::sync::OnceLock<HashMap<Arc<ShortPath>, util::NamespacedSymbols>>,
   /// Optional diff index for annotating rendered output with diff status.
   pub diff: Option<DiffIndex>,
 }
@@ -543,6 +548,7 @@ impl GenerateCtx {
       id_prefix: options.id_prefix,
       diff_only: options.diff_only,
       reference_index: std::sync::OnceLock::new(),
+      linkable_symbols: std::sync::OnceLock::new(),
       diff,
     })
   }
@@ -602,6 +608,31 @@ impl GenerateCtx {
     }
 
     self.href_resolver.resolve_path(current, target)
+  }
+
+  /// Whether the given documented file contains a linkable symbol with the
+  /// given namespaced path.
+  pub(crate) fn file_has_linkable_symbol(
+    &self,
+    short_path: &ShortPath,
+    symbol: &[String],
+  ) -> bool {
+    let linkable_symbols = self.linkable_symbols.get_or_init(|| {
+      self
+        .doc_nodes
+        .iter()
+        .map(|(short_path, nodes)| {
+          (
+            short_path.clone(),
+            util::NamespacedSymbols::new(self, nodes),
+          )
+        })
+        .collect()
+    });
+
+    linkable_symbols
+      .get(short_path)
+      .is_some_and(|symbols| symbols.get(symbol).is_some())
   }
 
   fn get_reference_index(

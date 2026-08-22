@@ -189,13 +189,61 @@ pub(crate) fn render_type_def(
                   |(_, rest)| rest.to_string(),
                 )
               };
-              ctx.ctx.href_resolver.resolve_import_href(
-                &symbol_name
-                  .split('.')
-                  .map(|s| s.to_string())
-                  .collect::<Vec<_>>(),
-                specifier,
-              )
+              let symbol_parts = symbol_name
+                .split('.')
+                .map(|s| s.to_string())
+                .collect::<Vec<_>>();
+
+              // The specifier is the raw import string; if it points to
+              // another documented file, link there directly.
+              let resolved_specifier =
+                deno_graph::ModuleSpecifier::parse(specifier).ok().or_else(
+                  || {
+                    ctx
+                      .get_current_resolve()
+                      .get_file()
+                      .and_then(|file| file.specifier.join(specifier).ok())
+                  },
+                );
+              if let Some(resolved_specifier) = resolved_specifier
+                && let Some(short_path) =
+                  ctx.ctx.doc_nodes.keys().find(|short_path| {
+                    short_path.specifier == resolved_specifier
+                  })
+              {
+                // Only link if the symbol actually exists there to avoid
+                // dead links.
+                return if ctx
+                  .ctx
+                  .file_has_linkable_symbol(short_path, &symbol_parts)
+                {
+                  Some(ctx.ctx.resolve_path(
+                    ctx.get_current_resolve(),
+                    crate::html::UrlResolveKind::Symbol {
+                      file: short_path,
+                      symbol: &symbol_parts.join("."),
+                    },
+                  ))
+                } else {
+                  None
+                };
+              }
+
+              ctx
+                .ctx
+                .href_resolver
+                .resolve_import_href(&symbol_parts, specifier)
+                .or_else(|| {
+                  // As a last resort, try the symbol's name in the source
+                  // module against the current scope: packages commonly
+                  // re-export the symbols they reference (e.g. `API.Audio`
+                  // on a class whose merged namespace re-exports `Audio`).
+                  if symbol_name != type_ref.type_name {
+                    ctx.lookup_symbol_href(&symbol_name)
+                  } else {
+                    None
+                  }
+                })
             })
           }
           crate::ts_type::TypeRefResolution::Local => {
