@@ -33,6 +33,21 @@ export const g = make();
 
 export const h = make(); // deno-doc-ignore
 
+interface Private {
+}
+
+/** doc */
+// deno-doc-ignore private-type-ref
+export type Aliased = Private | undefined;
+
+/** doc */
+// deno-doc-ignore missing-return-type
+export function multiLine(
+  x: number,
+) {
+  return x;
+}
+
 # diagnostics
 error[missing-explicit-type]: exported symbol is missing an explicit type annotation
   --> /mod.ts:18:14
@@ -81,6 +96,11 @@ Defined in file:///mod.ts:24:1
 function fn()
   doc
 
+Defined in file:///mod.ts:43:1
+
+function multiLine(x: number)
+  doc
+
 Defined in file:///mod.ts:3:14
 
 const a
@@ -114,6 +134,16 @@ const g
 Defined in file:///mod.ts:32:14
 
 const h
+
+Defined in file:///mod.ts:34:1
+
+private interface Private
+
+
+Defined in file:///mod.ts:39:1
+
+type Aliased = Private | undefined
+  doc
 
 
 # output.json
@@ -288,6 +318,95 @@ const h
           "def": {
             "kind": "const"
           }
+        }
+      ]
+    },
+    {
+      "name": "Aliased",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 39,
+            "col": 0,
+            "byteIndex": 673
+          },
+          "declarationKind": "export",
+          "jsDoc": {
+            "doc": "doc"
+          },
+          "kind": "typeAlias",
+          "def": {
+            "tsType": {
+              "kind": "union",
+              "value": [
+                {
+                  "repr": "Private",
+                  "kind": "typeRef",
+                  "value": {
+                    "typeName": "Private",
+                    "resolution": {
+                      "kind": "local"
+                    }
+                  }
+                },
+                {
+                  "repr": "undefined",
+                  "kind": "keyword",
+                  "value": "undefined"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "multiLine",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 43,
+            "col": 0,
+            "byteIndex": 767
+          },
+          "declarationKind": "export",
+          "jsDoc": {
+            "doc": "doc"
+          },
+          "kind": "function",
+          "def": {
+            "params": [
+              {
+                "kind": "identifier",
+                "name": "x",
+                "optional": false,
+                "tsType": {
+                  "repr": "number",
+                  "kind": "keyword",
+                  "value": "number"
+                }
+              }
+            ],
+            "hasBody": true
+          }
+        }
+      ]
+    },
+    {
+      "name": "Private",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 34,
+            "col": 0,
+            "byteIndex": 603
+          },
+          "declarationKind": "private",
+          "kind": "interface",
+          "def": {}
         }
       ]
     }
