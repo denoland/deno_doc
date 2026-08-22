@@ -1117,8 +1117,39 @@ impl<'a> DocParser<'a> {
 
     let mut handled_symbols = HashSet::new();
     let exports = module_info.exports(&self.root_symbol);
-    for (export_name, export) in &exports.resolved {
-      let export = export.as_resolved_export();
+
+    // deno_graph's export map only holds a single symbol per exported name,
+    // so a name exported multiple times (e.g. `export { foo as Bar }` next to
+    // `export interface Bar`, which merge in TypeScript) loses all but one of
+    // its meanings. Collect the shadowed local targets per name so their
+    // declarations can be merged back in.
+    let shadowed_export_targets = collect_shadowed_export_targets(module_info);
+
+    // Similarly, a name exported by multiple `export *` modules only resolves
+    // to the first module (e.g. a builder function coming from one star
+    // export and a same-named interface from an `export type *`). Collect the
+    // exports of every star module so the other modules' declarations can be
+    // merged back in.
+    let re_export_all_exports = ModuleInfoRef::Esm(module_info)
+      .re_export_all_nodes()
+      .map(|nodes| {
+        nodes
+          .filter_map(|node| {
+            let specifier = self
+              .resolve_dependency(
+                &node.src.value.to_string_lossy(),
+                module_info.specifier(),
+              )
+              .ok()?;
+            let module = self.get_module_info(specifier).ok()?;
+            Some(module.exports(&self.root_symbol))
+          })
+          .collect::<Vec<_>>()
+      })
+      .unwrap_or_default();
+
+    for (export_name, resolved_export) in &exports.resolved {
+      let export = resolved_export.as_resolved_export();
       handled_symbols.insert(UniqueSymbolId::new(
         export.module.module_id(),
         export.symbol_id,
@@ -1129,7 +1160,8 @@ impl<'a> DocParser<'a> {
         .go_to_definitions(export.module, export_symbol);
       let original_range = &export_symbol.decls().first().unwrap().range;
 
-      let mut declarations = vec![];
+      let mut declarations: Vec<Declaration> = vec![];
+      let mut seen_declarations = HashSet::new();
 
       for definition in definitions {
         handled_symbols.insert(definition.symbol.unique_id());
@@ -1145,7 +1177,113 @@ impl<'a> DocParser<'a> {
         );
         for mut decl in maybe_docs {
           decl.declaration_kind = DeclarationKind::Export;
-          declarations.push(decl);
+          if seen_declarations
+            .insert((decl.location.clone(), decl.def.to_kind()))
+          {
+            declarations.push(decl);
+          }
+        }
+      }
+
+      // Merge in the declarations of shadowed same-module exports of this
+      // name.
+      if let Some(targets) = shadowed_export_targets.get(export_name.as_str()) {
+        for target in targets {
+          let symbol = match target {
+            ShadowedExportTarget::SwcId(id) => module_info.symbol_from_swc(id),
+            ShadowedExportTarget::Range(range) => module_info
+              .module_symbol()
+              .child_ids()
+              .filter_map(|id| module_info.symbol(id))
+              .find(|symbol| {
+                symbol.decls().iter().any(|decl| decl.range == *range)
+              }),
+          };
+          let Some(symbol) = symbol else {
+            continue;
+          };
+          let Some(target_original_range) =
+            symbol.decls().first().map(|decl| &decl.range)
+          else {
+            continue;
+          };
+          for definition in self
+            .root_symbol
+            .go_to_definitions(ModuleInfoRef::Esm(module_info), symbol)
+          {
+            handled_symbols.insert(definition.symbol.unique_id());
+            let maybe_docs = self.decls_for_maybe_node(
+              export_name,
+              definition.module,
+              definition.symbol,
+              definition.symbol_decl.maybe_node(),
+              Some(module_info),
+              module_info.specifier(),
+              Some(definition.symbol_decl),
+              Some(target_original_range),
+            );
+            for mut decl in maybe_docs {
+              decl.declaration_kind = DeclarationKind::Export;
+              if seen_declarations
+                .insert((decl.location.clone(), decl.def.to_kind()))
+              {
+                declarations.push(decl);
+              }
+            }
+          }
+        }
+      }
+
+      // Merge in the declarations of this name from the other `export *`
+      // modules.
+      if matches!(
+        resolved_export,
+        deno_graph::symbols::ResolvedExportOrReExportAllPath::ReExportAllPath(
+          _
+        )
+      ) {
+        for star_exports in &re_export_all_exports {
+          let Some(star_export) = star_exports.resolved.get(export_name) else {
+            continue;
+          };
+          let star_export = star_export.as_resolved_export();
+          if !handled_symbols.insert(UniqueSymbolId::new(
+            star_export.module.module_id(),
+            star_export.symbol_id,
+          )) {
+            continue;
+          }
+          let star_export_symbol =
+            star_export.module.symbol(star_export.symbol_id).unwrap();
+          let Some(star_original_range) =
+            star_export_symbol.decls().first().map(|decl| &decl.range)
+          else {
+            continue;
+          };
+          for definition in self
+            .root_symbol
+            .go_to_definitions(star_export.module, star_export_symbol)
+          {
+            handled_symbols.insert(definition.symbol.unique_id());
+            let maybe_docs = self.decls_for_maybe_node(
+              export_name,
+              definition.module,
+              definition.symbol,
+              definition.symbol_decl.maybe_node(),
+              star_export.module.esm(),
+              star_export.module.specifier(),
+              Some(definition.symbol_decl),
+              Some(star_original_range),
+            );
+            for mut decl in maybe_docs {
+              decl.declaration_kind = DeclarationKind::Export;
+              if seen_declarations
+                .insert((decl.location.clone(), decl.def.to_kind()))
+              {
+                declarations.push(decl);
+              }
+            }
+          }
         }
       }
 
@@ -1528,6 +1666,96 @@ impl<'a> DocParser<'a> {
         ))
       })
   }
+}
+
+enum ShadowedExportTarget {
+  /// A local declaration or an aliased export targeting a local symbol.
+  SwcId(deno_ast::swc::ast::Id),
+  /// An aliased re-export (`export { foo as Bar } from "..."`), identified
+  /// by the range of its export specifier.
+  Range(SourceRange),
+}
+
+/// Collects, per exported name, the local targets of all module-level exports
+/// of that name.
+///
+/// deno_graph's export map only keeps a single symbol per name, so when a
+/// name is exported more than once (e.g. an aliased export next to a
+/// declaration with the exported name, which merge in TypeScript), all but
+/// one of the meanings are lost. The returned targets allow recovering them.
+/// Only names with more than one export are returned.
+fn collect_shadowed_export_targets(
+  module_info: &EsModuleInfo,
+) -> IndexMap<String, Vec<ShadowedExportTarget>> {
+  use deno_ast::swc::ast::ExportSpecifier;
+  use deno_ast::swc::ast::ModuleExportName;
+  use deno_ast::swc::ast::Pat;
+
+  let mut targets: IndexMap<String, Vec<ShadowedExportTarget>> =
+    IndexMap::new();
+
+  for item in module_info.source().program_ref().body() {
+    let ModuleItemRef::ModuleDecl(module_decl) = item else {
+      continue;
+    };
+    match module_decl {
+      ModuleDecl::ExportDecl(export_decl) => {
+        let mut add_ident = |ident: &Ident| {
+          targets
+            .entry(ident.sym.to_string())
+            .or_default()
+            .push(ShadowedExportTarget::SwcId(ident.to_id()));
+        };
+        match &export_decl.decl {
+          Decl::Class(class_decl) => add_ident(&class_decl.ident),
+          Decl::Fn(fn_decl) => add_ident(&fn_decl.ident),
+          Decl::TsInterface(interface_decl) => add_ident(&interface_decl.id),
+          Decl::TsTypeAlias(type_alias) => add_ident(&type_alias.id),
+          Decl::TsEnum(enum_decl) => add_ident(&enum_decl.id),
+          Decl::TsModule(ts_module_decl) => {
+            if let TsModuleName::Ident(ident) = &ts_module_decl.id {
+              add_ident(ident);
+            }
+          }
+          Decl::Var(var_decl) => {
+            for declarator in &var_decl.decls {
+              if let Pat::Ident(ident) = &declarator.name {
+                add_ident(&ident.id);
+              }
+            }
+          }
+          Decl::Using(_) => {}
+        }
+      }
+      ModuleDecl::ExportNamed(named_export) => {
+        for specifier in &named_export.specifiers {
+          let ExportSpecifier::Named(named_specifier) = specifier else {
+            continue;
+          };
+          let export_name = module_export_name_value(
+            named_specifier
+              .exported
+              .as_ref()
+              .unwrap_or(&named_specifier.orig),
+          );
+          let target = if named_export.src.is_some() {
+            ShadowedExportTarget::Range(named_specifier.range())
+          } else if let ModuleExportName::Ident(orig) = &named_specifier.orig {
+            ShadowedExportTarget::SwcId(orig.to_id())
+          } else {
+            continue;
+          };
+          targets.entry(export_name).or_default().push(target);
+        }
+      }
+      _ => {}
+    }
+  }
+
+  // A name with a single export can't have been shadowed.
+  targets.retain(|_, targets| targets.len() > 1);
+
+  targets
 }
 
 fn decl_from_expr(
