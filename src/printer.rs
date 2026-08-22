@@ -12,6 +12,7 @@ use crate::node::DeclarationKind;
 use crate::node::Symbol;
 use crate::parser::ParseOutput;
 use crate::ts_type::TsTypeDefKind;
+use crate::ts_type::TsTypeLiteralDef;
 
 use deno_terminal::colors;
 use deno_terminal::colors::Style;
@@ -109,7 +110,14 @@ impl DocPrinter<'_> {
           )?;
         }
 
-        self.format_signature_for_decl(w, node, decl, indent, has_overloads)?;
+        self.format_signature_for_decl(
+          w,
+          node,
+          decl,
+          indent,
+          has_overloads,
+          true,
+        )?;
         self.format_jsdoc(w, &decl.js_doc, indent + 1)?;
         writeln!(w)?;
 
@@ -156,6 +164,7 @@ impl DocPrinter<'_> {
     decl: &crate::node::Declaration,
     indent: i64,
     has_overloads: bool,
+    expand_members: bool,
   ) -> FmtResult {
     match &decl.def {
       DeclarationDef::Function(..) => {
@@ -174,7 +183,7 @@ impl DocPrinter<'_> {
         self.format_interface_signature(w, node, decl, indent)
       }
       DeclarationDef::TypeAlias(..) => {
-        self.format_type_alias_signature(w, node, decl, indent)
+        self.format_type_alias_signature(w, node, decl, indent, expand_members)
       }
       DeclarationDef::Namespace(..) => {
         self.format_namespace_signature(w, node, decl, indent)
@@ -556,6 +565,10 @@ impl DocPrinter<'_> {
       writeln!(w, "{}{}", Indent(1), constructor)?;
       self.format_jsdoc(w, &constructor.js_doc, 2)?;
     }
+    for call_signature in &interface_def.call_signatures {
+      writeln!(w, "{}{}", Indent(1), call_signature)?;
+      self.format_jsdoc(w, &call_signature.js_doc, 2)?;
+    }
     for property_def in &interface_def.properties {
       writeln!(w, "{}{}", Indent(1), property_def)?;
       self.format_jsdoc(w, &property_def.js_doc, 2)?;
@@ -623,7 +636,14 @@ impl DocPrinter<'_> {
       let has_overloads = fn_decl_count > 1;
 
       for decl in &elem.declarations {
-        self.format_signature_for_decl(w, elem, decl, 1, has_overloads)?;
+        self.format_signature_for_decl(
+          w,
+          elem,
+          decl,
+          1,
+          has_overloads,
+          false,
+        )?;
         self.format_jsdoc(w, &decl.js_doc, 2)?;
       }
     }
@@ -775,12 +795,16 @@ impl DocPrinter<'_> {
     writeln!(w)
   }
 
+  /// `expand_members` says whether the caller goes on to render the members of
+  /// an interface-like type alias with [`Self::format_type_alias`]; when it
+  /// does not, the literal has to stay inlined here or the type is lost.
   fn format_type_alias_signature(
     &self,
     w: &mut Formatter<'_>,
     node: &Symbol,
     decl: &crate::node::Declaration,
     indent: i64,
+    expand_members: bool,
   ) -> FmtResult {
     let type_alias_def = decl.type_alias_def().unwrap();
     write!(
@@ -803,8 +827,15 @@ impl DocPrinter<'_> {
     // An interface-like type alias (one whose type is a type literal) has its
     // members rendered individually by `format_type_alias`, the same way an
     // interface's are. Inlining the whole literal here as well would both
-    // duplicate them and hide the JSDoc attached to each member.
-    if matches!(type_alias_def.ts_type.kind, TsTypeDefKind::TypeLiteral(_)) {
+    // duplicate them and hide the JSDoc attached to each member. An empty
+    // literal has nothing to expand, so it keeps its inlined `= { }` — without
+    // it the alias would be indistinguishable from one whose type failed to
+    // print.
+    if expand_members
+      && let TsTypeDefKind::TypeLiteral(type_literal) =
+        &type_alias_def.ts_type.kind
+      && has_members(type_literal)
+    {
       return writeln!(w);
     }
 
@@ -879,6 +910,16 @@ impl Display for DocPrinter<'_> {
   fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
     self.format(f)
   }
+}
+
+/// Whether a type literal has anything for [`DocPrinter::format_type_alias`] to
+/// render underneath the signature line.
+fn has_members(type_literal: &TsTypeLiteralDef) -> bool {
+  !type_literal.constructors.is_empty()
+    || !type_literal.call_signatures.is_empty()
+    || !type_literal.properties.is_empty()
+    || !type_literal.methods.is_empty()
+    || !type_literal.index_signatures.is_empty()
 }
 
 fn fmt_visibility(decl_kind: DeclarationKind) -> impl std::fmt::Display {
