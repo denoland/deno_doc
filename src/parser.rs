@@ -744,15 +744,11 @@ impl<'a> DocParser<'a> {
       if method.is_static || !method.js_doc.is_empty() {
         continue;
       }
-      // an accessor can also implement an interface property signature
+      // an accessor or a method can also implement an interface property
+      // signature (e.g. a property of function type)
       let inherited = method_docs
         .get(&(method.name.to_string(), method.kind))
-        .or_else(|| match method.kind {
-          MethodKind::Getter | MethodKind::Setter => {
-            property_docs.get(&*method.name)
-          }
-          MethodKind::Method => None,
-        });
+        .or_else(|| property_docs.get(&*method.name));
       if let Some(js_doc) = inherited {
         method.js_doc = inherited_js_doc(js_doc);
       }
@@ -762,15 +758,12 @@ impl<'a> DocParser<'a> {
         continue;
       }
       // a field can also implement an interface method signature (e.g. an
-      // arrow-function member) or a getter signature
-      let inherited = property_docs
-        .get(&*property.name)
-        .or_else(|| {
-          method_docs.get(&(property.name.to_string(), MethodKind::Method))
-        })
-        .or_else(|| {
-          method_docs.get(&(property.name.to_string(), MethodKind::Getter))
-        });
+      // arrow-function member) or an accessor signature
+      let inherited = property_docs.get(&*property.name).or_else(|| {
+        [MethodKind::Method, MethodKind::Getter, MethodKind::Setter]
+          .iter()
+          .find_map(|kind| method_docs.get(&(property.name.to_string(), *kind)))
+      });
       if let Some(js_doc) = inherited {
         property.js_doc = inherited_js_doc(js_doc);
       }
