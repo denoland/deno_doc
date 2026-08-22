@@ -1417,3 +1417,58 @@ export function noVersion(): void {}
     "a `@since` without a version should not render a chip"
   );
 }
+
+// The anchorizer's character class keeps `"`, `<` and `&` (its ` -_` is a
+// range over U+0020..=U+005F, not three literals), so a markdown heading can
+// carry them into the anchor. Every other anchor is emitted through
+// handlebars, which escapes; the heading adapter writes its attributes by hand
+// and so has to escape them itself.
+#[tokio::test]
+async fn html_heading_anchor_is_escaped() {
+  let source = r#"
+/**
+ * ## x"onmouseover=alert(1) y
+ *
+ * body
+ */
+export function foo(): void {}
+"#;
+
+  let ctx = GenerateCtx::create_basic(
+    GenerateOptions {
+      package_name: None,
+      main_entrypoint: None,
+      href_resolver: Arc::new(EmptyResolver),
+      usage_composer: Some(Arc::new(EmptyResolver)),
+      rewrite_map: None,
+      category_docs: None,
+      disable_search: false,
+      symbol_redirect_map: None,
+      default_symbol_map: None,
+      markdown_renderer: comrak::create_renderer(None, None, None),
+      markdown_stripper: Arc::new(comrak::strip),
+      head_inject: None,
+      id_prefix: None,
+      diff_only: false,
+    },
+    parse_source(source).await,
+    None,
+  )
+  .unwrap();
+
+  let files = generate(ctx).unwrap();
+  let page = files
+    .get("./~/foo.html")
+    .expect("function symbol page should be generated");
+
+  // Both attribute contexts the anchor lands in must be escaped: the heading
+  // itself, and the table-of-contents link that points at it.
+  assert!(
+    page.contains(r#"id="x&quot;onmouseover=alert(1)-y"#),
+    "the heading anchor should be escaped for attribute context"
+  );
+  assert!(
+    page.contains(r##"href="#x&quot;onmouseover=alert(1)-y"##),
+    "the permalink href should be escaped the same way"
+  );
+}
