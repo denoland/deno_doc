@@ -187,6 +187,12 @@ impl comrak::adapters::HeadingAdapter for ComrakHeadingAdapter {
     _sourcepos: Option<comrak::nodes::Sourcepos>,
   ) -> std::io::Result<()> {
     let anchor = self.0(heading.content.clone(), heading.level);
+    // The anchorizer's character class keeps `"`, `<` and `&` (its ` -_` is a
+    // range over U+0020..=U+005F, not three literals), so a heading anchor has
+    // to be escaped before it goes into an attribute. Symbol ids arrive
+    // pre-escaped from `sanitize_id_part`; anchors built from markdown
+    // headings do not.
+    let anchor = html_escape::encode_quoted_attribute(&anchor);
 
     write!(
       output,
