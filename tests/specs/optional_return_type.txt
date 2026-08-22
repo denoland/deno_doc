@@ -5,17 +5,17 @@ export function foo(a: number) {
 
 # diagnostics
 error[missing-jsdoc]: exported symbol is missing JSDoc documentation
- --> /mod.ts:1:1
+ --> /mod.ts:1:17
   | 
 1 | export function foo(a: number) {
-  | ^
+  |                 ^
 
 
 error[missing-return-type]: exported function is missing an explicit return type annotation
- --> /mod.ts:1:1
+ --> /mod.ts:1:17
   | 
 1 | export function foo(a: number) {
-  | ^
+  |                 ^
 
 # output.txt
 Defined in file:///mod.ts:0:1

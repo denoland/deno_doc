@@ -14,10 +14,10 @@ export const g: boolean = favoriteColors.green;
 
 # diagnostics
 error[missing-jsdoc]: exported symbol is missing JSDoc documentation
- --> /mod.ts:1:1
+ --> /mod.ts:1:13
   | 
 1 | export type Colors = "red" | "green" | "blue";
-  | ^
+  |             ^
 
 
 error[missing-jsdoc]: exported symbol is missing JSDoc documentation

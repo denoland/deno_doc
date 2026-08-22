@@ -59,10 +59,10 @@ error[private-type-ref]: public type 'MyClass.prototype.prop' references private
 
 
 error[missing-jsdoc]: exported symbol is missing JSDoc documentation
- --> /mod.ts:3:1
+ --> /mod.ts:3:14
   | 
 3 | export class MyClass extends YesDiagnostic2 {
-  | ^
+  |              ^
 
 
 error[missing-jsdoc]: exported symbol is missing JSDoc documentation
