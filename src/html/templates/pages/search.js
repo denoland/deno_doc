@@ -3,12 +3,7 @@ const Fuse = window.Fuse;
 const searchInput = document.querySelector("#searchbar");
 const contentDiv = document.querySelector("#content");
 const searchResultsDiv = document.querySelector("#searchResults");
-const currentFile =
-  document.querySelector("meta[name='doc-current-file']").attributes
-    .getNamedItem("content").value;
-const pathToRoot = "../".repeat(
-  currentFile ? (currentFile.split("/").length + 1) : 0,
-);
+const rootUrl = new URL(".", document.currentScript.src);
 searchInput.removeAttribute("style");
 
 const SEARCH_INDEX = window.DENO_DOC_SEARCH_INDEX;
@@ -121,7 +116,9 @@ function renderResults(results) {
     }).join("");
 
     html += `<li class="block">
-<a href="${pathToRoot}${result.file}/~/${result.name}.html" class="flex rounded-lg gap-4 items-center justify-between py-2 px-3 hover:bg-stone-100 dark:hover:bg-stone-800">
+<a href="${rootUrl.href}${
+      result.file === "." ? "" : `${result.file}/`
+    }~/${result.name}.html" class="flex rounded-lg gap-4 items-center justify-between py-2 px-3 hover:bg-stone-100 dark:hover:bg-stone-800">
     <div class="flex items-center gap-2.5">
       <div class="docNodeKindIcon">
         ${kind}
