@@ -450,6 +450,13 @@ async fn html_doc_signature_examples() {
     page.contains("const example = new Example(1);"),
     "construct signature example is not rendered: {page}"
   );
+
+  // same for call signatures
+  let page = files.get("./~/ExampleCallable.html").unwrap();
+  assert!(
+    page.contains("exampleCallable(2);"),
+    "call signature example is not rendered: {page}"
+  );
 }
 
 #[tokio::test]

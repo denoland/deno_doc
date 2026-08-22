@@ -609,6 +609,10 @@ impl<'a> DocParser<'a> {
         let interface_decl = match definition.symbol_decl.maybe_node()? {
           SymbolNodeRef::TsInterface(n) => n,
           SymbolNodeRef::ExportDecl(_, ExportDeclRef::TsInterface(n)) => n,
+          SymbolNodeRef::ExportDefaultDecl(n) => match &n.decl {
+            DefaultDecl::TsInterfaceDecl(n) => n,
+            _ => return None,
+          },
           _ => return None,
         };
         Some((definition.module, interface_decl))
@@ -616,8 +620,8 @@ impl<'a> DocParser<'a> {
       .collect()
   }
 
-  /// Fills in missing JSDocs of class members from the members of the
-  /// interfaces the class implements (following `extends` between the
+  /// Fills in missing JSDocs of instance members of a class from the members
+  /// of the interfaces the class implements (following `extends` between the
   /// interfaces), mirroring how TypeScript surfaces those docs.
   fn apply_heritage_member_docs(
     &self,
@@ -632,93 +636,144 @@ impl<'a> DocParser<'a> {
       return;
     }
 
+    // `implements` only constrains the instance side of a class, so static
+    // members never inherit from it.
     let needs_docs = class_def
       .methods
       .iter()
-      .any(|method| method.js_doc.is_empty())
+      .any(|method| !method.is_static && method.js_doc.is_empty())
       || class_def
         .properties
         .iter()
-        .any(|property| property.js_doc.is_empty());
+        .any(|property| !property.is_static && property.js_doc.is_empty());
     if !needs_docs {
       return;
     }
 
+    /// Copies a JSDoc for inheritance onto a class member. `optional` and
+    /// `default` on `@param` tags describe the interface's signature, which
+    /// the class's own signature may not share, so they are not carried
+    /// over — the class parameters provide their own.
+    fn inherited_js_doc(js_doc: &JsDoc) -> JsDoc {
+      let mut js_doc = js_doc.clone();
+      for tag in js_doc.tags.iter_mut() {
+        if let crate::js_doc::JsDocTag::Param {
+          optional, default, ..
+        } = tag
+        {
+          *optional = false;
+          *default = None;
+        }
+      }
+      js_doc
+    }
+
     let mut method_docs = HashMap::<(String, MethodKind), JsDoc>::new();
     let mut property_docs = HashMap::<String, JsDoc>::new();
-
     let mut visited = HashSet::new();
-    let mut pending = class
-      .implements
-      .iter()
-      .flat_map(|type_ref| {
-        self.resolve_heritage_interfaces(module_info, &type_ref.expr)
-      })
-      .collect::<VecDeque<_>>();
 
-    while let Some((interface_module, interface_decl)) = pending.pop_front() {
-      if !visited.insert((interface_module.module_id(), interface_decl.range()))
-      {
-        continue;
-      }
-      let Some(interface_module_info) = interface_module.esm() else {
-        continue;
-      };
+    // Walk each `implements` clause depth-first through its `extends` chain
+    // before moving on to the next clause, so that the first interface in
+    // declaration order wins and a derived interface's member beats its
+    // base's.
+    for type_ref in class.implements.iter() {
+      let mut stack =
+        self.resolve_heritage_interfaces(module_info, &type_ref.expr);
+      stack.reverse();
 
-      for member in &interface_decl.body.body {
-        let (key, kind) = match member {
-          TsTypeElement::TsMethodSignature(sig) => {
-            (&sig.key, Some(MethodKind::Method))
-          }
-          TsTypeElement::TsGetterSignature(sig) => {
-            (&sig.key, Some(MethodKind::Getter))
-          }
-          TsTypeElement::TsSetterSignature(sig) => {
-            (&sig.key, Some(MethodKind::Setter))
-          }
-          TsTypeElement::TsPropertySignature(sig) => (&sig.key, None),
-          TsTypeElement::TsCallSignatureDecl(_)
-          | TsTypeElement::TsConstructSignatureDecl(_)
-          | TsTypeElement::TsIndexSignature(_) => continue,
-        };
-        let Some(js_doc) =
-          js_doc_for_range(interface_module_info, &member.range())
-        else {
-          continue;
-        };
-        if js_doc.is_empty() {
+      while let Some((interface_module, interface_decl)) = stack.pop() {
+        if !visited
+          .insert((interface_module.module_id(), interface_decl.range()))
+        {
           continue;
         }
-        let name = expr_to_name(key);
-        // the first interface in declaration order wins
-        match kind {
-          Some(kind) => {
-            method_docs.entry((name, kind)).or_insert(js_doc);
+        let Some(interface_module_info) = interface_module.esm() else {
+          continue;
+        };
+
+        for member in &interface_decl.body.body {
+          let (key, kind) = match member {
+            TsTypeElement::TsMethodSignature(sig) => {
+              (&sig.key, Some(MethodKind::Method))
+            }
+            TsTypeElement::TsGetterSignature(sig) => {
+              (&sig.key, Some(MethodKind::Getter))
+            }
+            TsTypeElement::TsSetterSignature(sig) => {
+              (&sig.key, Some(MethodKind::Setter))
+            }
+            TsTypeElement::TsPropertySignature(sig) => (&sig.key, None),
+            TsTypeElement::TsCallSignatureDecl(_)
+            | TsTypeElement::TsConstructSignatureDecl(_)
+            | TsTypeElement::TsIndexSignature(_) => continue,
+          };
+          let Some(js_doc) =
+            js_doc_for_range(interface_module_info, &member.range())
+          else {
+            continue;
+          };
+          if js_doc.is_empty() {
+            continue;
           }
-          None => {
-            property_docs.entry(name).or_insert(js_doc);
+          let name = expr_to_name(key);
+          match kind {
+            Some(kind) => {
+              method_docs.entry((name, kind)).or_insert(js_doc);
+            }
+            None => {
+              property_docs.entry(name).or_insert(js_doc);
+            }
           }
         }
-      }
 
-      pending.extend(interface_decl.extends.iter().flat_map(|type_ref| {
-        self.resolve_heritage_interfaces(interface_module_info, &type_ref.expr)
-      }));
+        let mut parents = interface_decl
+          .extends
+          .iter()
+          .flat_map(|type_ref| {
+            self.resolve_heritage_interfaces(
+              interface_module_info,
+              &type_ref.expr,
+            )
+          })
+          .collect::<Vec<_>>();
+        parents.reverse();
+        stack.extend(parents);
+      }
     }
 
     for method in class_def.methods.iter_mut() {
-      if method.js_doc.is_empty()
-        && let Some(js_doc) =
-          method_docs.get(&(method.name.to_string(), method.kind))
-      {
-        method.js_doc = js_doc.clone();
+      if method.is_static || !method.js_doc.is_empty() {
+        continue;
+      }
+      // an accessor can also implement an interface property signature
+      let inherited = method_docs
+        .get(&(method.name.to_string(), method.kind))
+        .or_else(|| match method.kind {
+          MethodKind::Getter | MethodKind::Setter => {
+            property_docs.get(&*method.name)
+          }
+          MethodKind::Method => None,
+        });
+      if let Some(js_doc) = inherited {
+        method.js_doc = inherited_js_doc(js_doc);
       }
     }
     for property in class_def.properties.iter_mut() {
-      if property.js_doc.is_empty()
-        && let Some(js_doc) = property_docs.get(&*property.name)
-      {
-        property.js_doc = js_doc.clone();
+      if property.is_static || !property.js_doc.is_empty() {
+        continue;
+      }
+      // a field can also implement an interface method signature (e.g. an
+      // arrow-function member) or a getter signature
+      let inherited = property_docs
+        .get(&*property.name)
+        .or_else(|| {
+          method_docs.get(&(property.name.to_string(), MethodKind::Method))
+        })
+        .or_else(|| {
+          method_docs.get(&(property.name.to_string(), MethodKind::Getter))
+        });
+      if let Some(js_doc) = inherited {
+        property.js_doc = inherited_js_doc(js_doc);
       }
     }
   }
@@ -788,7 +843,7 @@ impl<'a> DocParser<'a> {
       js_doc_for_range(module_info, &expando_property.inner().range())?;
     let init = expando_property.assignment();
 
-    Some(decl_from_expr(module_info, init, location, js_doc))
+    Some(decl_from_expr(self, module_info, init, location, js_doc))
   }
 
   fn get_doc_for_var_declarator_ident(
@@ -815,7 +870,7 @@ impl<'a> DocParser<'a> {
       )
     {
       let location = get_location(module_info, ident.start());
-      return Some(decl_from_expr(module_info, init, location, js_doc));
+      return Some(decl_from_expr(self, module_info, init, location, js_doc));
     }
 
     // todo(dsherret): it's not ideal to call this function over
@@ -1960,6 +2015,7 @@ fn collect_shadowed_export_targets(
 }
 
 fn decl_from_expr(
+  parser: &DocParser,
   module_info: &EsModuleInfo,
   expr: &deno_ast::swc::ast::Expr,
   location: Location,
@@ -1971,10 +2027,15 @@ fn decl_from_expr(
         .ident
         .as_ref()
         .map(|id| id.sym.to_string().into_boxed_str());
-      let (class_def, decorator_js_doc) = crate::class::class_to_class_def(
+      let (mut class_def, decorator_js_doc) = crate::class::class_to_class_def(
         module_info,
         &class_expr.class,
         def_name,
+      );
+      parser.apply_heritage_member_docs(
+        module_info,
+        &class_expr.class,
+        &mut class_def,
       );
       let js_doc = if js_doc.is_empty() {
         decorator_js_doc

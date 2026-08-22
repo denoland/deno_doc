@@ -25,3 +25,15 @@ export const Example: ExampleConstructor = class {
     this.a = a;
   }
 };
+
+/** Callable interface for examples. */
+export interface ExampleCallable {
+  /**
+   * Calls the example.
+   * @example
+   * ```ts
+   * exampleCallable(2);
+   * ```
+   */
+  (a: number): number;
+}
