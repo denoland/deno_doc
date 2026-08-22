@@ -286,6 +286,11 @@ pub struct GenerateOptions {
   pub head_inject: Option<HeadInject>,
   pub id_prefix: Option<String>,
   pub diff_only: bool,
+  /// Maximum number of symbol rows to render in module symbol listings (the
+  /// per-file overview and the "all symbols" page). When a listing exceeds
+  /// the limit, the most deeply nested namespace members are dropped first;
+  /// top-level symbols are always rendered. `None` renders everything.
+  pub symbol_listing_limit: Option<usize>,
 }
 
 #[non_exhaustive]
@@ -309,6 +314,7 @@ pub struct GenerateCtx {
   pub head_inject: Option<HeadInject>,
   pub id_prefix: Option<String>,
   pub diff_only: bool,
+  pub symbol_listing_limit: Option<usize>,
   /// Index from Location to (depth, node) for fast reference resolution.
   /// Built lazily on first access to avoid the cost when not needed.
   reference_index: std::sync::OnceLock<
@@ -547,6 +553,7 @@ impl GenerateCtx {
       head_inject: options.head_inject,
       id_prefix: options.id_prefix,
       diff_only: options.diff_only,
+      symbol_listing_limit: options.symbol_listing_limit,
       reference_index: std::sync::OnceLock::new(),
       linkable_symbols: std::sync::OnceLock::new(),
       diff,

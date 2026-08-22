@@ -110,6 +110,7 @@ fn make_options() -> GenerateOptions {
     head_inject: None,
     id_prefix: None,
     diff_only: false,
+    symbol_listing_limit: None,
   }
 }
 

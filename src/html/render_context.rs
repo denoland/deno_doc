@@ -650,6 +650,7 @@ mod test {
         head_inject: None,
         id_prefix: None,
         diff_only: false,
+        symbol_listing_limit: None,
       },
       None,
       Default::default(),
