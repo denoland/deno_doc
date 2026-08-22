@@ -509,8 +509,8 @@ impl<'a> DocParser<'a> {
                         let target = decl.location.clone();
                         decl.def =
                           DeclarationDef::Reference(ReferenceDef { target });
+                        decl.location = def_location.clone();
                       }
-                      decl.location = def_location.clone();
 
                       node
                     })
