@@ -36,7 +36,9 @@ use deno_graph::symbols::UniqueSymbolId;
 use indexmap::IndexMap;
 use std::borrow::Cow;
 use std::cell::RefCell;
+use std::collections::HashMap;
 use std::collections::HashSet;
+use std::collections::VecDeque;
 use std::error::Error;
 use std::fmt;
 use std::rc::Rc;
@@ -45,6 +47,7 @@ use std::sync::Arc;
 use crate::Location;
 use crate::diagnostics::DiagnosticsCollector;
 use crate::diagnostics::DocDiagnostic;
+use crate::interface::expr_to_name;
 use crate::js_doc::JsDoc;
 use crate::node::DeclarationDef;
 use crate::node::DeclarationKind;
@@ -539,6 +542,187 @@ impl<'a> DocParser<'a> {
     }
   }
 
+  /// Resolves a heritage clause expression (`implements Foo`,
+  /// `implements ns.Foo`) to the interface declarations it refers to,
+  /// following imports and re-exports.
+  fn resolve_heritage_interfaces<'b>(
+    &'b self,
+    module_info: &'b EsModuleInfo,
+    expr: &deno_ast::swc::ast::Expr,
+  ) -> Vec<(ModuleInfoRef<'b>, &'b TsInterfaceDecl)> {
+    use deno_ast::swc::ast::Expr;
+
+    // splits `a.b.c` into the root identifier and the member path
+    fn split_expr<'e>(
+      expr: &'e Expr,
+      parts: &mut Vec<String>,
+    ) -> Option<&'e Ident> {
+      match expr {
+        Expr::Ident(ident) => Some(ident),
+        Expr::Member(member_expr) => {
+          let root = split_expr(&member_expr.obj, parts)?;
+          let ident = member_expr.prop.as_ident()?;
+          parts.push(ident.sym.to_string());
+          Some(root)
+        }
+        _ => None,
+      }
+    }
+
+    let mut parts = Vec::new();
+    let Some(root_ident) = split_expr(expr, &mut parts) else {
+      return Vec::new();
+    };
+    let Some(symbol) = module_info.symbol_from_swc(&root_ident.to_id()) else {
+      return Vec::new();
+    };
+
+    let definitions: Vec<_> = if parts.is_empty() {
+      self
+        .root_symbol
+        .go_to_definitions(ModuleInfoRef::Esm(module_info), symbol)
+        .collect()
+    } else {
+      self
+        .root_symbol
+        .resolve_symbol_dep(
+          ModuleInfoRef::Esm(module_info),
+          &deno_graph::symbols::SymbolNodeDep::QualifiedId(
+            root_ident.to_id(),
+            parts,
+          ),
+        )
+        .into_iter()
+        .filter_map(|entry| match entry {
+          deno_graph::symbols::ResolvedSymbolDepEntry::Path(path) => {
+            Some(path.into_definitions())
+          }
+          deno_graph::symbols::ResolvedSymbolDepEntry::ImportType(_) => None,
+        })
+        .flatten()
+        .collect()
+    };
+
+    definitions
+      .into_iter()
+      .filter_map(|definition| {
+        let interface_decl = match definition.symbol_decl.maybe_node()? {
+          SymbolNodeRef::TsInterface(n) => n,
+          SymbolNodeRef::ExportDecl(_, ExportDeclRef::TsInterface(n)) => n,
+          _ => return None,
+        };
+        Some((definition.module, interface_decl))
+      })
+      .collect()
+  }
+
+  /// Fills in missing JSDocs of class members from the members of the
+  /// interfaces the class implements (following `extends` between the
+  /// interfaces), mirroring how TypeScript surfaces those docs.
+  fn apply_heritage_member_docs(
+    &self,
+    module_info: &EsModuleInfo,
+    class: &deno_ast::swc::ast::Class,
+    class_def: &mut crate::class::ClassDef,
+  ) {
+    use deno_ast::swc::ast::MethodKind;
+    use deno_ast::swc::ast::TsTypeElement;
+
+    if class.implements.is_empty() {
+      return;
+    }
+
+    let needs_docs = class_def
+      .methods
+      .iter()
+      .any(|method| method.js_doc.is_empty())
+      || class_def
+        .properties
+        .iter()
+        .any(|property| property.js_doc.is_empty());
+    if !needs_docs {
+      return;
+    }
+
+    let mut method_docs = HashMap::<(String, MethodKind), JsDoc>::new();
+    let mut property_docs = HashMap::<String, JsDoc>::new();
+
+    let mut visited = HashSet::new();
+    let mut pending = class
+      .implements
+      .iter()
+      .flat_map(|type_ref| {
+        self.resolve_heritage_interfaces(module_info, &type_ref.expr)
+      })
+      .collect::<VecDeque<_>>();
+
+    while let Some((interface_module, interface_decl)) = pending.pop_front() {
+      if !visited.insert((interface_module.module_id(), interface_decl.range()))
+      {
+        continue;
+      }
+      let Some(interface_module_info) = interface_module.esm() else {
+        continue;
+      };
+
+      for member in &interface_decl.body.body {
+        let (key, kind) = match member {
+          TsTypeElement::TsMethodSignature(sig) => {
+            (&sig.key, Some(MethodKind::Method))
+          }
+          TsTypeElement::TsGetterSignature(sig) => {
+            (&sig.key, Some(MethodKind::Getter))
+          }
+          TsTypeElement::TsSetterSignature(sig) => {
+            (&sig.key, Some(MethodKind::Setter))
+          }
+          TsTypeElement::TsPropertySignature(sig) => (&sig.key, None),
+          TsTypeElement::TsCallSignatureDecl(_)
+          | TsTypeElement::TsConstructSignatureDecl(_)
+          | TsTypeElement::TsIndexSignature(_) => continue,
+        };
+        let Some(js_doc) =
+          js_doc_for_range(interface_module_info, &member.range())
+        else {
+          continue;
+        };
+        if js_doc.is_empty() {
+          continue;
+        }
+        let name = expr_to_name(key);
+        // the first interface in declaration order wins
+        match kind {
+          Some(kind) => {
+            method_docs.entry((name, kind)).or_insert(js_doc);
+          }
+          None => {
+            property_docs.entry(name).or_insert(js_doc);
+          }
+        }
+      }
+
+      pending.extend(interface_decl.extends.iter().flat_map(|type_ref| {
+        self.resolve_heritage_interfaces(interface_module_info, &type_ref.expr)
+      }));
+    }
+
+    for method in class_def.methods.iter_mut() {
+      if method.js_doc.is_empty()
+        && let Some(js_doc) =
+          method_docs.get(&(method.name.to_string(), method.kind))
+      {
+        method.js_doc = js_doc.clone();
+      }
+    }
+    for property in class_def.properties.iter_mut() {
+      if property.js_doc.is_empty()
+        && let Some(js_doc) = property_docs.get(&*property.name)
+      {
+        property.js_doc = js_doc.clone();
+      }
+    }
+  }
+
   fn get_imports_for_module_info(
     &self,
     module_info: &EsModuleInfo,
@@ -664,8 +848,13 @@ impl<'a> DocParser<'a> {
     };
     let js_doc = js_doc_for_range(module_info, &jsdoc_range)?;
     // declared classes cannot have decorators, so we ignore that return
-    let (class_def, _) =
+    let (mut class_def, _) =
       super::class::get_doc_for_class_decl(module_info, class_decl);
+    self.apply_heritage_member_docs(
+      module_info,
+      &class_decl.class,
+      &mut class_def,
+    );
     let location = get_location(module_info, full_range.start);
     Some(Declaration::class(
       location,
@@ -973,10 +1162,16 @@ impl<'a> DocParser<'a> {
           .ident
           .as_ref()
           .map(|ident| ident.sym.to_string().into_boxed_str());
-        let (class_def, decorator_js_doc) = crate::class::class_to_class_def(
+        let (mut class_def, decorator_js_doc) =
+          crate::class::class_to_class_def(
+            module_info,
+            &class_expr.class,
+            default_name,
+          );
+        self.apply_heritage_member_docs(
           module_info,
           &class_expr.class,
-          default_name,
+          &mut class_def,
         );
         let js_doc = if js_doc.is_empty() {
           decorator_js_doc

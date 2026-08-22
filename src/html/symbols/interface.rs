@@ -207,6 +207,8 @@ pub(crate) fn render_construct_signatures(
         ctor_diff.and_then(|cd| cd.js_doc_change.as_ref()),
       );
       entry.name_prefix = Some("new".into());
+      entry.examples =
+        crate::html::jsdoc::jsdoc_example_ctxs(ctx, &constructor.js_doc);
       crate::html::parameters::attach_signature_docs(
         ctx,
         &mut entry,
@@ -353,6 +355,8 @@ pub(crate) fn render_call_signatures(
         old_tags,
         sig_diff.and_then(|sd| sd.js_doc_change.as_ref()),
       );
+      entry.examples =
+        crate::html::jsdoc::jsdoc_example_ctxs(ctx, &call_signature.js_doc);
       crate::html::parameters::attach_signature_docs(
         ctx,
         &mut entry,
