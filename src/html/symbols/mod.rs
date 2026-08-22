@@ -606,6 +606,8 @@ impl SymbolInnerCtx {
         ));
       }
 
+      sections.extend(render_event_tag_sections(ctx, &decl.js_doc.tags));
+
       if ctx.ctx.diff_only
         && !is_decl_added(symbol, decl.def.to_kind(), &ctx.ctx.diff)
         && !is_decl_removed(symbol, decl.def.to_kind(), &ctx.ctx.diff)
@@ -1074,6 +1076,72 @@ fn generate_see(ctx: &RenderContext, doc: &str) -> String {
   };
 
   crate::html::jsdoc::render_markdown(ctx, &doc, true)
+}
+
+/// Renders the `@event`, `@fires`/`@emits`, and `@listens` JSDoc tags of a
+/// symbol as labeled sections ("Events", "Fires", "Listens"), mirroring how
+/// `@see` is rendered. Each entry shows the event name followed by its optional
+/// description. Returns an empty vec when none of these tags are present, so no
+/// section is emitted for symbols that don't use them.
+pub(crate) fn render_event_tag_sections(
+  ctx: &RenderContext,
+  tags: &[crate::js_doc::JsDocTag],
+) -> Vec<SectionCtx> {
+  use crate::js_doc::JsDocTag;
+
+  fn collect(
+    ctx: &RenderContext,
+    tags: &[JsDocTag],
+    extract: impl FnMut(&JsDocTag) -> Option<(&str, Option<&str>)>,
+  ) -> Vec<String> {
+    tags
+      .iter()
+      .filter_map(extract)
+      .map(|(name, doc)| {
+        let text = match doc {
+          Some(doc) if !doc.trim().is_empty() => format!("`{name}` — {doc}"),
+          _ => format!("`{name}`"),
+        };
+        crate::html::jsdoc::render_markdown(ctx, &text, false)
+      })
+      .collect()
+  }
+
+  let mut sections = Vec::new();
+  for (title, entries) in [
+    (
+      "Events",
+      collect(ctx, tags, |tag| match tag {
+        JsDocTag::Event { name, doc } => Some((name.as_ref(), doc.as_deref())),
+        _ => None,
+      }),
+    ),
+    (
+      "Fires",
+      collect(ctx, tags, |tag| match tag {
+        JsDocTag::Fires { name, doc } => Some((name.as_ref(), doc.as_deref())),
+        _ => None,
+      }),
+    ),
+    (
+      "Listens",
+      collect(ctx, tags, |tag| match tag {
+        JsDocTag::Listens { name, doc } => {
+          Some((name.as_ref(), doc.as_deref()))
+        }
+        _ => None,
+      }),
+    ),
+  ] {
+    if !entries.is_empty() {
+      sections.push(SectionCtx::new(
+        ctx,
+        title,
+        SectionContentCtx::See(entries),
+      ));
+    }
+  }
+  sections
 }
 
 #[derive(Debug, Serialize, Deserialize)]
