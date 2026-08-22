@@ -857,8 +857,10 @@ impl ModuleDocCtx {
 
       // Very namespace-heavy modules (e.g. a package re-exporting its whole
       // API under several namespaces) can produce listings with tens of
-      // thousands of rows. When over the limit, drop the most deeply nested
-      // namespace members first; top-level symbols are always rendered.
+      // thousands of rows. While over the limit, drop the deepest level of
+      // namespace nesting whole — the result can undershoot the limit, but
+      // a namespace is either fully listed or deferred to its own page,
+      // never partially listed. Top-level symbols are always rendered.
       if let Some(limit) = render_ctx.ctx.symbol_listing_limit {
         let mut total: usize =
           partitions_by_kind.values().map(|nodes| nodes.len()).sum();

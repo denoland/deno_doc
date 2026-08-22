@@ -457,7 +457,17 @@ async fn html_doc_symbol_listing_limit() {
   let index = files.get("mod.ts/index.html").unwrap();
   assert!(index.contains(r#"id="namespace_outer_inner_innerfnone""#));
   assert!(!index.contains("omitted from this overview"));
-  // the "Symbols" panel links namespace members by their qualified name
+  // the "Symbols" panel lists namespace members under their qualified name
+  // and links to the qualified page (jsr-io/jsr#1301)
+  let panel = index.split(r#"<nav class="topSymbols">"#).nth(1).unwrap();
+  assert!(
+    panel.contains(r#"title="outer.outerFnOne""#),
+    "the Symbols panel must contain the qualified member: {panel}"
+  );
+  assert!(
+    panel.contains("outer.outerFnOne.html"),
+    "the Symbols panel must link the qualified page: {panel}"
+  );
   assert!(!index.contains(r#"title="outerFnOne""#));
 
   // the flattened listing has 10 rows; with a limit of 8, the deepest
@@ -467,6 +477,15 @@ async fn html_doc_symbol_listing_limit() {
   assert!(index.contains(r#"id="namespace_toplevelfn""#));
   assert!(index.contains(r#"id="namespace_outer_outerfnone""#));
   assert!(!index.contains(r#"id="namespace_outer_inner_innerfnone""#));
+  assert!(index.contains("omitted from this overview"));
+
+  // levels are dropped whole: limit 4 also falls through to the 3
+  // top-level rows, since keeping any of the 4 depth-1 rows would list the
+  // `outer` namespace only partially
+  let files = generate_with_limit(Some(4)).await;
+  let index = files.get("mod.ts/index.html").unwrap();
+  assert!(index.contains(r#"id="namespace_toplevelfn""#));
+  assert!(!index.contains(r#"id="namespace_outer_outerfnone""#));
   assert!(index.contains("omitted from this overview"));
 
   // top-level symbols are always rendered, even over the limit

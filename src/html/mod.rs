@@ -286,10 +286,13 @@ pub struct GenerateOptions {
   pub head_inject: Option<HeadInject>,
   pub id_prefix: Option<String>,
   pub diff_only: bool,
-  /// Maximum number of symbol rows to render in module symbol listings (the
-  /// per-file overview and the "all symbols" page). When a listing exceeds
-  /// the limit, the most deeply nested namespace members are dropped first;
-  /// top-level symbols are always rendered. `None` renders everything.
+  /// Maximum number of symbol rows to render in a single module symbol
+  /// listing (the per-file overview; the "all symbols" page contains one
+  /// such listing per entrypoint). While a listing exceeds the limit, its
+  /// deepest level of namespace nesting is dropped whole — so the result
+  /// can undershoot the limit, but every namespace is either fully listed
+  /// or deferred to its own page, never partially listed. Top-level symbols
+  /// are always rendered. `None` renders everything.
   pub symbol_listing_limit: Option<usize>,
 }
 
