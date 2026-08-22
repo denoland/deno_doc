@@ -226,6 +226,12 @@ pub fn compute_namespaced_symbols<'a>(
   let mut path_buf = Vec::new();
 
   for symbol in symbols {
+    // Internal symbols (non-exported or `@internal`) don't get their own
+    // pages, so linking to them would produce dead links.
+    if symbol.is_internal(ctx) {
+      continue;
+    }
+
     let name_path: Arc<[String]> = symbol.sub_qualifier().into();
     // Precompute prefix (ns_qualifiers) once per symbol
     let ns_prefix = &*symbol.ns_qualifiers;

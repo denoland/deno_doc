@@ -5,23 +5,23 @@ expression: files.get(file_name).unwrap()
 <!DOCTYPE html>
 <html>
 <head>
-  <title>d - documentation</title>
+  <title>default - foo - documentation</title>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="doc-current-file" content="">
-  <link rel="stylesheet" href="..&#x2F;styles.css">
-  <link rel="stylesheet" href="..&#x2F;page.css">
-  <link id="ddocResetStylesheet" rel="stylesheet" href="..&#x2F;reset.css"><script src="..&#x2F;script.js" defer></script>
-  <script src="..&#x2F;darkmode_toggle.js"></script><script src="..&#x2F;search_index.js" defer></script>
-    <script src="..&#x2F;fuse.js" defer></script>
-    <script src="..&#x2F;search.js" defer></script></head>
+  <meta name="doc-current-file" content="foo">
+  <link rel="stylesheet" href="..&#x2F;..&#x2F;styles.css">
+  <link rel="stylesheet" href="..&#x2F;..&#x2F;page.css">
+  <link id="ddocResetStylesheet" rel="stylesheet" href="..&#x2F;..&#x2F;reset.css"><script src="..&#x2F;..&#x2F;script.js" defer></script>
+  <script src="..&#x2F;..&#x2F;darkmode_toggle.js"></script><script src="..&#x2F;..&#x2F;search_index.js" defer></script>
+    <script src="..&#x2F;..&#x2F;fuse.js" defer></script>
+    <script src="..&#x2F;..&#x2F;search.js" defer></script></head>
 <body>
 <div class="ddoc">
 <div><nav id="topnav">
   <div class="h-full">
     <div class="flex items-center"><ul class="breadcrumbs">
   <li>
-    <a href="..&#x2F;" class="contextLink">index</a>
+    <a href="..&#x2F;..&#x2F;" class="contextLink">index</a>
   </li><span class="text-black dark:text-white"><svg
   width="16"
   height="16"
@@ -36,7 +36,23 @@ expression: files.get(file_name).unwrap()
     fill="currentColor"
   />
 </svg>
-</span>d</ul>
+</span><a href="..&#x2F;..&#x2F;.&#x2F;foo&#x2F;index.html" class="contextLink">foo</a><span class="text-black dark:text-white"><svg
+  width="16"
+  height="16"
+  viewBox="0 0 16 16"
+  fill="none"
+  xmlns="http://www.w3.org/2000/svg"
+>
+  <path
+    fill-rule="evenodd"
+    clip-rule="evenodd"
+    d="M5.76748 11.8159C5.5378 11.577 5.54525 11.1972 5.78411 10.9675L8.93431 8L5.78411 5.0325C5.54525 4.80282 5.5378 4.423 5.76748 4.18413C5.99715 3.94527 6.37698 3.93782 6.61584 4.1675L10.2158 7.5675C10.3335 7.68062 10.4 7.83679 10.4 8C10.4 8.16321 10.3335 8.31938 10.2158 8.4325L6.61584 11.8325C6.37698 12.0622 5.99715 12.0547 5.76748 11.8159Z"
+    fill="currentColor"
+  />
+</svg>
+</span>
+
+    <ul><li>default</li></ul></ul>
 </div>
 
     <div class="flex items-center gap-2">
@@ -100,10 +116,15 @@ expression: files.get(file_name).unwrap()
     </div>
   </div>
 </nav>
-<div id="searchResults"></div><div id="content">
-    <main><section>
-  <div class="space-y-2 flex-1"><div class="space-y-7" id="module_doc"><section class="section"  id="d_functions"><div>
-      <h2 class="anchorable mb-1"><a href="#d_functions" class="anchor" aria-label="Anchor" tabIndex="-1"><svg
+<div id="searchResults"></div><div id="content"><main class="symbolGroup" id="symbol_default"><article>
+      <div class="symbolTitle">
+        <div>
+          <div class="text-2xl leading-none break-all">
+            <span class="text-Variable">variable</span>&nbsp;<span class="font-bold">default</span>
+          </div></div></div><div><div class="space-y-7" id=""><div class="markdown"><p>The default export item.</p>
+<p>This item reproduces the issue reported in <a href="https://github.com/jsr-io/jsr/issues/459">https://github.com/jsr-io/jsr/issues/459</a></p>
+</div><section class="section"  id="type"><div>
+      <h2 class="anchorable mb-1"><a href="#type" class="anchor" aria-label="Anchor" tabIndex="-1"><svg
   width="16"
   height="16"
   viewBox="0 0 14 14"
@@ -125,19 +146,20 @@ expression: files.get(file_name).unwrap()
   </defs>
 </svg>
 </a>
-Functions</h2></div><div class="namespaceSection"><div id="namespace_externalfunction" class="namespaceItem" ><div class="docNodeKindIcon"><div class="text-Function bg-Function/15 dark:text-FunctionDark dark:bg-FunctionDark/15" title="Function">f</div></div>
-<div class="namespaceItemContent">
-		    <a href="..&#x2F;.&#x2F;d&#x2F;~&#x2F;externalFunction.html" title="externalFunction">
-			    <span>externalFunction</span><span>(<span><span>_n<span class="td-op">?</span><span>: <span class="td-kw">number</span></span></span></span>)<span>: <span class="td-kw">void</span></span></span></a></div>
-    </div></div>
-</section>
+Type</h2></div><div class="space-y-8"><div class=" docEntry" id="variable_default">
+
+  <div class="docEntryHeader">
+    <div><code><span class="font-medium text-stone-500 dark:text-stone-200"><span class="td-kw">number</span></span>
+      </code>
+    </div></div></div>
+</div></section>
 </div>
 </div>
-</section>
-</main><div class="toc">
+    </article></main>
+<div class="toc">
     <div><div class="usageContent">
-    <h3>Usage</h3><div class="markdown"><pre class="highlight"><code class="language-typescript">import * as mod from &quot;d&quot;;
-</code><button class="copyButton" data-copy="import * as mod from &quot;d&quot;;
+    <h3>Usage</h3><div class="markdown"><pre class="highlight"><code class="language-typescript">import bar from &quot;foo&quot;;
+</code><button class="copyButton" data-copy="import bar from &quot;foo&quot;;
 "><svg
   class="copy"
   width="15"
@@ -169,55 +191,8 @@ Functions</h2></div><div class="namespaceSection"><div id="namespace_externalfun
   <path d="M5 12l5 5l10 -10" />
 </svg>
 </button><code></code></pre>
-</div></div><nav class="topSymbols">
-          <h3>Symbols</h3>
-          <ul><li>
-                <a href="..&#x2F;.&#x2F;.&#x2F;~&#x2F;Foo.html" title="Foo"><div class="docNodeKindIcon"><div class="text-Class bg-Class/15 dark:text-ClassDark dark:bg-ClassDark/15" title="Class">c</div></div>
-<span class="hover:bg-Class/15 hover:bg-ClassDark/15">
-                    Foo
-                  </span>
-                </a>
-              </li><li>
-                <a href="..&#x2F;.&#x2F;.&#x2F;~&#x2F;Bar.html" title="Bar"><div class="docNodeKindIcon"><div class="text-Class bg-Class/15 dark:text-ClassDark dark:bg-ClassDark/15" title="Class">c</div></div>
-<span class="hover:bg-Class/15 hover:bg-ClassDark/15">
-                    Bar
-                  </span>
-                </a>
-              </li><li>
-                <a href="..&#x2F;.&#x2F;.&#x2F;~&#x2F;default.html" title="default"><div class="docNodeKindIcon"><div class="text-Class bg-Class/15 dark:text-ClassDark dark:bg-ClassDark/15" title="Class">c</div></div>
-<span class="hover:bg-Class/15 hover:bg-ClassDark/15">
-                    default
-                  </span>
-                </a>
-              </li><li>
-                <a href="..&#x2F;.&#x2F;.&#x2F;~&#x2F;AbstractClass.html" title="AbstractClass"><div class="docNodeKindIcon"><div class="text-Class bg-Class/15 dark:text-ClassDark dark:bg-ClassDark/15" title="Class">c</div></div>
-<span class="hover:bg-Class/15 hover:bg-ClassDark/15">
-                    AbstractClass
-                  </span>
-                </a>
-              </li><li>
-                <a href="..&#x2F;.&#x2F;.&#x2F;~&#x2F;Hello.html" title="Hello"><div class="docNodeKindIcon"><div class="text-Interface bg-Interface/15 dark:text-InterfaceDark dark:bg-InterfaceDark/15" title="Interface">I</div></div>
-<span class="hover:bg-Interface/15 hover:bg-InterfaceDark/15">
-                    Hello
-                  </span>
-                </a>
-              </li></ul><a class="flex items-center gap-0.5" href="..&#x2F;.&#x2F;all_symbols.html">
-              <span class="leading-none">view all 27 symbols</span><svg
-  width="16"
-  height="16"
-  viewBox="0 0 16 16"
-  fill="none"
-  xmlns="http://www.w3.org/2000/svg"
->
-  <path
-    fill-rule="evenodd"
-    clip-rule="evenodd"
-    d="M5.76748 11.8159C5.5378 11.577 5.54525 11.1972 5.78411 10.9675L8.93431 8L5.78411 5.0325C5.54525 4.80282 5.5378 4.423 5.76748 4.18413C5.99715 3.94527 6.37698 3.93782 6.61584 4.1675L10.2158 7.5675C10.3335 7.68062 10.4 7.83679 10.4 8C10.4 8.16321 10.3335 8.31938 10.2158 8.4325L6.61584 11.8325C6.37698 12.0622 5.99715 12.0547 5.76748 11.8159Z"
-    fill="currentColor"
-  />
-</svg>
-</a></nav><nav class="documentNavigation">
-          <h3>Document Navigation</h3><ul><li><a href="#d_functions" title="Functions">Functions</a></li><li><ul><li><a href="#namespace_externalfunction" title="externalFunction">externalFunction</a></li></ul></li></ul></nav></div>
+</div></div><nav class="documentNavigation">
+          <h3>Document Navigation</h3><ul><li><a href="#type" title="Type">Type</a></li></ul></nav></div>
   </div></div>
 </div>
 </div>

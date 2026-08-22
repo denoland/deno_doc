@@ -277,6 +277,75 @@ async fn html_doc_files_single() {
 }
 
 #[tokio::test]
+async fn html_doc_import_linking() {
+  let ctx = GenerateCtx::create_basic(
+    GenerateOptions {
+      package_name: None,
+      main_entrypoint: None,
+      href_resolver: Arc::new(EmptyResolver),
+      usage_composer: Some(Arc::new(EmptyResolver)),
+      rewrite_map: None,
+      category_docs: None,
+      disable_search: false,
+      symbol_redirect_map: None,
+      default_symbol_map: None,
+      markdown_renderer: comrak::create_renderer(None, None, None),
+      markdown_stripper: Arc::new(comrak::strip),
+      head_inject: None,
+      id_prefix: None,
+      diff_only: false,
+    },
+    get_files("import_linking").await,
+    None,
+  )
+  .unwrap();
+  let files = generate(ctx).unwrap();
+
+  // the non-exported `Internal` type alias must not get its own page
+  assert!(!files.keys().any(|file| file.contains("Internal")));
+
+  // `import type * as t` references link to the other entrypoint
+  let expression = files.get("mod.ts/~/expression.html").unwrap();
+  assert!(
+    expression.contains(
+      r##"<a href="../.././types.ts/~/Expression.html" class="link td-ref">t.Expression</a>"##
+    ),
+    "namespace import type reference is not linked: {expression}"
+  );
+
+  // `{@link t.Expression}` in the jsdoc links as well
+  assert!(
+    expression.matches("types.ts/~/Expression.html").count() > 1,
+    "namespace import jsdoc link is not linked: {expression}"
+  );
+
+  // `import type { Statement as Stmt }` references link to the original
+  // symbol in the other entrypoint
+  let statement = files.get("mod.ts/~/statement.html").unwrap();
+  assert!(
+    statement.contains(
+      r##"<a href="../.././types.ts/~/Statement.html" class="link td-ref">Stmt</a>"##
+    ),
+    "aliased import type reference is not linked: {statement}"
+  );
+
+  // a reference to a symbol that doesn't exist in the imported module must
+  // not be linked
+  let missing = files.get("mod.ts/~/missing.html").unwrap();
+  assert!(
+    missing.contains(r#"<span class="td-ref">t.DoesNotExist</span>"#),
+    "nonexistent symbol must not be linked: {missing}"
+  );
+
+  // a reference to a non-exported symbol must not be linked
+  let alias = files.get("types.ts/~/Scope.Alias.html").unwrap();
+  assert!(
+    alias.contains(r#"<span class="td-ref">Internal</span>"#),
+    "internal symbol must not be linked: {alias}"
+  );
+}
+
+#[tokio::test]
 async fn html_doc_files_multiple() {
   let multiple_dir = std::env::current_dir()
     .unwrap()
@@ -331,15 +400,11 @@ async fn html_doc_files_multiple() {
     [
       "./all_symbols.html",
       "./index.html",
-      "./~/A.html",
-      "./~/A.prototype.html",
       "./~/AbstractClass.html",
       "./~/AbstractClass.prototype.foo.html",
       "./~/AbstractClass.prototype.getter.html",
       "./~/AbstractClass.prototype.html",
       "./~/AbstractClass.prototype.method.html",
-      "./~/B.html",
-      "./~/B.prototype.html",
       "./~/Bar.html",
       "./~/Bar.prototype.html",
       "./~/Baz.bar.html",
