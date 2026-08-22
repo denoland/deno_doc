@@ -237,14 +237,15 @@ fn render_constructors(
         .kind(IdKind::Constructor)
         .index(i)
         .build();
+      let id_for_params = id.clone();
 
-      let params = constructor
+      let param_defs = constructor
         .params
         .iter()
         .map(|param| param.param.clone())
         .collect::<Vec<_>>();
 
-      let params = render_params(ctx, &params);
+      let params = render_params(ctx, &param_defs);
 
       let diff_status =
         get_constructor_diff_status(constructor_changes, constructor);
@@ -281,6 +282,14 @@ fn render_constructors(
       entry.name_prefix = Some("new".into());
       entry.examples =
         crate::html::jsdoc::jsdoc_example_ctxs(ctx, &constructor.js_doc);
+      crate::html::parameters::attach_signature_docs(
+        ctx,
+        &mut entry,
+        &param_defs,
+        &constructor.js_doc,
+        &id_for_params,
+        &constructor.location,
+      );
 
       entry
     })

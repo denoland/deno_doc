@@ -37,6 +37,24 @@
     </div>
   {{~/if~}}
 
+  {{~#if params~}}
+    <div class="docEntryParams">
+      <span class="docEntryParamsTitle">Parameters</span>
+      {{~#each params~}}
+        {{~> doc_entry this ~}}
+      {{~/each~}}
+    </div>
+  {{~/if~}}
+
+  {{~#if return_doc~}}
+    <div class="docEntryParams">
+      <span class="docEntryParamsTitle">Returns</span>
+      <div class="max-w-[75ch]">
+        {{{~return_doc~}}} {{! markdown rendering }}
+      </div>
+    </div>
+  {{~/if~}}
+
   {{~#if examples~}}
     <div class="space-y-2 mt-3">
       {{~#each examples~}}
