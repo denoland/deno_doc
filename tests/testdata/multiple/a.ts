@@ -147,6 +147,8 @@ export interface InterfaceWithIndexSignature {
 }
 
 export type Baz<T> = {
+  /** Constructs a Baz. */
+  new (value: T): Baz<T>;
   foo: Record<string, T extends string ? 0 : 1>;
   bar(): InterfaceWithIndexSignature["test"];
 };

@@ -982,6 +982,16 @@ pub(crate) fn render_type_def_sections(
       sections.push(index_signatures);
     }
 
+    if let Some(construct_signatures) = interface::render_construct_signatures(
+      ctx,
+      &ts_type_literal.constructors,
+      type_lit_diff
+        .as_ref()
+        .and_then(|d| d.constructor_changes.as_ref()),
+    ) {
+      sections.push(construct_signatures);
+    }
+
     if let Some(call_signatures) = interface::render_call_signatures(
       ctx,
       &ts_type_literal.call_signatures,
