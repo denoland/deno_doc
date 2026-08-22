@@ -233,6 +233,17 @@ pub(crate) fn render_type_def(
                 .ctx
                 .href_resolver
                 .resolve_import_href(&symbol_parts, specifier)
+                .or_else(|| {
+                  // As a last resort, try the symbol's name in the source
+                  // module against the current scope: packages commonly
+                  // re-export the symbols they reference (e.g. `API.Audio`
+                  // on a class whose merged namespace re-exports `Audio`).
+                  if symbol_name != type_ref.type_name {
+                    ctx.lookup_symbol_href(&symbol_name)
+                  } else {
+                    None
+                  }
+                })
             })
           }
           crate::ts_type::TypeRefResolution::Local => {

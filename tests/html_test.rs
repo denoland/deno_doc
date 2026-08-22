@@ -346,6 +346,79 @@ async fn html_doc_import_linking() {
 }
 
 #[tokio::test]
+async fn html_doc_import_linking_internal_file() {
+  let dir = std::env::current_dir()
+    .unwrap()
+    .join("tests")
+    .join("testdata")
+    .join("import_linking_internal");
+  let source_files =
+    vec![ModuleSpecifier::from_file_path(dir.join("mod.ts")).unwrap()];
+
+  let loader = SourceFileLoader {};
+  let analyzer = CapturingModuleAnalyzer::default();
+  let mut graph = ModuleGraph::new(GraphKind::TypesOnly);
+  graph
+    .build(
+      source_files.clone(),
+      Vec::new(),
+      &loader,
+      BuildOptions {
+        module_analyzer: &analyzer,
+        ..Default::default()
+      },
+    )
+    .await;
+
+  let parse_output = DocParser::new(
+    &graph,
+    &analyzer,
+    &source_files,
+    DocParserOptions {
+      diagnostics: false,
+      private: false,
+    },
+  )
+  .unwrap()
+  .parse()
+  .unwrap();
+
+  let ctx = GenerateCtx::create_basic(
+    GenerateOptions {
+      package_name: None,
+      main_entrypoint: None,
+      href_resolver: Arc::new(EmptyResolver),
+      usage_composer: Some(Arc::new(EmptyResolver)),
+      rewrite_map: None,
+      category_docs: None,
+      disable_search: false,
+      symbol_redirect_map: None,
+      default_symbol_map: None,
+      markdown_renderer: comrak::create_renderer(None, None, None),
+      markdown_stripper: Arc::new(comrak::strip),
+      head_inject: None,
+      id_prefix: None,
+      diff_only: false,
+    },
+    parse_output,
+    None,
+  )
+  .unwrap();
+  let files = generate(ctx).unwrap();
+
+  // `API.Audio` references a file that isn't a documented entrypoint, but
+  // the package re-exports `Audio`, so the reference links to that
+  // re-export.
+  let client = files.get("./~/Client.html").unwrap();
+  assert!(
+    client.contains(
+      r##"<a href="../././~/Audio.html" class="link td-ref">API.Audio</a>"##
+    ),
+    "reference to a symbol of an internal file must link to the package's re-export: {client}"
+  );
+}
+
+#[tokio::test]
 async fn html_doc_files_multiple() {
   let multiple_dir = std::env::current_dir()
     .unwrap()
