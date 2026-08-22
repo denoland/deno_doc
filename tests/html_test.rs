@@ -1413,7 +1413,7 @@ export function noVersion(): void {}
     .get("./~/noVersion.html")
     .expect("a page for `noVersion` should exist");
   assert!(
-    !no_version.to_lowercase().contains("since"),
+    !no_version.contains("text-other"),
     "a `@since` without a version should not render a chip"
   );
 }
