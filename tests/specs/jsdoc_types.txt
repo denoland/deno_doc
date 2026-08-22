@@ -73,24 +73,24 @@ error[missing-explicit-type]: exported symbol is missing an explicit type annota
 
 
 error[missing-jsdoc]: exported symbol is missing JSDoc documentation
-  --> /mod.ts:38:1
+  --> /mod.ts:38:17
    | 
 38 | export function handler() {}
-   | ^
+   |                 ^
 
 
 error[missing-jsdoc]: exported symbol is missing JSDoc documentation
-  --> /mod.ts:43:1
+  --> /mod.ts:43:14
    | 
 43 | export class StringList {}
-   | ^
+   |              ^
 
 
 error[missing-jsdoc]: exported symbol is missing JSDoc documentation
-  --> /mod.ts:50:1
+  --> /mod.ts:50:14
    | 
 50 | export class Config {}
-   | ^
+   |              ^
 
 # output.txt
 Defined in file:///mod.ts:37:1
