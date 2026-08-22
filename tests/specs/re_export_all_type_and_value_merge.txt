@@ -1,0 +1,189 @@
+# builders.ts
+/** builder function */
+export function arrayExpression(): number {
+  return 1;
+}
+
+# uppercase.ts
+export { arrayExpression as ArrayExpression } from "./builders.ts";
+
+# asttypes.ts
+/** node interface */
+export interface ArrayExpression {
+  elements: number[];
+}
+
+/** comment interface */
+export interface CommentBlock {
+  value: string;
+}
+
+# mod.ts
+export * from "./builders.ts";
+export * from "./uppercase.ts";
+export type * from "./asttypes.ts";
+
+# diagnostics
+error[missing-jsdoc]: exported symbol is missing JSDoc documentation
+ --> /asttypes.ts:3:3
+  | 
+3 |   elements: number[];
+  |   ^
+
+
+error[missing-jsdoc]: exported symbol is missing JSDoc documentation
+ --> /asttypes.ts:8:3
+  | 
+8 |   value: string;
+  |   ^
+
+# output.txt
+Defined in file:///builders.ts:1:1
+
+function arrayExpression(): number
+  builder function
+
+Defined in file:///uppercase.ts:0:10
+
+reference ArrayExpression: file:///builders.ts:1:1
+
+Defined in file:///asttypes.ts:1:1
+
+interface ArrayExpression
+  node interface
+
+  elements: number[]
+
+Defined in file:///asttypes.ts:6:1
+
+interface CommentBlock
+  comment interface
+
+  value: string
+
+
+# output.json
+{
+  "symbols": [
+    {
+      "name": "arrayExpression",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///builders.ts",
+            "line": 1,
+            "col": 0,
+            "byteIndex": 24
+          },
+          "declarationKind": "export",
+          "jsDoc": {
+            "doc": "builder function"
+          },
+          "kind": "function",
+          "def": {
+            "params": [],
+            "returnType": {
+              "repr": "number",
+              "kind": "keyword",
+              "value": "number"
+            },
+            "hasBody": true
+          }
+        }
+      ]
+    },
+    {
+      "name": "ArrayExpression",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///uppercase.ts",
+            "line": 0,
+            "col": 9,
+            "byteIndex": 9
+          },
+          "declarationKind": "export",
+          "kind": "reference",
+          "def": {
+            "target": {
+              "filename": "file:///builders.ts",
+              "line": 1,
+              "col": 0,
+              "byteIndex": 24
+            }
+          }
+        },
+        {
+          "location": {
+            "filename": "file:///asttypes.ts",
+            "line": 1,
+            "col": 0,
+            "byteIndex": 22
+          },
+          "declarationKind": "export",
+          "jsDoc": {
+            "doc": "node interface"
+          },
+          "kind": "interface",
+          "def": {
+            "properties": [
+              {
+                "name": "elements",
+                "location": {
+                  "filename": "file:///asttypes.ts",
+                  "line": 2,
+                  "col": 2,
+                  "byteIndex": 59
+                },
+                "tsType": {
+                  "kind": "array",
+                  "value": {
+                    "repr": "number",
+                    "kind": "keyword",
+                    "value": "number"
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "CommentBlock",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///asttypes.ts",
+            "line": 6,
+            "col": 0,
+            "byteIndex": 107
+          },
+          "declarationKind": "export",
+          "jsDoc": {
+            "doc": "comment interface"
+          },
+          "kind": "interface",
+          "def": {
+            "properties": [
+              {
+                "name": "value",
+                "location": {
+                  "filename": "file:///asttypes.ts",
+                  "line": 7,
+                  "col": 2,
+                  "byteIndex": 141
+                },
+                "tsType": {
+                  "repr": "string",
+                  "kind": "keyword",
+                  "value": "string"
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}
