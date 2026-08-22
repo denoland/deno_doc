@@ -25,6 +25,11 @@ export const b5: () => void = function () {};
 /** b6 - block body returning a value: cannot infer, must annotate */
 export const b6 = function () { return 1; };
 
+/** a7 - value returned from an else branch: cannot infer, must annotate */
+export const a7 = () => { if (Math.random()) {} else { return 1; } };
+/** b7 - value returned from an else branch: cannot infer, must annotate */
+export const b7 = function () { if (Math.random()) {} else { return 1; } };
+
 /** async arrow */
 export const c1 = async () => {};
 /** async function expression */
@@ -49,6 +54,20 @@ error[missing-return-type]: exported function is missing an explicit return type
   --> /mod.ts:25:14
    | 
 25 | export const b6 = function () { return 1; };
+   |              ^
+
+
+error[missing-return-type]: exported function is missing an explicit return type annotation
+  --> /mod.ts:28:14
+   | 
+28 | export const a7 = () => { if (Math.random()) {} else { return 1; } };
+   |              ^
+
+
+error[missing-return-type]: exported function is missing an explicit return type annotation
+  --> /mod.ts:30:14
+   | 
+30 | export const b7 = function () { if (Math.random()) {} else { return 1; } };
    |              ^
 
 # output.txt
@@ -82,6 +101,11 @@ Defined in file:///mod.ts:11:14
 function a6()
   a6 - block body returning a value: cannot infer, must annotate
 
+Defined in file:///mod.ts:27:14
+
+function a7()
+  a7 - value returned from an else branch: cannot infer, must annotate
+
 Defined in file:///mod.ts:14:14
 
 function b1(): void
@@ -112,12 +136,17 @@ Defined in file:///mod.ts:24:14
 function b6()
   b6 - block body returning a value: cannot infer, must annotate
 
-Defined in file:///mod.ts:27:14
+Defined in file:///mod.ts:29:14
+
+function b7()
+  b7 - value returned from an else branch: cannot infer, must annotate
+
+Defined in file:///mod.ts:32:14
 
 async function c1(): Promise<void>
   async arrow
 
-Defined in file:///mod.ts:29:14
+Defined in file:///mod.ts:34:14
 
 async function c2(): Promise<void>
   async function expression
@@ -436,14 +465,58 @@ async function c2(): Promise<void>
       ]
     },
     {
-      "name": "c1",
+      "name": "a7",
       "declarations": [
         {
           "location": {
             "filename": "file:///mod.ts",
             "line": 27,
             "col": 13,
-            "byteIndex": 772
+            "byteIndex": 829
+          },
+          "declarationKind": "export",
+          "jsDoc": {
+            "doc": "a7 - value returned from an else branch: cannot infer, must annotate"
+          },
+          "kind": "function",
+          "def": {
+            "params": [],
+            "hasBody": true
+          }
+        }
+      ]
+    },
+    {
+      "name": "b7",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 29,
+            "col": 13,
+            "byteIndex": 975
+          },
+          "declarationKind": "export",
+          "jsDoc": {
+            "doc": "b7 - value returned from an else branch: cannot infer, must annotate"
+          },
+          "kind": "function",
+          "def": {
+            "params": [],
+            "hasBody": true
+          }
+        }
+      ]
+    },
+    {
+      "name": "c1",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 32,
+            "col": 13,
+            "byteIndex": 1071
           },
           "declarationKind": "export",
           "jsDoc": {
@@ -478,9 +551,9 @@ async function c2(): Promise<void>
         {
           "location": {
             "filename": "file:///mod.ts",
-            "line": 29,
+            "line": 34,
             "col": 13,
-            "byteIndex": 839
+            "byteIndex": 1138
           },
           "declarationKind": "export",
           "jsDoc": {

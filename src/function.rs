@@ -188,7 +188,11 @@ fn get_return_stmt_with_arg_from_stmt(stmt: &Stmt) -> Option<&ReturnStmt> {
       }
     }
     Stmt::Labeled(n) => get_return_stmt_with_arg_from_stmt(&n.body),
-    Stmt::If(n) => get_return_stmt_with_arg_from_stmt(&n.cons),
+    Stmt::If(n) => get_return_stmt_with_arg_from_stmt(&n.cons).or_else(|| {
+      n.alt
+        .as_deref()
+        .and_then(get_return_stmt_with_arg_from_stmt)
+    }),
     Stmt::Switch(n) => n
       .cases
       .iter()
