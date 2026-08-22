@@ -229,7 +229,7 @@ expression: files
                           "name_href": "../././~/Foo.prototype.%22%3E%3Cimg%20src=x%20onerror=alert(1)%3E.html",
                           "content": "<span>: <span class=\"td-kw\">number</span></span>",
                           "anchor": {
-                            "id": "property_&quot;&gt;&lt;img-src=x-onerror=alert(1)&gt;"
+                            "id": "property_\"><img-src=x-onerror=alert(1)>"
                           },
                           "tags": [],
                           "js_doc": null,
@@ -502,7 +502,7 @@ expression: files
         {
           "level": 2,
           "content": "\"&gt;&lt;img src=x onerror=alert(1)&gt;",
-          "anchor": "property_&quot;&gt;&lt;img-src=x-onerror=alert(1)&gt;"
+          "anchor": "property_\"><img-src=x-onerror=alert(1)>"
         },
         {
           "level": 2,
@@ -7791,7 +7791,7 @@ expression: files
                           "name_href": null,
                           "content": "<span class=\"td-kw\">number</span>",
                           "anchor": {
-                            "id": "variable_foo_prototype_&quot;&gt;&lt;img-src=x-onerror=alert(1)&gt;"
+                            "id": "variable_foo_prototype_\"><img-src=x-onerror=alert(1)>"
                           },
                           "tags": [],
                           "js_doc": null,

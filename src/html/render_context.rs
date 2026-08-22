@@ -415,7 +415,10 @@ impl HeadingToCAdapter {
 
       toc_content.push(format!(
         r##"<li><a href="#{}" title="{}">{}</a></li>"##,
-        entry.anchor,
+        // The anchorizer keeps `"`, `<` and `&` (its character class has ` -_`
+        // as a range over U+0020..=U+005F), so an anchor built from a markdown
+        // heading would otherwise break out of the attribute.
+        html_escape::encode_double_quoted_attribute(&entry.anchor),
         html_escape::encode_double_quoted_attribute(&entry.content),
         entry.content
       ));
