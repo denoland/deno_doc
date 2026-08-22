@@ -111,6 +111,18 @@ impl SymbolGroupCtx {
           tags.insert(Tag::Permissions(permissions.into_iter().collect()));
         }
 
+        if let Some(since) = decls.iter().find_map(|node| {
+          node.js_doc.tags.iter().find_map(|tag| {
+            if let JsDocTag::Since { doc } = tag {
+              Tag::from_since(doc)
+            } else {
+              None
+            }
+          })
+        }) {
+          tags.insert(since);
+        }
+
         if symbol.is_internal(ctx.ctx) {
           tags.insert(Tag::Private);
         }
@@ -165,6 +177,11 @@ impl SymbolGroupCtx {
                 JsDocTag::Experimental => {
                   old_tags.swap_remove(&Tag::Unstable);
                 }
+                JsDocTag::Since { doc } => {
+                  if let Some(since) = Tag::from_since(doc) {
+                    old_tags.swap_remove(&since);
+                  }
+                }
                 JsDocTag::Tags { tags: tag_values } => {
                   let new_perms: Vec<_> = tag_values
                     .iter()
@@ -182,6 +199,11 @@ impl SymbolGroupCtx {
               match removed {
                 JsDocTag::Experimental => {
                   old_tags.insert(Tag::Unstable);
+                }
+                JsDocTag::Since { doc } => {
+                  if let Some(since) = Tag::from_since(doc) {
+                    old_tags.insert(since);
+                  }
                 }
                 JsDocTag::Tags { tags: tag_values } => {
                   let removed_perms: Box<[Box<str>]> = tag_values
