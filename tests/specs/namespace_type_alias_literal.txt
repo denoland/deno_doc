@@ -1,0 +1,110 @@
+# mod.ts
+/** A namespace. */
+declare namespace N {
+  /** An interface-like type alias. */
+  export type T = {
+    /** A property. */
+    a: string;
+    b(): void;
+  };
+}
+
+# output.txt
+Defined in file:///mod.ts:1:1
+
+namespace N
+  A namespace.
+
+  type T = { b(): void; a: string; }
+    An interface-like type alias.
+
+
+# output.json
+{
+  "symbols": [
+    {
+      "name": "N",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 1,
+            "col": 0,
+            "byteIndex": 20
+          },
+          "declarationKind": "declare",
+          "jsDoc": {
+            "doc": "A namespace."
+          },
+          "kind": "namespace",
+          "def": {
+            "elements": [
+              {
+                "name": "T",
+                "declarations": [
+                  {
+                    "location": {
+                      "filename": "file:///mod.ts",
+                      "line": 3,
+                      "col": 2,
+                      "byteIndex": 83
+                    },
+                    "declarationKind": "export",
+                    "jsDoc": {
+                      "doc": "An interface-like type alias."
+                    },
+                    "kind": "typeAlias",
+                    "def": {
+                      "tsType": {
+                        "kind": "typeLiteral",
+                        "value": {
+                          "methods": [
+                            {
+                              "name": "b",
+                              "kind": "method",
+                              "location": {
+                                "filename": "file:///mod.ts",
+                                "line": 6,
+                                "col": 4,
+                                "byteIndex": 143
+                              },
+                              "params": [],
+                              "returnType": {
+                                "repr": "void",
+                                "kind": "keyword",
+                                "value": "void"
+                              }
+                            }
+                          ],
+                          "properties": [
+                            {
+                              "name": "a",
+                              "jsDoc": {
+                                "doc": "A property."
+                              },
+                              "location": {
+                                "filename": "file:///mod.ts",
+                                "line": 5,
+                                "col": 4,
+                                "byteIndex": 128
+                              },
+                              "tsType": {
+                                "repr": "string",
+                                "kind": "keyword",
+                                "value": "string"
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

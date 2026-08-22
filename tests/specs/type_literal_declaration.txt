@@ -14,6 +14,7 @@ Defined in file:///mod.ts:0:1
 type T = { }
 
 
+
 # output.json
 {
   "symbols": [

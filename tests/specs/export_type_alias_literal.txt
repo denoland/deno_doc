@@ -17,7 +17,13 @@ error[missing-jsdoc]: exported symbol is missing JSDoc documentation
 # output.txt
 Defined in file:///mod.ts:0:1
 
-type A = { a(): void; b?(): void; c(): string; c(v: number); }
+type A
+
+  constructor(d: string)
+  a(): void
+  b?(): void
+  c(): string
+  c(v: number)
 
 
 # output.json
