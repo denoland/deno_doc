@@ -64,8 +64,8 @@ fn render_param(ctx: &RenderContext, param: &ParamDef, i: usize) -> String {
 pub(crate) fn param_name(param: &ParamDef, i: usize) -> (String, String) {
   match &param.pattern {
     ParamPatternDef::Array { .. } | ParamPatternDef::Object { .. } => (
-      format!(r#"<span class="italic">unnamed {i}</span>"#),
-      format!(r#"(unnamed {i})"#),
+      format!(r#"<span class="italic">arg_{i}</span>"#),
+      format!("arg_{i}"),
     ),
     ParamPatternDef::Assign { left, .. } => param_name(left, i),
     ParamPatternDef::Identifier { name, .. } => {
@@ -75,5 +75,40 @@ pub(crate) fn param_name(param: &ParamDef, i: usize) -> (String, String) {
       format!("<span>...{}</span>", param_name(arg, i).0),
       format!("...{}", param_name(arg, i).1),
     ),
+  }
+}
+
+#[cfg(test)]
+mod tests {
+  use super::*;
+
+  fn destructured(pattern: ParamPatternDef) -> ParamDef {
+    ParamDef {
+      pattern,
+      decorators: Box::new([]),
+      ts_type: None,
+    }
+  }
+
+  #[test]
+  fn unnamed_object_param_is_named_by_index() {
+    let param = destructured(ParamPatternDef::Object {
+      props: vec![],
+      optional: false,
+    });
+    let (html, str_name) = param_name(&param, 0);
+    assert_eq!(html, r#"<span class="italic">arg_0</span>"#);
+    assert_eq!(str_name, "arg_0");
+  }
+
+  #[test]
+  fn unnamed_array_param_is_named_by_index() {
+    let param = destructured(ParamPatternDef::Array {
+      elements: vec![],
+      optional: false,
+    });
+    let (html, str_name) = param_name(&param, 2);
+    assert_eq!(html, r#"<span class="italic">arg_2</span>"#);
+    assert_eq!(str_name, "arg_2");
   }
 }
