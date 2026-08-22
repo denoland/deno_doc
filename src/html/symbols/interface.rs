@@ -135,6 +135,7 @@ pub(crate) fn render_construct_signatures(
         .kind(IdKind::ConstructSignature)
         .index(i)
         .build();
+      let id_for_params = id.clone();
 
       let return_type = constructor
         .return_type
@@ -206,6 +207,14 @@ pub(crate) fn render_construct_signatures(
         ctor_diff.and_then(|cd| cd.js_doc_change.as_ref()),
       );
       entry.name_prefix = Some("new".into());
+      crate::html::parameters::attach_signature_docs(
+        ctx,
+        &mut entry,
+        &constructor.params,
+        &constructor.js_doc,
+        &id_for_params,
+        &constructor.location,
+      );
 
       entry
     })
@@ -276,6 +285,7 @@ pub(crate) fn render_call_signatures(
         .kind(IdKind::CallSignature)
         .index(i)
         .build();
+      let id_for_params = id.clone();
 
       let ts_type = call_signature
         .ts_type
@@ -325,7 +335,7 @@ pub(crate) fn render_call_signatures(
         None
       };
 
-      DocEntryCtx::new(
+      let mut entry = DocEntryCtx::new(
         ctx,
         id,
         None,
@@ -342,7 +352,17 @@ pub(crate) fn render_call_signatures(
         old_content,
         old_tags,
         sig_diff.and_then(|sd| sd.js_doc_change.as_ref()),
-      )
+      );
+      crate::html::parameters::attach_signature_docs(
+        ctx,
+        &mut entry,
+        &call_signature.params,
+        &call_signature.js_doc,
+        &id_for_params,
+        &call_signature.location,
+      );
+
+      entry
     })
     .collect::<Vec<DocEntryCtx>>();
 

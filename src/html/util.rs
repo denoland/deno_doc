@@ -782,6 +782,15 @@ pub struct DocEntryCtx {
   source_href: Option<String>,
   #[serde(skip_serializing_if = "Vec::is_empty", default)]
   pub examples: Vec<crate::html::jsdoc::ExampleCtx>,
+  /// Documentation for the entry's own parameters. Only populated for entries
+  /// that have no symbol page of their own to carry a Parameters section —
+  /// class constructors, construct signatures and call signatures — where the
+  /// `@param` docs would otherwise have nowhere to be shown.
+  #[serde(skip_serializing_if = "Vec::is_empty", default)]
+  pub params: Vec<DocEntryCtx>,
+  /// Rendered `@returns` documentation, for the same entries as `params`.
+  #[serde(skip_serializing_if = "Option::is_none")]
+  pub return_doc: Option<String>,
   #[serde(skip_serializing_if = "Option::is_none")]
   pub diff_status: Option<DiffStatus>,
   #[serde(skip_serializing_if = "Option::is_none")]
@@ -827,6 +836,8 @@ impl DocEntryCtx {
       js_doc: maybe_jsdoc,
       source_href,
       examples: Vec::new(),
+      params: vec![],
+      return_doc: None,
       diff_status,
       old_content,
     }
