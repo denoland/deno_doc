@@ -262,7 +262,30 @@ impl TsTypeDef {
     module_info: &EsModuleInfo,
     other: &TsExprWithTypeArgs,
   ) -> Self {
-    let type_name = expr_to_name(&other.expr);
+    // `expr_to_name` formats member expressions as computed keys
+    // (`[Symbol.iterator]`); heritage clauses like
+    // `implements ns.Interface` are plain qualified names instead.
+    fn expr_to_qualified_name(
+      expr: &deno_ast::swc::ast::Expr,
+    ) -> Option<String> {
+      use deno_ast::swc::ast::Expr;
+      use deno_ast::swc::ast::MemberProp;
+
+      match expr {
+        Expr::Ident(ident) => Some(ident.sym.to_string()),
+        Expr::Member(member_expr) => {
+          let left = expr_to_qualified_name(&member_expr.obj)?;
+          let MemberProp::Ident(ident) = &member_expr.prop else {
+            return None;
+          };
+          Some(format!("{left}.{}", ident.sym))
+        }
+        _ => None,
+      }
+    }
+
+    let type_name = expr_to_qualified_name(&other.expr)
+      .unwrap_or_else(|| expr_to_name(&other.expr));
 
     let type_params = if let Some(type_params_inst) = &other.type_args {
       let ts_type_defs = type_params_inst
