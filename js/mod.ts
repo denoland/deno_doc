@@ -1,6 +1,10 @@
 // Copyright 2018-2024 the Deno authors. All rights reserved. MIT license.
 
-import { instantiate } from "./deno_doc_wasm.generated.js";
+import {
+  doc as _doc,
+  docnodes_v1_to_v2 as _docnodesV1ToV2,
+  generate_html as _generateHtml,
+} from "./deno_doc_wasm.js";
 import type { Document, Location } from "./types.d.ts";
 import type { Page } from "./html_types.d.ts";
 import { createCache } from "@deno/cache-dir";
@@ -84,7 +88,7 @@ export interface DocOptions {
  * @param options A set of options for generating the documentation
  * @returns A promise that resolves with a record of documentation nodes
  */
-export async function doc(
+export function doc(
   specifiers: string[],
   options: DocOptions = {},
 ): Promise<Record<string, Document>> {
@@ -96,31 +100,29 @@ export async function doc(
     printImportMapDiagnostics = true,
   } = options;
 
-  const wasm = await instantiate();
-  return wasm.doc(
+  return _doc(
     specifiers,
     includeAll,
-    (specifier: string, options: {
+    async (specifier: string, options: {
       isDynamic: boolean;
       cacheSetting: CacheSetting;
       checksum: string | undefined;
     }) => {
-      return load(
+      const result = await load(
         specifier,
         options.isDynamic,
         options.cacheSetting,
         options.checksum,
-      ).then((result) => {
-        if (result?.kind === "module") {
-          if (typeof result.content === "string") {
-            result.content = encoder.encode(result.content);
-          }
-          // need to convert to an array for serde_wasm_bindgen to work
-          // deno-lint-ignore no-explicit-any
-          (result as any).content = Array.from(result.content);
+      );
+      if (result?.kind === "module") {
+        if (typeof result.content === "string") {
+          result.content = encoder.encode(result.content);
         }
-        return result;
-      });
+        // need to convert to an array for serde_wasm_bindgen to work
+        // deno-lint-ignore no-explicit-any
+        (result as any).content = Array.from(result.content);
+      }
+      return result;
     },
     resolve,
     importMap,
@@ -132,12 +134,11 @@ export async function doc(
  * Convert a v1 doc nodes array (flat array of doc nodes) to the v2
  * {@linkcode Document} format.
  */
-export async function docnodesV1ToV2(
+export function docnodesV1ToV2(
   // deno-lint-ignore no-explicit-any
   v1Nodes: any[],
 ): Promise<Document> {
-  const wasm = await instantiate();
-  return wasm.docnodes_v1_to_v2(v1Nodes);
+  return _docnodesV1ToV2(v1Nodes);
 }
 
 export interface ShortPath {
@@ -319,7 +320,7 @@ const defaultUsageComposer: UsageComposer = {
  * @param docNodesByUrl DocNodes keyed by their absolute URL.
  * @param options Options for the generation.
  */
-export async function generateHtml(
+export function generateHtml(
   docNodesByUrl: Record<string, Document>,
   options: GenerateOptions,
 ): Promise<Record<string, string>> {
@@ -327,8 +328,7 @@ export async function generateHtml(
     usageComposer = defaultUsageComposer,
   } = options;
 
-  const wasm = await instantiate();
-  return wasm.generate_html(
+  return _generateHtml(
     options.packageName,
     options.mainEntrypoint,
     usageComposer.singleMode,
@@ -357,7 +357,7 @@ export async function generateHtml(
  * @param docNodesByUrl DocNodes keyed by their absolute URL.
  * @param options Options for the generation.
  */
-export async function generateHtmlAsJSON(
+export function generateHtmlAsJSON(
   docNodesByUrl: Record<string, Document>,
   options: GenerateOptions,
 ): Promise<Record<string, Page>> {
@@ -365,8 +365,7 @@ export async function generateHtmlAsJSON(
     usageComposer = defaultUsageComposer,
   } = options;
 
-  const wasm = await instantiate();
-  return wasm.generate_html(
+  return _generateHtml(
     options.packageName,
     options.mainEntrypoint,
     usageComposer.singleMode,
