@@ -38,7 +38,6 @@ use std::borrow::Cow;
 use std::cell::RefCell;
 use std::collections::HashMap;
 use std::collections::HashSet;
-use std::collections::VecDeque;
 use std::error::Error;
 use std::fmt;
 use std::rc::Rc;
