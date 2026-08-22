@@ -419,6 +419,47 @@ async fn html_doc_import_linking_internal_file() {
 }
 
 #[tokio::test]
+async fn html_doc_signature_examples() {
+  let ctx = GenerateCtx::create_basic(
+    GenerateOptions {
+      package_name: None,
+      main_entrypoint: None,
+      href_resolver: Arc::new(EmptyResolver),
+      usage_composer: Some(Arc::new(EmptyResolver)),
+      rewrite_map: None,
+      category_docs: None,
+      disable_search: false,
+      symbol_redirect_map: None,
+      default_symbol_map: None,
+      markdown_renderer: comrak::create_renderer(None, None, None),
+      markdown_stripper: Arc::new(comrak::strip),
+      head_inject: None,
+      id_prefix: None,
+      diff_only: false,
+    },
+    get_files("signature_examples").await,
+    None,
+  )
+  .unwrap();
+  let files = generate(ctx).unwrap();
+
+  // the @example on an interface construct signature renders inline, since
+  // construct signatures have no dedicated page
+  let page = files.get("./~/ExampleConstructor.html").unwrap();
+  assert!(
+    page.contains("const example = new Example(1);"),
+    "construct signature example is not rendered: {page}"
+  );
+
+  // same for call signatures
+  let page = files.get("./~/ExampleCallable.html").unwrap();
+  assert!(
+    page.contains("exampleCallable(2);"),
+    "call signature example is not rendered: {page}"
+  );
+}
+
+#[tokio::test]
 async fn html_doc_files_multiple() {
   let multiple_dir = std::env::current_dir()
     .unwrap()
