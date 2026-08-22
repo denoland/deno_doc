@@ -13,17 +13,17 @@ error[missing-jsdoc]: exported symbol is missing JSDoc documentation
 
 
 error[missing-jsdoc]: exported symbol is missing JSDoc documentation
- --> /mod.ts:2:4
+ --> /mod.ts:2:3
   | 
 2 |   "p": string;
-  |    ^
+  |   ^
 
 
 error[missing-jsdoc]: exported symbol is missing JSDoc documentation
- --> /mod.ts:3:4
+ --> /mod.ts:3:3
   | 
 3 |   "po"?: number;
-  |    ^
+  |   ^
 
 # output.txt
 Defined in file:///mod.ts:0:1

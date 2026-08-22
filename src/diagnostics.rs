@@ -206,47 +206,205 @@ fn is_identifier_char(c: char) -> bool {
   c == '_' || c == '$' || c.is_alphanumeric()
 }
 
+/// Whether `token` is a keyword or modifier that may appear between the start
+/// of a declaration or member and its identifier.
+fn is_modifier_keyword(token: &str) -> bool {
+  matches!(
+    token,
+    "abstract"
+      | "accessor"
+      | "async"
+      | "await"
+      | "class"
+      | "const"
+      | "declare"
+      | "default"
+      | "enum"
+      | "export"
+      | "function"
+      | "get"
+      | "interface"
+      | "let"
+      | "module"
+      | "namespace"
+      | "new"
+      | "override"
+      | "private"
+      | "protected"
+      | "public"
+      | "readonly"
+      | "set"
+      | "static"
+      | "type"
+      | "using"
+      | "var"
+  )
+}
+
+/// Advances past whitespace and comments, returning the byte index of the next
+/// token or `None` when the source ends or a comment is unterminated.
+fn skip_whitespace_and_comments(text: &str, mut index: usize) -> Option<usize> {
+  loop {
+    let rest = text.get(index..)?;
+    index += rest.len() - rest.trim_start().len();
+    let rest = text.get(index..)?;
+    if let Some(comment) = rest.strip_prefix("//") {
+      index += 2 + comment.find('\n').map_or(comment.len(), |i| i + 1);
+    } else if let Some(comment) = rest.strip_prefix("/*") {
+      index += 2 + comment.find("*/")? + 2;
+    } else if rest.is_empty() {
+      return None;
+    } else {
+      return Some(index);
+    }
+  }
+}
+
+/// Advances past a balanced bracket pair starting at `index`, skipping over
+/// string literals, and returns the byte index just after the closing bracket.
+fn skip_balanced(text: &str, index: usize) -> Option<usize> {
+  let mut chars = text.get(index..)?.char_indices();
+  let mut depth: usize = 0;
+  while let Some((offset, c)) = chars.next() {
+    match c {
+      '(' | '[' | '{' => depth += 1,
+      ')' | ']' | '}' => {
+        depth = depth.checked_sub(1)?;
+        if depth == 0 {
+          return Some(index + offset + c.len_utf8());
+        }
+      }
+      quote @ ('"' | '\'' | '`') => {
+        let mut escaped = false;
+        loop {
+          let (_, c) = chars.next()?;
+          if escaped {
+            escaped = false;
+          } else if c == '\\' {
+            escaped = true;
+          } else if c == quote {
+            break;
+          }
+        }
+      }
+      _ => {}
+    }
+  }
+  None
+}
+
+/// Advances past a decorator (`@name`, `@ns.name`, `@name(...)`), returning the
+/// byte index just after it.
+fn skip_decorator(text: &str, index: usize) -> Option<usize> {
+  let mut index = skip_whitespace_and_comments(text, index + '@'.len_utf8())?;
+  loop {
+    let rest = text.get(index..)?;
+    let len = rest
+      .find(|c: char| !is_identifier_char(c))
+      .unwrap_or(rest.len());
+    if len == 0 {
+      return None;
+    }
+    index = skip_whitespace_and_comments(text, index + len)?;
+    match text.get(index..)?.chars().next()? {
+      // a qualified name, e.g. `@ns.deco`
+      '.' => index = skip_whitespace_and_comments(text, index + 1)?,
+      // the decorator's arguments, which end it
+      '(' | '[' => return skip_balanced(text, index),
+      _ => return Some(index),
+    }
+  }
+}
+
+/// Advances past whitespace, comments and decorators, returning the byte index
+/// of the next token.
+fn skip_trivia(text: &str, mut index: usize) -> Option<usize> {
+  loop {
+    index = skip_whitespace_and_comments(text, index)?;
+    if !text.get(index..)?.starts_with('@') {
+      return Some(index);
+    }
+    index = skip_decorator(text, index)?;
+  }
+}
+
+/// Finds the byte index of the identifier of the declaration or member
+/// starting at `start`. See [`identifier_location`].
+fn identifier_offset(text: &str, start: usize, name: &str) -> Option<usize> {
+  if name.is_empty() {
+    return None;
+  }
+  // a default export is named `default`, which is a keyword rather than the
+  // declaration's identifier, so accept whichever identifier it declares
+  let is_default = name == "default";
+  let mut index = start;
+  loop {
+    index = skip_trivia(text, index)?;
+    let rest = text.get(index..)?;
+    let first = rest.chars().next()?;
+    // the `*` of a generator and the `?`/`!` of an optional or definite member
+    if matches!(first, '*' | '?' | '!') {
+      index += first.len_utf8();
+      continue;
+    }
+    if first.is_numeric() || !(first == '#' || is_identifier_char(first)) {
+      return None;
+    }
+    let tail = &rest[first.len_utf8()..];
+    let len = first.len_utf8()
+      + tail
+        .find(|c: char| !is_identifier_char(c))
+        .unwrap_or(tail.len());
+    let token = &rest[..len];
+    let is_identifier = if is_default {
+      !is_modifier_keyword(token)
+    } else {
+      token == name
+    };
+    if is_identifier {
+      return Some(index);
+    }
+    if !is_modifier_keyword(token) {
+      // a segment of a qualified name, e.g. the `RootNs` of
+      // `namespace RootNs.OtherNs`, whose doc node is named `OtherNs`
+      let after = skip_whitespace_and_comments(text, index + len)?;
+      if text.get(after..)?.starts_with('.') {
+        index = after + '.'.len_utf8();
+        continue;
+      }
+      // anything else means this declaration's identifier isn't `name`, so
+      // there is nothing to refine
+      return None;
+    }
+    index += len;
+  }
+}
+
 /// Refines a declaration-start `location` to point at the declaration's
 /// identifier.
 ///
 /// `deno doc --lint` diagnostics are anchored at the start of a declaration,
-/// which for many forms (`export class Foo`, `get foo()`, `export interface
-/// Foo`, …) is a leading keyword rather than the symbol's name. Only keywords
-/// and whitespace separate a declaration's start from its identifier, so the
-/// first word-boundary occurrence of `name` at or after the declaration start
-/// is the identifier itself. Returns the original location unchanged when
-/// `name` is empty or can't be found (e.g. index signatures, which have no
-/// identifier).
+/// which for many forms (`export class Foo`, `get foo()`, `@deco foo`, …) is a
+/// keyword or a decorator rather than the symbol's name. Only trivia,
+/// decorators and modifier keywords separate a declaration's start from its
+/// identifier, so tokenizing forward from the declaration start finds the
+/// identifier without ever leaving the declaration's own header.
+///
+/// Returns the original location unchanged when `name` is empty (e.g. index
+/// signatures, which have no identifier) and when the declaration's identifier
+/// isn't `name` — which is the case for aliased exports (`export { foo as bar
+/// }`), where `name` is the alias while the location is the declaration's.
 fn identifier_location(
   text_info: &SourceTextInfo,
   location: &Location,
   name: &str,
 ) -> Location {
-  if name.is_empty() {
-    return location.clone();
-  }
   let text = text_info.text_str();
-  let Some(rest) = text.get(location.byte_index..) else {
+  let Some(offset) = identifier_offset(text, location.byte_index, name) else {
     return location.clone();
   };
-  let mut base = 0;
-  while let Some(offset) = rest[base..].find(name) {
-    let idx = base + offset;
-    let boundary_before = !rest[..idx]
-      .chars()
-      .next_back()
-      .is_some_and(is_identifier_char);
-    let boundary_after = !rest[idx + name.len()..]
-      .chars()
-      .next()
-      .is_some_and(is_identifier_char);
-    if boundary_before && boundary_after {
-      let pos = text_info.range().start + (location.byte_index + idx);
-      return get_text_info_location(&location.filename, text_info, pos);
-    }
-    base = idx + name.len();
-  }
-  location.clone()
+  let pos = text_info.range().start + offset;
+  get_text_info_location(&location.filename, text_info, pos)
 }
 
 pub struct DiagnosticsCollector<'a> {
@@ -692,5 +850,79 @@ impl DiagnosticDocNodeVisitor<'_, '_> {
       &decl.location,
       name,
     );
+  }
+}
+
+#[cfg(test)]
+mod test {
+  use super::identifier_offset;
+
+  /// Returns the text from the identifier that `identifier_offset` finds for
+  /// the declaration starting at the `<start>` marker in `text`.
+  fn identifier(text: &str, name: &str) -> Option<String> {
+    let start = text.find("<start>").expect("missing <start> marker");
+    let text = text.replace("<start>", "");
+    let offset = identifier_offset(&text, start, name)?;
+    Some(
+      text[offset..]
+        .chars()
+        .take_while(|c| super::is_identifier_char(*c))
+        .collect(),
+    )
+  }
+
+  #[test]
+  fn finds_identifier_after_keywords() {
+    assert_eq!(
+      identifier("<start>export declare class Foo {}", "Foo").as_deref(),
+      Some("Foo")
+    );
+    assert_eq!(
+      identifier("class A {\n  <start>static get foo() {}\n}", "foo")
+        .as_deref(),
+      Some("foo")
+    );
+    // a member whose name happens to be a modifier keyword
+    assert_eq!(
+      identifier("interface A {\n  <start>get: string;\n}", "get").as_deref(),
+      Some("get")
+    );
+  }
+
+  #[test]
+  fn skips_decorators_and_comments() {
+    let text =
+      "class A {\n  <start>@deco(\"value\") /* c */ value: string = \"x\";\n}";
+    let offset = identifier_offset(
+      &text.replace("<start>", ""),
+      text.find("<start>").unwrap(),
+      "value",
+    );
+    // the match must be the property, not the decorator's string argument
+    assert_eq!(
+      offset,
+      Some(text.replace("<start>", "").find("value: string").unwrap())
+    );
+  }
+
+  #[test]
+  fn default_export_uses_the_declared_identifier() {
+    assert_eq!(
+      identifier("<start>export default class Foo {}", "default").as_deref(),
+      Some("Foo")
+    );
+    // nothing to anchor on when the declaration is anonymous
+    assert_eq!(
+      identifier("<start>export default class {}", "default"),
+      None
+    );
+  }
+
+  #[test]
+  fn stops_at_the_declaration_it_starts_at() {
+    // `bar` is an export alias for `foo`, so the scan must not run on into the
+    // unrelated `bar` declaration below
+    let text = "<start>declare function foo(): void;\ndeclare const bar: number;\nexport { foo as bar };";
+    assert_eq!(identifier(text, "bar"), None);
   }
 }

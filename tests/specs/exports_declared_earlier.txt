@@ -20,10 +20,10 @@ error[missing-jsdoc]: exported symbol is missing JSDoc documentation
 
 
 error[missing-jsdoc]: exported symbol is missing JSDoc documentation
- --> /mod.ts:4:29
+ --> /mod.ts:3:1
   | 
-4 | export { hello, say, foo as bar };
-  |                             ^
+3 | function foo(): void { }
+  | ^
 
 # output.txt
 Defined in file:///mod.ts:2:1

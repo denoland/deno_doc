@@ -36,10 +36,10 @@ error[missing-jsdoc]: exported symbol is missing JSDoc documentation
 
 
 error[missing-jsdoc]: exported symbol is missing JSDoc documentation
- --> /mod.ts:5:4
+ --> /mod.ts:5:3
   | 
 5 |   [pc]: string;
-  |    ^
+  |   ^
 
 # output.txt
 Defined in file:///mod.ts:0:1

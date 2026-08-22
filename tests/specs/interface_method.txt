@@ -42,17 +42,17 @@ error[missing-return-type]: exported function is missing an explicit return type
 
 
 error[missing-jsdoc]: exported symbol is missing JSDoc documentation
- --> /mod.ts:4:4
+ --> /mod.ts:4:3
   | 
 4 |   [mc](d);
-  |    ^
+  |   ^
 
 
 error[missing-return-type]: exported function is missing an explicit return type annotation
- --> /mod.ts:4:4
+ --> /mod.ts:4:3
   | 
 4 |   [mc](d);
-  |    ^
+  |   ^
 
 # output.txt
 Defined in file:///mod.ts:0:1
