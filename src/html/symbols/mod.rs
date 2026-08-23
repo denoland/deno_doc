@@ -681,6 +681,31 @@ impl SymbolInnerCtx {
   }
 }
 
+/// Renders the type portion of a merged getter/setter accessor entry. A pair
+/// whose types agree (and lone getters/setters) renders like a plain property
+/// type; a pair with diverging types renders both as stacked, source-style
+/// `get`/`set` rows so neither type is hidden.
+pub(crate) fn render_accessor_type(
+  ctx: &RenderContext,
+  getter_type: Option<&crate::ts_type::TsTypeDef>,
+  setter_type: Option<&crate::ts_type::TsTypeDef>,
+) -> String {
+  match (getter_type, setter_type) {
+    (Some(getter_type), Some(setter_type)) if getter_type != setter_type => {
+      format!(
+        r#"<div class="ml-indent"><span class="td-op">get</span>{}</div><div class="ml-indent"><span class="td-op">set</span>{}</div>"#,
+        crate::html::types::render_type_def_colon(ctx, getter_type),
+        crate::html::types::render_type_def_colon(ctx, setter_type),
+      )
+    }
+    (getter_type, setter_type) => getter_type
+      .or(setter_type)
+      .map_or_else(String::new, |ts_type| {
+        crate::html::types::render_type_def_colon(ctx, ts_type)
+      }),
+  }
+}
+
 /// Reconstruct old tags by reversing modifier diffs. Pass `None` for any
 /// modifier that the member type doesn't have (e.g. interfaces have no
 /// accessibility).

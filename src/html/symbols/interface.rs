@@ -655,17 +655,16 @@ fn accessor_type(
   getter: Option<&crate::ts_type::MethodDef>,
   setter: Option<&crate::ts_type::MethodDef>,
 ) -> String {
-  getter
-    .and_then(|getter| getter.return_type.as_ref())
-    .or_else(|| {
-      setter.and_then(|setter| {
-        setter
-          .params
-          .first()
-          .and_then(|param| param.ts_type.as_ref())
-      })
-    })
-    .map_or_else(String::new, |ts_type| render_type_def_colon(ctx, ts_type))
+  super::render_accessor_type(
+    ctx,
+    getter.and_then(|getter| getter.return_type.as_ref()),
+    setter.and_then(|setter| {
+      setter
+        .params
+        .first()
+        .and_then(|param| param.ts_type.as_ref())
+    }),
+  )
 }
 
 fn accessor_tags(

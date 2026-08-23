@@ -161,6 +161,8 @@ Classes</h2></div><div class="namespaceSection"><div id="namespace_foobar" class
                   <span>&quot;&gt;&lt;img src=x onerror=alert(1)&gt;</span><span>: <span class="td-kw">number</span></span></a></li><li>
                 <a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;Foo.html#property_bar">
                   <span>bar</span><span>: <span class="td-str">"string"</span></span></a></li><li>
+                <a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;Foo.html#accessor_divergentaccessor">
+                  <span>divergentAccessor</span><span>()<span>: <span><span class="td-kw">string</span><span class="td-op"> | </span><span class="td-kw">null</span></span></span></span></a></li><li>
                 <a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;Foo.html#property_foo">
                   <span>foo</span><span>: <span class="td-ref">A</span></span></a></li><li>
                 <a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;Foo.html#accessor_getter">
@@ -311,6 +313,8 @@ Interfaces</h2></div><div class="namespaceSection"><div id="namespace_hello" cla
 </div></div></li><li>
                 <a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;Hello.html#method_computedmethod_0">
                   <span>computedMethod</span><span>(<span><span>a<span>: <span class="td-ref">T</span> <span class="td-kw">extends</span> () =&gt; <span class="td-kw">infer </span><span><span class="td-tp">R</span></span> <span class="td-op">?</span> <span class="td-ref">R</span> <span class="td-op">:</span> <span class="td-kw">any</span></span></span></span>)<span>: <span class="td-kw">void</span></span></span></a></li><li>
+                <a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;Hello.html#accessor_divergentaccessor">
+                  <span>divergentAccessor</span><span>()<span>: <span><span class="td-kw">number</span><span class="td-op"> | </span><span class="td-kw">null</span></span></span></span></a></li><li>
                 <a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;Hello.html#method_optionalmethod_0">
                   <span>optionalMethod</span><span>()<span>: <span>[<span class="td-kw">string</span>]</span></span></span></a></li><li>
                 <a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;Hello.html#accessor_readonlyaccessor">

@@ -70,6 +70,12 @@ export class Foo<T> {
   set getterAndSetter(s) {
   }
 
+  get divergentAccessor(): string | null {
+    return null;
+  }
+  set divergentAccessor(s: string) {
+  }
+
   static set staticSetter(s: number) {}
 
   /**
@@ -145,6 +151,8 @@ export interface Hello<T extends string, E extends T, R = number> {
   set accessor(value: string);
   get readonlyAccessor(): number;
   set writeonlyAccessor(value: number);
+  get divergentAccessor(): number | null;
+  set divergentAccessor(value: number);
 
   x: {
     [foo: string]: number;
