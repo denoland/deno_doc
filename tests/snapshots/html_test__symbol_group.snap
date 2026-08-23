@@ -4436,7 +4436,7 @@ expression: files
                               "title_plural": "Functions"
                             }
                           ],
-                          "href": ".././d/~/Testing.externalFunction.html",
+                          "href": "../././~/Testing.externalFunction.html",
                           "name": "Testing.externalFunction",
                           "ty": {
                             "ty": "(<span><span>_n<span class=\"td-op\">?</span><span>: <span class=\"td-kw\">number</span></span></span></span>)<span>: <span class=\"td-kw\">void</span></span>",
@@ -4484,7 +4484,7 @@ expression: files
                               "title_plural": "Functions"
                             }
                           ],
-                          "href": ".././c/~/Testing.x.html",
+                          "href": "../././~/Testing.x.html",
                           "name": "Testing.x",
                           "ty": {
                             "ty": "(<span><span>_n<span class=\"td-op\">?</span><span>: <span class=\"td-kw\">number</span></span></span></span>)<span>: <span class=\"td-kw\">void</span></span>",
@@ -4556,7 +4556,7 @@ expression: files
                               "title_plural": "Functions"
                             }
                           ],
-                          "href": ".././d/~/Testing.externalFunction.html",
+                          "href": "../././~/Testing.externalFunction.html",
                           "name": "Testing.externalFunction",
                           "ty": {
                             "ty": "(<span><span>_n<span class=\"td-op\">?</span><span>: <span class=\"td-kw\">number</span></span></span></span>)<span>: <span class=\"td-kw\">void</span></span>",
@@ -4604,7 +4604,7 @@ expression: files
                               "title_plural": "Functions"
                             }
                           ],
-                          "href": ".././c/~/Testing.x.html",
+                          "href": "../././~/Testing.x.html",
                           "name": "Testing.x",
                           "ty": {
                             "ty": "(<span><span>_n<span class=\"td-op\">?</span><span>: <span class=\"td-kw\">number</span></span></span></span>)<span>: <span class=\"td-kw\">void</span></span>",

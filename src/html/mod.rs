@@ -727,10 +727,11 @@ impl GenerateCtx {
           fn handle_node(
             node: &mut DocNodeWithContext,
             ns_qualifiers: Vec<String>,
+            origin: &Arc<ShortPath>,
           ) {
             if let Some(children_rc) = &mut node.namespace_children {
               for node in Arc::make_mut(children_rc) {
-                handle_node(node, ns_qualifiers.clone());
+                handle_node(node, ns_qualifiers.clone(), origin);
               }
             }
 
@@ -738,9 +739,14 @@ impl GenerateCtx {
             new_ns_qualifiers.extend(node.ns_qualifiers.iter().cloned());
             node.ns_qualifiers = new_ns_qualifiers.into();
             node.qualified_name = std::sync::OnceLock::new();
+            // The symbol page for a namespace-qualified re-export is written
+            // under the module that documents the namespace, not the module
+            // the symbol was declared in, so hrefs must resolve against the
+            // former.
+            node.origin = origin.clone();
           }
 
-          handle_node(&mut node, ns_qualifiers);
+          handle_node(&mut node, ns_qualifiers, &parent.origin);
 
           Cow::Owned(node)
         } else {

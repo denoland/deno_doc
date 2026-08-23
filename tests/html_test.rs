@@ -674,6 +674,67 @@ async fn html_doc_files_multiple() {
       insta::assert_snapshot!(files.get(file_name).unwrap());
     }
   }
+
+  // Every relative link in the generated output must point at a file that was
+  // actually written. Regression test for #835, where links to
+  // namespace-qualified re-exports (`export * as`) pointed at pages that were
+  // never generated.
+  fn resolve_relative(base_file: &str, href: &str) -> Option<String> {
+    let mut segments = base_file
+      .split('/')
+      .filter(|s| !s.is_empty() && *s != ".")
+      .collect::<Vec<_>>();
+    // pop the file name to get the base directory
+    segments.pop();
+
+    for segment in href.split('/') {
+      match segment {
+        "" | "." => {}
+        ".." => {
+          segments.pop()?;
+        }
+        _ => segments.push(segment),
+      }
+    }
+
+    if href.ends_with('/') || href == ".." || href == "." {
+      segments.push("index.html");
+    }
+
+    Some(segments.join("/"))
+  }
+
+  let mut links = Vec::new();
+  for (file_name, content) in &files {
+    if !file_name.ends_with(".html") {
+      continue;
+    }
+    for (index, _) in content.match_indices("href=\"") {
+      let href = &content[index + "href=\"".len()..];
+      let href = &href[..href.find('"').unwrap()];
+      links.push((file_name.as_str(), href.replace("&#x2F;", "/")));
+    }
+  }
+  // search index urls are relative to the root
+  let search_index = files.get("search_index.js").unwrap();
+  for (index, _) in search_index.match_indices("\"url\":\"") {
+    let url = &search_index[index + "\"url\":\"".len()..];
+    let url = &url[..url.find('"').unwrap()];
+    links.push(("search_index.js", url.to_string()));
+  }
+
+  for (file_name, href) in links {
+    if href.is_empty() || href.starts_with('#') || href.contains("://") {
+      continue;
+    }
+    let path = href.split('#').next().unwrap();
+    let resolved = resolve_relative(file_name, path)
+      .unwrap_or_else(|| panic!("link {href} in {file_name} escapes the root"));
+    assert!(
+      files.contains_key(&resolved) || files.contains_key(&format!("./{resolved}")),
+      "broken link {href} in {file_name}: {resolved} was not generated"
+    );
+  }
 }
 
 #[tokio::test]
