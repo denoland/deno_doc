@@ -392,7 +392,7 @@ impl DocBlockSubtitleCtx {
           .map(|ic| {
             ic.added
               .iter()
-              .map(|t| t.repr.to_string())
+              .map(|t| render_type_def(ctx, t))
               .collect::<Vec<_>>()
           })
           .filter(|v| !v.is_empty());
@@ -402,7 +402,7 @@ impl DocBlockSubtitleCtx {
           .map(|ic| {
             ic.removed
               .iter()
-              .map(|t| t.repr.to_string())
+              .map(|t| render_type_def(ctx, t))
               .collect::<Vec<_>>()
           })
           .filter(|v| !v.is_empty());
@@ -413,7 +413,7 @@ impl DocBlockSubtitleCtx {
             stpc
               .added
               .iter()
-              .map(|t| t.repr.to_string())
+              .map(|t| render_type_def(ctx, t))
               .collect::<Vec<_>>()
           })
           .filter(|v| !v.is_empty());
@@ -424,7 +424,7 @@ impl DocBlockSubtitleCtx {
             stpc
               .removed
               .iter()
-              .map(|t| t.repr.to_string())
+              .map(|t| render_type_def(ctx, t))
               .collect::<Vec<_>>()
           })
           .filter(|v| !v.is_empty());
@@ -451,12 +451,19 @@ impl DocBlockSubtitleCtx {
             .and_then(|d| d.as_interface())
         });
 
+        let current_type_params = interface_def
+          .type_params
+          .iter()
+          .map(|def| def.name.as_str())
+          .collect::<HashSet<&str>>();
+        let ctx = &ctx.with_current_type_params(current_type_params);
+
         let extends_added = iface_diff
           .and_then(|d| d.extends_change.as_ref())
           .map(|ec| {
             ec.added
               .iter()
-              .map(|t| t.repr.to_string())
+              .map(|t| render_type_def(ctx, t))
               .collect::<Vec<_>>()
           })
           .filter(|v| !v.is_empty());
@@ -466,7 +473,7 @@ impl DocBlockSubtitleCtx {
           .map(|ec| {
             ec.removed
               .iter()
-              .map(|t| t.repr.to_string())
+              .map(|t| render_type_def(ctx, t))
               .collect::<Vec<_>>()
           })
           .filter(|v| !v.is_empty());
@@ -477,13 +484,6 @@ impl DocBlockSubtitleCtx {
         if !has_extends && !has_diff {
           return None;
         }
-
-        let current_type_params = interface_def
-          .type_params
-          .iter()
-          .map(|def| def.name.as_str())
-          .collect::<HashSet<&str>>();
-        let ctx = &ctx.with_current_type_params(current_type_params);
 
         let extends = interface_def
           .extends

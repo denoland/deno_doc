@@ -1285,6 +1285,95 @@ async fn diff_comprehensive() {
   insta::assert_json_snapshot!("diff_comprehensive_diff_only", pages);
 }
 
+/// `.repr` is package-controlled and must never reach the HTML/JSON output
+/// unescaped (reported privately, fixed in #834). A markup-carrying
+/// string-literal type is placed on every surface that interpolates `.repr`:
+/// `@throws` types (content, modified old value, removed entry), type param
+/// constraint/default old values, and `super_type_params_added`/`_removed`.
+#[tokio::test]
+async fn repr_markup_is_escaped() {
+  let old_source = r#"
+export class Base<T> {}
+
+/**
+ * @throws {"<img src=x onerror=alert(1)>/mod-old"} modified throws
+ * @throws {"<img src=x onerror=alert(1)>/removed"} removed throws
+ */
+export function thrower(): void {}
+
+export class Holder<
+  T extends "<img src=x onerror=alert(1)>/old-constraint" =
+    "<img src=x onerror=alert(1)>/old-default",
+> extends Base<"<img src=x onerror=alert(1)>/old-super"> {}
+"#;
+
+  let new_source = r#"
+export class Base<T> {}
+
+/**
+ * @throws {"<img src=x onerror=alert(1)>/mod-new"} modified throws
+ */
+export function thrower(): void {}
+
+export class Holder<T extends "new-constraint" = "new-default">
+  extends Base<"<img src=x onerror=alert(1)>/new-super"> {}
+"#;
+
+  let old_docs = parse_source(old_source).await;
+  let new_docs = parse_source(new_source).await;
+  let diff = DocDiff::diff(&old_docs, &new_docs);
+
+  let make_ctx = || {
+    GenerateCtx::create_basic(
+      GenerateOptions {
+        package_name: None,
+        main_entrypoint: None,
+        href_resolver: Arc::new(EmptyResolver),
+        usage_composer: Some(Arc::new(EmptyResolver)),
+        rewrite_map: None,
+        category_docs: None,
+        disable_search: false,
+        symbol_redirect_map: None,
+        default_symbol_map: None,
+        markdown_renderer: comrak::create_renderer(None, None, None),
+        markdown_stripper: Arc::new(comrak::strip),
+        head_inject: None,
+        id_prefix: None,
+        diff_only: false,
+        symbol_listing_limit: None,
+      },
+      new_docs.clone(),
+      Some(diff.clone()),
+    )
+    .unwrap()
+  };
+
+  let files = generate(make_ctx()).unwrap();
+  for (name, content) in &files {
+    assert!(
+      !content.contains("<img src=x"),
+      "unescaped .repr in generated file {name}"
+    );
+  }
+  assert!(
+    files
+      .values()
+      .any(|content| content.contains("&lt;img src=x")),
+    "expected escaped .repr in HTML output"
+  );
+
+  let json_output = generate_json(make_ctx()).unwrap();
+  let serialized = serde_json::to_string(&json_output).unwrap();
+  assert!(
+    !serialized.contains("<img src=x"),
+    "unescaped .repr in JSON output"
+  );
+  assert!(
+    serialized.contains("&lt;img src=x"),
+    "expected escaped .repr in JSON output"
+  );
+}
+
 /// Verify that README headings in the module doc TOC:
 /// 1. Appear before @example entries (matching the rendered page order)
 /// 2. Are not inflated to deeper nesting levels by the offset state
