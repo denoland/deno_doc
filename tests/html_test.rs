@@ -618,7 +618,6 @@ async fn html_doc_files_multiple() {
       "./~/Foo.prototype.getter.html",
       "./~/Foo.prototype.getterAndSetter.html",
       "./~/Foo.prototype.html",
-      "./~/Foo.prototype.methodWithOverloads.html",
       "./~/Foo.prototype.protectedProperty.html",
       "./~/Foo.prototype.readonlyProperty.html",
       "./~/Foo.prototype.setter.html",
@@ -726,6 +725,8 @@ async fn html_doc_files_multiple() {
   }
 
   let mut links = Vec::new();
+  let mut ids_per_file =
+    std::collections::HashMap::<&str, std::collections::HashSet<&str>>::new();
   for (file_name, content) in &files {
     if !file_name.ends_with(".html") {
       continue;
@@ -735,6 +736,10 @@ async fn html_doc_files_multiple() {
         links.push((file_name.as_str(), value.replace("&#x2F;", "/")));
       }
     }
+    ids_per_file.insert(
+      file_name.as_str(),
+      extract_attr_values(content, "id").collect(),
+    );
   }
   // search index urls are relative to the root
   let search_index = files.get("search_index.js").unwrap();
@@ -749,19 +754,38 @@ async fn html_doc_files_multiple() {
     if link.split(['/', '#', '?']).next().unwrap().contains(':') {
       continue;
     }
-    let path = link.split('#').next().unwrap();
-    if path.is_empty() {
-      // fragment-only link into the current file
-      continue;
-    }
+    let (path, fragment) = match link.split_once('#') {
+      Some((path, fragment)) => (path, Some(fragment)),
+      None => (link.as_str(), None),
+    };
 
-    let resolved = resolve_relative(file_name, path)
-      .unwrap_or_else(|| panic!("link {link} in {file_name} escapes the root"));
-    assert!(
-      files.contains_key(&resolved)
-        || files.contains_key(&format!("./{resolved}")),
-      "broken link {link} in {file_name}: {resolved} was not generated"
-    );
+    let target_file = if path.is_empty() {
+      // fragment-only link into the current file
+      file_name.to_string()
+    } else {
+      let resolved = resolve_relative(file_name, path).unwrap_or_else(|| {
+        panic!("link {link} in {file_name} escapes the root")
+      });
+      [resolved.clone(), format!("./{resolved}")]
+        .into_iter()
+        .find(|resolved| files.contains_key(resolved))
+        .unwrap_or_else(|| {
+          panic!(
+            "broken link {link} in {file_name}: {resolved} was not generated"
+          )
+        })
+    };
+
+    // a fragment must point at an id the target file declares
+    if let Some(fragment) = fragment
+      && !fragment.is_empty()
+      && let Some(ids) = ids_per_file.get(target_file.as_str())
+    {
+      assert!(
+        ids.contains(fragment),
+        "broken fragment {link} in {file_name}: {target_file} has no id \"{fragment}\""
+      );
+    }
   }
 }
 

@@ -566,10 +566,17 @@ pub(crate) fn render_methods(
     return None;
   }
 
+  // ids index overloads within a name (like class methods), not positions in
+  // the method list, so links built elsewhere can rely on `_0` for the first
+  // overload of a method
+  let mut method_indexes = std::collections::HashMap::<&str, usize>::new();
   let mut items = methods
     .iter()
-    .enumerate()
-    .map(|(i, method)| {
+    .map(|method| {
+      let index = method_indexes.entry(method.name.as_ref()).or_default();
+      let i = *index;
+      *index += 1;
+
       let id = IdBuilder::new(ctx)
         .kind(IdKind::Method)
         .name(&method.name)

@@ -167,8 +167,6 @@ Classes</h2></div><div class="namespaceSection"><div id="namespace_foobar" class
                   <span>getter</span><span>()</span></a></li><li>
                 <a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;Foo.html#accessor_getterandsetter">
                   <span>getterAndSetter</span><span>()</span></a></li><li>
-                <a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;Foo.html#method_methodwithoverloads_0">
-                  <span>methodWithOverloads</span><span>(<span><span>s<span>: <span class="td-kw">number</span></span></span></span>)<span>: <span class="td-kw">void</span></span></span></a></li><li>
                 <a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;Foo.html#property_protectedproperty">
                   <span>protectedProperty</span><span>: <span class="td-kw">boolean</span></span></a></li><li>
                 <a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;Foo.html#property_readonlyproperty">

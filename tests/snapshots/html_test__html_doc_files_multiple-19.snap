@@ -145,7 +145,7 @@ expression: files.get(file_name).unwrap()
   </defs>
 </svg>
 </a>
-Examples</h2></div><div class="space-y-8"><div class="anchorable"><a href="#example_0" class="anchor" aria-label="Anchor" tabIndex="-1"><svg
+Examples</h2></div><div class="space-y-8"><div class="anchorable" id="example_0"><a href="#example_0" class="anchor" aria-label="Anchor" tabIndex="-1"><svg
   width="16"
   height="16"
   viewBox="0 0 14 14"
@@ -207,7 +207,7 @@ Examples</h2></div><div class="space-y-8"><div class="anchorable"><a href="#exam
 <p>baz</p>
 </div></div>
 </div>
-<div class="border-b border-gray-300 dark:border-gray-700"></div><div class="anchorable"><a href="#example_1" class="anchor" aria-label="Anchor" tabIndex="-1"><svg
+<div class="border-b border-gray-300 dark:border-gray-700"></div><div class="anchorable" id="example_1"><a href="#example_1" class="anchor" aria-label="Anchor" tabIndex="-1"><svg
   width="16"
   height="16"
   viewBox="0 0 14 14"
@@ -355,7 +355,7 @@ Constructors</h2></div><div class="space-y-8"><div class="anchorable docEntry" i
       <span class="docEntryParamsTitle">Returns</span>
       <div class="max-w-[75ch]"><div class="markdown"><p>the new Foo</p>
 </div></div>
-    </div><div class="space-y-2 mt-3"><div class="anchorable"><a href="#example_0-1" class="anchor" aria-label="Anchor" tabIndex="-1"><svg
+    </div><div class="space-y-2 mt-3"><div class="anchorable" id="example_0-1"><a href="#example_0-1" class="anchor" aria-label="Anchor" tabIndex="-1"><svg
   width="16"
   height="16"
   viewBox="0 0 14 14"

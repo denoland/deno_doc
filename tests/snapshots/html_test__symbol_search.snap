@@ -129,21 +129,6 @@ expression: search_index
       "id": "namespace_foo",
       "kind": [
         {
-          "char": "m",
-          "kind": "Method",
-          "title": "Method"
-        }
-      ],
-      "name": "Foo.prototype.methodWithOverloads",
-      "file": ".",
-      "doc": "",
-      "url": "././~/Foo.prototype.methodWithOverloads.html",
-      "deprecated": false
-    },
-    {
-      "id": "namespace_foo",
-      "kind": [
-        {
           "char": "p",
           "kind": "Property",
           "title": "Property"

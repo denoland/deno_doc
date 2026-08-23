@@ -47,14 +47,14 @@ fn get_namespace_section_render_ctx(
     })
     .collect::<Vec<_>>();
 
-  let mut section = SectionCtx::new(
-    ctx,
-    header
-      .as_ref()
-      .map(|header| header.title.as_str())
-      .unwrap_or_default(),
-    SectionContentCtx::NamespaceSection(nodes),
-  );
+  // the header id was already anchorized by the caller, so register the ToC
+  // entry with it instead of letting `SectionCtx::new` anchorize the title a
+  // second time, which would point the ToC at an id the section doesn't have
+  if let Some(header) = &header {
+    ctx.toc.add_entry(1, &header.title, &header.anchor.id);
+  }
+  let mut section =
+    SectionCtx::new(ctx, "", SectionContentCtx::NamespaceSection(nodes));
   section.header = header;
   section
 }

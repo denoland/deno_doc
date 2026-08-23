@@ -1233,28 +1233,51 @@ impl DocNodeWithContext {
     for decl in &self.inner.declarations {
       match &decl.def {
         DeclarationDef::Class(class_def) => {
-          symbols.extend(class_def.methods.iter().map(|method| {
-            Self::create_child_method_with_parent(
-              &parent_rc,
-              Symbol::function(
-                method.name.clone(),
-                false,
-                method.location.clone(),
-                declaration_kind,
-                method.js_doc.clone(),
-                method.function_def.clone(),
-              ),
-              method.is_static,
-              method.kind,
-            )
-          }));
-          symbols.extend(class_def.properties.iter().map(|property| {
-            Self::create_child_property_with_parent(
-              &parent_rc,
-              Symbol::from(property.clone()),
-              property.is_static,
-            )
-          }));
+          // private members are not rendered (see `partition_class_items`),
+          // so they must not get drilldown pages or listing/search entries
+          // either
+          let is_private =
+            |accessibility: &Option<deno_ast::swc::ast::Accessibility>| {
+              matches!(
+                accessibility,
+                Some(deno_ast::swc::ast::Accessibility::Private)
+              )
+            };
+
+          symbols.extend(
+            class_def
+              .methods
+              .iter()
+              .filter(|method| !is_private(&method.accessibility))
+              .map(|method| {
+                Self::create_child_method_with_parent(
+                  &parent_rc,
+                  Symbol::function(
+                    method.name.clone(),
+                    false,
+                    method.location.clone(),
+                    declaration_kind,
+                    method.js_doc.clone(),
+                    method.function_def.clone(),
+                  ),
+                  method.is_static,
+                  method.kind,
+                )
+              }),
+          );
+          symbols.extend(
+            class_def
+              .properties
+              .iter()
+              .filter(|property| !is_private(&property.accessibility))
+              .map(|property| {
+                Self::create_child_property_with_parent(
+                  &parent_rc,
+                  Symbol::from(property.clone()),
+                  property.is_static,
+                )
+              }),
+          );
         }
         DeclarationDef::Interface(interface_def) => {
           symbols.extend(interface_def.methods.iter().map(|method| {

@@ -5,7 +5,7 @@ expression: files.get(file_name).unwrap()
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Hello.x - default - documentation</title>
+  <title>InterfaceWithIndexSignature - default - documentation</title>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="doc-current-file" content=".">
@@ -52,8 +52,7 @@ expression: files.get(file_name).unwrap()
 </svg>
 </span>
 
-    <ul><li><span>.</span>
-            <a href="..&#x2F;.&#x2F;.&#x2F;~&#x2F;Hello.html" class="contextLink">Hello</a></li><li>x</li></ul></ul>
+    <ul><li>InterfaceWithIndexSignature</li></ul></ul>
 </div>
 
     <div class="flex items-center gap-2">
@@ -117,11 +116,11 @@ expression: files.get(file_name).unwrap()
     </div>
   </div>
 </nav>
-<div id="searchResults"></div><div id="content"><main class="symbolGroup" id="symbol_Hello.x"><article>
+<div id="searchResults"></div><div id="content"><main class="symbolGroup" id="symbol_InterfaceWithIndexSignature"><article>
       <div class="symbolTitle">
         <div>
           <div class="text-2xl leading-none break-all">
-            <span class="text-Property">property</span>&nbsp;<span class="font-bold">Hello.x</span>
+            <span class="text-Interface">interface</span>&nbsp;<span class="font-bold">InterfaceWithIndexSignature</span>
           </div></div></div><div><div class="space-y-7" id=""><section class="section"  id="index-signatures"><div>
       <h2 class="anchorable mb-1"><a href="#index-signatures" class="anchor" aria-label="Anchor" tabIndex="-1"><svg
   width="16"
@@ -167,15 +166,15 @@ Index Signatures</h2></div><div class="space-y-8"><div class="anchorable text-sm
   </defs>
 </svg>
 </a>
-[<span><span>foo<span>: <span class="td-kw">string</span></span></span></span>] <span>: <span class="td-kw">number</span></span></div>
+[<span><span>foo<span>: <span class="td-kw">string</span></span></span></span>] <span>: <span><span class="td-str">`foo${<span class="td-kw">string</span>}`</span><span class="td-op"> | </span><span>(<a href="../././~/Foobar.html" class="link td-ref">Foobar</a>)<span class="td-op"> & </span><span class="td-kw">number</span><span class="td-op"> & </span><span class="td-kw">this</span></span></span></span></div>
 </div></section>
 </div>
 </div>
     </article></main>
 <div class="toc">
     <div><div class="usageContent">
-    <h3>Usage</h3><div class="markdown"><pre class="highlight"><code class="language-typescript">import { type Hello } from &quot;.&quot;;
-</code><button class="copyButton" data-copy="import { type Hello } from &quot;.&quot;;
+    <h3>Usage</h3><div class="markdown"><pre class="highlight"><code class="language-typescript">import { type InterfaceWithIndexSignature } from &quot;.&quot;;
+</code><button class="copyButton" data-copy="import { type InterfaceWithIndexSignature } from &quot;.&quot;;
 "><svg
   class="copy"
   width="15"
