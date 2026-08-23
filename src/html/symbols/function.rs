@@ -453,15 +453,17 @@ fn render_single_function(
           .index(throws.len())
           .build();
 
+        let content = ts_type
+          .as_ref()
+          .map(|t| render_type_def(ctx, t))
+          .unwrap_or_default();
+
         throws.push(DocEntryCtx::removed(
           ctx,
           id,
           None,
           None,
-          ts_type
-            .as_ref()
-            .map(|t| t.repr.as_str())
-            .unwrap_or_default(),
+          &content,
           IndexSet::new(),
           doc.as_ref().map(|d| d.as_ref()),
           &decl.location,
@@ -680,7 +682,7 @@ fn render_function_throws(
         ..
       } = &tag_diff.old
       {
-        old_ts_type.as_ref().map(|t| t.repr.clone())
+        old_ts_type.as_ref().map(|t| render_type_def(render_ctx, t))
       } else {
         None
       };
@@ -701,15 +703,17 @@ fn render_function_throws(
     .index(throws_id)
     .build();
 
+  let content = ts_type
+    .as_ref()
+    .map(|t| render_type_def(render_ctx, t))
+    .unwrap_or_default();
+
   DocEntryCtx::new(
     render_ctx,
     id,
     None,
     None,
-    ts_type
-      .as_ref()
-      .map(|t| t.repr.as_str())
-      .unwrap_or_default(),
+    &content,
     IndexSet::new(),
     doc.as_ref().map(|doc| doc.as_ref()),
     &decl.location,
