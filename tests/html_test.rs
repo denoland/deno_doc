@@ -731,7 +731,8 @@ async fn html_doc_files_multiple() {
     let resolved = resolve_relative(file_name, path)
       .unwrap_or_else(|| panic!("link {href} in {file_name} escapes the root"));
     assert!(
-      files.contains_key(&resolved) || files.contains_key(&format!("./{resolved}")),
+      files.contains_key(&resolved)
+        || files.contains_key(&format!("./{resolved}")),
       "broken link {href} in {file_name}: {resolved} was not generated"
     );
   }
