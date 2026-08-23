@@ -564,7 +564,7 @@ Return Type</h2></div><div class="space-y-8"><div class=" docEntry" id="function
 Throws</h2></div><div class="space-y-8"><div class=" docEntry" id="function_d_0_throws_0">
 
   <div class="docEntryHeader">
-    <div><code><span class="font-medium text-stone-500 dark:text-stone-200"><a href="#type_param_foo" class="link td-ref">Foo</a></span>
+    <div><code><span class="font-medium text-stone-500 dark:text-stone-200">Foo</span>
       </code>
     </div></div><div class="max-w-[75ch]"><div class="markdown"><p>bar</p>
 </div></div></div>

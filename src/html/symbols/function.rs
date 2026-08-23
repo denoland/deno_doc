@@ -363,9 +363,11 @@ fn render_single_function(
           .index(throws.len())
           .build();
 
+        // JSDoc types are parsed in a throwaway module, so `render_type_def`
+        // would emit dead `#type_param_*` links here; escape the repr instead.
         let content = ts_type
           .as_ref()
-          .map(|t| render_type_def(ctx, t))
+          .map(|t| html_escape::encode_text(&t.repr).into_owned())
           .unwrap_or_default();
 
         throws.push(DocEntryCtx::removed(
@@ -594,7 +596,9 @@ fn render_function_throws(
         ..
       } = &tag_diff.old
       {
-        old_ts_type.as_ref().map(|t| render_type_def(render_ctx, t))
+        old_ts_type
+          .as_ref()
+          .map(|t| html_escape::encode_text(&t.repr).into_owned())
       } else {
         None
       };
@@ -615,9 +619,11 @@ fn render_function_throws(
     .index(throws_id)
     .build();
 
+  // JSDoc types are parsed in a throwaway module, so `render_type_def` would
+  // emit dead `#type_param_*` links here; escape the repr instead.
   let content = ts_type
     .as_ref()
-    .map(|t| render_type_def(render_ctx, t))
+    .map(|t| html_escape::encode_text(&t.repr).into_owned())
     .unwrap_or_default();
 
   DocEntryCtx::new(

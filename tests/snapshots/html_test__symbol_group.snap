@@ -2753,7 +2753,7 @@ expression: files
                                 "name_prefix": null,
                                 "name": null,
                                 "name_href": null,
-                                "content": "<a href=\"#type_param_foo\" class=\"link td-ref\">Foo</a>",
+                                "content": "Foo",
                                 "anchor": {
                                   "id": "function_d_0_throws_0"
                                 },
