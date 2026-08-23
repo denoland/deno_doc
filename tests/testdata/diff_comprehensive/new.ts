@@ -138,6 +138,10 @@ export interface Serializable<T> {
   optional?: boolean;
   /** The serialization version. */
   version: number;
+  /** The display label. */
+  get label(): number;
+  set label(value: number);
+  get addedAccessor(): string;
 }
 
 /** Extended serializable. */

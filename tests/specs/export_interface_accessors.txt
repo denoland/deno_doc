@@ -37,8 +37,8 @@ Defined in file:///mod.ts:0:1
 
 interface Thing
 
-  size(): number
-  size(value: number | string)
+  get size(): number
+  set size(value: number | string)
 
 
 # output.json

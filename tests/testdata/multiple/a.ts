@@ -138,6 +138,14 @@ export interface Hello<T extends string, E extends T, R = number> {
   optionalMethod?(): [string?];
   ["computedMethod"]?(a: T extends () => infer R ? R : any): void;
 
+  /**
+   * a getter/setter pair
+   */
+  get accessor(): string;
+  set accessor(value: string);
+  get readonlyAccessor(): number;
+  set writeonlyAccessor(value: number);
+
   x: {
     [foo: string]: number;
   };

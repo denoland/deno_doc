@@ -6,6 +6,8 @@ use crate::html::render_context::RenderContext;
 use crate::html::types::render_type_def_colon;
 use crate::html::types::type_params_summary;
 use crate::html::util::*;
+use deno_ast::swc::ast::MethodKind;
+use indexmap::IndexMap;
 
 pub(crate) fn render_interface(
   ctx: &RenderContext,
@@ -72,7 +74,9 @@ pub(crate) fn render_interface(
     ctx,
     name,
     &interface_def.properties,
+    &interface_def.methods,
     interface_diff.and_then(|d| d.property_changes.as_ref()),
+    interface_diff.and_then(|d| d.method_changes.as_ref()),
   ) {
     sections.push(properties);
   }
@@ -417,10 +421,41 @@ pub(crate) fn render_properties(
   ctx: &RenderContext,
   interface_name: &str,
   properties: &[crate::ts_type::PropertyDef],
+  methods: &[crate::ts_type::MethodDef],
   properties_diff: Option<&crate::diff::InterfacePropertiesDiff>,
+  methods_diff: Option<&crate::diff::InterfaceMethodsDiff>,
 ) -> Option<SectionCtx> {
+  // getter/setter pairs render as a single accessor entry in the properties
+  // section (like classes), not as methods
+  let mut accessors: IndexMap<
+    &str,
+    (
+      Option<&crate::ts_type::MethodDef>,
+      Option<&crate::ts_type::MethodDef>,
+    ),
+  > = IndexMap::new();
+  for method in methods {
+    match method.kind {
+      MethodKind::Getter => {
+        accessors.entry(&method.name).or_default().0 = Some(method);
+      }
+      MethodKind::Setter => {
+        accessors.entry(&method.name).or_default().1 = Some(method);
+      }
+      MethodKind::Method => {}
+    }
+  }
+
+  let has_removed_accessors = methods_diff.is_some_and(|d| {
+    d.removed
+      .iter()
+      .any(|m| matches!(m.kind, MethodKind::Getter | MethodKind::Setter))
+  });
+
   if properties.is_empty()
+    && accessors.is_empty()
     && properties_diff.is_none_or(|d| d.removed.is_empty())
+    && !has_removed_accessors
   {
     return None;
   }
@@ -533,6 +568,16 @@ pub(crate) fn render_properties(
     })
     .collect::<Vec<DocEntryCtx>>();
 
+  for (_name, (getter, setter)) in &accessors {
+    items.push(render_accessor(
+      ctx,
+      interface_name,
+      *getter,
+      *setter,
+      methods_diff,
+    ));
+  }
+
   if let Some(prop_diff) = properties_diff {
     for removed_prop in &prop_diff.removed {
       super::push_removed_property_entry(
@@ -545,6 +590,55 @@ pub(crate) fn render_properties(
     }
   }
 
+  // Inject removed getters/setters (skipped by render_methods)
+  if let Some(method_diff) = methods_diff {
+    let mut removed_accessors: IndexMap<
+      &str,
+      (
+        Option<&crate::ts_type::MethodDef>,
+        Option<&crate::ts_type::MethodDef>,
+      ),
+    > = IndexMap::new();
+
+    for removed_method in &method_diff.removed {
+      match removed_method.kind {
+        MethodKind::Getter => {
+          removed_accessors.entry(&removed_method.name).or_default().0 =
+            Some(removed_method);
+        }
+        MethodKind::Setter => {
+          removed_accessors.entry(&removed_method.name).or_default().1 =
+            Some(removed_method);
+        }
+        MethodKind::Method => {}
+      }
+    }
+
+    for (_name, (getter, setter)) in removed_accessors {
+      let getter_or_setter = getter.or(setter).unwrap();
+      let name = &getter_or_setter.name;
+
+      let id = IdBuilder::new(ctx)
+        .kind(IdKind::Accessor)
+        .name(name)
+        .build();
+
+      let ts_type = accessor_type(ctx, getter, setter);
+      let tags = accessor_tags(getter, setter);
+
+      items.push(DocEntryCtx::removed(
+        ctx,
+        id,
+        Some(html_escape::encode_text(name).into_owned()),
+        None,
+        &ts_type,
+        tags,
+        getter_or_setter.js_doc.doc.as_deref(),
+        &getter_or_setter.location,
+      ));
+    }
+  }
+
   if items.is_empty() {
     None
   } else {
@@ -554,6 +648,137 @@ pub(crate) fn render_properties(
       SectionContentCtx::DocEntry(items),
     ))
   }
+}
+
+fn accessor_type(
+  ctx: &RenderContext,
+  getter: Option<&crate::ts_type::MethodDef>,
+  setter: Option<&crate::ts_type::MethodDef>,
+) -> String {
+  getter
+    .and_then(|getter| getter.return_type.as_ref())
+    .or_else(|| {
+      setter.and_then(|setter| {
+        setter
+          .params
+          .first()
+          .and_then(|param| param.ts_type.as_ref())
+      })
+    })
+    .map_or_else(String::new, |ts_type| render_type_def_colon(ctx, ts_type))
+}
+
+fn accessor_tags(
+  getter: Option<&crate::ts_type::MethodDef>,
+  setter: Option<&crate::ts_type::MethodDef>,
+) -> indexmap::IndexSet<Tag> {
+  let getter_or_setter = getter.or(setter).unwrap();
+
+  let mut tags = Tag::from_js_doc(&getter_or_setter.js_doc);
+  if getter_or_setter.optional {
+    tags.insert(Tag::Optional);
+  }
+  if getter.is_some() && setter.is_none() {
+    tags.insert(Tag::Readonly);
+  } else if getter.is_none() && setter.is_some() {
+    tags.insert(Tag::Writeonly);
+  }
+
+  tags
+}
+
+fn render_accessor(
+  ctx: &RenderContext,
+  interface_name: &str,
+  getter: Option<&crate::ts_type::MethodDef>,
+  setter: Option<&crate::ts_type::MethodDef>,
+  methods_diff: Option<&crate::diff::InterfaceMethodsDiff>,
+) -> DocEntryCtx {
+  let getter_or_setter = getter.or(setter).unwrap();
+  let name = &getter_or_setter.name;
+
+  let id = IdBuilder::new(ctx)
+    .kind(IdKind::Accessor)
+    .name(name)
+    .build();
+
+  let ts_type = accessor_type(ctx, getter, setter);
+  let tags = accessor_tags(getter, setter);
+
+  let diff_status = if let Some(diff) = methods_diff {
+    if diff.added.iter().any(|m| {
+      m.name == *name
+        && matches!(m.kind, MethodKind::Getter | MethodKind::Setter)
+    }) {
+      Some(DiffStatus::Added)
+    } else if let Some(md) = diff.modified.iter().find(|m| m.name == *name) {
+      if let Some(name_change) = &md.name_change {
+        Some(DiffStatus::Renamed {
+          old_name: name_change.old.clone(),
+        })
+      } else {
+        Some(DiffStatus::Modified)
+      }
+    } else {
+      None
+    }
+  } else {
+    None
+  };
+
+  let (old_content, old_tags, method_diff) = if matches!(
+    diff_status,
+    Some(DiffStatus::Modified | DiffStatus::Renamed { .. })
+  ) {
+    let method_diff =
+      methods_diff.and_then(|mc| mc.modified.iter().find(|m| m.name == *name));
+
+    let old_content = getter
+      .and(method_diff)
+      .and_then(|md| md.return_type_change.as_ref())
+      .map(|tc| render_type_def_colon(ctx, &tc.old))
+      .or_else(|| {
+        setter
+          .and(method_diff)
+          .and_then(|md| md.params_change.as_ref())
+          .and_then(|pc| pc.modified.iter().find(|pd| pd.index == 0))
+          .and_then(|pd| pd.type_change.as_ref())
+          .map(|tc| render_type_def_colon(ctx, &tc.old))
+      });
+
+    let old_tags = method_diff.map(|diff| {
+      super::compute_old_tags(
+        &tags,
+        None,
+        None,
+        None,
+        diff.optional_change.as_ref(),
+      )
+    });
+
+    (old_content, old_tags, method_diff)
+  } else {
+    (None, None, None)
+  };
+
+  DocEntryCtx::new(
+    ctx,
+    id,
+    Some(if getter_or_setter.computed {
+      format!("[{}]", html_escape::encode_text(name))
+    } else {
+      html_escape::encode_text(name).into_owned()
+    }),
+    ctx.lookup_symbol_href(&qualify_drilldown_name(interface_name, name, true)),
+    &ts_type,
+    tags,
+    getter_or_setter.js_doc.doc.as_deref(),
+    &getter_or_setter.location,
+    diff_status,
+    old_content,
+    old_tags,
+    method_diff.and_then(|md| md.js_doc_change.as_ref()),
+  )
 }
 
 pub(crate) fn render_methods(
@@ -572,6 +797,8 @@ pub(crate) fn render_methods(
   let mut method_indexes = std::collections::HashMap::<&str, usize>::new();
   let mut items = methods
     .iter()
+    // getters/setters render as accessors in the properties section
+    .filter(|method| method.kind == MethodKind::Method)
     .map(|method| {
       let index = method_indexes.entry(method.name.as_ref()).or_default();
       let i = *index;
@@ -683,6 +910,11 @@ pub(crate) fn render_methods(
 
   if let Some(method_diff) = methods_diff {
     for removed_method in &method_diff.removed {
+      // Skip getters/setters (they go in the properties section)
+      if removed_method.kind != MethodKind::Method {
+        continue;
+      }
+
       let return_type = removed_method
         .return_type
         .as_ref()

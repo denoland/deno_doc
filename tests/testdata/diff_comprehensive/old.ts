@@ -115,6 +115,10 @@ export interface Serializable<T> {
   fromString(input: string): T;
   readonly kind: string;
   optional?: boolean;
+  /** The display label. */
+  get label(): string;
+  set label(value: string);
+  get removedAccessor(): boolean;
 }
 
 /** Extended serializable. */

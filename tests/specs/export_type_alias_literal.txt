@@ -22,8 +22,8 @@ type A
   constructor(d: string)
   a(): void
   b?(): void
-  c(): string
-  c(v: number)
+  get c(): string
+  set c(v: number)
 
 
 # output.json

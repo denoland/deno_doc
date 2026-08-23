@@ -339,6 +339,51 @@ expression: search_index
       "id": "namespace_hello",
       "kind": [
         {
+          "char": "m",
+          "kind": "Method",
+          "title": "Method"
+        }
+      ],
+      "name": "Hello.accessor",
+      "file": ".",
+      "doc": "a getter/setter pair",
+      "url": "././~/Hello.accessor.html",
+      "deprecated": false
+    },
+    {
+      "id": "namespace_hello",
+      "kind": [
+        {
+          "char": "m",
+          "kind": "Method",
+          "title": "Method"
+        }
+      ],
+      "name": "Hello.readonlyAccessor",
+      "file": ".",
+      "doc": "",
+      "url": "././~/Hello.readonlyAccessor.html",
+      "deprecated": false
+    },
+    {
+      "id": "namespace_hello",
+      "kind": [
+        {
+          "char": "m",
+          "kind": "Method",
+          "title": "Method"
+        }
+      ],
+      "name": "Hello.writeonlyAccessor",
+      "file": ".",
+      "doc": "",
+      "url": "././~/Hello.writeonlyAccessor.html",
+      "deprecated": false
+    },
+    {
+      "id": "namespace_hello",
+      "kind": [
+        {
           "char": "p",
           "kind": "Property",
           "title": "Property"

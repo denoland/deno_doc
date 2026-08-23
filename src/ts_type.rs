@@ -4,6 +4,7 @@ use crate::Location;
 use crate::ParamDef;
 use crate::display::SliceDisplayer;
 use crate::display::display_computed;
+use crate::display::display_method;
 use crate::display::display_optional;
 use crate::display::display_readonly;
 use crate::interface::expr_to_name;
@@ -1273,7 +1274,8 @@ impl Display for MethodDef {
   fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
     write!(
       f,
-      "{}{}({})",
+      "{}{}{}({})",
+      display_method(self.kind),
       display_computed(self.computed, &self.name),
       display_optional(self.optional),
       SliceDisplayer::new(&self.params, ", ", false),

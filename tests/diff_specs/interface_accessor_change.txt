@@ -1,0 +1,147 @@
+# old/mod.ts
+export interface Widget {
+  get label(): string;
+  set label(value: string);
+
+  get count(): number;
+
+  get removedAccessor(): boolean;
+  set removedAccessor(value: boolean);
+}
+
+# new/mod.ts
+export interface Widget {
+  get label(): number;
+  set label(value: number);
+
+  get count(): number;
+  set count(value: number);
+}
+
+# output.json
+{
+  "modifiedModules": {
+    "file:///mod.ts": {
+      "modified": [
+        {
+          "name": "Widget",
+          "declarations": {
+            "modified": [
+              {
+                "kind": "interface",
+                "defChanges": {
+                  "type": "interface",
+                  "methodChanges": {
+                    "added": [
+                      {
+                        "name": "count",
+                        "kind": "setter",
+                        "location": {
+                          "filename": "file:///mod.ts",
+                          "line": 5,
+                          "col": 2,
+                          "byteIndex": 103
+                        },
+                        "params": [
+                          {
+                            "kind": "identifier",
+                            "name": "value",
+                            "optional": false,
+                            "tsType": {
+                              "repr": "number",
+                              "kind": "keyword",
+                              "value": "number"
+                            }
+                          }
+                        ]
+                      }
+                    ],
+                    "removed": [
+                      {
+                        "name": "removedAccessor",
+                        "kind": "getter",
+                        "location": {
+                          "filename": "file:///mod.ts",
+                          "line": 6,
+                          "col": 2,
+                          "byteIndex": 104
+                        },
+                        "params": [],
+                        "returnType": {
+                          "repr": "boolean",
+                          "kind": "keyword",
+                          "value": "boolean"
+                        }
+                      },
+                      {
+                        "name": "removedAccessor",
+                        "kind": "setter",
+                        "location": {
+                          "filename": "file:///mod.ts",
+                          "line": 7,
+                          "col": 2,
+                          "byteIndex": 138
+                        },
+                        "params": [
+                          {
+                            "kind": "identifier",
+                            "name": "value",
+                            "optional": false,
+                            "tsType": {
+                              "repr": "boolean",
+                              "kind": "keyword",
+                              "value": "boolean"
+                            }
+                          }
+                        ]
+                      }
+                    ],
+                    "modified": [
+                      {
+                        "name": "label",
+                        "returnTypeChange": {
+                          "old": {
+                            "repr": "string",
+                            "kind": "keyword",
+                            "value": "string"
+                          },
+                          "new": {
+                            "repr": "number",
+                            "kind": "keyword",
+                            "value": "number"
+                          }
+                        }
+                      },
+                      {
+                        "name": "label",
+                        "paramsChange": {
+                          "modified": [
+                            {
+                              "index": 0,
+                              "typeChange": {
+                                "old": {
+                                  "repr": "string",
+                                  "kind": "keyword",
+                                  "value": "string"
+                                },
+                                "new": {
+                                  "repr": "number",
+                                  "kind": "keyword",
+                                  "value": "number"
+                                }
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  }
+}

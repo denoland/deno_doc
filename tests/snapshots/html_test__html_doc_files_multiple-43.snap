@@ -5,7 +5,7 @@ expression: files.get(file_name).unwrap()
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Testing - default - documentation</title>
+  <title>Hello.x - default - documentation</title>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="doc-current-file" content=".">
@@ -52,7 +52,8 @@ expression: files.get(file_name).unwrap()
 </svg>
 </span>
 
-    <ul><li>Testing</li></ul></ul>
+    <ul><li><span>.</span>
+            <a href="..&#x2F;.&#x2F;.&#x2F;~&#x2F;Hello.html" class="contextLink">Hello</a></li><li>x</li></ul></ul>
 </div>
 
     <div class="flex items-center gap-2">
@@ -116,14 +117,13 @@ expression: files.get(file_name).unwrap()
     </div>
   </div>
 </nav>
-<div id="searchResults"></div><div id="content"><main class="symbolGroup" id="symbol_Testing"><article>
+<div id="searchResults"></div><div id="content"><main class="symbolGroup" id="symbol_Hello.x"><article>
       <div class="symbolTitle">
         <div>
           <div class="text-2xl leading-none break-all">
-            <span class="text-Class">class</span>&nbsp;<span class="font-bold">Testing</span>
-          </div><div class="symbolSubtitle"></div></div></div><div><div class="space-y-7" id=""></div>
-<div class="space-y-7" id=""><section class="section"  id="functions"><div>
-      <h2 class="anchorable mb-1"><a href="#functions" class="anchor" aria-label="Anchor" tabIndex="-1"><svg
+            <span class="text-Property">property</span>&nbsp;<span class="font-bold">Hello.x</span>
+          </div></div></div><div><div class="space-y-7" id=""><section class="section"  id="index-signatures"><div>
+      <h2 class="anchorable mb-1"><a href="#index-signatures" class="anchor" aria-label="Anchor" tabIndex="-1"><svg
   width="16"
   height="16"
   viewBox="0 0 14 14"
@@ -145,30 +145,7 @@ expression: files.get(file_name).unwrap()
   </defs>
 </svg>
 </a>
-Functions</h2></div><div class="namespaceSection"><div id="namespace_testing_externalfunction" class="namespaceItem" ><div class="docNodeKindIcon"><div class="text-Function bg-Function/15 dark:text-FunctionDark dark:bg-FunctionDark/15" title="Function">f</div></div>
-<div class="namespaceItemContent">
-		    <a href="..&#x2F;.&#x2F;.&#x2F;~&#x2F;Testing.externalFunction.html" title="Testing.externalFunction">
-			    <span>Testing.externalFunction</span><span>(<span><span>_n<span class="td-op">?</span><span>: <span class="td-kw">number</span></span></span></span>)<span>: <span class="td-kw">void</span></span></span></a></div>
-    </div><div id="namespace_testing_t" class="namespaceItem" ><div class="docNodeKindIcon"><div class="text-Function bg-Function/15 dark:text-FunctionDark dark:bg-FunctionDark/15" title="Function">f</div></div>
-<div class="namespaceItemContent">
-		    <a href="..&#x2F;.&#x2F;.&#x2F;~&#x2F;Testing.t.html" title="Testing.t">
-			    <span>Testing.t</span><span>()<span>: <span class="td-kw">string</span></span></span></a></div>
-    </div><div id="namespace_testing_x" class="namespaceItem" ><div class="docNodeKindIcon"><div class="text-Function bg-Function/15 dark:text-FunctionDark dark:bg-FunctionDark/15" title="Function">f</div></div>
-<div class="namespaceItemContent">
-		    <a href="..&#x2F;.&#x2F;.&#x2F;~&#x2F;Testing.x.html" title="Testing.x">
-			    <span>Testing.x</span><span>(<span><span>_n<span class="td-op">?</span><span>: <span class="td-kw">number</span></span></span></span>)<span>: <span class="td-kw">void</span></span></span></a></div>
-    </div></div>
-</section>
-</div>
-</div>
-    </article><article>
-      <div class="symbolTitle">
-        <div>
-          <div class="text-2xl leading-none break-all">
-            <span class="text-Namespace">namespace</span>&nbsp;<span class="font-bold">Testing</span>
-          </div></div></div><div><div class="space-y-7" id=""></div>
-<div class="space-y-7" id=""><section class="section"  id="functions-1"><div>
-      <h2 class="anchorable mb-1"><a href="#functions-1" class="anchor" aria-label="Anchor" tabIndex="-1"><svg
+Index Signatures</h2></div><div class="space-y-8"><div class="anchorable text-sm" id="index_signature_0"><a href="#index_signature_0" class="anchor" aria-label="Anchor" tabIndex="-1"><svg
   width="16"
   height="16"
   viewBox="0 0 14 14"
@@ -190,27 +167,15 @@ Functions</h2></div><div class="namespaceSection"><div id="namespace_testing_ext
   </defs>
 </svg>
 </a>
-Functions</h2></div><div class="namespaceSection"><div id="namespace_testing_externalfunction-1" class="namespaceItem" ><div class="docNodeKindIcon"><div class="text-Function bg-Function/15 dark:text-FunctionDark dark:bg-FunctionDark/15" title="Function">f</div></div>
-<div class="namespaceItemContent">
-		    <a href="..&#x2F;.&#x2F;.&#x2F;~&#x2F;Testing.externalFunction.html" title="Testing.externalFunction">
-			    <span>Testing.externalFunction</span><span>(<span><span>_n<span class="td-op">?</span><span>: <span class="td-kw">number</span></span></span></span>)<span>: <span class="td-kw">void</span></span></span></a></div>
-    </div><div id="namespace_testing_t-1" class="namespaceItem" ><div class="docNodeKindIcon"><div class="text-Function bg-Function/15 dark:text-FunctionDark dark:bg-FunctionDark/15" title="Function">f</div></div>
-<div class="namespaceItemContent">
-		    <a href="..&#x2F;.&#x2F;.&#x2F;~&#x2F;Testing.t.html" title="Testing.t">
-			    <span>Testing.t</span><span>()<span>: <span class="td-kw">string</span></span></span></a></div>
-    </div><div id="namespace_testing_x-1" class="namespaceItem" ><div class="docNodeKindIcon"><div class="text-Function bg-Function/15 dark:text-FunctionDark dark:bg-FunctionDark/15" title="Function">f</div></div>
-<div class="namespaceItemContent">
-		    <a href="..&#x2F;.&#x2F;.&#x2F;~&#x2F;Testing.x.html" title="Testing.x">
-			    <span>Testing.x</span><span>(<span><span>_n<span class="td-op">?</span><span>: <span class="td-kw">number</span></span></span></span>)<span>: <span class="td-kw">void</span></span></span></a></div>
-    </div></div>
-</section>
+[<span><span>foo<span>: <span class="td-kw">string</span></span></span></span>] <span>: <span class="td-kw">number</span></span></div>
+</div></section>
 </div>
 </div>
     </article></main>
 <div class="toc">
     <div><div class="usageContent">
-    <h3>Usage</h3><div class="markdown"><pre class="highlight"><code class="language-typescript">import { Testing } from &quot;.&quot;;
-</code><button class="copyButton" data-copy="import { Testing } from &quot;.&quot;;
+    <h3>Usage</h3><div class="markdown"><pre class="highlight"><code class="language-typescript">import { type Hello } from &quot;.&quot;;
+</code><button class="copyButton" data-copy="import { type Hello } from &quot;.&quot;;
 "><svg
   class="copy"
   width="15"
@@ -243,7 +208,7 @@ Functions</h2></div><div class="namespaceSection"><div id="namespace_testing_ext
 </svg>
 </button><code></code></pre>
 </div></div><nav class="documentNavigation">
-          <h3>Document Navigation</h3><ul><li><a href="#functions" title="Functions">Functions</a></li><li><ul><li><a href="#namespace_testing_externalfunction" title="Testing.externalFunction">Testing.externalFunction</a></li><li><a href="#namespace_testing_t" title="Testing.t">Testing.t</a></li><li><a href="#namespace_testing_x" title="Testing.x">Testing.x</a></li></ul></li><li><a href="#functions-1" title="Functions">Functions</a></li><li><ul><li><a href="#namespace_testing_externalfunction-1" title="Testing.externalFunction">Testing.externalFunction</a></li><li><a href="#namespace_testing_t-1" title="Testing.t">Testing.t</a></li><li><a href="#namespace_testing_x-1" title="Testing.x">Testing.x</a></li></ul></li></ul></nav></div>
+          <h3>Document Navigation</h3><ul><li><a href="#index-signatures" title="Index Signatures">Index Signatures</a></li></ul></nav></div>
   </div></div>
 </div>
 </div>

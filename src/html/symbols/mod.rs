@@ -1006,9 +1006,13 @@ pub(crate) fn render_type_def_sections(
       ctx,
       name,
       &ts_type_literal.properties,
+      &ts_type_literal.methods,
       type_lit_diff
         .as_ref()
         .and_then(|d| d.property_changes.as_ref()),
+      type_lit_diff
+        .as_ref()
+        .and_then(|d| d.method_changes.as_ref()),
     ) {
       sections.push(properties);
     }
@@ -1080,7 +1084,9 @@ pub(crate) fn render_type_def_sections(
           ctx,
           name,
           &[],
+          &[],
           diff.property_changes.as_ref(),
+          diff.method_changes.as_ref(),
         ) {
           sections.push(props);
         }
