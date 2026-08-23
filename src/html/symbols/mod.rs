@@ -158,7 +158,7 @@ impl SymbolGroupCtx {
 
         let old_tags = if let Some(diff) = ctx.ctx.diff.as_ref().and_then(|d| {
           d.get_declaration_diff(
-            &symbol.origin.specifier,
+            &symbol.declared_origin().specifier,
             symbol.get_name(),
             *kind,
           )
@@ -234,7 +234,7 @@ impl SymbolGroupCtx {
           .as_ref()
           .and_then(|d| {
             d.get_declaration_diff(
-              &symbol.origin.specifier,
+              &symbol.declared_origin().specifier,
               symbol.get_name(),
               *kind,
             )
@@ -352,7 +352,7 @@ impl DocBlockSubtitleCtx {
         let class_diff = ctx.ctx.diff.as_ref().and_then(|diff_index| {
           diff_index
             .get_def_diff(
-              &symbol.origin.specifier,
+              &symbol.declared_origin().specifier,
               symbol.get_name(),
               decl.def.to_kind(),
             )
@@ -444,7 +444,7 @@ impl DocBlockSubtitleCtx {
         let iface_diff = ctx.ctx.diff.as_ref().and_then(|diff_index| {
           diff_index
             .get_def_diff(
-              &symbol.origin.specifier,
+              &symbol.declared_origin().specifier,
               symbol.get_name(),
               decl.def.to_kind(),
             )
@@ -640,7 +640,7 @@ impl SymbolInnerCtx {
       let doc_change = ctx.ctx.diff.as_ref().and_then(|diff_index| {
         diff_index
           .get_declaration_diff(
-            &symbol.origin.specifier,
+            &symbol.declared_origin().specifier,
             symbol.get_name(),
             decl.def.to_kind(),
           )?

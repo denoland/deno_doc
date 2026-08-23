@@ -25,7 +25,7 @@ pub(crate) fn render_interface(
   let interface_diff = ctx.ctx.diff.as_ref().and_then(|diff_index| {
     diff_index
       .get_def_diff(
-        &symbol.origin.specifier,
+        &symbol.declared_origin().specifier,
         symbol.get_name(),
         decl.def.to_kind(),
       )
@@ -566,10 +566,17 @@ pub(crate) fn render_methods(
     return None;
   }
 
+  // ids index overloads within a name (like class methods), not positions in
+  // the method list, so links built elsewhere can rely on `_0` for the first
+  // overload of a method
+  let mut method_indexes = std::collections::HashMap::<&str, usize>::new();
   let mut items = methods
     .iter()
-    .enumerate()
-    .map(|(i, method)| {
+    .map(|method| {
+      let index = method_indexes.entry(method.name.as_ref()).or_default();
+      let i = *index;
+      *index += 1;
+
       let id = IdBuilder::new(ctx)
         .kind(IdKind::Method)
         .name(&method.name)

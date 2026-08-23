@@ -47,14 +47,14 @@ fn get_namespace_section_render_ctx(
     })
     .collect::<Vec<_>>();
 
-  let mut section = SectionCtx::new(
-    ctx,
-    header
-      .as_ref()
-      .map(|header| header.title.as_str())
-      .unwrap_or_default(),
-    SectionContentCtx::NamespaceSection(nodes),
-  );
+  // the header id was already anchorized by the caller, so register the ToC
+  // entry with it instead of letting `SectionCtx::new` anchorize the title a
+  // second time, which would point the ToC at an id the section doesn't have
+  if let Some(header) = &header {
+    ctx.toc.add_entry(1, &header.title, &header.anchor.id);
+  }
+  let mut section =
+    SectionCtx::new(ctx, "", SectionContentCtx::NamespaceSection(nodes));
   section.header = header;
   section
 }
@@ -146,7 +146,7 @@ impl NamespaceNodeCtx {
           .iter()
           .filter_map(|decl| {
             diff_index.get_def_diff(
-              &symbol.origin.specifier,
+              &symbol.declared_origin().specifier,
               symbol.get_name(),
               decl.def.to_kind(),
             )
@@ -232,7 +232,10 @@ impl NamespaceNodeCtx {
           .diff
           .as_ref()
           .and_then(|d| {
-            d.get_symbol_diff(&symbol.origin.specifier, symbol.get_name())
+            d.get_symbol_diff(
+              &symbol.declared_origin().specifier,
+              symbol.get_name(),
+            )
           })
           .and_then(|info| info.diff.as_ref())
           .and_then(|sd| sd.declarations.as_ref())
@@ -246,7 +249,7 @@ impl NamespaceNodeCtx {
               .as_ref()
               .and_then(|diff_index| {
                 let decl_diff = diff_index.get_declaration_diff(
-                  &symbol.origin.specifier,
+                  &symbol.declared_origin().specifier,
                   symbol.get_name(),
                   decl.def.to_kind(),
                 )?;
@@ -295,7 +298,7 @@ impl NamespaceNodeCtx {
         symbol.declarations.iter().find_map(|decl| {
           diff_index
             .get_declaration_diff(
-              &symbol.origin.specifier,
+              &symbol.declared_origin().specifier,
               symbol.get_name(),
               decl.def.to_kind(),
             )?

@@ -426,6 +426,7 @@ impl GenerateCtx {
 
             DocNodeWithContext {
               origin: short_path.clone(),
+              declared_origin: None,
               ns_qualifiers: Arc::new([]),
               inner: symbol,
               drilldown_name: None,
@@ -487,6 +488,7 @@ impl GenerateCtx {
           for node in removed {
             nodes.push(DocNodeWithContext {
               origin: short_path.clone(),
+              declared_origin: None,
               ns_qualifiers: Arc::new([]),
               inner: Arc::new(node.clone()),
               drilldown_name: None,
@@ -727,10 +729,11 @@ impl GenerateCtx {
           fn handle_node(
             node: &mut DocNodeWithContext,
             ns_qualifiers: Vec<String>,
+            origin: &Arc<ShortPath>,
           ) {
             if let Some(children_rc) = &mut node.namespace_children {
               for node in Arc::make_mut(children_rc) {
-                handle_node(node, ns_qualifiers.clone());
+                handle_node(node, ns_qualifiers.clone(), origin);
               }
             }
 
@@ -738,9 +741,18 @@ impl GenerateCtx {
             new_ns_qualifiers.extend(node.ns_qualifiers.iter().cloned());
             node.ns_qualifiers = new_ns_qualifiers.into();
             node.qualified_name = std::sync::OnceLock::new();
+            // The symbol page for a namespace-qualified re-export is written
+            // under the module that documents the namespace, not the module
+            // the symbol was declared in, so hrefs must resolve against the
+            // former. Diff data stays keyed by the declaring module, which is
+            // preserved as `declared_origin`.
+            if node.declared_origin.is_none() {
+              node.declared_origin = Some(node.origin.clone());
+            }
+            node.origin = origin.clone();
           }
 
-          handle_node(&mut node, ns_qualifiers);
+          handle_node(&mut node, ns_qualifiers, &parent.origin);
 
           Cow::Owned(node)
         } else {
@@ -827,6 +839,7 @@ fn apply_namespace_diff_inner(
       for removed_node in &ns_diff.removed_elements {
         children.push(DocNodeWithContext {
           origin: short_path.clone(),
+          declared_origin: None,
           ns_qualifiers: subqualifier.clone(),
           inner: removed_node.clone(),
           drilldown_name: None,
@@ -989,6 +1002,12 @@ pub enum DrilldownKind {
 #[serde(rename_all = "camelCase")]
 pub struct DocNodeWithContext {
   pub origin: Arc<ShortPath>,
+  /// The module the symbol was declared in, when it differs from `origin`.
+  /// `origin` tracks the module whose docs are being generated (which is what
+  /// hrefs must resolve against), but for reference-resolved re-exports diff
+  /// data is keyed by the declaring module; see [`Self::declared_origin`].
+  #[serde(skip, default)]
+  declared_origin: Option<Arc<ShortPath>>,
   pub ns_qualifiers: Arc<[String]>,
   pub inner: Arc<Symbol>,
   pub drilldown_name: Option<Box<str>>,
@@ -1006,6 +1025,13 @@ pub struct DocNodeWithContext {
 }
 
 impl DocNodeWithContext {
+  /// The module the symbol was declared in. This is the same as `origin`
+  /// except for reference-resolved re-exports, and is the module diff data is
+  /// keyed by.
+  pub fn declared_origin(&self) -> &Arc<ShortPath> {
+    self.declared_origin.as_ref().unwrap_or(&self.origin)
+  }
+
   /// Returns the `DocNodeKindCtx` entries for this symbol. For drilldown
   /// symbols (methods/properties) uses the `drilldown_kind`; otherwise
   /// derives from declarations.
@@ -1025,6 +1051,7 @@ impl DocNodeWithContext {
   pub fn create_child(&self, doc_node: Arc<Symbol>) -> Self {
     DocNodeWithContext {
       origin: self.origin.clone(),
+      declared_origin: self.declared_origin.clone(),
       ns_qualifiers: self.ns_qualifiers.clone(),
       inner: doc_node,
       drilldown_name: None,
@@ -1042,6 +1069,7 @@ impl DocNodeWithContext {
   ) -> Self {
     DocNodeWithContext {
       origin: parent.origin.clone(),
+      declared_origin: parent.declared_origin.clone(),
       ns_qualifiers: parent.ns_qualifiers.clone(),
       inner: doc_node,
       drilldown_name: None,
@@ -1205,28 +1233,51 @@ impl DocNodeWithContext {
     for decl in &self.inner.declarations {
       match &decl.def {
         DeclarationDef::Class(class_def) => {
-          symbols.extend(class_def.methods.iter().map(|method| {
-            Self::create_child_method_with_parent(
-              &parent_rc,
-              Symbol::function(
-                method.name.clone(),
-                false,
-                method.location.clone(),
-                declaration_kind,
-                method.js_doc.clone(),
-                method.function_def.clone(),
-              ),
-              method.is_static,
-              method.kind,
-            )
-          }));
-          symbols.extend(class_def.properties.iter().map(|property| {
-            Self::create_child_property_with_parent(
-              &parent_rc,
-              Symbol::from(property.clone()),
-              property.is_static,
-            )
-          }));
+          // private members are not rendered (see `partition_class_items`),
+          // so they must not get drilldown pages or listing/search entries
+          // either
+          let is_private =
+            |accessibility: &Option<deno_ast::swc::ast::Accessibility>| {
+              matches!(
+                accessibility,
+                Some(deno_ast::swc::ast::Accessibility::Private)
+              )
+            };
+
+          symbols.extend(
+            class_def
+              .methods
+              .iter()
+              .filter(|method| !is_private(&method.accessibility))
+              .map(|method| {
+                Self::create_child_method_with_parent(
+                  &parent_rc,
+                  Symbol::function(
+                    method.name.clone(),
+                    false,
+                    method.location.clone(),
+                    declaration_kind,
+                    method.js_doc.clone(),
+                    method.function_def.clone(),
+                  ),
+                  method.is_static,
+                  method.kind,
+                )
+              }),
+          );
+          symbols.extend(
+            class_def
+              .properties
+              .iter()
+              .filter(|property| !is_private(&property.accessibility))
+              .map(|property| {
+                Self::create_child_property_with_parent(
+                  &parent_rc,
+                  Symbol::from(property.clone()),
+                  property.is_static,
+                )
+              }),
+          );
         }
         DeclarationDef::Interface(interface_def) => {
           symbols.extend(interface_def.methods.iter().map(|method| {
