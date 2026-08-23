@@ -933,10 +933,12 @@ impl TopSymbolsCtx {
           ctx.get_current_resolve(),
           UrlResolveKind::Symbol {
             file: &node.origin,
-            symbol: &node.name,
+            // the page for a namespace member lives under its qualified
+            // name; the bare name would produce a dead link
+            symbol: node.get_qualified_name(),
           },
         ),
-        name: node.name.to_string(),
+        name: node.get_qualified_name().to_string(),
       })
       .collect();
 

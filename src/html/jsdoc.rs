@@ -799,6 +799,12 @@ impl ExampleCtx {
 #[derive(Debug, Serialize, Deserialize, Clone, Default)]
 pub struct ModuleDocCtx {
   pub deprecated: Option<String>,
+  /// Whether deeply nested symbols were dropped from the symbol listing
+  /// because it exceeded [`GenerateOptions::symbol_listing_limit`].
+  ///
+  /// [`GenerateOptions::symbol_listing_limit`]: crate::html::GenerateOptions::symbol_listing_limit
+  #[serde(default, skip_serializing_if = "std::ops::Not::not")]
+  pub symbols_trimmed: bool,
   pub sections: super::SymbolContentCtx,
 }
 
@@ -840,12 +846,47 @@ impl ModuleDocCtx {
         (None, None)
       };
 
+    let mut symbols_trimmed = false;
+
     if render_symbols {
-      let partitions_by_kind = super::partition::partition_nodes_by_kind(
+      let mut partitions_by_kind = super::partition::partition_nodes_by_kind(
         render_ctx.ctx,
         module_doc_nodes.iter().map(Cow::Borrowed),
         true,
       );
+
+      // Very namespace-heavy modules (e.g. a package re-exporting its whole
+      // API under several namespaces) can produce listings with tens of
+      // thousands of rows. While over the limit, drop the deepest level of
+      // namespace nesting whole — the result can undershoot the limit, but
+      // a namespace is either fully listed or deferred to its own page,
+      // never partially listed. Top-level symbols are always rendered.
+      if let Some(limit) = render_ctx.ctx.symbol_listing_limit {
+        let mut total: usize =
+          partitions_by_kind.values().map(|nodes| nodes.len()).sum();
+        let mut max_depth = partitions_by_kind
+          .values()
+          .flatten()
+          .map(|node| node.ns_qualifiers.len())
+          .max()
+          .unwrap_or(0);
+
+        while total > limit && max_depth > 0 {
+          for nodes in partitions_by_kind.values_mut() {
+            nodes.retain(|node| {
+              if node.ns_qualifiers.len() >= max_depth {
+                total -= 1;
+                symbols_trimmed = true;
+                false
+              } else {
+                true
+              }
+            });
+          }
+          max_depth -= 1;
+        }
+        partitions_by_kind.retain(|_, nodes| !nodes.is_empty());
+      }
 
       sections.extend(super::namespace::render_namespace(
         partitions_by_kind.into_iter().map(|(title, nodes)| {
@@ -876,6 +917,7 @@ impl ModuleDocCtx {
 
     Self {
       deprecated,
+      symbols_trimmed,
       sections: super::SymbolContentCtx {
         id: render_ctx.toc.anchorize("module_doc"),
         docs: html,
@@ -988,6 +1030,7 @@ mod test {
         head_inject: None,
         id_prefix: None,
         diff_only: false,
+        symbol_listing_limit: None,
       },
       Default::default(),
       Default::default(),

@@ -177,6 +177,7 @@ async fn html_doc_dts() {
       head_inject: None,
       id_prefix: None,
       diff_only: false,
+      symbol_listing_limit: None,
     },
     get_files("dts").await,
     None,
@@ -236,6 +237,7 @@ async fn html_doc_files_single() {
       head_inject: None,
       id_prefix: None,
       diff_only: false,
+      symbol_listing_limit: None,
     },
     get_files("single").await,
     None,
@@ -294,6 +296,7 @@ async fn html_doc_import_linking() {
       head_inject: None,
       id_prefix: None,
       diff_only: false,
+      symbol_listing_limit: None,
     },
     get_files("import_linking").await,
     None,
@@ -399,6 +402,7 @@ async fn html_doc_import_linking_internal_file() {
       head_inject: None,
       id_prefix: None,
       diff_only: false,
+      symbol_listing_limit: None,
     },
     parse_output,
     None,
@@ -419,6 +423,81 @@ async fn html_doc_import_linking_internal_file() {
 }
 
 #[tokio::test]
+async fn html_doc_symbol_listing_limit() {
+  async fn generate_with_limit(
+    limit: Option<usize>,
+  ) -> std::collections::HashMap<String, String> {
+    let ctx = GenerateCtx::create_basic(
+      GenerateOptions {
+        package_name: None,
+        main_entrypoint: None,
+        href_resolver: Arc::new(EmptyResolver),
+        usage_composer: Some(Arc::new(EmptyResolver)),
+        rewrite_map: None,
+        category_docs: None,
+        disable_search: false,
+        symbol_redirect_map: None,
+        default_symbol_map: None,
+        markdown_renderer: comrak::create_renderer(None, None, None),
+        markdown_stripper: Arc::new(comrak::strip),
+        head_inject: None,
+        id_prefix: None,
+        diff_only: false,
+        symbol_listing_limit: limit,
+      },
+      get_files("symbol_listing_limit").await,
+      None,
+    )
+    .unwrap();
+    generate(ctx).unwrap()
+  }
+
+  // without a limit everything is listed
+  let files = generate_with_limit(None).await;
+  let index = files.get("mod.ts/index.html").unwrap();
+  assert!(index.contains(r#"id="namespace_outer_inner_innerfnone""#));
+  assert!(!index.contains("omitted from this overview"));
+  // the "Symbols" panel lists namespace members under their qualified name
+  // and links to the qualified page (jsr-io/jsr#1301)
+  let panel = index.split(r#"<nav class="topSymbols">"#).nth(1).unwrap();
+  assert!(
+    panel.contains(r#"title="outer.outerFnOne""#),
+    "the Symbols panel must contain the qualified member: {panel}"
+  );
+  assert!(
+    panel.contains("outer.outerFnOne.html"),
+    "the Symbols panel must link the qualified page: {panel}"
+  );
+  assert!(!index.contains(r#"title="outerFnOne""#));
+
+  // the flattened listing has 10 rows; with a limit of 8, the deepest
+  // namespace members are dropped first
+  let files = generate_with_limit(Some(8)).await;
+  let index = files.get("mod.ts/index.html").unwrap();
+  assert!(index.contains(r#"id="namespace_toplevelfn""#));
+  assert!(index.contains(r#"id="namespace_outer_outerfnone""#));
+  assert!(!index.contains(r#"id="namespace_outer_inner_innerfnone""#));
+  assert!(index.contains("omitted from this overview"));
+
+  // levels are dropped whole: limit 4 also falls through to the 3
+  // top-level rows, since keeping any of the 4 depth-1 rows would list the
+  // `outer` namespace only partially
+  let files = generate_with_limit(Some(4)).await;
+  let index = files.get("mod.ts/index.html").unwrap();
+  assert!(index.contains(r#"id="namespace_toplevelfn""#));
+  assert!(!index.contains(r#"id="namespace_outer_outerfnone""#));
+  assert!(index.contains("omitted from this overview"));
+
+  // top-level symbols are always rendered, even over the limit
+  let files = generate_with_limit(Some(2)).await;
+  let index = files.get("mod.ts/index.html").unwrap();
+  assert!(index.contains(r#"id="namespace_toplevelfn""#));
+  assert!(index.contains(r#"id="namespace_toplevelinterface""#));
+  assert!(!index.contains(r#"id="namespace_outer_outerfnone""#));
+  assert!(index.contains("omitted from this overview"));
+}
+
+#[tokio::test]
 async fn html_doc_signature_examples() {
   let ctx = GenerateCtx::create_basic(
     GenerateOptions {
@@ -436,6 +515,7 @@ async fn html_doc_signature_examples() {
       head_inject: None,
       id_prefix: None,
       diff_only: false,
+      symbol_listing_limit: None,
     },
     get_files("signature_examples").await,
     None,
@@ -499,6 +579,7 @@ async fn html_doc_files_multiple() {
       head_inject: None,
       id_prefix: None,
       diff_only: false,
+      symbol_listing_limit: None,
     },
     get_files("multiple").await,
     None,
@@ -641,6 +722,7 @@ async fn symbol_group() {
       head_inject: None,
       id_prefix: None,
       diff_only: false,
+      symbol_listing_limit: None,
     },
     None,
     Default::default(),
@@ -743,6 +825,7 @@ async fn symbol_search() {
       head_inject: None,
       id_prefix: None,
       diff_only: false,
+      symbol_listing_limit: None,
     },
     None,
     Default::default(),
@@ -802,6 +885,7 @@ async fn module_doc() {
       head_inject: None,
       id_prefix: None,
       diff_only: false,
+      symbol_listing_limit: None,
     },
     None,
     FileMode::Single,
@@ -905,6 +989,7 @@ export class Foo {
       head_inject: None,
       id_prefix: None,
       diff_only: false,
+      symbol_listing_limit: None,
     },
     parse_source(source).await,
     None,
@@ -974,6 +1059,7 @@ export class Button {}
       head_inject: None,
       id_prefix: None,
       diff_only: false,
+      symbol_listing_limit: None,
     },
     parse_source(source).await,
     None,
@@ -1033,6 +1119,7 @@ export default function (): void {}
       head_inject: None,
       id_prefix: None,
       diff_only: false,
+      symbol_listing_limit: None,
     },
     parse_source(source).await,
     None,
@@ -1089,6 +1176,7 @@ async fn diff_kind_change() {
       head_inject: None,
       id_prefix: None,
       diff_only: false,
+      symbol_listing_limit: None,
     },
     new_docs,
     Some(diff),
@@ -1139,6 +1227,7 @@ async fn diff_comprehensive() {
       head_inject: None,
       id_prefix: None,
       diff_only: false,
+      symbol_listing_limit: None,
     },
     new_docs.clone(),
     Some(diff.clone()),
@@ -1175,6 +1264,7 @@ async fn diff_comprehensive() {
       head_inject: None,
       id_prefix: None,
       diff_only: true,
+      symbol_listing_limit: None,
     },
     new_docs,
     Some(diff),
@@ -1248,6 +1338,7 @@ export function hello(): string {
       head_inject: None,
       id_prefix: None,
       diff_only: false,
+      symbol_listing_limit: None,
     },
     doc_nodes_by_url,
     None,
@@ -1387,6 +1478,7 @@ async fn html_output_is_valid() {
       head_inject: None,
       id_prefix: None,
       diff_only: false,
+      symbol_listing_limit: None,
     },
     get_files("multiple").await,
     None,
@@ -1431,6 +1523,7 @@ export function hello(): string {
       head_inject: None,
       id_prefix: None,
       diff_only: false,
+      symbol_listing_limit: None,
     },
     doc_nodes_by_url,
     None,
@@ -1489,6 +1582,7 @@ export class Foo {
       head_inject: None,
       id_prefix: None,
       diff_only: false,
+      symbol_listing_limit: None,
     },
     doc_nodes_by_url,
     None,
@@ -1564,6 +1658,7 @@ export function noVersion(): void {}
       head_inject: None,
       id_prefix: None,
       diff_only: false,
+      symbol_listing_limit: None,
     },
     parse_source(source).await,
     None,
@@ -1629,6 +1724,7 @@ export function foo(): void {}
       head_inject: None,
       id_prefix: None,
       diff_only: false,
+      symbol_listing_limit: None,
     },
     parse_source(source).await,
     None,
@@ -1686,6 +1782,7 @@ export function sum(first: number, ...rest: number[]): number {
       head_inject: None,
       id_prefix: None,
       diff_only: false,
+      symbol_listing_limit: None,
     },
     parse_source(source).await,
     None,
@@ -1744,6 +1841,7 @@ export function f(
       head_inject: None,
       id_prefix: None,
       diff_only: false,
+      symbol_listing_limit: None,
     },
     parse_source(source).await,
     None,
@@ -1805,6 +1903,7 @@ export class A {
       head_inject: None,
       id_prefix: None,
       diff_only: false,
+      symbol_listing_limit: None,
     },
     parse_source(source).await,
     None,
