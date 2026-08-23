@@ -146,7 +146,7 @@ impl NamespaceNodeCtx {
           .iter()
           .filter_map(|decl| {
             diff_index.get_def_diff(
-              &symbol.origin.specifier,
+              &symbol.declared_origin().specifier,
               symbol.get_name(),
               decl.def.to_kind(),
             )
@@ -232,7 +232,10 @@ impl NamespaceNodeCtx {
           .diff
           .as_ref()
           .and_then(|d| {
-            d.get_symbol_diff(&symbol.origin.specifier, symbol.get_name())
+            d.get_symbol_diff(
+              &symbol.declared_origin().specifier,
+              symbol.get_name(),
+            )
           })
           .and_then(|info| info.diff.as_ref())
           .and_then(|sd| sd.declarations.as_ref())
@@ -246,7 +249,7 @@ impl NamespaceNodeCtx {
               .as_ref()
               .and_then(|diff_index| {
                 let decl_diff = diff_index.get_declaration_diff(
-                  &symbol.origin.specifier,
+                  &symbol.declared_origin().specifier,
                   symbol.get_name(),
                   decl.def.to_kind(),
                 )?;
@@ -295,7 +298,7 @@ impl NamespaceNodeCtx {
         symbol.declarations.iter().find_map(|decl| {
           diff_index
             .get_declaration_diff(
-              &symbol.origin.specifier,
+              &symbol.declared_origin().specifier,
               symbol.get_name(),
               decl.def.to_kind(),
             )?

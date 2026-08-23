@@ -25,7 +25,7 @@ pub(crate) fn render_interface(
   let interface_diff = ctx.ctx.diff.as_ref().and_then(|diff_index| {
     diff_index
       .get_def_diff(
-        &symbol.origin.specifier,
+        &symbol.declared_origin().specifier,
         symbol.get_name(),
         decl.def.to_kind(),
       )

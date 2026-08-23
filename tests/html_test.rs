@@ -704,15 +704,36 @@ async fn html_doc_files_multiple() {
     Some(segments.join("/"))
   }
 
+  fn extract_attr_values<'a>(
+    content: &'a str,
+    attr: &str,
+  ) -> impl Iterator<Item = &'a str> {
+    let needle = format!("{attr}=\"");
+    content
+      .match_indices::<&str>(&needle)
+      .filter(|(index, _)| {
+        // require preceding whitespace so e.g. `data-id="` doesn't match `id="`
+        index
+          .checked_sub(1)
+          .is_some_and(|prev| content.as_bytes()[prev].is_ascii_whitespace())
+      })
+      .map(|(index, needle)| {
+        let value = &content[index + needle.len()..];
+        &value[..value.find('"').unwrap()]
+      })
+      .collect::<Vec<_>>()
+      .into_iter()
+  }
+
   let mut links = Vec::new();
   for (file_name, content) in &files {
     if !file_name.ends_with(".html") {
       continue;
     }
-    for (index, _) in content.match_indices("href=\"") {
-      let href = &content[index + "href=\"".len()..];
-      let href = &href[..href.find('"').unwrap()];
-      links.push((file_name.as_str(), href.replace("&#x2F;", "/")));
+    for attr in ["href", "src"] {
+      for value in extract_attr_values(content, attr) {
+        links.push((file_name.as_str(), value.replace("&#x2F;", "/")));
+      }
     }
   }
   // search index urls are relative to the root
@@ -723,17 +744,23 @@ async fn html_doc_files_multiple() {
     links.push(("search_index.js", url.to_string()));
   }
 
-  for (file_name, href) in links {
-    if href.is_empty() || href.starts_with('#') || href.contains("://") {
+  for (file_name, link) in links {
+    // skip absolute urls (https://...) and scheme-prefixed links (mailto:)
+    if link.split(['/', '#', '?']).next().unwrap().contains(':') {
       continue;
     }
-    let path = href.split('#').next().unwrap();
+    let path = link.split('#').next().unwrap();
+    if path.is_empty() {
+      // fragment-only link into the current file
+      continue;
+    }
+
     let resolved = resolve_relative(file_name, path)
-      .unwrap_or_else(|| panic!("link {href} in {file_name} escapes the root"));
+      .unwrap_or_else(|| panic!("link {link} in {file_name} escapes the root"));
     assert!(
       files.contains_key(&resolved)
         || files.contains_key(&format!("./{resolved}")),
-      "broken link {href} in {file_name}: {resolved} was not generated"
+      "broken link {link} in {file_name}: {resolved} was not generated"
     );
   }
 }
@@ -1020,6 +1047,50 @@ async fn parse_source(source: &str) -> ParseOutput {
 async fn parse_file(path: &std::path::Path) -> ParseOutput {
   let content = fs::read_to_string(path).unwrap();
   parse_source(&content).await
+}
+
+async fn parse_sources_multi(sources: &[(&str, &str)]) -> ParseOutput {
+  let mut loader = MemoryLoader::default();
+  let mut roots = Vec::new();
+  for (specifier, source) in sources {
+    let specifier = ModuleSpecifier::parse(specifier).unwrap();
+    loader.add_source(
+      specifier.clone(),
+      Source::Module {
+        specifier: specifier.to_string(),
+        maybe_headers: None,
+        content: source.to_string(),
+      },
+    );
+    roots.push(specifier);
+  }
+
+  let analyzer = CapturingModuleAnalyzer::default();
+  let mut graph = ModuleGraph::new(GraphKind::TypesOnly);
+  graph
+    .build(
+      roots.clone(),
+      Vec::new(),
+      &loader,
+      BuildOptions {
+        module_analyzer: &analyzer,
+        ..Default::default()
+      },
+    )
+    .await;
+
+  DocParser::new(
+    &graph,
+    &analyzer,
+    &roots,
+    DocParserOptions {
+      private: false,
+      diagnostics: false,
+    },
+  )
+  .unwrap()
+  .parse()
+  .unwrap()
 }
 
 // Regression test for https://github.com/denoland/deno_doc/issues/724:
@@ -1345,6 +1416,81 @@ async fn diff_comprehensive() {
     .collect();
 
   insta::assert_json_snapshot!("diff_comprehensive_diff_only", pages);
+}
+
+// A namespace re-export (`export * as`) of another documented module produces
+// reference declarations; their resolved nodes get the documenting module as
+// `origin` (so links resolve, see #835) while diff data stays keyed by the
+// declaring module (`declared_origin`). This exercises both at once: the diff
+// annotations of the re-exported symbol must survive the origin rewrite.
+#[tokio::test]
+async fn diff_namespace_reexport() {
+  let entrypoint = "export * as dep from \"./dep.ts\";\n";
+  let old = parse_sources_multi(&[
+    ("file:///mod.ts", entrypoint),
+    (
+      "file:///dep.ts",
+      "export function depFunc(a: string): void {}\n",
+    ),
+  ])
+  .await;
+  let new = parse_sources_multi(&[
+    ("file:///mod.ts", entrypoint),
+    (
+      "file:///dep.ts",
+      "export function depFunc(a: string, b: number): void {}\n",
+    ),
+  ])
+  .await;
+
+  let diff = DocDiff::diff(&old, &new);
+
+  let ctx = GenerateCtx::create_basic(
+    GenerateOptions {
+      package_name: None,
+      main_entrypoint: Some(ModuleSpecifier::parse("file:///mod.ts").unwrap()),
+      href_resolver: Arc::new(EmptyResolver),
+      usage_composer: Some(Arc::new(EmptyResolver)),
+      rewrite_map: None,
+      category_docs: None,
+      disable_search: false,
+      symbol_redirect_map: None,
+      default_symbol_map: None,
+      markdown_renderer: comrak::create_renderer(None, None, None),
+      markdown_stripper: Arc::new(comrak::strip),
+      head_inject: None,
+      id_prefix: None,
+      diff_only: false,
+      symbol_listing_limit: None,
+    },
+    new,
+    Some(diff),
+  )
+  .unwrap();
+
+  let json_output = generate_json(ctx).unwrap();
+
+  // The namespace-qualified page is written under the documenting module and
+  // the namespace listing links to it there (#835).
+  let namespace_page = json_output.get("mod.ts/~/dep.json").unwrap();
+  assert!(
+    namespace_page.contains(r#""href":"../.././mod.ts/~/dep.depFunc.html""#),
+    "namespace listing does not link to the documenting module's page: {namespace_page}"
+  );
+  assert!(json_output.contains_key("mod.ts/~/dep.depFunc.json"));
+
+  // The re-exported symbol still carries its declaration-level diff: the
+  // added parameter `b` must be annotated, which requires looking up the diff
+  // index by the declaring module (dep.ts), not the documenting one.
+  let qualified_page = json_output.get("mod.ts/~/dep.depFunc.json").unwrap();
+  assert!(
+    qualified_page.contains(r#""diff_status":{"kind":"added"}"#),
+    "re-exported symbol lost its declaration-level diff annotations: {qualified_page}"
+  );
+  assert!(
+    qualified_page.contains(r#""diff_status":{"kind":"modified"}"#),
+    "re-exported symbol lost its modified status: {qualified_page}"
+  );
 }
 
 /// `.repr` is package-controlled and must never reach the HTML/JSON output

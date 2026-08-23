@@ -250,7 +250,7 @@ fn render_single_function(
   let direct_func_diff = ctx.ctx.diff.as_ref().and_then(|diff_index| {
     diff_index
       .get_def_diff(
-        &symbol.origin.specifier,
+        &symbol.declared_origin().specifier,
         symbol.get_name(),
         decl.def.to_kind(),
       )
@@ -654,7 +654,7 @@ fn get_drilldown_function_diff(
 
   let def_changes = parent.declarations.iter().find_map(|decl| {
     diff_index.get_def_diff(
-      &parent.origin.specifier,
+      &parent.declared_origin().specifier,
       parent.get_name(),
       decl.def.to_kind(),
     )
@@ -701,7 +701,7 @@ fn get_js_doc_diff(
   if symbol.drilldown_name.is_none() {
     // Top-level function: check node-level js_doc_changes
     let info = diff_index.get_declaration_diff(
-      &symbol.origin.specifier,
+      &symbol.declared_origin().specifier,
       symbol.get_name(),
       decl.def.to_kind(),
     )?;
@@ -713,7 +713,7 @@ fn get_js_doc_diff(
 
     let def_changes = parent.declarations.iter().find_map(|decl| {
       diff_index.get_def_diff(
-        &parent.origin.specifier,
+        &parent.declared_origin().specifier,
         parent.get_name(),
         decl.def.to_kind(),
       )
