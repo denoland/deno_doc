@@ -20,10 +20,10 @@ error[private-type-ref]: public type 'Bar' references private type 'obj'
 
 
 error[missing-jsdoc]: exported symbol is missing JSDoc documentation
- --> /mod.ts:4:1
+ --> /mod.ts:4:14
   | 
 4 | export class Bar extends obj.Foo {}
-  | ^
+  |              ^
 
 # output.txt
 Defined in file:///mod.ts:1:7

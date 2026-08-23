@@ -37,6 +37,17 @@ import { externalFunction } from "./_d.ts";
  * baz
  */
 export class Foo<T> {
+  /**
+   * Constructs a new Foo.
+   *
+   * @param value the value to wrap
+   * @returns the new Foo
+   *
+   * @example Create a Foo
+   * ```ts
+   * const foo = new Foo("value");
+   * ```
+   */
   constructor(value: T) {}
 
   static bar: "string";
@@ -139,6 +150,16 @@ export interface InterfaceWithIndexSignature {
 }
 
 export type Baz<T> = {
+  /**
+   * Constructs a Baz.
+   * @param value the value to wrap
+   */
+  new (value: T): Baz<T>;
+  /**
+   * Calls the Baz.
+   * @param key the key to look up
+   */
+  (key: string): number;
   foo: Record<string, T extends string ? 0 : 1>;
   bar(): InterfaceWithIndexSignature["test"];
 };

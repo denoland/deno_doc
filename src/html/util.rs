@@ -177,9 +177,14 @@ impl AsRef<str> for Id {
   }
 }
 
+/// Anchors are stored unescaped; every site that writes one into markup
+/// escapes it there (handlebars does it for templates, and the two hand-written
+/// emitters -- the table of contents and the markdown heading adapter -- do it
+/// explicitly). Escaping here too would double-escape the `id` attributes that
+/// go through handlebars, leaving them unable to match the `href`s pointing at
+/// them.
 fn sanitize_id_part(part: &str) -> String {
-  html_escape::encode_quoted_attribute(&TARGET_RE.replace_all(part, "_"))
-    .into_owned()
+  TARGET_RE.replace_all(part, "_").into_owned()
 }
 
 /// A container to hold a list of symbols with their namespaces:
@@ -221,6 +226,12 @@ pub fn compute_namespaced_symbols<'a>(
   let mut path_buf = Vec::new();
 
   for symbol in symbols {
+    // Internal symbols (non-exported or `@internal`) don't get their own
+    // pages, so linking to them would produce dead links.
+    if symbol.is_internal(ctx) {
+      continue;
+    }
+
     let name_path: Arc<[String]> = symbol.sub_qualifier().into();
     // Precompute prefix (ns_qualifiers) once per symbol
     let ns_prefix = &*symbol.ns_qualifiers;
@@ -682,12 +693,27 @@ impl Tag {
     }
   }
 
+  /// Builds the chip shown for a `@since <version>` tag, eg. `Since 1.2.0`.
+  ///
+  /// Only the first line of the tag's doc is used: `@since` takes a version,
+  /// and any prose following it on subsequent lines would not fit in a chip.
+  /// A `@since` without a version renders no chip.
+  pub fn from_since(doc: &str) -> Option<Self> {
+    let version = doc.lines().next()?.trim();
+    if version.is_empty() {
+      None
+    } else {
+      Some(Tag::Other(format!("Since {version}").into_boxed_str()))
+    }
+  }
+
   pub fn from_js_doc(js_doc: &JsDoc) -> IndexSet<Tag> {
     js_doc
       .tags
       .iter()
       .filter_map(|tag| match tag {
         JsDocTag::Deprecated { .. } => Some(Tag::Deprecated),
+        JsDocTag::Since { doc } => Tag::from_since(doc),
         _ => None,
       })
       .collect()
@@ -754,6 +780,17 @@ pub struct DocEntryCtx {
   pub tags: Vec<TagCtx>,
   js_doc: Option<String>,
   source_href: Option<String>,
+  #[serde(skip_serializing_if = "Vec::is_empty", default)]
+  pub examples: Vec<crate::html::jsdoc::ExampleCtx>,
+  /// Documentation for the entry's own parameters. Only populated for entries
+  /// that have no symbol page of their own to carry a Parameters section —
+  /// class constructors, construct signatures and call signatures — where the
+  /// `@param` docs would otherwise have nowhere to be shown.
+  #[serde(skip_serializing_if = "Vec::is_empty", default)]
+  pub params: Vec<DocEntryCtx>,
+  /// Rendered `@returns` documentation, for the same entries as `params`.
+  #[serde(skip_serializing_if = "Option::is_none")]
+  pub return_doc: Option<String>,
   #[serde(skip_serializing_if = "Option::is_none")]
   pub diff_status: Option<DiffStatus>,
   #[serde(skip_serializing_if = "Option::is_none")]
@@ -798,6 +835,9 @@ impl DocEntryCtx {
       tags: compute_tag_ctx(tags, old_tags),
       js_doc: maybe_jsdoc,
       source_href,
+      examples: Vec::new(),
+      params: vec![],
+      return_doc: None,
       diff_status,
       old_content,
     }
@@ -893,10 +933,12 @@ impl TopSymbolsCtx {
           ctx.get_current_resolve(),
           UrlResolveKind::Symbol {
             file: &node.origin,
-            symbol: &node.name,
+            // the page for a namespace member lives under its qualified
+            // name; the bare name would produce a dead link
+            symbol: node.get_qualified_name(),
           },
         ),
-        name: node.name.to_string(),
+        name: node.get_qualified_name().to_string(),
       })
       .collect();
 

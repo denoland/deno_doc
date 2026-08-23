@@ -286,6 +286,14 @@ pub struct GenerateOptions {
   pub head_inject: Option<HeadInject>,
   pub id_prefix: Option<String>,
   pub diff_only: bool,
+  /// Maximum number of symbol rows to render in a single module symbol
+  /// listing (the per-file overview; the "all symbols" page contains one
+  /// such listing per entrypoint). While a listing exceeds the limit, its
+  /// deepest level of namespace nesting is dropped whole — so the result
+  /// can undershoot the limit, but every namespace is either fully listed
+  /// or deferred to its own page, never partially listed. Top-level symbols
+  /// are always rendered. `None` renders everything.
+  pub symbol_listing_limit: Option<usize>,
 }
 
 #[non_exhaustive]
@@ -309,11 +317,17 @@ pub struct GenerateCtx {
   pub head_inject: Option<HeadInject>,
   pub id_prefix: Option<String>,
   pub diff_only: bool,
+  pub symbol_listing_limit: Option<usize>,
   /// Index from Location to (depth, node) for fast reference resolution.
   /// Built lazily on first access to avoid the cost when not needed.
   reference_index: std::sync::OnceLock<
     HashMap<crate::Location, Vec<(usize, DocNodeWithContext)>>,
   >,
+  /// Per-file sets of linkable symbols, used to verify that a symbol exists
+  /// in another documented file before linking to it. Built lazily on first
+  /// access.
+  linkable_symbols:
+    std::sync::OnceLock<HashMap<Arc<ShortPath>, util::NamespacedSymbols>>,
   /// Optional diff index for annotating rendered output with diff status.
   pub diff: Option<DiffIndex>,
 }
@@ -542,7 +556,9 @@ impl GenerateCtx {
       head_inject: options.head_inject,
       id_prefix: options.id_prefix,
       diff_only: options.diff_only,
+      symbol_listing_limit: options.symbol_listing_limit,
       reference_index: std::sync::OnceLock::new(),
+      linkable_symbols: std::sync::OnceLock::new(),
       diff,
     })
   }
@@ -602,6 +618,31 @@ impl GenerateCtx {
     }
 
     self.href_resolver.resolve_path(current, target)
+  }
+
+  /// Whether the given documented file contains a linkable symbol with the
+  /// given namespaced path.
+  pub(crate) fn file_has_linkable_symbol(
+    &self,
+    short_path: &ShortPath,
+    symbol: &[String],
+  ) -> bool {
+    let linkable_symbols = self.linkable_symbols.get_or_init(|| {
+      self
+        .doc_nodes
+        .iter()
+        .map(|(short_path, nodes)| {
+          (
+            short_path.clone(),
+            util::NamespacedSymbols::new(self, nodes),
+          )
+        })
+        .collect()
+    });
+
+    linkable_symbols
+      .get(short_path)
+      .is_some_and(|symbols| symbols.get(symbol).is_some())
   }
 
   fn get_reference_index(

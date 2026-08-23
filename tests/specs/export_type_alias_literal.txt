@@ -9,15 +9,21 @@ export type A = {
 
 # diagnostics
 error[missing-jsdoc]: exported symbol is missing JSDoc documentation
- --> /mod.ts:1:1
+ --> /mod.ts:1:13
   | 
 1 | export type A = {
-  | ^
+  |             ^
 
 # output.txt
 Defined in file:///mod.ts:0:1
 
-type A = { a(): void; b?(): void; c(): string; c(v: number); }
+type A
+
+  constructor(d: string)
+  a(): void
+  b?(): void
+  c(): string
+  c(v: number)
 
 
 # output.json

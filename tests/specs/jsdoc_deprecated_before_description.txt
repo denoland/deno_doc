@@ -13,10 +13,10 @@ export function baz(): void {}
 
 # diagnostics
 error[missing-jsdoc]: exported symbol is missing JSDoc documentation
-  --> /mod.ts:11:1
+  --> /mod.ts:11:17
    | 
 11 | export function baz(): void {}
-   | ^
+   |                 ^
 
 # output.txt
 Defined in file:///mod.ts:10:1

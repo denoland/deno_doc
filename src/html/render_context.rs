@@ -13,11 +13,19 @@ use std::collections::HashSet;
 use std::sync::Arc;
 use std::sync::Mutex;
 
+#[derive(Debug, Clone)]
+pub(crate) struct CurrentImport {
+  src: String,
+  /// The name of the symbol in the source module (`default` for default
+  /// imports); `None` for namespace imports (`import * as foo`).
+  original_name: Option<String>,
+}
+
 #[derive(Clone)]
 pub struct RenderContext<'ctx> {
   pub ctx: &'ctx GenerateCtx,
   scoped_symbols: NamespacedSymbols,
-  current_imports: Arc<HashMap<String, String>>,
+  current_imports: Arc<HashMap<String, CurrentImport>>,
   current_type_params: Arc<HashSet<&'ctx str>>,
   current_resolve: UrlResolveKind<'ctx>,
   /// A vector of parts of the current namespace, eg. `vec!["Deno", "errors"]`.
@@ -158,27 +166,51 @@ impl<'ctx> RenderContext<'ctx> {
       );
     }
 
-    if let Some(src) = self.current_imports.get(target_symbol) {
-      if let Ok(module_specifier) = ModuleSpecifier::parse(src)
-        && let Some(short_path) = self
-          .ctx
-          .doc_nodes
-          .keys()
-          .find(|short_path| short_path.specifier == module_specifier)
-      {
-        return Some(self.ctx.resolve_path(
-          self.get_current_resolve(),
-          UrlResolveKind::Symbol {
-            file: short_path,
-            symbol: target_symbol,
-          },
-        ));
-      }
+    if let Some(import) = self.current_imports.get(&target_symbol_parts[0]) {
+      let remote_parts = match &import.original_name {
+        // Named or default import: the symbol goes by its original name in
+        // the source module.
+        Some(original_name) => {
+          let mut parts = Vec::with_capacity(target_symbol_parts.len());
+          parts.push(original_name.clone());
+          parts.extend_from_slice(&target_symbol_parts[1..]);
+          Some(parts)
+        }
+        // Namespace import (`import * as foo`): strip the namespace part to
+        // get the path of the symbol in the source module.
+        None => (target_symbol_parts.len() > 1)
+          .then(|| target_symbol_parts[1..].to_vec()),
+      };
 
-      return self
-        .ctx
-        .href_resolver
-        .resolve_import_href(&target_symbol_parts, src);
+      if let Some(remote_parts) = remote_parts {
+        if let Ok(module_specifier) = ModuleSpecifier::parse(&import.src)
+          && let Some(short_path) = self
+            .ctx
+            .doc_nodes
+            .keys()
+            .find(|short_path| short_path.specifier == module_specifier)
+        {
+          // The import points to another documented file. Only link if the
+          // symbol actually exists there to avoid dead links.
+          return if self.ctx.file_has_linkable_symbol(short_path, &remote_parts)
+          {
+            Some(self.ctx.resolve_path(
+              self.get_current_resolve(),
+              UrlResolveKind::Symbol {
+                file: short_path,
+                symbol: &remote_parts.join("."),
+              },
+            ))
+          } else {
+            None
+          };
+        }
+
+        return self
+          .ctx
+          .href_resolver
+          .resolve_import_href(&remote_parts, &import.src);
+      }
     }
 
     self
@@ -415,7 +447,10 @@ impl HeadingToCAdapter {
 
       toc_content.push(format!(
         r##"<li><a href="#{}" title="{}">{}</a></li>"##,
-        entry.anchor,
+        // The anchorizer keeps `"`, `<` and `&` (its character class has ` -_`
+        // as a range over U+0020..=U+005F), so an anchor built from a markdown
+        // heading would otherwise break out of the attribute.
+        html_escape::encode_double_quoted_attribute(&entry.anchor),
         html_escape::encode_double_quoted_attribute(&entry.content),
         entry.content
       ));
@@ -468,14 +503,17 @@ fn split_with_brackets(s: &str) -> Vec<String> {
 
 fn get_current_imports(
   imports: &[crate::node::Import],
-) -> HashMap<String, String> {
+) -> HashMap<String, CurrentImport> {
   let mut imports_out = HashMap::new();
 
   for import in imports {
-    // TODO: handle import aliasing
-    if import.original_name.as_deref() == Some(&*import.imported_name) {
-      imports_out.insert(import.imported_name.to_string(), import.src.clone());
-    }
+    imports_out.insert(
+      import.imported_name.to_string(),
+      CurrentImport {
+        src: import.src.clone(),
+        original_name: import.original_name.clone(),
+      },
+    );
   }
 
   imports_out
@@ -564,12 +602,32 @@ mod test {
       ModuleSpecifier::parse("file:///mod.ts").unwrap(),
       Document {
         module_doc: Default::default(),
-        imports: vec![Import {
-          imported_name: "foo".into(),
-          js_doc: Default::default(),
-          src: "b".to_string(),
-          original_name: Some("foo".to_string()),
-        }],
+        imports: vec![
+          Import {
+            imported_name: "foo".into(),
+            js_doc: Default::default(),
+            src: "b".to_string(),
+            original_name: Some("foo".to_string()),
+          },
+          Import {
+            imported_name: "Stmt".into(),
+            js_doc: Default::default(),
+            src: "b".to_string(),
+            original_name: Some("Statement".to_string()),
+          },
+          Import {
+            imported_name: "def".into(),
+            js_doc: Default::default(),
+            src: "b".to_string(),
+            original_name: Some("default".to_string()),
+          },
+          Import {
+            imported_name: "ns".into(),
+            js_doc: Default::default(),
+            src: "b".to_string(),
+            original_name: None,
+          },
+        ],
         symbols: vec![],
       },
     )]);
@@ -592,6 +650,7 @@ mod test {
         head_inject: None,
         id_prefix: None,
         diff_only: false,
+        symbol_listing_limit: None,
       },
       None,
       Default::default(),
@@ -613,5 +672,27 @@ mod test {
       UrlResolveKind::File { file: short_path },
     );
     assert_eq!(render_ctx.lookup_symbol_href("foo").unwrap(), "b/foo");
+
+    // aliased import (`import { Statement as Stmt }`) resolves to the
+    // original name in the source module
+    assert_eq!(
+      render_ctx.lookup_symbol_href("Stmt").unwrap(),
+      "b/Statement"
+    );
+
+    // default import (`import def from "b"`)
+    assert_eq!(render_ctx.lookup_symbol_href("def").unwrap(), "b/default");
+
+    // namespace import (`import * as ns from "b"`)
+    assert_eq!(
+      render_ctx.lookup_symbol_href("ns.Expression").unwrap(),
+      "b/Expression"
+    );
+    assert_eq!(
+      render_ctx.lookup_symbol_href("ns.foo.bar").unwrap(),
+      "b/foo.bar"
+    );
+    // a bare reference to the namespace itself is not linkable
+    assert!(render_ctx.lookup_symbol_href("ns").is_none());
   }
 }

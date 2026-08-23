@@ -12,7 +12,11 @@
         {{~/each~}}
       </span>
       {{~else~}}
-        {{~titleCase value.value~}}
+        {{~#if (eq value.kind "other")~}}
+          {{~value.value~}}
+        {{~else~}}
+          {{~titleCase value.value~}}
+        {{~/if~}}
       {{~/if~}}
 
     {{~else~}}

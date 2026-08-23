@@ -506,6 +506,10 @@ pub fn generate_symbol_pages_for_module(
     module_doc_nodes.iter().map(Cow::Borrowed),
   );
 
+  // Internal symbols (non-exported or `@internal`) are hidden from listings
+  // and nothing links to them, so don't generate pages for them either.
+  symbols.retain(|symbol| !symbol.is_internal(ctx));
+
   let mut drilldown_partitions = vec![];
   for symbol in &symbols {
     if let Some(drilldown_symbols) = symbol.get_drilldown_symbols() {

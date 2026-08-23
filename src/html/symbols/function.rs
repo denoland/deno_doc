@@ -11,13 +11,11 @@ use crate::html::types::render_type_def_colon;
 use crate::html::types::type_params_summary;
 use crate::html::util::*;
 use crate::js_doc::JsDocTag;
-use crate::params::ParamPatternDef;
 use crate::ts_type::TsTypeDef;
 use indexmap::IndexSet;
 use serde::Deserialize;
 use serde::Serialize;
 use std::collections::HashSet;
-use std::ops::Deref;
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 struct OverloadRenderCtx {
@@ -268,102 +266,14 @@ fn render_single_function(
 
   let func_diff = direct_func_diff.or(drilldown_func_diff.as_ref());
 
-  let param_docs = decl
-    .js_doc
-    .tags
-    .iter()
-    .filter_map(|tag| {
-      if let JsDocTag::Param {
-        name,
-        doc,
-        optional,
-        default,
-        ..
-      } = tag
-      {
-        Some((name.deref(), (doc, *optional, default)))
-      } else {
-        None
-      }
-    })
-    .collect::<std::collections::HashMap<
-      &str,
-      (&Option<Box<str>>, bool, &Option<Box<str>>),
-    >>();
-
-  let mut params = function_def
-    .params
-    .iter()
-    .enumerate()
-    .map(|(i, param)| {
-      let (name, str_name) = crate::html::parameters::param_name(param, i);
-      let id = IdBuilder::new_with_parent(ctx, &overload_id)
-        .kind(IdKind::Parameter)
-        .name(&str_name)
-        .build();
-
-      let (mut default, optional) = if let Some((_doc, optional, default)) =
-        param_docs.get(name.as_str())
-      {
-        ((**default).to_owned(), *optional)
-      } else {
-        (None, false)
-      };
-
-      let ts_type =
-        if let ParamPatternDef::Assign { left, right } = &param.pattern {
-          default = default.or(Some(right.deref().into()));
-          left.ts_type.as_ref()
-        } else {
-          param.ts_type.as_ref()
-        };
-
-      let mut ts_type = ts_type
-        .map(|ts_type| render_type_def_colon(ctx, ts_type))
-        .unwrap_or_default();
-
-      if let Some(default) = &default
-        && default.deref() != "[UNSUPPORTED]" {
-          ts_type = format!(r#"{ts_type}<span><span class="font-normal"> = </span>{default}</span>"#);
-        }
-
-      let tags = if matches!(
-        param.pattern,
-        ParamPatternDef::Array { optional, .. }
-          | ParamPatternDef::Identifier { optional, .. }
-          | ParamPatternDef::Object { optional, .. }
-        if optional
-      ) || default.is_some()
-        || optional
-      {
-        IndexSet::from([Tag::Optional])
-      } else {
-        IndexSet::new()
-      };
-
-      let param_doc = param_docs
-        .get(name.as_str())
-        .and_then(|(doc, _, _)| doc.as_deref());
-
-      let (diff_status, old_content) =
-        get_param_diff_info(ctx, func_diff, i, param);
-
-      DocEntryCtx::new(
-        ctx,
-        id,
-        Some(name),
-        None,
-        &ts_type,
-        tags,
-        param_doc,
-        &decl.location,
-        diff_status,
-        old_content,
-        None,
-        None,
-      )
-    })
-    .collect::<Vec<DocEntryCtx>>();
+  let mut params = crate::html::parameters::render_param_doc_entries(
+    ctx,
+    &function_def.params,
+    &decl.js_doc,
+    &overload_id,
+    &decl.location,
+    |i, param| get_param_diff_info(ctx, func_diff, i, param),
+  );
 
   // Inject removed parameters
   if let Some(diff) = func_diff {
@@ -500,6 +410,8 @@ fn render_single_function(
       SectionContentCtx::See(references),
     ));
   }
+
+  sections.extend(super::render_event_tag_sections(ctx, &decl.js_doc.tags));
 
   let decl_kind = decl.def.to_kind();
   if ctx.ctx.diff_only

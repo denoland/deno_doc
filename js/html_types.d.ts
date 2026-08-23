@@ -332,6 +332,15 @@ export interface DocEntryCtx {
   tags: TagCtx[];
   js_doc: string | null;
   source_href: string | null;
+  examples?: ExampleCtx[];
+  /**
+   * Documentation for the entry's own parameters. Only populated for entries
+   * that have no symbol page of their own to carry a Parameters section —
+   * class constructors, construct signatures and call signatures.
+   */
+  params?: DocEntryCtx[];
+  /** Rendered `@returns` documentation, for the same entries as `params`. */
+  return_doc?: string;
   diff_status?: DiffStatus;
   old_content?: string;
 }

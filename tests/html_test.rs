@@ -177,6 +177,7 @@ async fn html_doc_dts() {
       head_inject: None,
       id_prefix: None,
       diff_only: false,
+      symbol_listing_limit: None,
     },
     get_files("dts").await,
     None,
@@ -236,6 +237,7 @@ async fn html_doc_files_single() {
       head_inject: None,
       id_prefix: None,
       diff_only: false,
+      symbol_listing_limit: None,
     },
     get_files("single").await,
     None,
@@ -274,6 +276,267 @@ async fn html_doc_files_single() {
       insta::assert_snapshot!(files.get(file_name).unwrap());
     }
   }
+}
+
+#[tokio::test]
+async fn html_doc_import_linking() {
+  let ctx = GenerateCtx::create_basic(
+    GenerateOptions {
+      package_name: None,
+      main_entrypoint: None,
+      href_resolver: Arc::new(EmptyResolver),
+      usage_composer: Some(Arc::new(EmptyResolver)),
+      rewrite_map: None,
+      category_docs: None,
+      disable_search: false,
+      symbol_redirect_map: None,
+      default_symbol_map: None,
+      markdown_renderer: comrak::create_renderer(None, None, None),
+      markdown_stripper: Arc::new(comrak::strip),
+      head_inject: None,
+      id_prefix: None,
+      diff_only: false,
+      symbol_listing_limit: None,
+    },
+    get_files("import_linking").await,
+    None,
+  )
+  .unwrap();
+  let files = generate(ctx).unwrap();
+
+  // the non-exported `Internal` type alias must not get its own page
+  assert!(!files.keys().any(|file| file.contains("Internal")));
+
+  // `import type * as t` references link to the other entrypoint
+  let expression = files.get("mod.ts/~/expression.html").unwrap();
+  assert!(
+    expression.contains(
+      r##"<a href="../.././types.ts/~/Expression.html" class="link td-ref">t.Expression</a>"##
+    ),
+    "namespace import type reference is not linked: {expression}"
+  );
+
+  // `{@link t.Expression}` in the jsdoc links as well
+  assert!(
+    expression.matches("types.ts/~/Expression.html").count() > 1,
+    "namespace import jsdoc link is not linked: {expression}"
+  );
+
+  // `import type { Statement as Stmt }` references link to the original
+  // symbol in the other entrypoint
+  let statement = files.get("mod.ts/~/statement.html").unwrap();
+  assert!(
+    statement.contains(
+      r##"<a href="../.././types.ts/~/Statement.html" class="link td-ref">Stmt</a>"##
+    ),
+    "aliased import type reference is not linked: {statement}"
+  );
+
+  // a reference to a symbol that doesn't exist in the imported module must
+  // not be linked
+  let missing = files.get("mod.ts/~/missing.html").unwrap();
+  assert!(
+    missing.contains(r#"<span class="td-ref">t.DoesNotExist</span>"#),
+    "nonexistent symbol must not be linked: {missing}"
+  );
+
+  // a reference to a non-exported symbol must not be linked
+  let alias = files.get("types.ts/~/Scope.Alias.html").unwrap();
+  assert!(
+    alias.contains(r#"<span class="td-ref">Internal</span>"#),
+    "internal symbol must not be linked: {alias}"
+  );
+}
+
+#[tokio::test]
+async fn html_doc_import_linking_internal_file() {
+  let dir = std::env::current_dir()
+    .unwrap()
+    .join("tests")
+    .join("testdata")
+    .join("import_linking_internal");
+  let source_files =
+    vec![ModuleSpecifier::from_file_path(dir.join("mod.ts")).unwrap()];
+
+  let loader = SourceFileLoader {};
+  let analyzer = CapturingModuleAnalyzer::default();
+  let mut graph = ModuleGraph::new(GraphKind::TypesOnly);
+  graph
+    .build(
+      source_files.clone(),
+      Vec::new(),
+      &loader,
+      BuildOptions {
+        module_analyzer: &analyzer,
+        ..Default::default()
+      },
+    )
+    .await;
+
+  let parse_output = DocParser::new(
+    &graph,
+    &analyzer,
+    &source_files,
+    DocParserOptions {
+      diagnostics: false,
+      private: false,
+    },
+  )
+  .unwrap()
+  .parse()
+  .unwrap();
+
+  let ctx = GenerateCtx::create_basic(
+    GenerateOptions {
+      package_name: None,
+      main_entrypoint: None,
+      href_resolver: Arc::new(EmptyResolver),
+      usage_composer: Some(Arc::new(EmptyResolver)),
+      rewrite_map: None,
+      category_docs: None,
+      disable_search: false,
+      symbol_redirect_map: None,
+      default_symbol_map: None,
+      markdown_renderer: comrak::create_renderer(None, None, None),
+      markdown_stripper: Arc::new(comrak::strip),
+      head_inject: None,
+      id_prefix: None,
+      diff_only: false,
+      symbol_listing_limit: None,
+    },
+    parse_output,
+    None,
+  )
+  .unwrap();
+  let files = generate(ctx).unwrap();
+
+  // `API.Audio` references a file that isn't a documented entrypoint, but
+  // the package re-exports `Audio`, so the reference links to that
+  // re-export.
+  let client = files.get("./~/Client.html").unwrap();
+  assert!(
+    client.contains(
+      r##"<a href="../././~/Audio.html" class="link td-ref">API.Audio</a>"##
+    ),
+    "reference to a symbol of an internal file must link to the package's re-export: {client}"
+  );
+}
+
+#[tokio::test]
+async fn html_doc_symbol_listing_limit() {
+  async fn generate_with_limit(
+    limit: Option<usize>,
+  ) -> std::collections::HashMap<String, String> {
+    let ctx = GenerateCtx::create_basic(
+      GenerateOptions {
+        package_name: None,
+        main_entrypoint: None,
+        href_resolver: Arc::new(EmptyResolver),
+        usage_composer: Some(Arc::new(EmptyResolver)),
+        rewrite_map: None,
+        category_docs: None,
+        disable_search: false,
+        symbol_redirect_map: None,
+        default_symbol_map: None,
+        markdown_renderer: comrak::create_renderer(None, None, None),
+        markdown_stripper: Arc::new(comrak::strip),
+        head_inject: None,
+        id_prefix: None,
+        diff_only: false,
+        symbol_listing_limit: limit,
+      },
+      get_files("symbol_listing_limit").await,
+      None,
+    )
+    .unwrap();
+    generate(ctx).unwrap()
+  }
+
+  // without a limit everything is listed
+  let files = generate_with_limit(None).await;
+  let index = files.get("mod.ts/index.html").unwrap();
+  assert!(index.contains(r#"id="namespace_outer_inner_innerfnone""#));
+  assert!(!index.contains("omitted from this overview"));
+  // the "Symbols" panel lists namespace members under their qualified name
+  // and links to the qualified page (jsr-io/jsr#1301)
+  let panel = index.split(r#"<nav class="topSymbols">"#).nth(1).unwrap();
+  assert!(
+    panel.contains(r#"title="outer.outerFnOne""#),
+    "the Symbols panel must contain the qualified member: {panel}"
+  );
+  assert!(
+    panel.contains("outer.outerFnOne.html"),
+    "the Symbols panel must link the qualified page: {panel}"
+  );
+  assert!(!index.contains(r#"title="outerFnOne""#));
+
+  // the flattened listing has 10 rows; with a limit of 8, the deepest
+  // namespace members are dropped first
+  let files = generate_with_limit(Some(8)).await;
+  let index = files.get("mod.ts/index.html").unwrap();
+  assert!(index.contains(r#"id="namespace_toplevelfn""#));
+  assert!(index.contains(r#"id="namespace_outer_outerfnone""#));
+  assert!(!index.contains(r#"id="namespace_outer_inner_innerfnone""#));
+  assert!(index.contains("omitted from this overview"));
+
+  // levels are dropped whole: limit 4 also falls through to the 3
+  // top-level rows, since keeping any of the 4 depth-1 rows would list the
+  // `outer` namespace only partially
+  let files = generate_with_limit(Some(4)).await;
+  let index = files.get("mod.ts/index.html").unwrap();
+  assert!(index.contains(r#"id="namespace_toplevelfn""#));
+  assert!(!index.contains(r#"id="namespace_outer_outerfnone""#));
+  assert!(index.contains("omitted from this overview"));
+
+  // top-level symbols are always rendered, even over the limit
+  let files = generate_with_limit(Some(2)).await;
+  let index = files.get("mod.ts/index.html").unwrap();
+  assert!(index.contains(r#"id="namespace_toplevelfn""#));
+  assert!(index.contains(r#"id="namespace_toplevelinterface""#));
+  assert!(!index.contains(r#"id="namespace_outer_outerfnone""#));
+  assert!(index.contains("omitted from this overview"));
+}
+
+#[tokio::test]
+async fn html_doc_signature_examples() {
+  let ctx = GenerateCtx::create_basic(
+    GenerateOptions {
+      package_name: None,
+      main_entrypoint: None,
+      href_resolver: Arc::new(EmptyResolver),
+      usage_composer: Some(Arc::new(EmptyResolver)),
+      rewrite_map: None,
+      category_docs: None,
+      disable_search: false,
+      symbol_redirect_map: None,
+      default_symbol_map: None,
+      markdown_renderer: comrak::create_renderer(None, None, None),
+      markdown_stripper: Arc::new(comrak::strip),
+      head_inject: None,
+      id_prefix: None,
+      diff_only: false,
+      symbol_listing_limit: None,
+    },
+    get_files("signature_examples").await,
+    None,
+  )
+  .unwrap();
+  let files = generate(ctx).unwrap();
+
+  // the @example on an interface construct signature renders inline, since
+  // construct signatures have no dedicated page
+  let page = files.get("./~/ExampleConstructor.html").unwrap();
+  assert!(
+    page.contains("const example = new Example(1);"),
+    "construct signature example is not rendered: {page}"
+  );
+
+  // same for call signatures
+  let page = files.get("./~/ExampleCallable.html").unwrap();
+  assert!(
+    page.contains("exampleCallable(2);"),
+    "call signature example is not rendered: {page}"
+  );
 }
 
 #[tokio::test]
@@ -316,6 +579,7 @@ async fn html_doc_files_multiple() {
       head_inject: None,
       id_prefix: None,
       diff_only: false,
+      symbol_listing_limit: None,
     },
     get_files("multiple").await,
     None,
@@ -331,15 +595,11 @@ async fn html_doc_files_multiple() {
     [
       "./all_symbols.html",
       "./index.html",
-      "./~/A.html",
-      "./~/A.prototype.html",
       "./~/AbstractClass.html",
       "./~/AbstractClass.prototype.foo.html",
       "./~/AbstractClass.prototype.getter.html",
       "./~/AbstractClass.prototype.html",
       "./~/AbstractClass.prototype.method.html",
-      "./~/B.html",
-      "./~/B.prototype.html",
       "./~/Bar.html",
       "./~/Bar.prototype.html",
       "./~/Baz.bar.html",
@@ -462,6 +722,7 @@ async fn symbol_group() {
       head_inject: None,
       id_prefix: None,
       diff_only: false,
+      symbol_listing_limit: None,
     },
     None,
     Default::default(),
@@ -564,6 +825,7 @@ async fn symbol_search() {
       head_inject: None,
       id_prefix: None,
       diff_only: false,
+      symbol_listing_limit: None,
     },
     None,
     Default::default(),
@@ -623,6 +885,7 @@ async fn module_doc() {
       head_inject: None,
       id_prefix: None,
       diff_only: false,
+      symbol_listing_limit: None,
     },
     None,
     FileMode::Single,
@@ -726,6 +989,7 @@ export class Foo {
       head_inject: None,
       id_prefix: None,
       diff_only: false,
+      symbol_listing_limit: None,
     },
     parse_source(source).await,
     None,
@@ -761,6 +1025,67 @@ export class Foo {
   );
 }
 
+// Regression test for https://github.com/denoland/deno_doc/issues/801:
+// `@event`, `@fires`/`@emits`, and `@listens` JSDoc tags (parsed since #800)
+// must be rendered in the HTML output. They previously parsed but were dropped
+// from the rendered symbol page.
+#[tokio::test]
+async fn html_event_tags_rendered() {
+  let source = r#"
+/**
+ * A clickable button.
+ *
+ * @event click - fired when the button is clicked
+ * @fires submit
+ * @emits change
+ * @listens keydown
+ */
+export class Button {}
+"#;
+
+  let ctx = GenerateCtx::create_basic(
+    GenerateOptions {
+      package_name: None,
+      main_entrypoint: None,
+      href_resolver: Arc::new(EmptyResolver),
+      usage_composer: Some(Arc::new(EmptyResolver)),
+      rewrite_map: None,
+      category_docs: None,
+      disable_search: false,
+      symbol_redirect_map: None,
+      default_symbol_map: None,
+      markdown_renderer: comrak::create_renderer(None, None, None),
+      markdown_stripper: Arc::new(comrak::strip),
+      head_inject: None,
+      id_prefix: None,
+      diff_only: false,
+      symbol_listing_limit: None,
+    },
+    parse_source(source).await,
+    None,
+  )
+  .unwrap();
+
+  let files = generate(ctx).unwrap();
+
+  let button_page = files
+    .iter()
+    .find(|(k, _)| k.ends_with("/~/Button.html"))
+    .map(|(_, v)| v)
+    .expect("expected a generated page for Button");
+
+  // Each tag family renders as a labeled section, and every event name (with
+  // `@emits` treated the same as `@fires`) appears in the page.
+  for needle in [
+    "Events", "Fires", "Listens", "click", "submit", "change", "keydown",
+  ] {
+    assert!(
+      button_page.contains(needle),
+      "Button page is missing {needle:?}"
+    );
+  }
+}
+
 // Regression test for https://github.com/denoland/deno_doc/issues/590:
 // `@internal` symbols are excluded from the rendered listings but were still
 // emitted into the search index, leaving them findable. This applied to both
@@ -794,6 +1119,7 @@ export default function (): void {}
       head_inject: None,
       id_prefix: None,
       diff_only: false,
+      symbol_listing_limit: None,
     },
     parse_source(source).await,
     None,
@@ -850,6 +1176,7 @@ async fn diff_kind_change() {
       head_inject: None,
       id_prefix: None,
       diff_only: false,
+      symbol_listing_limit: None,
     },
     new_docs,
     Some(diff),
@@ -900,6 +1227,7 @@ async fn diff_comprehensive() {
       head_inject: None,
       id_prefix: None,
       diff_only: false,
+      symbol_listing_limit: None,
     },
     new_docs.clone(),
     Some(diff.clone()),
@@ -936,6 +1264,7 @@ async fn diff_comprehensive() {
       head_inject: None,
       id_prefix: None,
       diff_only: true,
+      symbol_listing_limit: None,
     },
     new_docs,
     Some(diff),
@@ -1009,6 +1338,7 @@ export function hello(): string {
       head_inject: None,
       id_prefix: None,
       diff_only: false,
+      symbol_listing_limit: None,
     },
     doc_nodes_by_url,
     None,
@@ -1148,6 +1478,7 @@ async fn html_output_is_valid() {
       head_inject: None,
       id_prefix: None,
       diff_only: false,
+      symbol_listing_limit: None,
     },
     get_files("multiple").await,
     None,
@@ -1192,6 +1523,7 @@ export function hello(): string {
       head_inject: None,
       id_prefix: None,
       diff_only: false,
+      symbol_listing_limit: None,
     },
     doc_nodes_by_url,
     None,
@@ -1250,6 +1582,7 @@ export class Foo {
       head_inject: None,
       id_prefix: None,
       diff_only: false,
+      symbol_listing_limit: None,
     },
     doc_nodes_by_url,
     None,
@@ -1279,4 +1612,339 @@ export class Foo {
     title_page.contains("&lt;script&gt;"),
     "`<` and `>` in the title must be escaped"
   );
+}
+
+// Regression test for https://github.com/denoland/deno_doc/issues/552:
+// `@since <version>` is parsed into `JsDocTag::Since` and printed by the
+// terminal printer, but the HTML output dropped it entirely. It now renders as
+// a tag chip, both on the symbol page itself and next to class/interface
+// members.
+#[tokio::test]
+async fn html_since_tag_is_rendered() {
+  let source = r#"
+/**
+ * A thing.
+ *
+ * @since 1.2.0
+ */
+export class Foo {
+  /**
+   * A method.
+   *
+   * @since 2.0.0
+   */
+  bar(): void {}
+}
+
+/** @since */
+export function noVersion(): void {}
+"#;
+
+  let specifier = ModuleSpecifier::parse("file:///mod.ts").unwrap();
+
+  let ctx = GenerateCtx::create_basic(
+    GenerateOptions {
+      package_name: None,
+      main_entrypoint: Some(specifier),
+      href_resolver: Arc::new(EmptyResolver),
+      usage_composer: Some(Arc::new(EmptyResolver)),
+      rewrite_map: None,
+      category_docs: None,
+      disable_search: false,
+      symbol_redirect_map: None,
+      default_symbol_map: None,
+      markdown_renderer: comrak::create_renderer(None, None, None),
+      markdown_stripper: Arc::new(comrak::strip),
+      head_inject: None,
+      id_prefix: None,
+      diff_only: false,
+      symbol_listing_limit: None,
+    },
+    parse_source(source).await,
+    None,
+  )
+  .unwrap();
+
+  let files = generate(ctx).unwrap();
+
+  let foo = files
+    .get("./~/Foo.html")
+    .expect("a page for `Foo` should exist");
+
+  // The class' own `@since`, in the large chip on the symbol page.
+  assert!(
+    foo.contains("Since 1.2.0"),
+    "the symbol page should show a `Since 1.2.0` chip"
+  );
+  // The method's `@since`, in the small chip next to the member.
+  assert!(
+    foo.contains("Since 2.0.0"),
+    "the member should show a `Since 2.0.0` chip"
+  );
+
+  // A bare `@since` carries no version, so it renders no chip.
+  let no_version = files
+    .get("./~/noVersion.html")
+    .expect("a page for `noVersion` should exist");
+  assert!(
+    !no_version.contains("text-other"),
+    "a `@since` without a version should not render a chip"
+  );
+}
+
+// The anchorizer's character class keeps `"`, `<` and `&` (its ` -_` is a
+// range over U+0020..=U+005F, not three literals), so a markdown heading can
+// carry them into the anchor. Every other anchor is emitted through
+// handlebars, which escapes; the heading adapter writes its attributes by hand
+// and so has to escape them itself.
+#[tokio::test]
+async fn html_heading_anchor_is_escaped() {
+  let source = r#"
+/**
+ * ## x"onmouseover=alert(1) y
+ *
+ * body
+ */
+export function foo(): void {}
+"#;
+
+  let ctx = GenerateCtx::create_basic(
+    GenerateOptions {
+      package_name: None,
+      main_entrypoint: None,
+      href_resolver: Arc::new(EmptyResolver),
+      usage_composer: Some(Arc::new(EmptyResolver)),
+      rewrite_map: None,
+      category_docs: None,
+      disable_search: false,
+      symbol_redirect_map: None,
+      default_symbol_map: None,
+      markdown_renderer: comrak::create_renderer(None, None, None),
+      markdown_stripper: Arc::new(comrak::strip),
+      head_inject: None,
+      id_prefix: None,
+      diff_only: false,
+      symbol_listing_limit: None,
+    },
+    parse_source(source).await,
+    None,
+  )
+  .unwrap();
+
+  let files = generate(ctx).unwrap();
+  let page = files
+    .get("./~/foo.html")
+    .expect("function symbol page should be generated");
+
+  // Both attribute contexts the anchor lands in must be escaped: the heading
+  // itself, and the table-of-contents link that points at it.
+  assert!(
+    page.contains(r#"id="x&quot;onmouseover=alert(1)-y"#),
+    "the heading anchor should be escaped for attribute context"
+  );
+  assert!(
+    page.contains(r##"href="#x&quot;onmouseover=alert(1)-y"##),
+    "the permalink href should be escaped the same way"
+  );
+}
+
+// Regression test for https://github.com/denoland/deno_doc/issues/574:
+// `@param` documentation must render for rest/spread parameters. The rendered
+// parameter name carries a `...` prefix, but the JSDoc `@param` tag name does
+// not, so the doc lookup has to match on the bare identifier.
+#[tokio::test]
+async fn html_rest_param_jsdoc() {
+  let source = r#"
+/**
+ * Sums numbers.
+ *
+ * @param first the leading number
+ * @param rest the trailing numbers
+ */
+export function sum(first: number, ...rest: number[]): number {
+  return first + rest.reduce((a, b) => a + b, 0);
+}
+"#;
+
+  let ctx = GenerateCtx::create_basic(
+    GenerateOptions {
+      package_name: None,
+      main_entrypoint: None,
+      href_resolver: Arc::new(EmptyResolver),
+      usage_composer: Some(Arc::new(EmptyResolver)),
+      rewrite_map: None,
+      category_docs: None,
+      disable_search: false,
+      symbol_redirect_map: None,
+      default_symbol_map: None,
+      markdown_renderer: comrak::create_renderer(None, None, None),
+      markdown_stripper: Arc::new(comrak::strip),
+      head_inject: None,
+      id_prefix: None,
+      diff_only: false,
+      symbol_listing_limit: None,
+    },
+    parse_source(source).await,
+    None,
+  )
+  .unwrap();
+
+  let files = generate(ctx).unwrap();
+
+  let sum_page = files
+    .get("./~/sum.html")
+    .expect("function symbol page should be generated");
+
+  // The non-rest parameter has always rendered its doc.
+  assert!(
+    sum_page.contains("the leading number"),
+    "expected the first parameter's @param doc to render"
+  );
+  // The rest parameter's @param doc must render too (the bug in #574).
+  assert!(
+    sum_page.contains("the trailing numbers"),
+    "expected the rest parameter's @param doc to render"
+  );
+}
+
+// Follow-up to #574: matching `@param` tags to parameters is done by the bare
+// identifier the parameter binds, unwrapping rest/default parameters. A
+// destructuring pattern binds no single name, so it must not be matched by name
+// (it would otherwise attach an unrelated tag's doc). A rest parameter that
+// coexists with destructuring must still resolve correctly.
+#[tokio::test]
+async fn html_param_jsdoc_destructuring() {
+  let source = r#"
+/**
+ * @param opts the options bag
+ * @param rest the trailing numbers
+ */
+export function f(
+  { a, b }: { a: number; b: number },
+  ...rest: number[]
+): void {}
+"#;
+
+  let ctx = GenerateCtx::create_basic(
+    GenerateOptions {
+      package_name: None,
+      main_entrypoint: None,
+      href_resolver: Arc::new(EmptyResolver),
+      usage_composer: Some(Arc::new(EmptyResolver)),
+      rewrite_map: None,
+      category_docs: None,
+      disable_search: false,
+      symbol_redirect_map: None,
+      default_symbol_map: None,
+      markdown_renderer: comrak::create_renderer(None, None, None),
+      markdown_stripper: Arc::new(comrak::strip),
+      head_inject: None,
+      id_prefix: None,
+      diff_only: false,
+      symbol_listing_limit: None,
+    },
+    parse_source(source).await,
+    None,
+  )
+  .unwrap();
+
+  let files = generate(ctx).unwrap();
+  let page = files
+    .get("./~/f.html")
+    .expect("function symbol page should be generated");
+
+  // The rest parameter still resolves its doc by bare identifier.
+  assert!(
+    page.contains("the trailing numbers"),
+    "expected the rest parameter's @param doc to render"
+  );
+  // The destructuring parameter binds no name, so the `@param opts` tag (whose
+  // name matches no parameter) must not be attached to it.
+  assert!(
+    !page.contains("the options bag"),
+    "an unrelated @param tag was wrongly attached to a destructuring parameter"
+  );
+}
+
+// Anchors are stored unescaped and escaped by whoever writes them into markup.
+// Two sites write them by hand -- the table of contents and the markdown
+// heading adapter -- and the anchorizer keeps `"`, `<` and `&` (its character
+// class has ` -_` as a range over U+0020..=U+005F, not three literals). An
+// unescaped anchor there breaks out of the attribute; escaping it twice instead
+// leaves the `href` unable to match the `id` it points at.
+#[tokio::test]
+async fn html_anchors_are_escaped_once_everywhere() {
+  let source = r#"
+/**
+ * A class.
+ *
+ * ## h"eading
+ *
+ * body
+ */
+export class A {
+  '"><img src=x onerror=alert(1)>' = 0;
+}
+"#;
+
+  let ctx = GenerateCtx::create_basic(
+    GenerateOptions {
+      package_name: None,
+      main_entrypoint: None,
+      href_resolver: Arc::new(EmptyResolver),
+      usage_composer: Some(Arc::new(EmptyResolver)),
+      rewrite_map: None,
+      category_docs: None,
+      disable_search: false,
+      symbol_redirect_map: None,
+      default_symbol_map: None,
+      markdown_renderer: comrak::create_renderer(None, None, None),
+      markdown_stripper: Arc::new(comrak::strip),
+      head_inject: None,
+      id_prefix: None,
+      diff_only: false,
+      symbol_listing_limit: None,
+    },
+    parse_source(source).await,
+    None,
+  )
+  .unwrap();
+
+  let files = generate(ctx).unwrap();
+  let page = files
+    .get("./~/A.html")
+    .expect("a page for `A` should exist");
+
+  // Nothing may break out of an attribute: every `"` from the source has to
+  // have become an entity by the time it lands in an `id` or `href`.
+  assert!(
+    !page.contains(r##"href="#h"eading"##),
+    "the table-of-contents href broke out of its attribute"
+  );
+  assert!(
+    !page.contains(r#"id="h"eading"#),
+    "the heading id broke out of its attribute"
+  );
+
+  // Escaped exactly once, so the fragment still resolves to the element.
+  assert!(
+    !page.contains("&amp;quot;"),
+    "an anchor was escaped twice, leaving hrefs unable to match their ids"
+  );
+
+  // Each anchor that is linked to must exist as an id on the page, spelled
+  // identically -- for a markdown heading and for a symbol name alike.
+  for anchor in [
+    "h&quot;eading",
+    "property_&quot;&gt;&lt;img-src=x-onerror=alert(1)&gt;",
+  ] {
+    assert!(
+      page.contains(&format!(r#"id="{anchor}""#)),
+      "expected an element with id {anchor:?}"
+    );
+    assert!(
+      page.contains(&format!(r##"href="#{anchor}""##)),
+      "expected a link to #{anchor}"
+    );
+  }
 }
