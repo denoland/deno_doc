@@ -706,11 +706,17 @@ fn render_class_accessor(
     diff_status,
     Some(DiffStatus::Modified | DiffStatus::Renamed { .. })
   ) {
-    let getter_diff = getter.and_then(|_| {
-      method_changes.and_then(|mc| mc.modified.iter().find(|m| m.name == *name))
+    // the getter's and setter's diffs are separate entries under the same
+    // name, so match on kind to avoid picking an arbitrary one
+    let getter_diff = getter.and(method_changes).and_then(|mc| {
+      mc.modified
+        .iter()
+        .find(|m| m.name == *name && m.kind == MethodKind::Getter)
     });
-    let setter_diff = setter.and_then(|_| {
-      method_changes.and_then(|mc| mc.modified.iter().find(|m| m.name == *name))
+    let setter_diff = setter.and(method_changes).and_then(|mc| {
+      mc.modified
+        .iter()
+        .find(|m| m.name == *name && m.kind == MethodKind::Setter)
     });
     let any_diff = getter_diff.or(setter_diff);
 

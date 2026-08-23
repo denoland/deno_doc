@@ -33,6 +33,7 @@ export class Foo {
                     "modified": [
                       {
                         "name": "greet",
+                        "kind": "method",
                         "functionDiff": {
                           "decoratorsChange": {
                             "added": [

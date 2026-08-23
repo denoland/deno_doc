@@ -142,6 +142,11 @@ export interface Serializable<T> {
   get label(): number;
   set label(value: number);
   get addedAccessor(): string;
+  get asymmetricChange(): string | null;
+  set asymmetricChange(value: string | number);
+  get gainedSetter(): boolean;
+  set gainedSetter(value: boolean);
+  get lostSetter(): string;
 }
 
 /** Extended serializable. */

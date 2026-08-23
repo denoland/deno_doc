@@ -29,6 +29,7 @@ export abstract class Foo {
                     "modified": [
                       {
                         "name": "bar",
+                        "kind": "method",
                         "isAbstractChange": {
                           "old": false,
                           "new": true

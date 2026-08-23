@@ -47,6 +47,7 @@ export class Bar {
                     "modified": [
                       {
                         "name": "j",
+                        "kind": "method",
                         "functionDiff": {
                           "returnTypeChange": {
                             "old": {

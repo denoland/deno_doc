@@ -460,15 +460,20 @@ fn get_subitem_diff_status(
 ) -> Option<DiffStatus> {
   match def_diff {
     DeclarationDefDiff::Class(class_diff) => match kind {
-      DrilldownKind::Method(_) => {
+      DrilldownKind::Method(method_kind) => {
         let mc = class_diff.method_changes.as_ref()?;
-        if mc.added.iter().any(|m| &*m.name == name) {
+        let matches = |m_name: &str, m_kind: deno_ast::swc::ast::MethodKind| {
+          m_name == name
+            && crate::html::MethodKind::from(m_kind) == *method_kind
+        };
+        if mc.added.iter().any(|m| matches(&m.name, m.kind)) {
           return Some(DiffStatus::Added);
         }
-        if mc.removed.iter().any(|m| &*m.name == name) {
+        if mc.removed.iter().any(|m| matches(&m.name, m.kind)) {
           return Some(DiffStatus::Removed);
         }
-        if let Some(md) = mc.modified.iter().find(|m| &*m.name == name) {
+        if let Some(md) = mc.modified.iter().find(|m| matches(&m.name, m.kind))
+        {
           if let Some(nc) = &md.name_change {
             return Some(DiffStatus::Renamed {
               old_name: nc.old.to_string(),
@@ -498,15 +503,20 @@ fn get_subitem_diff_status(
       }
     },
     DeclarationDefDiff::Interface(iface_diff) => match kind {
-      DrilldownKind::Method(_) => {
+      DrilldownKind::Method(method_kind) => {
         let mc = iface_diff.method_changes.as_ref()?;
-        if mc.added.iter().any(|m| m.name == name) {
+        let matches = |m_name: &str, m_kind: deno_ast::swc::ast::MethodKind| {
+          m_name == name
+            && crate::html::MethodKind::from(m_kind) == *method_kind
+        };
+        if mc.added.iter().any(|m| matches(&m.name, m.kind)) {
           return Some(DiffStatus::Added);
         }
-        if mc.removed.iter().any(|m| m.name == name) {
+        if mc.removed.iter().any(|m| matches(&m.name, m.kind)) {
           return Some(DiffStatus::Removed);
         }
-        if let Some(md) = mc.modified.iter().find(|m| m.name == name) {
+        if let Some(md) = mc.modified.iter().find(|m| matches(&m.name, m.kind))
+        {
           if let Some(nc) = &md.name_change {
             return Some(DiffStatus::Renamed {
               old_name: nc.old.clone(),

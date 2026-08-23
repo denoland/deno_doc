@@ -99,6 +99,7 @@ export interface Widget {
                     "modified": [
                       {
                         "name": "label",
+                        "kind": "getter",
                         "returnTypeChange": {
                           "old": {
                             "repr": "string",
@@ -114,6 +115,7 @@ export interface Widget {
                       },
                       {
                         "name": "label",
+                        "kind": "setter",
                         "paramsChange": {
                           "modified": [
                             {
