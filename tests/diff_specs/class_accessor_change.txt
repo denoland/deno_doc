@@ -64,6 +64,7 @@ export class Widget {
                     "modified": [
                       {
                         "name": "label",
+                        "kind": "getter",
                         "functionDiff": {
                           "returnTypeChange": {
                             "old": {
@@ -81,6 +82,7 @@ export class Widget {
                       },
                       {
                         "name": "label",
+                        "kind": "setter",
                         "functionDiff": {
                           "paramsChange": {
                             "modified": [

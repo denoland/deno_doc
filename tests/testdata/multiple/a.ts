@@ -70,6 +70,12 @@ export class Foo<T> {
   set getterAndSetter(s) {
   }
 
+  get divergentAccessor(): string | null {
+    return null;
+  }
+  set divergentAccessor(s: string) {
+  }
+
   static set staticSetter(s: number) {}
 
   /**
@@ -137,6 +143,16 @@ export interface Hello<T extends string, E extends T, R = number> {
   new <T extends string, E extends T, R = number>(): Hello<T, E, R>;
   optionalMethod?(): [string?];
   ["computedMethod"]?(a: T extends () => infer R ? R : any): void;
+
+  /**
+   * a getter/setter pair
+   */
+  get accessor(): string;
+  set accessor(value: string);
+  get readonlyAccessor(): number;
+  set writeonlyAccessor(value: number);
+  get divergentAccessor(): number | null;
+  set divergentAccessor(value: number);
 
   x: {
     [foo: string]: number;

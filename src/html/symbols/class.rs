@@ -669,18 +669,17 @@ fn render_class_accessor(
     .kind(IdKind::Accessor)
     .name(name)
     .build();
-  let ts_type = getter
-    .and_then(|getter| getter.function_def.return_type.as_ref())
-    .or_else(|| {
-      setter.and_then(|setter| {
-        setter
-          .function_def
-          .params
-          .first()
-          .and_then(|param| param.ts_type.as_ref())
-      })
-    })
-    .map_or_else(String::new, |ts_type| render_type_def_colon(ctx, ts_type));
+  let ts_type = super::render_accessor_type(
+    ctx,
+    getter.and_then(|getter| getter.function_def.return_type.as_ref()),
+    setter.and_then(|setter| {
+      setter
+        .function_def
+        .params
+        .first()
+        .and_then(|param| param.ts_type.as_ref())
+    }),
+  );
   let js_doc = getter_or_setter
     .js_doc
     .doc
@@ -707,11 +706,17 @@ fn render_class_accessor(
     diff_status,
     Some(DiffStatus::Modified | DiffStatus::Renamed { .. })
   ) {
-    let getter_diff = getter.and_then(|_| {
-      method_changes.and_then(|mc| mc.modified.iter().find(|m| m.name == *name))
+    // the getter's and setter's diffs are separate entries under the same
+    // name, so match on kind to avoid picking an arbitrary one
+    let getter_diff = getter.and(method_changes).and_then(|mc| {
+      mc.modified
+        .iter()
+        .find(|m| m.name == *name && m.kind == MethodKind::Getter)
     });
-    let setter_diff = setter.and_then(|_| {
-      method_changes.and_then(|mc| mc.modified.iter().find(|m| m.name == *name))
+    let setter_diff = setter.and(method_changes).and_then(|mc| {
+      mc.modified
+        .iter()
+        .find(|m| m.name == *name && m.kind == MethodKind::Setter)
     });
     let any_diff = getter_diff.or(setter_diff);
 
@@ -1095,19 +1100,16 @@ fn render_class_properties(
         .name(name)
         .build();
 
-      let ts_type = getter
-        .and_then(|g| g.function_def.return_type.as_ref())
-        .or_else(|| {
-          setter.and_then(|s| {
-            s.function_def
-              .params
-              .first()
-              .and_then(|param| param.ts_type.as_ref())
-          })
-        })
-        .map_or_else(String::new, |ts_type| {
-          render_type_def_colon(ctx, ts_type)
-        });
+      let ts_type = super::render_accessor_type(
+        ctx,
+        getter.and_then(|g| g.function_def.return_type.as_ref()),
+        setter.and_then(|s| {
+          s.function_def
+            .params
+            .first()
+            .and_then(|param| param.ts_type.as_ref())
+        }),
+      );
 
       let mut tags = Tag::from_js_doc(&getter_or_setter.js_doc);
       if let Some(tag) = Tag::from_accessibility(getter_or_setter.accessibility)

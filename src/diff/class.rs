@@ -604,6 +604,7 @@ impl MethodsDiff {
 #[serde(rename_all = "camelCase")]
 pub struct MethodDiff {
   pub name: Box<str>,
+  pub kind: deno_ast::swc::ast::MethodKind,
   #[serde(skip_serializing_if = "Option::is_none")]
   pub name_change: Option<Change<Box<str>>>,
   #[serde(skip_serializing_if = "Option::is_none")]
@@ -632,7 +633,7 @@ impl MethodDiff {
       is_static: old_is_static,
       is_override: old_is_override,
       name: old_name,
-      kind: _, // methods are matched by kind in the caller
+      kind: old_kind, // methods are matched by kind in the caller
       function_def: old_function_def,
       location: _, // internal, not diffed
     } = old;
@@ -695,6 +696,7 @@ impl MethodDiff {
 
     Some(MethodDiff {
       name: old_name.clone(),
+      kind: *old_kind,
       name_change: None,
       accessibility_change,
       is_static_change,
@@ -743,6 +745,7 @@ impl RenameCandidate for MethodDiff {
   ) -> Self {
     let mut d = diff.unwrap_or_else(|| MethodDiff {
       name: new.name.clone(),
+      kind: new.kind,
       name_change: None,
       accessibility_change: None,
       is_static_change: None,

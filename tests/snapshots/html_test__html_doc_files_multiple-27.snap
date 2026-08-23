@@ -5,7 +5,7 @@ expression: files.get(file_name).unwrap()
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Foo.prototype.readonlyProperty - default - documentation</title>
+  <title>Foo.prototype.protectedProperty - default - documentation</title>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="doc-current-file" content=".">
@@ -54,7 +54,7 @@ expression: files.get(file_name).unwrap()
 
     <ul><li><span>.</span>
             <a href="..&#x2F;.&#x2F;.&#x2F;~&#x2F;Foo.html" class="contextLink">Foo</a></li><li><span>.</span>
-            <a href="..&#x2F;.&#x2F;.&#x2F;~&#x2F;Foo.prototype.html" class="contextLink">prototype</a></li><li>readonlyProperty</li></ul></ul>
+            <a href="..&#x2F;.&#x2F;.&#x2F;~&#x2F;Foo.prototype.html" class="contextLink">prototype</a></li><li>protectedProperty</li></ul></ul>
 </div>
 
     <div class="flex items-center gap-2">
@@ -118,11 +118,11 @@ expression: files.get(file_name).unwrap()
     </div>
   </div>
 </nav>
-<div id="searchResults"></div><div id="content"><main class="symbolGroup" id="symbol_Foo.prototype.readonlyProperty"><article>
+<div id="searchResults"></div><div id="content"><main class="symbolGroup" id="symbol_Foo.prototype.protectedProperty"><article>
       <div class="symbolTitle">
         <div>
           <div class="text-2xl leading-none break-all">
-            <span class="text-Property">property</span>&nbsp;<span class="font-bold">Foo.prototype.readonlyProperty</span>
+            <span class="text-Property">property</span>&nbsp;<span class="font-bold">Foo.prototype.protectedProperty</span>
           </div></div></div><div><div class="space-y-7" id=""><section class="section"  id="type"><div>
       <h2 class="anchorable mb-1"><a href="#type" class="anchor" aria-label="Anchor" tabIndex="-1"><svg
   width="16"
@@ -146,7 +146,7 @@ expression: files.get(file_name).unwrap()
   </defs>
 </svg>
 </a>
-Type</h2></div><div class="space-y-8"><div class=" docEntry" id="variable_foo_prototype_readonlyproperty">
+Type</h2></div><div class="space-y-8"><div class=" docEntry" id="variable_foo_prototype_protectedproperty">
 
   <div class="docEntryHeader">
     <div><code><span class="font-medium text-stone-500 dark:text-stone-200"><span class="td-kw">boolean</span></span>

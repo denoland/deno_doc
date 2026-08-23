@@ -161,7 +161,7 @@ interface Shapes
     Called on click.
   compute(): number
     A method.
-  label(value: string)
+  set label(value: string)
     Sets the label.
   toggle(flag?: boolean): void
     An optional-param method.

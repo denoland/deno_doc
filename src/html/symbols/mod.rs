@@ -681,6 +681,31 @@ impl SymbolInnerCtx {
   }
 }
 
+/// Renders the type portion of a merged getter/setter accessor entry. A pair
+/// whose types agree (and lone getters/setters) renders like a plain property
+/// type; a pair with diverging types renders both as stacked, source-style
+/// `get`/`set` rows so neither type is hidden.
+pub(crate) fn render_accessor_type(
+  ctx: &RenderContext,
+  getter_type: Option<&crate::ts_type::TsTypeDef>,
+  setter_type: Option<&crate::ts_type::TsTypeDef>,
+) -> String {
+  match (getter_type, setter_type) {
+    (Some(getter_type), Some(setter_type)) if getter_type != setter_type => {
+      format!(
+        r#"<div class="ml-indent"><span class="td-op">get</span>{}</div><div class="ml-indent"><span class="td-op">set</span>{}</div>"#,
+        crate::html::types::render_type_def_colon(ctx, getter_type),
+        crate::html::types::render_type_def_colon(ctx, setter_type),
+      )
+    }
+    (getter_type, setter_type) => getter_type
+      .or(setter_type)
+      .map_or_else(String::new, |ts_type| {
+        crate::html::types::render_type_def_colon(ctx, ts_type)
+      }),
+  }
+}
+
 /// Reconstruct old tags by reversing modifier diffs. Pass `None` for any
 /// modifier that the member type doesn't have (e.g. interfaces have no
 /// accessibility).
@@ -1006,9 +1031,13 @@ pub(crate) fn render_type_def_sections(
       ctx,
       name,
       &ts_type_literal.properties,
+      &ts_type_literal.methods,
       type_lit_diff
         .as_ref()
         .and_then(|d| d.property_changes.as_ref()),
+      type_lit_diff
+        .as_ref()
+        .and_then(|d| d.method_changes.as_ref()),
     ) {
       sections.push(properties);
     }
@@ -1080,7 +1109,9 @@ pub(crate) fn render_type_def_sections(
           ctx,
           name,
           &[],
+          &[],
           diff.property_changes.as_ref(),
+          diff.method_changes.as_ref(),
         ) {
           sections.push(props);
         }

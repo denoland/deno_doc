@@ -5,7 +5,7 @@ expression: files.get(file_name).unwrap()
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Foo.staticMethod - default - documentation</title>
+  <title>Foo.prototype.test - default - documentation</title>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="doc-current-file" content=".">
@@ -53,7 +53,8 @@ expression: files.get(file_name).unwrap()
 </span>
 
     <ul><li><span>.</span>
-            <a href="..&#x2F;.&#x2F;.&#x2F;~&#x2F;Foo.html" class="contextLink">Foo</a></li><li>staticMethod</li></ul></ul>
+            <a href="..&#x2F;.&#x2F;.&#x2F;~&#x2F;Foo.html" class="contextLink">Foo</a></li><li><span>.</span>
+            <a href="..&#x2F;.&#x2F;.&#x2F;~&#x2F;Foo.prototype.html" class="contextLink">prototype</a></li><li>test</li></ul></ul>
 </div>
 
     <div class="flex items-center gap-2">
@@ -117,13 +118,13 @@ expression: files.get(file_name).unwrap()
     </div>
   </div>
 </nav>
-<div id="searchResults"></div><div id="content"><main class="symbolGroup" id="symbol_Foo.staticMethod"><article>
+<div id="searchResults"></div><div id="content"><main class="symbolGroup" id="symbol_Foo.prototype.test"><article>
       <div class="symbolTitle">
         <div>
           <div class="text-2xl leading-none break-all">
-            <span class="text-Method">method</span>&nbsp;<span class="font-bold">Foo.staticMethod</span>
-          </div></div></div><div><div class="mt-3 space-y-8"><div class="scroll-mt-16" id="function_foo_staticmethod_0">
-      <code class="anchorable text-base break-words"><a href="#function_foo_staticmethod_0" class="anchor" aria-label="Anchor" tabIndex="-1"><svg
+            <span class="text-Method">method</span>&nbsp;<span class="font-bold">Foo.prototype.test</span>
+          </div></div></div><div><div class="mt-3 space-y-8"><div class="scroll-mt-16" id="function_foo_prototype_test_0">
+      <code class="anchorable text-base break-words"><a href="#function_foo_prototype_test_0" class="anchor" aria-label="Anchor" tabIndex="-1"><svg
   width="16"
   height="16"
   viewBox="0 0 14 14"
@@ -145,7 +146,7 @@ expression: files.get(file_name).unwrap()
   </defs>
 </svg>
 </a>
-<span class="font-bold">Foo.staticMethod</span><span class="font-medium">()<span>: <span class="td-kw">void</span></span> </span>
+<span class="font-bold">Foo.prototype.test</span><span class="font-medium">()<span>: <span class="td-kw">void</span></span> </span>
       </code><div class="space-y-7" id=""><section class="section"  id="return-type"><div>
       <h2 class="anchorable mb-1"><a href="#return-type" class="anchor" aria-label="Anchor" tabIndex="-1"><svg
   width="16"
@@ -169,7 +170,7 @@ expression: files.get(file_name).unwrap()
   </defs>
 </svg>
 </a>
-Return Type</h2></div><div class="space-y-8"><div class=" docEntry" id="function_foo_staticmethod_0_return">
+Return Type</h2></div><div class="space-y-8"><div class=" docEntry" id="function_foo_prototype_test_0_return">
 
   <div class="docEntryHeader">
     <div><code><span class="font-medium text-stone-500 dark:text-stone-200"><span class="td-kw">void</span></span>
