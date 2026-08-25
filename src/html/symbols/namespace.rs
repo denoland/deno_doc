@@ -25,7 +25,7 @@ pub fn render_namespace<'a>(
   >,
 ) -> Vec<SectionCtx> {
   partitions
-    .map(|(ctx, header, doc_nodes)| {
+    .filter_map(|(ctx, header, doc_nodes)| {
       get_namespace_section_render_ctx(&ctx, header, doc_nodes)
     })
     .collect()
@@ -35,7 +35,7 @@ fn get_namespace_section_render_ctx(
   ctx: &RenderContext,
   header: Option<SectionHeaderCtx>,
   symbols: Vec<DocNodeWithContext>,
-) -> SectionCtx {
+) -> Option<SectionCtx> {
   let nodes = symbols
     .into_iter()
     .filter_map(|symbol| {
@@ -47,6 +47,13 @@ fn get_namespace_section_render_ctx(
     })
     .collect::<Vec<_>>();
 
+  // a section whose symbols were all filtered out (e.g. private symbols in
+  // an ambient module) renders nothing, so don't emit a header-only section
+  // or its ToC entry
+  if nodes.is_empty() {
+    return None;
+  }
+
   // the header id was already anchorized by the caller, so register the ToC
   // entry with it instead of letting `SectionCtx::new` anchorize the title a
   // second time, which would point the ToC at an id the section doesn't have
@@ -56,7 +63,7 @@ fn get_namespace_section_render_ctx(
   let mut section =
     SectionCtx::new(ctx, "", SectionContentCtx::NamespaceSection(nodes));
   section.header = header;
-  section
+  Some(section)
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]

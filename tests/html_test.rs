@@ -455,6 +455,40 @@ async fn html_doc_deprecated_listing() {
 }
 
 #[tokio::test]
+async fn html_doc_empty_sections() {
+  let ctx = GenerateCtx::create_basic(
+    GenerateOptions {
+      package_name: None,
+      main_entrypoint: None,
+      href_resolver: Arc::new(EmptyResolver),
+      usage_composer: Some(Arc::new(EmptyResolver)),
+      rewrite_map: None,
+      category_docs: None,
+      disable_search: false,
+      symbol_redirect_map: None,
+      default_symbol_map: None,
+      markdown_renderer: comrak::create_renderer(None, None, None),
+      markdown_stripper: Arc::new(comrak::strip),
+      head_inject: None,
+      id_prefix: None,
+      diff_only: false,
+      symbol_listing_limit: None,
+    },
+    get_files("empty_sections").await,
+    None,
+  )
+  .unwrap();
+  let files = generate(ctx).unwrap();
+
+  // the module's only symbol is private, so no "Functions" section header
+  // (or matching ToC entry) may be rendered (jsr-io/jsr#918)
+  let index = files.get("./index.html").unwrap();
+  assert!(!index.contains("Functions"), "{index}");
+  let all_symbols = files.get("./all_symbols.html").unwrap();
+  assert!(!all_symbols.contains("Functions"), "{all_symbols}");
+}
+
+#[tokio::test]
 async fn html_doc_symbol_listing_limit() {
   async fn generate_with_limit(
     limit: Option<usize>,

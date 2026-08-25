@@ -171,6 +171,12 @@ export interface TopSymbolCtx {
 
 export interface ModuleDocCtx {
   deprecated: string | null;
+  /**
+   * Whether deeply nested symbols were dropped from the symbol listing
+   * because it exceeded the configured symbol listing limit. Absent when
+   * nothing was dropped.
+   */
+  symbols_trimmed?: boolean;
   sections: SymbolContentCtx;
 }
 

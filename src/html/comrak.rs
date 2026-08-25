@@ -79,6 +79,7 @@ pub fn default_options() -> comrak::Options<'static> {
   let mut options = comrak::Options::default();
   options.extension.autolink = true;
   options.extension.description_lists = true;
+  options.extension.footnotes = true;
   options.extension.strikethrough = true;
   options.extension.superscript = true;
   options.extension.table = true;
@@ -319,6 +320,31 @@ mod tests {
     let displayed = html.split("</code>").next().unwrap();
     assert!(displayed.contains("# shown"));
     assert!(!displayed.contains("## shown"));
+  }
+
+  #[test]
+  fn renders_footnotes() {
+    let html = render("Some claim.[^1]\n\n[^1]: The source of the claim.");
+
+    assert!(html.contains(r#"class="footnotes""#), "html: {html}");
+    assert!(html.contains(r#"class="footnote-ref""#), "html: {html}");
+    assert!(html.contains(r#"class="footnote-backref""#), "html: {html}");
+    assert!(html.contains("The source of the claim."), "html: {html}");
+  }
+
+  #[test]
+  fn strips_footnotes() {
+    let stripped = strip("Some claim.[^1]\n\n[^1]: The source of the claim.");
+
+    // The reference marker disappears and the definition text is kept as
+    // plain text; no HTML leaks through and stripping must not panic.
+    assert!(stripped.contains("Some claim."), "stripped: {stripped}");
+    assert!(
+      stripped.contains("The source of the claim."),
+      "stripped: {stripped}"
+    );
+    assert!(!stripped.contains('<'), "stripped: {stripped}");
+    assert!(!stripped.contains("[^1]"), "stripped: {stripped}");
   }
 
   #[test]

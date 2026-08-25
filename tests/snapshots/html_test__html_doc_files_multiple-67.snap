@@ -166,8 +166,8 @@ Variables</h2></div><div class="namespaceSection"><div id="namespace_default" cl
 </section>
 </main><div class="toc">
     <div><div class="usageContent">
-    <h3>Usage</h3><div class="markdown"><pre class="highlight"><code class="language-typescript">import * as bar from &quot;foo&quot;;
-</code><button class="copyButton" data-copy="import * as bar from &quot;foo&quot;;
+    <h3>Usage</h3><div class="markdown"><pre class="highlight"><code class="language-typescript">import * as bar123 from &quot;foo&quot;;
+</code><button class="copyButton" data-copy="import * as bar123 from &quot;foo&quot;;
 "><svg
   class="copy"
   width="15"
