@@ -489,5 +489,12 @@ mod tests {
     assert_eq!(IDENTIFIER_RE.replace_all("foo-bar", "_"), "foo_bar");
     assert_eq!(IDENTIFIER_RE.replace_all("@scope/pkg", "_"), "_scope_pkg");
     assert_eq!(IDENTIFIER_RE.replace_all("hello_world", "_"), "hello_world");
+    // digits are valid in identifiers, just not as the first character
+    assert_eq!(IDENTIFIER_RE.replace_all("bar123", "_"), "bar123");
+    assert_eq!(IDENTIFIER_RE.replace_all("@scope/pkg2", "_"), "_scope_pkg2");
+    assert_eq!(IDENTIFIER_RE.replace_all("123bar", "_"), "_23bar");
+    assert_eq!(IDENTIFIER_RE.replace_all("0", "_"), "_");
+    // `^` is not multi-line, so only the very first digit is replaced
+    assert_eq!(IDENTIFIER_RE.replace_all("1a\n2b", "_"), "_a_2b");
   }
 }
