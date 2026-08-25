@@ -214,6 +214,19 @@
     }
   }
 
+  sup.footnote-ref {
+    @apply text-xs leading-none;
+  }
+
+  section.footnotes {
+    @apply mt-6 border-t border-stone-300 pt-4 text-sm text-stone-600
+      dark:border-stone-700 dark:text-stone-400;
+
+    a.footnote-backref {
+      @apply no-underline;
+    }
+  }
+
   code {
     @apply w-full;
   }

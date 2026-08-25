@@ -158,8 +158,8 @@ Type</h2></div><div class="space-y-8"><div class=" docEntry" id="variable_defaul
     </article></main>
 <div class="toc">
     <div><div class="usageContent">
-    <h3>Usage</h3><div class="markdown"><pre class="highlight"><code class="language-typescript">import bar from &quot;foo&quot;;
-</code><button class="copyButton" data-copy="import bar from &quot;foo&quot;;
+    <h3>Usage</h3><div class="markdown"><pre class="highlight"><code class="language-typescript">import bar123 from &quot;foo&quot;;
+</code><button class="copyButton" data-copy="import bar123 from &quot;foo&quot;;
 "><svg
   class="copy"
   width="15"
