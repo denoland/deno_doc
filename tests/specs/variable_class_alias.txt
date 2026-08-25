@@ -1,0 +1,295 @@
+# mod.ts
+class OptionClass<T> {
+  /** Returns the contained value. */
+  unwrap(): T {
+    throw new Error("empty");
+  }
+}
+
+/** An Option-like structure. */
+export const Option = OptionClass;
+export type Option<T> = OptionClass<T>;
+
+class UndocumentedTarget {}
+
+export const Alias = UndocumentedTarget;
+
+/** greets */
+function greet(name: string): string {
+  return name;
+}
+
+export const sayHello = greet;
+
+# diagnostics
+error[private-type-ref]: public type 'Option' references private type 'OptionClass'
+  --> /mod.ts:10:1
+   | 
+10 | export type Option<T> = OptionClass<T>;
+   | ^
+   = hint: make the referenced type public or remove the reference
+   | 
+ 1 | class OptionClass<T> {
+   | - this is the referenced type
+   | 
+
+  info: to ensure documentation is complete all types that are exposed in the public API must be public
+
+
+error[missing-jsdoc]: exported symbol is missing JSDoc documentation
+  --> /mod.ts:10:13
+   | 
+10 | export type Option<T> = OptionClass<T>;
+   |             ^
+
+
+error[missing-jsdoc]: exported symbol is missing JSDoc documentation
+  --> /mod.ts:14:14
+   | 
+14 | export const Alias = UndocumentedTarget;
+   |              ^
+
+# output.txt
+Defined in file:///mod.ts:20:14
+
+function sayHello(name: string): string
+  greets
+
+Defined in file:///mod.ts:13:14
+
+class Alias
+
+
+Defined in file:///mod.ts:8:14
+
+class Option<T>
+  An Option-like structure.
+
+  unwrap(): T
+    Returns the contained value.
+
+Defined in file:///mod.ts:9:1
+
+type Option<T> = OptionClass<T>
+
+Defined in file:///mod.ts:0:1
+
+private class OptionClass<T>
+
+  unwrap(): T
+    Returns the contained value.
+
+
+# output.json
+{
+  "symbols": [
+    {
+      "name": "Option",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 8,
+            "col": 13,
+            "byteIndex": 160
+          },
+          "declarationKind": "export",
+          "jsDoc": {
+            "doc": "An Option-like structure."
+          },
+          "kind": "class",
+          "def": {
+            "defName": "OptionClass",
+            "methods": [
+              {
+                "jsDoc": {
+                  "doc": "Returns the contained value."
+                },
+                "name": "unwrap",
+                "kind": "method",
+                "functionDef": {
+                  "params": [],
+                  "returnType": {
+                    "repr": "T",
+                    "kind": "typeRef",
+                    "value": {
+                      "typeName": "T",
+                      "resolution": {
+                        "kind": "typeParam",
+                        "declaringName": "OptionClass",
+                        "declaringKind": "class"
+                      }
+                    }
+                  },
+                  "hasBody": true
+                },
+                "location": {
+                  "filename": "file:///mod.ts",
+                  "line": 2,
+                  "col": 2,
+                  "byteIndex": 63
+                }
+              }
+            ],
+            "typeParams": [
+              {
+                "name": "T"
+              }
+            ]
+          }
+        },
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 9,
+            "col": 0,
+            "byteIndex": 182
+          },
+          "declarationKind": "export",
+          "kind": "typeAlias",
+          "def": {
+            "tsType": {
+              "repr": "OptionClass",
+              "kind": "typeRef",
+              "value": {
+                "typeParams": [
+                  {
+                    "repr": "T",
+                    "kind": "typeRef",
+                    "value": {
+                      "typeName": "T",
+                      "resolution": {
+                        "kind": "typeParam",
+                        "declaringName": "Option",
+                        "declaringKind": "typeAlias"
+                      }
+                    }
+                  }
+                ],
+                "typeName": "OptionClass",
+                "resolution": {
+                  "kind": "local"
+                }
+              }
+            },
+            "typeParams": [
+              {
+                "name": "T"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Alias",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 13,
+            "col": 13,
+            "byteIndex": 265
+          },
+          "declarationKind": "export",
+          "kind": "class",
+          "def": {
+            "defName": "UndocumentedTarget"
+          }
+        }
+      ]
+    },
+    {
+      "name": "sayHello",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 20,
+            "col": 13,
+            "byteIndex": 378
+          },
+          "declarationKind": "export",
+          "jsDoc": {
+            "doc": "greets"
+          },
+          "kind": "function",
+          "def": {
+            "defName": "greet",
+            "params": [
+              {
+                "kind": "identifier",
+                "name": "name",
+                "optional": false,
+                "tsType": {
+                  "repr": "string",
+                  "kind": "keyword",
+                  "value": "string"
+                }
+              }
+            ],
+            "returnType": {
+              "repr": "string",
+              "kind": "keyword",
+              "value": "string"
+            },
+            "hasBody": true
+          }
+        }
+      ]
+    },
+    {
+      "name": "OptionClass",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 0,
+            "col": 0,
+            "byteIndex": 0
+          },
+          "declarationKind": "private",
+          "kind": "class",
+          "def": {
+            "methods": [
+              {
+                "jsDoc": {
+                  "doc": "Returns the contained value."
+                },
+                "name": "unwrap",
+                "kind": "method",
+                "functionDef": {
+                  "params": [],
+                  "returnType": {
+                    "repr": "T",
+                    "kind": "typeRef",
+                    "value": {
+                      "typeName": "T",
+                      "resolution": {
+                        "kind": "typeParam",
+                        "declaringName": "OptionClass",
+                        "declaringKind": "class"
+                      }
+                    }
+                  },
+                  "hasBody": true
+                },
+                "location": {
+                  "filename": "file:///mod.ts",
+                  "line": 2,
+                  "col": 2,
+                  "byteIndex": 63
+                }
+              }
+            ],
+            "typeParams": [
+              {
+                "name": "T"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}
