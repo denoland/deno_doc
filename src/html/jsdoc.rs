@@ -849,9 +849,16 @@ impl ModuleDocCtx {
     let mut symbols_trimmed = false;
 
     if render_symbols {
+      // Filter out internal symbols before partitioning, so that a kind
+      // whose symbols are all internal (e.g. private symbols of an ambient
+      // module) never produces a section header, and the listing limit below
+      // counts only symbols that would actually render.
       let mut partitions_by_kind = super::partition::partition_nodes_by_kind(
         render_ctx.ctx,
-        module_doc_nodes.iter().map(Cow::Borrowed),
+        module_doc_nodes
+          .iter()
+          .filter(|node| !node.is_internal(render_ctx.ctx))
+          .map(Cow::Borrowed),
         true,
       );
 
@@ -894,8 +901,6 @@ impl ModuleDocCtx {
             .name(short_path.display_name())
             .name(&title)
             .build();
-
-          render_ctx.toc.add_entry(1, &title, &id);
 
           (
             render_ctx.clone(),
