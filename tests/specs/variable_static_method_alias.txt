@@ -1,0 +1,166 @@
+# mod.ts
+/** Foo class */
+export class Foo {
+  /**
+   * Bar static method
+   *
+   * @param q The question
+   * @returns The answer
+   */
+  static bar(q: string): number {
+    return 42;
+  }
+}
+
+export const baz = Foo.bar;
+
+# output.txt
+Defined in file:///mod.ts:13:14
+
+function baz(q: string): number
+  Bar static method
+
+  @param q
+      The question
+
+  @return
+      The answer
+
+
+Defined in file:///mod.ts:1:1
+
+class Foo
+  Foo class
+
+  static bar(q: string): number
+    Bar static method
+
+    @param q
+        The question
+
+    @return
+        The answer
+
+
+
+# output.json
+{
+  "symbols": [
+    {
+      "name": "Foo",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 1,
+            "col": 0,
+            "byteIndex": 17
+          },
+          "declarationKind": "export",
+          "jsDoc": {
+            "doc": "Foo class"
+          },
+          "kind": "class",
+          "def": {
+            "methods": [
+              {
+                "jsDoc": {
+                  "doc": "Bar static method\n",
+                  "tags": [
+                    {
+                      "kind": "param",
+                      "name": "q",
+                      "doc": "The question"
+                    },
+                    {
+                      "kind": "return",
+                      "doc": "The answer"
+                    }
+                  ]
+                },
+                "isStatic": true,
+                "name": "bar",
+                "kind": "method",
+                "functionDef": {
+                  "params": [
+                    {
+                      "kind": "identifier",
+                      "name": "q",
+                      "optional": false,
+                      "tsType": {
+                        "repr": "string",
+                        "kind": "keyword",
+                        "value": "string"
+                      }
+                    }
+                  ],
+                  "returnType": {
+                    "repr": "number",
+                    "kind": "keyword",
+                    "value": "number"
+                  },
+                  "hasBody": true
+                },
+                "location": {
+                  "filename": "file:///mod.ts",
+                  "line": 8,
+                  "col": 2,
+                  "byteIndex": 130
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "baz",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 13,
+            "col": 13,
+            "byteIndex": 197
+          },
+          "declarationKind": "export",
+          "jsDoc": {
+            "doc": "Bar static method\n",
+            "tags": [
+              {
+                "kind": "param",
+                "name": "q",
+                "doc": "The question"
+              },
+              {
+                "kind": "return",
+                "doc": "The answer"
+              }
+            ]
+          },
+          "kind": "function",
+          "def": {
+            "params": [
+              {
+                "kind": "identifier",
+                "name": "q",
+                "optional": false,
+                "tsType": {
+                  "repr": "string",
+                  "kind": "keyword",
+                  "value": "string"
+                }
+              }
+            ],
+            "returnType": {
+              "repr": "number",
+              "kind": "keyword",
+              "value": "number"
+            },
+            "hasBody": true
+          }
+        }
+      ]
+    }
+  ]
+}

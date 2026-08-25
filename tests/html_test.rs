@@ -423,6 +423,64 @@ async fn html_doc_import_linking_internal_file() {
 }
 
 #[tokio::test]
+async fn html_doc_variable_alias() {
+  let ctx = GenerateCtx::create_basic(
+    GenerateOptions {
+      package_name: None,
+      main_entrypoint: None,
+      href_resolver: Arc::new(EmptyResolver),
+      usage_composer: Some(Arc::new(EmptyResolver)),
+      rewrite_map: None,
+      category_docs: None,
+      disable_search: false,
+      symbol_redirect_map: None,
+      default_symbol_map: None,
+      markdown_renderer: comrak::create_renderer(None, None, None),
+      markdown_stripper: Arc::new(comrak::strip),
+      head_inject: None,
+      id_prefix: None,
+      diff_only: false,
+      symbol_listing_limit: None,
+    },
+    get_files("variable_alias").await,
+    None,
+  )
+  .unwrap();
+  let files = generate(ctx).unwrap();
+
+  // an alias is documented under its own exported name, not the name of the
+  // declaration it points at (which is private and not exported at all)
+  let mut file_names = files.keys().collect::<Vec<_>>();
+  file_names.sort();
+  assert!(
+    file_names.contains(&&"./~/Option.html".to_string()),
+    "{file_names:?}"
+  );
+  assert!(
+    file_names.contains(&&"./~/sayHello.html".to_string()),
+    "{file_names:?}"
+  );
+  assert!(
+    !file_names.contains(&&"./~/OptionClass.html".to_string()),
+    "{file_names:?}"
+  );
+  assert!(
+    !file_names.contains(&&"./~/greet.html".to_string()),
+    "{file_names:?}"
+  );
+
+  // the class members are documented, and the constructor signature uses the
+  // alias's name
+  let option = files.get("./~/Option.html").unwrap();
+  assert!(option.contains("Returns the contained value."), "{option}");
+  assert!(!option.contains("OptionClass"), "{option}");
+
+  let index = files.get("./index.html").unwrap();
+  assert!(!index.contains("OptionClass"), "{index}");
+  assert!(!index.contains("greet"), "{index}");
+}
+
+#[tokio::test]
 async fn html_doc_destructured_params() {
   let ctx = GenerateCtx::create_basic(
     GenerateOptions {

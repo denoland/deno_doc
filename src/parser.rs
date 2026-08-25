@@ -865,6 +865,13 @@ impl<'a> DocParser<'a> {
       return Some(decl_from_expr(self, module_info, init, location, js_doc));
     }
 
+    if let Some(init) = &var_declarator.init
+      && let Some(decl) =
+        self.decl_from_init_alias(module_info, init, ident, &js_doc)
+    {
+      return Some(decl);
+    }
+
     // todo(dsherret): it's not ideal to call this function over
     // and over for the same var declarator when there are a lot
     // of idents
@@ -2004,6 +2011,163 @@ fn collect_shadowed_export_targets(
   targets.retain(|_, targets| targets.len() > 1);
 
   targets
+}
+
+impl DocParser<'_> {
+  /// Resolves a variable initializer that aliases another declaration in the
+  /// same module — `const Foo = FooClass` or `const baz = Foo.bar` — to a
+  /// declaration of the aliased kind, so the alias documents as the class or
+  /// function it refers to instead of as an opaque variable.
+  fn decl_from_init_alias(
+    &self,
+    module_info: &EsModuleInfo,
+    init: &deno_ast::swc::ast::Expr,
+    ident: &Ident,
+    js_doc: &JsDoc,
+  ) -> Option<Declaration> {
+    /// The alias's own JSDoc wins; an undocumented alias inherits the
+    /// documentation of the declaration it points at.
+    fn js_doc_or_target(
+      module_info: &EsModuleInfo,
+      js_doc: &JsDoc,
+      target_range: SourceRange,
+    ) -> JsDoc {
+      if js_doc.is_empty() {
+        js_doc_for_range(module_info, &target_range).unwrap_or_default()
+      } else {
+        js_doc.clone()
+      }
+    }
+
+    let location = get_location(module_info, ident.start());
+
+    match init {
+      deno_ast::swc::ast::Expr::Ident(init_ident) => {
+        let symbol = module_info.symbol_from_swc(&init_ident.to_id())?;
+        for decl in symbol.decls() {
+          let Some(node) = decl.maybe_node() else {
+            continue;
+          };
+          let node = match node {
+            SymbolNodeRef::ExportDecl(_, export_decl) => match export_decl {
+              ExportDeclRef::Class(class_decl) => {
+                SymbolNodeRef::ClassDecl(class_decl)
+              }
+              ExportDeclRef::Fn(fn_decl) => SymbolNodeRef::FnDecl(fn_decl),
+              _ => continue,
+            },
+            node => node,
+          };
+          match node {
+            SymbolNodeRef::ClassDecl(class_decl) => {
+              let (mut class_def, decorator_js_doc) =
+                // no `def_name`: the alias has a name of its own, and
+                // `def_name` would override it everywhere the symbol is
+                // rendered
+                crate::class::class_to_class_def(
+                  module_info,
+                  &class_decl.class,
+                  None,
+                );
+              self.apply_heritage_member_docs(
+                module_info,
+                &class_decl.class,
+                &mut class_def,
+              );
+              let js_doc = if js_doc.is_empty() && decorator_js_doc.is_empty() {
+                js_doc_or_target(module_info, js_doc, class_decl.range())
+              } else if js_doc.is_empty() {
+                decorator_js_doc
+              } else {
+                js_doc.clone()
+              };
+              return Some(Declaration::class(
+                location,
+                DeclarationKind::Declare,
+                js_doc,
+                class_def,
+              ));
+            }
+            SymbolNodeRef::FnDecl(fn_decl) => {
+              let function_def = crate::function::function_to_function_def(
+                module_info,
+                &fn_decl.function,
+                None,
+              );
+              let js_doc =
+                js_doc_or_target(module_info, js_doc, fn_decl.range());
+              return Some(Declaration::function(
+                location,
+                DeclarationKind::Declare,
+                js_doc,
+                function_def,
+              ));
+            }
+            _ => continue,
+          }
+        }
+        None
+      }
+      deno_ast::swc::ast::Expr::Member(member) => {
+        // `const baz = Foo.bar` where `bar` is a static method of a class
+        let obj_ident = member.obj.as_ident()?;
+        let prop_name = match &member.prop {
+          deno_ast::swc::ast::MemberProp::Ident(prop) => prop.sym.as_str(),
+          _ => return None,
+        };
+        let symbol = module_info.symbol_from_swc(&obj_ident.to_id())?;
+        for decl in symbol.decls() {
+          let Some(node) = decl.maybe_node() else {
+            continue;
+          };
+          let class = match node {
+            SymbolNodeRef::ClassDecl(class_decl) => &class_decl.class,
+            SymbolNodeRef::ExportDecl(_, ExportDeclRef::Class(class_decl)) => {
+              &class_decl.class
+            }
+            _ => continue,
+          };
+          for class_member in &class.body {
+            let deno_ast::swc::ast::ClassMember::Method(method) = class_member
+            else {
+              continue;
+            };
+            if !method.is_static
+              || method.kind != deno_ast::swc::ast::MethodKind::Method
+            {
+              continue;
+            }
+            let name_matches = match &method.key {
+              deno_ast::swc::ast::PropName::Ident(key) => {
+                key.sym.as_str() == prop_name
+              }
+              deno_ast::swc::ast::PropName::Str(key) => {
+                key.value.as_str() == Some(prop_name)
+              }
+              _ => false,
+            };
+            if !name_matches {
+              continue;
+            }
+            let function_def = crate::function::function_to_function_def(
+              module_info,
+              &method.function,
+              None,
+            );
+            let js_doc = js_doc_or_target(module_info, js_doc, method.range());
+            return Some(Declaration::function(
+              location,
+              DeclarationKind::Declare,
+              js_doc,
+              function_def,
+            ));
+          }
+        }
+        None
+      }
+      _ => None,
+    }
+  }
 }
 
 fn decl_from_expr(
