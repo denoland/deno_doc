@@ -1,0 +1,106 @@
+# old/mod.ts
+interface Runnable { run(): void; }
+export class Foo {}
+
+# new/mod.ts
+interface Runnable { run(): void; }
+export class Foo implements Runnable {
+  run() {}
+}
+
+# output.json
+{
+  "modifiedModules": {
+    "file:///mod.ts": {
+      "added": [
+        {
+          "name": "Runnable",
+          "declarations": [
+            {
+              "location": {
+                "filename": "file:///mod.ts",
+                "line": 0,
+                "col": 0,
+                "byteIndex": 0
+              },
+              "declarationKind": "private",
+              "kind": "interface",
+              "def": {
+                "methods": [
+                  {
+                    "name": "run",
+                    "kind": "method",
+                    "location": {
+                      "filename": "file:///mod.ts",
+                      "line": 0,
+                      "col": 21,
+                      "byteIndex": 21
+                    },
+                    "params": [],
+                    "returnType": {
+                      "repr": "void",
+                      "kind": "keyword",
+                      "value": "void"
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      ],
+      "modified": [
+        {
+          "name": "Foo",
+          "declarations": {
+            "modified": [
+              {
+                "kind": "class",
+                "defChanges": {
+                  "type": "class",
+                  "implementsChange": {
+                    "added": [
+                      {
+                        "repr": "Runnable",
+                        "kind": "typeRef",
+                        "value": {
+                          "typeName": "Runnable",
+                          "resolution": {
+                            "kind": "local"
+                          }
+                        }
+                      }
+                    ]
+                  },
+                  "methodChanges": {
+                    "added": [
+                      {
+                        "name": "run",
+                        "kind": "method",
+                        "functionDef": {
+                          "params": [],
+                          "returnType": {
+                            "repr": "void",
+                            "kind": "keyword",
+                            "value": "void"
+                          },
+                          "hasBody": true
+                        },
+                        "location": {
+                          "filename": "file:///mod.ts",
+                          "line": 2,
+                          "col": 2,
+                          "byteIndex": 77
+                        }
+                      }
+                    ]
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  }
+}

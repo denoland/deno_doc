@@ -1,0 +1,170 @@
+# mod.ts
+import { PrivateInterface } from "./private.ts";
+
+/** Class A */
+export class ClassA {
+  /** property a */
+  prop: PrivateInterface;
+}
+
+/** Class B */
+export class ClassB {
+  /** property b */
+  prop: PrivateInterface;
+}
+
+# private.ts
+export interface PrivateInterface {
+  value: string;
+}
+
+# diagnostics
+error[private-type-ref]: public type 'ClassA.prototype.prop' references private type 'PrivateInterface'
+ --> /mod.ts:6:3
+  | 
+6 |   prop: PrivateInterface;
+  |   ^
+  = hint: make the referenced type public or remove the reference
+  | 
+1 | export interface PrivateInterface {
+  | - this is the referenced type
+  | 
+
+  info: to ensure documentation is complete all types that are exposed in the public API must be public
+
+
+error[private-type-ref]: public type 'ClassB.prototype.prop' references private type 'PrivateInterface'
+  --> /mod.ts:12:3
+   | 
+12 |   prop: PrivateInterface;
+   |   ^
+   = hint: make the referenced type public or remove the reference
+   | 
+ 1 | export interface PrivateInterface {
+   | - this is the referenced type
+   | 
+
+  info: to ensure documentation is complete all types that are exposed in the public API must be public
+
+# output.txt
+Defined in file:///mod.ts:3:1
+
+class ClassA
+  Class A
+
+  prop: PrivateInterface
+    property a
+
+Defined in file:///mod.ts:9:1
+
+class ClassB
+  Class B
+
+  prop: PrivateInterface
+    property b
+
+
+# output.json
+{
+  "imports": [
+    {
+      "importedName": "PrivateInterface",
+      "originalName": "PrivateInterface",
+      "src": "file:///private.ts"
+    }
+  ],
+  "symbols": [
+    {
+      "name": "ClassA",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 3,
+            "col": 0,
+            "byteIndex": 65
+          },
+          "declarationKind": "export",
+          "jsDoc": {
+            "doc": "Class A"
+          },
+          "kind": "class",
+          "def": {
+            "properties": [
+              {
+                "jsDoc": {
+                  "doc": "property a"
+                },
+                "tsType": {
+                  "repr": "PrivateInterface",
+                  "kind": "typeRef",
+                  "value": {
+                    "typeName": "PrivateInterface",
+                    "resolution": {
+                      "kind": "import",
+                      "specifier": "./private.ts",
+                      "name": "PrivateInterface"
+                    }
+                  }
+                },
+                "name": "prop",
+                "location": {
+                  "filename": "file:///mod.ts",
+                  "line": 5,
+                  "col": 2,
+                  "byteIndex": 109
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "ClassB",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 9,
+            "col": 0,
+            "byteIndex": 151
+          },
+          "declarationKind": "export",
+          "jsDoc": {
+            "doc": "Class B"
+          },
+          "kind": "class",
+          "def": {
+            "properties": [
+              {
+                "jsDoc": {
+                  "doc": "property b"
+                },
+                "tsType": {
+                  "repr": "PrivateInterface",
+                  "kind": "typeRef",
+                  "value": {
+                    "typeName": "PrivateInterface",
+                    "resolution": {
+                      "kind": "import",
+                      "specifier": "./private.ts",
+                      "name": "PrivateInterface"
+                    }
+                  }
+                },
+                "name": "prop",
+                "location": {
+                  "filename": "file:///mod.ts",
+                  "line": 11,
+                  "col": 2,
+                  "byteIndex": 195
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -12,7 +12,7 @@ export enum Hello {
     Buzz = "buzz",
 }
 # output.txt
-Defined in file:///mod.ts:4:1
+Defined in file:///mod.ts:3:1
 
 enum Hello
   Some enum for good measure
@@ -23,61 +23,66 @@ enum Hello
 
 
 # output.json
-[
-  {
-    "name": "Hello",
-    "isDefault": false,
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 4,
-      "col": 0,
-      "byteIndex": 38
-    },
-    "declarationKind": "export",
-    "jsDoc": {
-      "doc": "Some enum for good measure"
-    },
-    "kind": "enum",
-    "enumDef": {
-      "members": [
+{
+  "symbols": [
+    {
+      "name": "Hello",
+      "declarations": [
         {
-          "name": "World",
-          "init": {
-            "repr": "world",
-            "kind": "literal",
-            "literal": {
-              "kind": "string",
-              "string": "world"
-            }
-          },
           "location": {
             "filename": "file:///mod.ts",
-            "line": 5,
-            "col": 4,
-            "byteIndex": 62
-          }
-        },
-        {
-          "name": "Fizz",
-          "init": {
-            "repr": "fizz",
-            "kind": "literal",
-            "literal": {
-              "kind": "string",
-              "string": "fizz"
-            }
+            "line": 3,
+            "col": 0,
+            "byteIndex": 38
           },
+          "declarationKind": "export",
           "jsDoc": {
-            "doc": "There is a JsDoc"
+            "doc": "Some enum for good measure"
           },
-          "location": {
-            "filename": "file:///mod.ts",
-            "line": 7,
-            "col": 4,
-            "byteIndex": 111
+          "kind": "enum",
+          "def": {
+            "members": [
+              {
+                "name": "World",
+                "init": {
+                  "repr": "world",
+                  "kind": "literal",
+                  "value": {
+                    "kind": "string",
+                    "string": "world"
+                  }
+                },
+                "location": {
+                  "filename": "file:///mod.ts",
+                  "line": 4,
+                  "col": 4,
+                  "byteIndex": 62
+                }
+              },
+              {
+                "name": "Fizz",
+                "init": {
+                  "repr": "fizz",
+                  "kind": "literal",
+                  "value": {
+                    "kind": "string",
+                    "string": "fizz"
+                  }
+                },
+                "jsDoc": {
+                  "doc": "There is a JsDoc"
+                },
+                "location": {
+                  "filename": "file:///mod.ts",
+                  "line": 6,
+                  "col": 4,
+                  "byteIndex": 111
+                }
+              }
+            ]
           }
         }
       ]
     }
-  }
-]
+  ]
+}

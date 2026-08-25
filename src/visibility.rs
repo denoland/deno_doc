@@ -6,13 +6,16 @@ use crate::util::symbol::get_module_info;
 use crate::util::symbol::symbol_has_ignorable_js_doc_tag;
 
 use deno_ast::SourceRange;
+use deno_ast::swc::ast::TsType;
+use deno_graph::ModuleGraph;
 use deno_graph::symbols::DefinitionPathNode;
 use deno_graph::symbols::DefinitionPathNodeResolved;
+use deno_graph::symbols::ExportDeclRef;
 use deno_graph::symbols::ResolveDepsMode;
 use deno_graph::symbols::ResolvedSymbolDepEntry;
 use deno_graph::symbols::SymbolDecl;
+use deno_graph::symbols::SymbolNodeRef;
 use deno_graph::symbols::UniqueSymbolId;
-use deno_graph::ModuleGraph;
 use indexmap::IndexMap;
 use indexmap::IndexSet;
 
@@ -26,6 +29,11 @@ pub struct SymbolDeclDeps {
   pub deps: IndexSet<UniqueSymbolId>,
   /// If the path to this declaration had an ignorable js doc tag.
   pub had_ignorable_tag: bool,
+  /// If this declaration is a type alias that is just another name for the
+  /// referenced type (e.g. `export type A = B`). In that case the referenced
+  /// type is effectively re-exported through the alias, so it should not be
+  /// reported as a private type referenced from the public API.
+  pub is_alias_reexport: bool,
 }
 
 #[derive(Default, Debug)]
@@ -46,6 +54,7 @@ impl SymbolDeps {
     symbol_decl: &SymbolDecl,
     dep_id: UniqueSymbolId,
     had_ignorable_tag: bool,
+    is_alias_reexport: bool,
   ) {
     self
       .0
@@ -56,6 +65,7 @@ impl SymbolDeps {
         decl_range: symbol_decl.range,
         deps: IndexSet::from([dep_id]),
         had_ignorable_tag,
+        is_alias_reexport,
       });
   }
 }
@@ -115,6 +125,7 @@ impl SymbolVisibility {
             }),
         );
       for (decl_symbol, decl, dep) in decl_deps {
+        let decl_is_alias_reexport = decl_is_pure_type_alias(decl);
         let mut path_has_ignorable_tag =
           symbol_has_ignorable_js_doc_tag(module_info, decl_symbol);
         let mut dep_symbol_ids = Vec::new();
@@ -158,20 +169,23 @@ impl SymbolVisibility {
         }
 
         for dep_symbol_id in dep_symbol_ids {
-          if !root_exported_ids.contains_key(&dep_symbol_id)
-            && non_exported_public_ids.insert(dep_symbol_id)
-          {
+          if !root_exported_ids.contains_key(&dep_symbol_id) {
+            // always record this as a dependency of the current symbol
             if let Some(dep_ids) = root_exported_ids.get_mut(&original_id) {
               dep_ids.add(
                 decl_symbol.unique_id(),
                 decl,
                 dep_symbol_id,
                 path_has_ignorable_tag,
+                decl_is_alias_reexport,
               );
             }
 
-            // examine the private types of this private type
-            pending_symbol_ids.push(dep_symbol_id);
+            // only analyze this private type's dependencies once
+            if non_exported_public_ids.insert(dep_symbol_id) {
+              // examine the private types of this private type
+              pending_symbol_ids.push(dep_symbol_id);
+            }
           }
         }
       }
@@ -195,6 +209,23 @@ impl SymbolVisibility {
   }
 }
 
+/// Whether a declaration is a type alias that merely gives another name to a
+/// single referenced type, e.g. `type A = B`. Such an alias re-exposes the
+/// referenced type as part of the public API, so a reference to it should not
+/// be treated as referencing a private type.
+fn decl_is_pure_type_alias(decl: &SymbolDecl) -> bool {
+  let type_alias = match decl.maybe_node() {
+    Some(SymbolNodeRef::TsTypeAlias(n)) => Some(n),
+    Some(SymbolNodeRef::ExportDecl(_, ExportDeclRef::TsTypeAlias(n))) => {
+      Some(n)
+    }
+    _ => None,
+  };
+  type_alias.is_some_and(
+    |n| matches!(&*n.type_ann, TsType::TsTypeRef(r) if r.type_params.is_none()),
+  )
+}
+
 fn analyze_root_exported_ids(
   graph: &ModuleGraph,
   root_symbol: &deno_graph::symbols::RootSymbol<'_>,
@@ -206,7 +237,10 @@ fn analyze_root_exported_ids(
   {
     let mut pending_symbols = Vec::new();
     for root in &graph.roots {
-      let module = resolve_deno_graph_module(graph, root)?;
+      let Ok(module) = resolve_deno_graph_module(graph, root) else {
+        // leave invalid roots up to the caller
+        continue;
+      };
       let module_info = get_module_info(root_symbol, module.specifier())?;
       let exports = module_info.exports(root_symbol);
       for (_name, export) in &exports.resolved {

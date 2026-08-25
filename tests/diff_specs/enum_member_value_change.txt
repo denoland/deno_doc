@@ -1,0 +1,55 @@
+# old/mod.ts
+export enum Status {
+  Active = 1,
+}
+
+# new/mod.ts
+export enum Status {
+  Active = 0,
+}
+
+# output.json
+{
+  "modifiedModules": {
+    "file:///mod.ts": {
+      "modified": [
+        {
+          "name": "Status",
+          "declarations": {
+            "modified": [
+              {
+                "kind": "enum",
+                "defChanges": {
+                  "type": "enum",
+                  "modifiedMembers": [
+                    {
+                      "name": "Active",
+                      "initChange": {
+                        "old": {
+                          "repr": "1",
+                          "kind": "literal",
+                          "value": {
+                            "kind": "number",
+                            "number": 1.0
+                          }
+                        },
+                        "new": {
+                          "repr": "0",
+                          "kind": "literal",
+                          "value": {
+                            "kind": "number",
+                            "number": 0.0
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  }
+}

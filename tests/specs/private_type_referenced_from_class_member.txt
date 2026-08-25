@@ -22,7 +22,7 @@ error[private-type-ref]: public type 'Other.prototype.prop' references private t
   info: to ensure documentation is complete all types that are exposed in the public API must be public
 
 # output.txt
-Defined in file:///mod.ts:2:1
+Defined in file:///mod.ts:1:1
 
 class Other
   Comment
@@ -30,87 +30,74 @@ class Other
   prop: YesDiagnostic
     Comment
 
-Defined in file:///mod.ts:7:1
+Defined in file:///mod.ts:6:1
 
 private class YesDiagnostic
 
 
 
 # output.json
-[
-  {
-    "name": "Other",
-    "isDefault": false,
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 2,
-      "col": 0,
-      "byteIndex": 15
-    },
-    "declarationKind": "export",
-    "jsDoc": {
-      "doc": "Comment"
-    },
-    "kind": "class",
-    "classDef": {
-      "isAbstract": false,
-      "constructors": [],
-      "properties": [
+{
+  "symbols": [
+    {
+      "name": "Other",
+      "declarations": [
         {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 1,
+            "col": 0,
+            "byteIndex": 15
+          },
+          "declarationKind": "export",
           "jsDoc": {
             "doc": "Comment"
           },
-          "tsType": {
-            "repr": "YesDiagnostic",
-            "kind": "typeRef",
-            "typeRef": {
-              "typeParams": null,
-              "typeName": "YesDiagnostic"
-            }
-          },
-          "readonly": false,
-          "accessibility": null,
-          "optional": false,
-          "isAbstract": false,
-          "isStatic": false,
-          "name": "prop",
-          "location": {
-            "filename": "file:///mod.ts",
-            "line": 4,
-            "col": 2,
-            "byteIndex": 55
+          "kind": "class",
+          "def": {
+            "properties": [
+              {
+                "jsDoc": {
+                  "doc": "Comment"
+                },
+                "tsType": {
+                  "repr": "YesDiagnostic",
+                  "kind": "typeRef",
+                  "value": {
+                    "typeName": "YesDiagnostic",
+                    "resolution": {
+                      "kind": "local"
+                    }
+                  }
+                },
+                "name": "prop",
+                "location": {
+                  "filename": "file:///mod.ts",
+                  "line": 3,
+                  "col": 2,
+                  "byteIndex": 55
+                }
+              }
+            ]
           }
         }
-      ],
-      "indexSignatures": [],
-      "methods": [],
-      "extends": null,
-      "implements": [],
-      "typeParams": [],
-      "superTypeParams": []
-    }
-  },
-  {
-    "name": "YesDiagnostic",
-    "isDefault": false,
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 7,
-      "col": 0,
-      "byteIndex": 78
+      ]
     },
-    "declarationKind": "private",
-    "kind": "class",
-    "classDef": {
-      "isAbstract": false,
-      "constructors": [],
-      "properties": [],
-      "indexSignatures": [],
-      "methods": [],
-      "extends": null,
-      "implements": [],
-      "typeParams": [],
-      "superTypeParams": []
+    {
+      "name": "YesDiagnostic",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 6,
+            "col": 0,
+            "byteIndex": 78
+          },
+          "declarationKind": "private",
+          "kind": "class",
+          "def": {}
+        }
+      ]
     }
-  }
-]
+  ]
+}

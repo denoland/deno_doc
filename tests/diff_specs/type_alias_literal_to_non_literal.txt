@@ -1,0 +1,73 @@
+# old/mod.ts
+export type Config = {
+  debug: boolean;
+  verbose: boolean;
+};
+
+# new/mod.ts
+export type Config = string;
+
+# output.json
+{
+  "modifiedModules": {
+    "file:///mod.ts": {
+      "modified": [
+        {
+          "name": "Config",
+          "declarations": {
+            "modified": [
+              {
+                "kind": "typeAlias",
+                "defChanges": {
+                  "type": "typeAlias",
+                  "tsTypeChange": {
+                    "old": {
+                      "kind": "typeLiteral",
+                      "value": {
+                        "properties": [
+                          {
+                            "name": "debug",
+                            "location": {
+                              "filename": "file:///mod.ts",
+                              "line": 1,
+                              "col": 2,
+                              "byteIndex": 25
+                            },
+                            "tsType": {
+                              "repr": "boolean",
+                              "kind": "keyword",
+                              "value": "boolean"
+                            }
+                          },
+                          {
+                            "name": "verbose",
+                            "location": {
+                              "filename": "file:///mod.ts",
+                              "line": 2,
+                              "col": 2,
+                              "byteIndex": 43
+                            },
+                            "tsType": {
+                              "repr": "boolean",
+                              "kind": "keyword",
+                              "value": "boolean"
+                            }
+                          }
+                        ]
+                      }
+                    },
+                    "new": {
+                      "repr": "string",
+                      "kind": "keyword",
+                      "value": "string"
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  }
+}

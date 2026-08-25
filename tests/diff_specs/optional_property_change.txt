@@ -1,0 +1,43 @@
+# old/mod.ts
+export interface Foo {
+  name: string;
+}
+
+# new/mod.ts
+export interface Foo {
+  name?: string;
+}
+
+# output.json
+{
+  "modifiedModules": {
+    "file:///mod.ts": {
+      "modified": [
+        {
+          "name": "Foo",
+          "declarations": {
+            "modified": [
+              {
+                "kind": "interface",
+                "defChanges": {
+                  "type": "interface",
+                  "propertyChanges": {
+                    "modified": [
+                      {
+                        "name": "name",
+                        "optionalChange": {
+                          "old": false,
+                          "new": true
+                        }
+                      }
+                    ]
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  }
+}

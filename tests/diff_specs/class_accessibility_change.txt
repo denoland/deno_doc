@@ -1,0 +1,44 @@
+# old/mod.ts
+export class Foo {
+  public bar() {}
+}
+
+# new/mod.ts
+export class Foo {
+  protected bar() {}
+}
+
+# output.json
+{
+  "modifiedModules": {
+    "file:///mod.ts": {
+      "modified": [
+        {
+          "name": "Foo",
+          "declarations": {
+            "modified": [
+              {
+                "kind": "class",
+                "defChanges": {
+                  "type": "class",
+                  "methodChanges": {
+                    "modified": [
+                      {
+                        "name": "bar",
+                        "kind": "method",
+                        "accessibilityChange": {
+                          "old": "public",
+                          "new": "protected"
+                        }
+                      }
+                    ]
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,73 @@
+# old/mod.ts
+export const config: string = "";
+
+# new/mod.ts
+export const config: {
+  debug: boolean;
+  verbose: boolean;
+} = {} as any;
+
+# output.json
+{
+  "modifiedModules": {
+    "file:///mod.ts": {
+      "modified": [
+        {
+          "name": "config",
+          "declarations": {
+            "modified": [
+              {
+                "kind": "variable",
+                "defChanges": {
+                  "type": "variable",
+                  "tsTypeChange": {
+                    "old": {
+                      "repr": "string",
+                      "kind": "keyword",
+                      "value": "string"
+                    },
+                    "new": {
+                      "kind": "typeLiteral",
+                      "value": {
+                        "properties": [
+                          {
+                            "name": "debug",
+                            "location": {
+                              "filename": "file:///mod.ts",
+                              "line": 1,
+                              "col": 2,
+                              "byteIndex": 25
+                            },
+                            "tsType": {
+                              "repr": "boolean",
+                              "kind": "keyword",
+                              "value": "boolean"
+                            }
+                          },
+                          {
+                            "name": "verbose",
+                            "location": {
+                              "filename": "file:///mod.ts",
+                              "line": 2,
+                              "col": 2,
+                              "byteIndex": 43
+                            },
+                            "tsType": {
+                              "repr": "boolean",
+                              "kind": "keyword",
+                              "value": "boolean"
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  }
+}

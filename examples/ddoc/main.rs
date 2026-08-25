@@ -1,32 +1,105 @@
 // Copyright 2018-2024 the Deno authors. All rights reserved. MIT license.
 
-use clap::App;
-use clap::Arg;
+use clap::Parser;
+use clap::Subcommand;
+use deno_doc::DocParser;
+use deno_doc::DocParserOptions;
+use deno_doc::DocPrinter;
+use deno_doc::ParseOutput;
+use deno_doc::diff;
 use deno_doc::find_nodes_by_name_recursively;
 use deno_doc::html::GenerateCtx;
 use deno_doc::html::HrefResolver;
 use deno_doc::html::UrlResolveKind;
 use deno_doc::html::UsageComposer;
 use deno_doc::html::UsageComposerEntry;
-use deno_doc::node::DocNodeDef;
-use deno_doc::DocParser;
-use deno_doc::DocParserOptions;
-use deno_doc::DocPrinter;
-use deno_graph::source::LoadFuture;
-use deno_graph::source::LoadResponse;
-use deno_graph::source::Loader;
 use deno_graph::BuildOptions;
-use deno_graph::CapturingModuleAnalyzer;
 use deno_graph::GraphKind;
 use deno_graph::ModuleGraph;
 use deno_graph::ModuleSpecifier;
-use futures::executor::block_on;
+use deno_graph::ast::CapturingModuleAnalyzer;
+use deno_graph::source::LoadFuture;
+use deno_graph::source::LoadResponse;
+use deno_graph::source::Loader;
 use futures::future;
 use indexmap::IndexMap;
 use std::env::current_dir;
-use std::rc::Rc;
+use std::path::PathBuf;
+use std::sync::Arc;
 
-struct SourceFileLoader {}
+#[derive(Parser)]
+#[command(name = "ddoc")]
+#[command(about = "Generate documentation for Deno/TypeScript modules")]
+#[command(version)]
+struct Cli {
+  #[command(subcommand)]
+  command: Commands,
+}
+
+#[derive(Subcommand)]
+enum Commands {
+  /// Generate documentation for source files
+  Doc {
+    /// Source files to document
+    #[arg(required = true)]
+    files: Vec<PathBuf>,
+
+    /// Output format: json
+    #[arg(long, conflicts_with = "html")]
+    json: bool,
+
+    /// Treat input files as JSON ParseOutput instead of source files
+    #[arg(long)]
+    json_input: bool,
+
+    /// Generate HTML documentation
+    #[arg(long, requires = "output")]
+    html: bool,
+
+    /// Output directory for HTML documentation
+    #[arg(short, long)]
+    output: Option<PathBuf>,
+
+    /// Package name for HTML documentation
+    #[arg(long)]
+    name: Option<String>,
+
+    /// Main entrypoint for HTML documentation
+    #[arg(long)]
+    main_entrypoint: Option<PathBuf>,
+
+    /// Filter documentation by name
+    #[arg(short, long, conflicts_with = "html")]
+    filter: Option<String>,
+
+    /// Include private items
+    #[arg(long)]
+    private: bool,
+  },
+
+  /// Compare documentation between two versions
+  ///
+  /// Usage: ddoc diff <OLD_FILES>... -- <NEW_FILES>...
+  Diff {
+    /// Old source files (before --)
+    #[arg(required = true)]
+    old_files: Vec<PathBuf>,
+
+    /// New source files (after --)
+    #[arg(last = true, required = true)]
+    new_files: Vec<PathBuf>,
+
+    /// Include private items
+    #[arg(long)]
+    private: bool,
+
+    /// Treat input files as JSON ParseOutput instead of source files
+    #[arg(long)]
+    json_input: bool,
+  },
+}
+
+struct SourceFileLoader;
 
 impl Loader for SourceFileLoader {
   fn load(
@@ -40,6 +113,7 @@ impl Loader for SourceFileLoader {
         .map(|content| {
           Some(LoadResponse::Module {
             specifier: specifier.clone(),
+            mtime: None,
             maybe_headers: None,
             content: content.into(),
           })
@@ -54,69 +128,27 @@ impl Loader for SourceFileLoader {
   }
 }
 
-async fn run() -> anyhow::Result<()> {
-  let matches = App::new("ddoc")
-    .arg(
-      Arg::with_name("html")
-        .long("html")
-        .requires_all(&["output"]),
-    )
-    .arg(Arg::with_name("name").long("name").takes_value(true))
-    .arg(Arg::with_name("json").long("json").conflicts_with("html"))
-    .arg(
-      Arg::with_name("main_entrypoint")
-        .long("main_entrypoint")
-        .takes_value(true),
-    )
-    .arg(Arg::with_name("output").long("output").takes_value(true))
-    .arg(Arg::with_name("source_files").required(true).multiple(true))
-    .arg(
-      Arg::with_name("filter")
-        .long("filter")
-        .conflicts_with("html"),
-    )
-    .arg(Arg::with_name("private").long("private"))
-    .get_matches();
-  let source_files = matches.values_of("source_files").unwrap();
-  let html = matches.is_present("html");
-  let json = matches.is_present("json");
-  let name = if html {
-    matches.value_of("name").map(|name| name.to_string())
+fn path_to_specifier(path: &PathBuf) -> ModuleSpecifier {
+  let cwd = current_dir().unwrap();
+  let absolute = if path.is_absolute() {
+    path.clone()
   } else {
-    None
+    cwd.join(path)
   };
-  let main_entrypoint = if html {
-    matches.value_of("main_entrypoint").map(|main_entrypoint| {
-      ModuleSpecifier::from_directory_path(current_dir().unwrap())
-        .unwrap()
-        .join(main_entrypoint)
-        .unwrap()
-    })
-  } else {
-    None
-  };
-  let output_dir = if html {
-    matches.value_of("output").unwrap().to_string()
-  } else {
-    "".to_string()
-  };
-  let maybe_filter = matches.value_of("filter");
-  let private = matches.is_present("private");
-  let source_files: Vec<ModuleSpecifier> = source_files
-    .into_iter()
-    .map(|source_file| {
-      ModuleSpecifier::from_directory_path(current_dir().unwrap())
-        .unwrap()
-        .join(source_file)
-        .unwrap()
-    })
-    .collect();
-  let loader = SourceFileLoader {};
+  ModuleSpecifier::from_file_path(absolute).unwrap()
+}
+
+async fn parse_sources(
+  source_files: Vec<ModuleSpecifier>,
+  private: bool,
+) -> anyhow::Result<ParseOutput> {
+  let loader = SourceFileLoader;
   let analyzer = CapturingModuleAnalyzer::default();
   let mut graph = ModuleGraph::new(GraphKind::TypesOnly);
   graph
     .build(
       source_files.clone(),
+      Vec::new(),
       &loader,
       BuildOptions {
         module_analyzer: &analyzer,
@@ -125,7 +157,7 @@ async fn run() -> anyhow::Result<()> {
     )
     .await;
 
-  let mut source_files = source_files.clone();
+  let mut source_files = source_files;
   source_files.sort();
 
   let parser = DocParser::new(
@@ -137,33 +169,132 @@ async fn run() -> anyhow::Result<()> {
       private,
     },
   )?;
-  let doc_nodes_by_url = parser.parse()?;
 
-  if html {
-    generate_docs_directory(
+  Ok(parser.parse()?)
+}
+
+async fn run() -> anyhow::Result<()> {
+  let cli = Cli::parse();
+
+  match cli.command {
+    Commands::Doc {
+      files,
+      json,
+      json_input,
+      html,
+      output,
       name,
-      output_dir,
       main_entrypoint,
-      doc_nodes_by_url,
-    )?;
-    return Ok(());
-  }
+      filter,
+      private,
+    } => {
+      let mut doc_nodes_by_url = if json_input {
+        assert_eq!(files.len(), 1);
+        serde_json::from_reader(std::fs::File::open(&files[0])?)?
+      } else {
+        let source_files = files.iter().map(path_to_specifier).collect();
+        parse_sources(source_files, private).await?
+      };
 
-  let mut doc_nodes =
-    parser.parse()?.into_values().flatten().collect::<Vec<_>>();
+      if html {
+        let output_dir = output.unwrap();
+        let main_entrypoint = main_entrypoint.map(|p| path_to_specifier(&p));
+        generate_docs_directory(
+          name,
+          output_dir,
+          main_entrypoint,
+          doc_nodes_by_url,
+        )?;
+        return Ok(());
+      }
 
-  doc_nodes
-    .retain(|doc_node| !matches!(doc_node.def, DocNodeDef::Import { .. }));
-  if let Some(filter) = maybe_filter {
-    doc_nodes = find_nodes_by_name_recursively(doc_nodes, filter);
-  }
+      for (_, doc) in &mut doc_nodes_by_url {
+        if let Some(filter) = &filter {
+          let symbols = std::mem::take(&mut doc.symbols);
+          doc.symbols = find_nodes_by_name_recursively(symbols, filter)
+            .into_iter()
+            .map(std::sync::Arc::new)
+            .collect();
+        }
+      }
 
-  if json {
-    serde_json::to_writer_pretty(std::io::stdout(), &doc_nodes)?;
-    println!();
-  } else {
-    let result = DocPrinter::new(&doc_nodes, true, false);
-    println!("{}", result);
+      if json {
+        serde_json::to_writer_pretty(std::io::stdout(), &doc_nodes_by_url)?;
+        println!();
+      } else {
+        let result = DocPrinter::new(&doc_nodes_by_url, true, false);
+        println!("{result}");
+      }
+    }
+
+    Commands::Diff {
+      old_files,
+      new_files,
+      private,
+      json_input,
+    } => {
+      let (old, new) = if json_input {
+        assert_eq!(old_files.len(), 1);
+        assert_eq!(new_files.len(), 1);
+
+        let old_docs: ParseOutput =
+          serde_json::from_reader(std::fs::File::open(&old_files[0])?)?;
+        let new_docs: ParseOutput =
+          serde_json::from_reader(std::fs::File::open(&new_files[0])?)?;
+
+        (old_docs, new_docs)
+      } else {
+        let old_specifiers =
+          old_files.iter().map(path_to_specifier).collect::<Vec<_>>();
+        let new_specifiers =
+          new_files.iter().map(path_to_specifier).collect::<Vec<_>>();
+
+        let old_docs = parse_sources(old_specifiers.clone(), private).await?;
+        let new_docs = parse_sources(new_specifiers.clone(), private).await?;
+
+        // Match modules by position: old[0] -> new[0], old[1] -> new[1], etc.
+        // This allows comparing renamed modules.
+        let old_by_original = old_specifiers
+          .iter()
+          .zip(old_docs.into_iter())
+          .map(|(orig, (_, nodes))| (orig.clone(), nodes))
+          .collect::<IndexMap<_, _>>();
+
+        let new_by_original = new_specifiers
+          .iter()
+          .zip(new_docs.into_iter())
+          .map(|(orig, (_, nodes))| (orig.clone(), nodes))
+          .collect::<IndexMap<_, _>>();
+
+        // Create normalized maps using new specifiers as canonical keys
+        let mut old_normalized = IndexMap::new();
+        let mut new_normalized = IndexMap::new();
+
+        for (i, new_spec) in new_specifiers.iter().enumerate() {
+          if let Some(old_spec) = old_specifiers.get(i)
+            && let Some(old_nodes) = old_by_original.get(old_spec)
+          {
+            old_normalized.insert(new_spec.clone(), old_nodes.clone());
+          }
+          if let Some(new_nodes) = new_by_original.get(new_spec) {
+            new_normalized.insert(new_spec.clone(), new_nodes.clone());
+          }
+        }
+
+        // Handle extra old modules (removed)
+        for old_spec in old_specifiers.iter().skip(new_specifiers.len()) {
+          if let Some(old_nodes) = old_by_original.get(old_spec) {
+            old_normalized.insert(old_spec.clone(), old_nodes.clone());
+          }
+        }
+
+        (old_normalized, new_normalized)
+      };
+
+      let doc_diff = diff::DocDiff::diff(&old, &new);
+      serde_json::to_writer_pretty(std::io::stdout(), &doc_diff)?;
+      println!();
+    }
   }
 
   Ok(())
@@ -177,7 +308,11 @@ fn main() {
     }
   };
 
-  block_on(future);
+  tokio::runtime::Builder::new_current_thread()
+    .enable_all()
+    .build()
+    .unwrap()
+    .block_on(future);
 }
 
 struct EmptyResolver;
@@ -243,9 +378,9 @@ impl UsageComposer for EmptyResolver {
 
 fn generate_docs_directory(
   package_name: Option<String>,
-  output_dir: String,
+  output_dir: PathBuf,
   main_entrypoint: Option<ModuleSpecifier>,
-  doc_nodes_by_url: IndexMap<ModuleSpecifier, Vec<deno_doc::DocNode>>,
+  doc_nodes_by_url: IndexMap<ModuleSpecifier, deno_doc::Document>,
 ) -> Result<(), anyhow::Error> {
   let cwd = current_dir().unwrap();
   let output_dir_resolved = cwd.join(output_dir);
@@ -258,8 +393,8 @@ fn generate_docs_directory(
   let options = deno_doc::html::GenerateOptions {
     package_name,
     main_entrypoint,
-    href_resolver: Rc::new(EmptyResolver),
-    usage_composer: Rc::new(EmptyResolver),
+    href_resolver: Arc::new(EmptyResolver),
+    usage_composer: Some(Arc::new(EmptyResolver)),
     rewrite_map: Some(index_map),
     category_docs: None,
     disable_search: false,
@@ -268,15 +403,18 @@ fn generate_docs_directory(
     markdown_renderer: deno_doc::html::comrak::create_renderer(
       None, None, None,
     ),
-    markdown_stripper: Rc::new(deno_doc::html::comrak::strip),
-    head_inject: Some(Rc::new(|root| {
+    markdown_stripper: Arc::new(deno_doc::html::comrak::strip),
+    head_inject: Some(Arc::new(|root| {
       format!(
         r#"<link rel="stylesheet" href="{root}{}">"#,
         deno_doc::html::comrak::COMRAK_STYLESHEET_FILENAME
       )
     })),
+    id_prefix: None,
+    diff_only: false,
+    symbol_listing_limit: None,
   };
-  let ctx = GenerateCtx::create_basic(options, doc_nodes_by_url)?;
+  let ctx = GenerateCtx::create_basic(options, doc_nodes_by_url, None)?;
   let html = deno_doc::html::generate(ctx)?;
 
   let path = &output_dir_resolved;

@@ -1,7 +1,11 @@
 // Copyright 2018-2024 the Deno authors. All rights reserved. MIT license.
 
-import { instantiate } from "./deno_doc_wasm.generated.js";
-import type { DocNode, Location } from "./types.d.ts";
+import {
+  doc as _doc,
+  docnodes_v1_to_v2 as _docnodesV1ToV2,
+  generate_html as _generateHtml,
+} from "./deno_doc_wasm.js";
+import type { Document, Location } from "./types.d.ts";
 import type { Page } from "./html_types.d.ts";
 import { createCache } from "@deno/cache-dir";
 import type { CacheSetting, LoadResponse } from "@deno/graph";
@@ -64,29 +68,30 @@ export interface DocOptions {
 }
 
 /**
- * Generate asynchronously an array of documentation nodes for the supplied
- * module.
+ * Generate asynchronously a record of documentation nodes for the supplied
+ * modules.
  *
  * ### Example
  *
  * ```ts
- * import { doc } from "https://deno.land/x/deno_doc/mod.ts";
+ * import { doc } from "@deno/doc";
  *
- * const entries = await doc(["https://deno.land/std/fmt/colors.ts"]);
+ * const records = await doc(["https://deno.land/std/fmt/colors.ts"]);
+ * const colorsDoc = records["https://deno.land/std/fmt/colors.ts"];
  *
- * for (const entry of entries) {
- *   console.log(`name: ${entry.name} kind: ${entry.kind}`);
+ * for (const node of colorsDoc) {
+ *   console.log(`name: ${node.name} kind: ${node.kind}`);
  * }
  * ```
  *
  * @param specifiers List of the URL strings of the specifiers to document
  * @param options A set of options for generating the documentation
- * @returns A promise that resolves with an array of documentation nodes
+ * @returns A promise that resolves with a record of documentation nodes
  */
-export async function doc(
+export function doc(
   specifiers: string[],
   options: DocOptions = {},
-): Promise<Record<string, Array<DocNode>>> {
+): Promise<Record<string, Document>> {
   const {
     load = createCache().load,
     includeAll = false,
@@ -95,36 +100,45 @@ export async function doc(
     printImportMapDiagnostics = true,
   } = options;
 
-  const wasm = await instantiate();
-  return wasm.doc(
+  return _doc(
     specifiers,
     includeAll,
-    (specifier: string, options: {
+    async (specifier: string, options: {
       isDynamic: boolean;
       cacheSetting: CacheSetting;
       checksum: string | undefined;
     }) => {
-      return load(
+      const result = await load(
         specifier,
         options.isDynamic,
         options.cacheSetting,
         options.checksum,
-      ).then((result) => {
-        if (result?.kind === "module") {
-          if (typeof result.content === "string") {
-            result.content = encoder.encode(result.content);
-          }
-          // need to convert to an array for serde_wasm_bindgen to work
-          // deno-lint-ignore no-explicit-any
-          (result as any).content = Array.from(result.content);
+      );
+      if (result?.kind === "module") {
+        if (typeof result.content === "string") {
+          result.content = encoder.encode(result.content);
         }
-        return result;
-      });
+        // need to convert to an array for serde_wasm_bindgen to work
+        // deno-lint-ignore no-explicit-any
+        (result as any).content = Array.from(result.content);
+      }
+      return result;
     },
     resolve,
     importMap,
     printImportMapDiagnostics,
   );
+}
+
+/**
+ * Convert a v1 doc nodes array (flat array of doc nodes) to the v2
+ * {@linkcode Document} format.
+ */
+export function docnodesV1ToV2(
+  // deno-lint-ignore no-explicit-any
+  v1Nodes: any[],
+): Promise<Document> {
+  return _docnodesV1ToV2(v1Nodes);
 }
 
 export interface ShortPath {
@@ -283,6 +297,8 @@ export interface GenerateOptions {
   ): string | undefined;
   /** Function to strip markdown. */
   markdownStripper(md: string): string;
+  /** Prefix for IDs of elements. */
+  idPrefix?: string;
 }
 
 const defaultUsageComposer: UsageComposer = {
@@ -300,20 +316,19 @@ const defaultUsageComposer: UsageComposer = {
 };
 
 /**
- * Generate HTML files for provided {@linkcode DocNode}s.
+ * Generate HTML files for provided {@linkcode Document}s.
  * @param docNodesByUrl DocNodes keyed by their absolute URL.
  * @param options Options for the generation.
  */
-export async function generateHtml(
-  docNodesByUrl: Record<string, Array<DocNode>>,
+export function generateHtml(
+  docNodesByUrl: Record<string, Document>,
   options: GenerateOptions,
 ): Promise<Record<string, string>> {
   const {
     usageComposer = defaultUsageComposer,
   } = options;
 
-  const wasm = await instantiate();
-  return wasm.generate_html(
+  return _generateHtml(
     options.packageName,
     options.mainEntrypoint,
     usageComposer.singleMode,
@@ -331,6 +346,7 @@ export async function generateHtml(
     options.markdownRenderer,
     options.markdownStripper,
     options.headInject,
+    options.idPrefix,
     docNodesByUrl,
     false,
   );
@@ -341,16 +357,15 @@ export async function generateHtml(
  * @param docNodesByUrl DocNodes keyed by their absolute URL.
  * @param options Options for the generation.
  */
-export async function generateHtmlAsJSON(
-  docNodesByUrl: Record<string, Array<DocNode>>,
+export function generateHtmlAsJSON(
+  docNodesByUrl: Record<string, Document>,
   options: GenerateOptions,
 ): Promise<Record<string, Page>> {
   const {
     usageComposer = defaultUsageComposer,
   } = options;
 
-  const wasm = await instantiate();
-  return wasm.generate_html(
+  return _generateHtml(
     options.packageName,
     options.mainEntrypoint,
     usageComposer.singleMode,
@@ -368,6 +383,7 @@ export async function generateHtmlAsJSON(
     options.markdownRenderer,
     options.markdownStripper,
     options.headInject,
+    options.idPrefix,
     docNodesByUrl,
     true,
   );

@@ -1,5 +1,28 @@
 // Copyright 2018-2025 the Deno authors. All rights reserved. MIT license.
 
+export type DiffStatus =
+  | DiffStatusAdded
+  | DiffStatusRemoved
+  | DiffStatusModified
+  | DiffStatusRenamed;
+
+export interface DiffStatusAdded {
+  kind: "added";
+}
+
+export interface DiffStatusRemoved {
+  kind: "removed";
+}
+
+export interface DiffStatusModified {
+  kind: "modified";
+}
+
+export interface DiffStatusRenamed {
+  kind: "renamed";
+  old_name: string;
+}
+
 export interface HtmlHeadCtx {
   title: string;
   current_file: string;
@@ -26,10 +49,15 @@ export interface CategoriesPanelCategoryCtx {
   active: boolean;
 }
 
-export type Page = IndexCtx | AllSymbolsCtx | SymbolPageCtx | Redirect | Search;
+export type Page =
+  | IndexCtx
+  | AllSymbolsPageCtx
+  | SymbolPageCtx
+  | Redirect
+  | Search;
 
 export interface PageBase {
-  kind: "IndexCtx" | "AllSymbolsCtx" | "SymbolPageCtx";
+  kind: "IndexCtx" | "AllSymbolsPageCtx" | "SymbolPageCtx";
   html_head_ctx: HtmlHeadCtx;
   disable_search: boolean;
   categories_panel: CategoriesPanelCtx | null;
@@ -44,9 +72,20 @@ export interface IndexCtx extends PageBase {
   toc_ctx: ToCCtx;
 }
 
-export interface AllSymbolsCtx extends PageBase {
-  kind: "AllSymbolsCtx";
-  content: SymbolContentCtx;
+export interface AllSymbolsPageCtx extends PageBase {
+  kind: "AllSymbolsPageCtx";
+  content: AllSymbolsCtx;
+}
+
+export interface AllSymbolsCtx {
+  entrypoints: AllSymbolsItemCtx[];
+}
+
+export interface AllSymbolsItemCtx {
+  name: string;
+  href: string;
+  anchor: AnchorCtx;
+  module_doc: ModuleDocCtx;
 }
 
 export interface SymbolPageCtx extends PageBase {
@@ -107,14 +146,15 @@ export interface UsageCtx {
 }
 
 export interface BreadcrumbsCtx {
-  parts: BreadcrumbCtx[];
+  root: BreadcrumbCtx;
+  current_entrypoint: BreadcrumbCtx | null;
+  entrypoints: BreadcrumbCtx[];
+  symbol: BreadcrumbCtx[];
 }
 
 export interface BreadcrumbCtx {
   name: string;
   href: string;
-  is_symbol: boolean;
-  is_first_symbol: boolean;
 }
 
 export interface TopSymbolsCtx {
@@ -167,16 +207,18 @@ export interface AnchorCtx {
 export interface SymbolGroupCtx {
   name: string;
   symbols: SymbolCtx[];
+  diff_status?: DiffStatus;
 }
 
 export interface SymbolCtx {
   kind: DocNodeKindCtx;
   usage: UsagesCtx | null;
-  tags: Tag[];
+  tags: TagCtx[];
   subtitle: DocBlockSubtitleCtx | null;
   content: SymbolInnerCtx[];
   deprecated: string | null;
   source_href: string | null;
+  diff_status?: DiffStatus;
 }
 
 export type DocBlockSubtitleCtx =
@@ -187,9 +229,20 @@ export interface DocBlockSubtitleClassCtx {
   kind: "class";
   value: DocBlockSubtitleClassValueCtx;
 }
+export interface Change<T> {
+  old: T;
+  new: T;
+}
+
 export interface DocBlockSubtitleClassValueCtx {
   implements: string[] | null;
   extends: DocBlockClassSubtitleExtendsCtx | null;
+  is_abstract_change?: Change<boolean>;
+  extends_change?: Change<string | null>;
+  implements_added?: string[];
+  implements_removed?: string[];
+  super_type_params_added?: string[];
+  super_type_params_removed?: string[];
 }
 
 export interface DocBlockClassSubtitleExtendsCtx {
@@ -205,6 +258,8 @@ export interface DocBlockSubtitleInterfaceCtx {
 
 export interface DocBlockSubtitleInterfaceValueCtx {
   extends: string[];
+  extends_added?: string[];
+  extends_removed?: string[];
 }
 
 export type SymbolInnerCtx = SymbolInnerFunctionCtx | SymbolInnerOtherCtx;
@@ -224,7 +279,6 @@ export interface FunctionCtx {
 }
 
 export interface OverloadRenderCtx {
-  id: string;
   anchor: AnchorCtx;
   name: string;
   summary: string;
@@ -270,49 +324,77 @@ export interface SectionContentEmptyCtx {
 }
 
 export interface DocEntryCtx {
-  id: string;
+  name_prefix: string | null;
   name: string | null;
   name_href: string | null;
   content: string;
   anchor: AnchorCtx;
-  tags: Tag[];
+  tags: TagCtx[];
   js_doc: string | null;
   source_href: string | null;
+  examples?: ExampleCtx[];
+  /**
+   * Documentation for the entry's own parameters. Only populated for entries
+   * that have no symbol page of their own to carry a Parameters section —
+   * class constructors, construct signatures and call signatures.
+   */
+  params?: DocEntryCtx[];
+  /** Rendered `@returns` documentation, for the same entries as `params`. */
+  return_doc?: string;
+  diff_status?: DiffStatus;
+  old_content?: string;
 }
 
 export interface ExampleCtx {
   anchor: AnchorCtx;
-  id: string;
   title: string;
   markdown_title: string;
   markdown_body: string;
 }
 
 export interface IndexSignatureCtx {
-  id: string;
   anchor: AnchorCtx;
   readonly: boolean;
   params: string;
   ts_type: string;
   source_href: string | null;
+  diff_status?: DiffStatus;
+  old_readonly?: boolean;
+  old_params?: string;
+  old_ts_type?: string;
 }
 
 export interface NamespaceNodeCtx {
-  id: string;
   anchor: AnchorCtx;
-  tags: Tag[];
+  tags: TagCtx[];
   doc_node_kind_ctx: DocNodeKindCtx[];
   href: string;
   name: string;
+  ty: TypeSummaryCtx | null;
   docs: string | null;
   deprecated: boolean;
   subitems: NamespaceNodeSubItemCtx[];
+  diff_status?: DiffStatus;
 }
 
 export interface NamespaceNodeSubItemCtx {
   title: string;
+  docs: string | null;
+  ty: TypeSummaryCtx | null;
   href: string;
+  diff_status?: DiffStatus;
 }
+
+export interface TypeSummaryCtx {
+  ty: string;
+  info: string | null;
+}
+
+export type TagDiffKind = "added" | "removed";
+
+export type TagCtx = Tag & {
+  diff?: TagDiffKind;
+};
 
 export type Tag =
   | TagNew

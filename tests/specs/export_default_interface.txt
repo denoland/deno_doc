@@ -7,7 +7,7 @@ export default interface Reader {
     read?(buf: Uint8Array, something: unknown): Promise<number>
 }
 # output.txt
-Defined in file:///mod.ts:4:1
+Defined in file:///mod.ts:3:1
 
 interface default
   Interface js doc
@@ -17,85 +17,83 @@ interface default
 
 
 # output.json
-[
-  {
-    "name": "default",
-    "isDefault": true,
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 4,
-      "col": 0,
-      "byteIndex": 28
-    },
-    "declarationKind": "export",
-    "jsDoc": {
-      "doc": "Interface js doc"
-    },
-    "kind": "interface",
-    "interfaceDef": {
-      "defName": "Reader",
-      "extends": [],
-      "constructors": [],
-      "methods": [
+{
+  "symbols": [
+    {
+      "name": "default",
+      "isDefault": true,
+      "declarations": [
         {
-          "name": "read",
-          "jsDoc": {
-            "doc": "Read n bytes"
-          },
-          "kind": "method",
           "location": {
             "filename": "file:///mod.ts",
-            "line": 6,
-            "col": 4,
-            "byteIndex": 90
+            "line": 3,
+            "col": 0,
+            "byteIndex": 28
           },
-          "params": [
-            {
-              "kind": "identifier",
-              "name": "buf",
-              "optional": false,
-              "tsType": {
-                "repr": "Uint8Array",
-                "kind": "typeRef",
-                "typeRef": {
-                  "typeParams": null,
-                  "typeName": "Uint8Array"
+          "declarationKind": "export",
+          "jsDoc": {
+            "doc": "Interface js doc"
+          },
+          "kind": "interface",
+          "def": {
+            "defName": "Reader",
+            "methods": [
+              {
+                "name": "read",
+                "jsDoc": {
+                  "doc": "Read n bytes"
+                },
+                "kind": "method",
+                "location": {
+                  "filename": "file:///mod.ts",
+                  "line": 5,
+                  "col": 4,
+                  "byteIndex": 90
+                },
+                "params": [
+                  {
+                    "kind": "identifier",
+                    "name": "buf",
+                    "optional": false,
+                    "tsType": {
+                      "repr": "Uint8Array",
+                      "kind": "typeRef",
+                      "value": {
+                        "typeName": "Uint8Array"
+                      }
+                    }
+                  },
+                  {
+                    "kind": "identifier",
+                    "name": "something",
+                    "optional": false,
+                    "tsType": {
+                      "repr": "unknown",
+                      "kind": "keyword",
+                      "value": "unknown"
+                    }
+                  }
+                ],
+                "optional": true,
+                "returnType": {
+                  "repr": "Promise",
+                  "kind": "typeRef",
+                  "value": {
+                    "typeParams": [
+                      {
+                        "repr": "number",
+                        "kind": "keyword",
+                        "value": "number"
+                      }
+                    ],
+                    "typeName": "Promise"
+                  }
                 }
               }
-            },
-            {
-              "kind": "identifier",
-              "name": "something",
-              "optional": false,
-              "tsType": {
-                "repr": "unknown",
-                "kind": "keyword",
-                "keyword": "unknown"
-              }
-            }
-          ],
-          "optional": true,
-          "returnType": {
-            "repr": "Promise",
-            "kind": "typeRef",
-            "typeRef": {
-              "typeParams": [
-                {
-                  "repr": "number",
-                  "kind": "keyword",
-                  "keyword": "number"
-                }
-              ],
-              "typeName": "Promise"
-            }
-          },
-          "typeParams": []
+            ]
+          }
         }
-      ],
-      "properties": [],
-      "callSignatures": [],
-      "indexSignatures": [],
-      "typeParams": []
+      ]
     }
-  }
-]
+  ]
+}

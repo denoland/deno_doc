@@ -1,12 +1,11 @@
 use crate::html::ShortPath;
+use comrak::Arena;
 use comrak::adapters::SyntaxHighlighterAdapter;
 use comrak::nodes::AstNode;
 use comrak::nodes::NodeValue;
-use comrak::Arena;
 use std::collections::HashMap;
 use std::io::BufWriter;
 use std::io::Write;
-use std::rc::Rc;
 use std::sync::Arc;
 
 pub const COMRAK_STYLESHEET: &str = include_str!("./templates/comrak.gen.css");
@@ -14,11 +13,12 @@ pub const COMRAK_STYLESHEET_FILENAME: &str = "comrak.css";
 
 pub type NodeHook = Box<
   dyn for<'a> Fn(
-    &'a Arena<AstNode<'a>>,
-    &'a AstNode<'a>,
-    &comrak::Options,
-    &comrak::Plugins,
-  ),
+      &'a Arena<AstNode<'a>>,
+      &'a AstNode<'a>,
+      &comrak::Options,
+      &comrak::Plugins,
+    ) + Send
+    + Sync,
 >;
 
 fn walk_node<'a>(
@@ -73,7 +73,9 @@ pub fn render_node<'a>(
   String::from_utf8(bw.into_inner().unwrap()).unwrap()
 }
 
-pub fn strip(md: &str) -> String {
+/// Returns comrak options with standard extensions enabled.
+/// Used for parsing and rendering across the codebase.
+pub fn default_options() -> comrak::Options<'static> {
   let mut options = comrak::Options::default();
   options.extension.autolink = true;
   options.extension.description_lists = true;
@@ -82,6 +84,11 @@ pub fn strip(md: &str) -> String {
   options.extension.table = true;
   options.extension.tagfilter = true;
   options.extension.tasklist = true;
+  options
+}
+
+pub fn strip(md: &str) -> String {
+  let mut options = default_options();
   options.render.escape = true;
 
   let arena = Arena::new();
@@ -109,30 +116,24 @@ pub fn strip(md: &str) -> String {
   String::from_utf8(bw.into_inner().unwrap()).unwrap()
 }
 
-pub type HtmlClean = Box<dyn Fn(String) -> String>;
+pub type HtmlClean = Box<dyn Fn(String) -> String + Send + Sync>;
 
 pub fn create_renderer(
   syntax_highlighter: Option<Arc<dyn SyntaxHighlighterAdapter>>,
   node_hook: Option<NodeHook>,
   clean: Option<HtmlClean>,
 ) -> super::jsdoc::MarkdownRenderer {
-  let mut options = comrak::Options::default();
-  options.extension.autolink = true;
-  options.extension.description_lists = true;
-  options.extension.strikethrough = true;
-  options.extension.superscript = true;
-  options.extension.table = true;
-  options.extension.tagfilter = true;
-  options.extension.tasklist = true;
-
-  options.render.escape = clean.is_none();
-  options.render.unsafe_ = clean.is_some(); // its fine because we run the cleaner afterwards
+  let has_clean = clean.is_some();
 
   let renderer = move |md: &str,
                        title_only: bool,
                        _file_path: Option<ShortPath>,
                        anchorizer: super::jsdoc::Anchorizer|
         -> Option<String> {
+    let mut options = default_options();
+    options.render.escape = !has_clean;
+    options.render.unsafe_ = has_clean; // its fine because we run the cleaner afterwards
+
     let mut plugins = comrak::Plugins::default();
     let heading_adapter = ComrakHeadingAdapter(anchorizer);
     let highlight_adapter =
@@ -164,25 +165,16 @@ pub fn create_renderer(
       }
     };
 
-    let class_name = if title_only {
-      "markdown_summary"
+    let html = if let Some(clean) = &clean {
+      clean(html)
     } else {
-      "markdown"
+      html
     };
-
-    let html = format!(
-      r#"<div class="{class_name}">{}</div>"#,
-      if let Some(clean) = &clean {
-        clean(html)
-      } else {
-        html
-      }
-    );
 
     Some(html)
   };
 
-  Rc::new(renderer)
+  Arc::new(renderer)
 }
 
 pub struct ComrakHeadingAdapter(super::jsdoc::Anchorizer);
@@ -195,8 +187,19 @@ impl comrak::adapters::HeadingAdapter for ComrakHeadingAdapter {
     _sourcepos: Option<comrak::nodes::Sourcepos>,
   ) -> std::io::Result<()> {
     let anchor = self.0(heading.content.clone(), heading.level);
+    // The anchorizer's character class keeps `"`, `<` and `&` (its ` -_` is a
+    // range over U+0020..=U+005F, not three literals), so a heading anchor has
+    // to be escaped before it goes into an attribute. Symbol ids arrive
+    // pre-escaped from `sanitize_id_part`; anchors built from markdown
+    // headings do not.
+    let anchor = html_escape::encode_quoted_attribute(&anchor);
 
-    writeln!(output, r#"<h{} id="{anchor}">"#, heading.level)
+    write!(
+      output,
+      r##"<h{level} id="{anchor}" class="anchorable"><a href="#{anchor}" class="anchor" aria-label="Anchor" tabindex="-1">{link}</a>"##,
+      level = heading.level,
+      link = include_str!("./templates/icons/link.svg"),
+    )
   }
 
   fn exit(
@@ -220,17 +223,32 @@ impl SyntaxHighlighterAdapter for ComrakHighlightWrapperAdapter {
     lang: Option<&str>,
     code: &str,
   ) -> std::io::Result<()> {
+    // The markdown parser hands us the info string up to the first whitespace,
+    // so a comma-separated directive such as `ts, no-eval` arrives as `ts,`.
+    // Normalize it to the bare language token so both hidden-line processing and
+    // the downstream highlighter recognize it.
+    let lang = lang.map(crate::util::example_code::language_token);
+
+    // Resolve any "hidden" lines (rustdoc style): they are removed from the
+    // displayed code but kept in the copyable form so copied snippets still
+    // run. Non-example languages are left untouched.
+    let processed = crate::util::example_code::process_example_code(lang, code);
+    let (displayed, copyable) = match &processed {
+      Some(example) => (example.displayed.as_str(), example.copyable.as_str()),
+      None => (code, code),
+    };
+
     if let Some(adapter) = &self.0 {
-      adapter.write_highlighted(output, lang, code)?;
+      adapter.write_highlighted(output, lang, displayed)?;
     } else {
-      comrak::html::escape(output, code.as_bytes())?;
+      comrak::html::escape(output, displayed.as_bytes())?;
     }
 
     write!(output, "</code>")?;
     write!(
       output,
-      r#"<button class="context_button" data-copy="{}">{}{}</button>"#,
-      html_escape::encode_double_quoted_attribute(code),
+      r#"<button class="copyButton" data-copy="{}">{}{}</button>"#,
+      html_escape::encode_double_quoted_attribute(copyable),
       include_str!("./templates/icons/copy.svg"),
       include_str!("./templates/icons/check.svg"),
     )?;
@@ -260,5 +278,59 @@ impl SyntaxHighlighterAdapter for ComrakHighlightWrapperAdapter {
     } else {
       comrak::html::write_opening_tag(output, "code", attributes)
     }
+  }
+}
+
+#[cfg(test)]
+mod tests {
+  use super::*;
+
+  fn render(md: &str) -> String {
+    let renderer = create_renderer(None, None, None);
+    let anchorizer: super::super::jsdoc::Anchorizer =
+      Arc::new(|content: String, _level: u8| content);
+    renderer(md, false, None, anchorizer).unwrap()
+  }
+
+  #[test]
+  fn hides_example_code_lines() {
+    let html = render("```ts\n# const x = 1;\nconsole.log(x);\n```");
+
+    // The displayed code (before the closing `</code>`) omits the hidden line.
+    let displayed = html.split("</code>").next().unwrap();
+    assert!(!displayed.contains("const x = 1;"));
+    assert!(displayed.contains("console.log(x);"));
+
+    // The copy button retains the full, runnable snippet.
+    assert!(html.contains("data-copy="));
+    assert!(html.contains("const x = 1;"));
+  }
+
+  #[test]
+  fn does_not_hide_non_example_code_lines() {
+    let html = render("```sh\n# install\ndeno install\n```");
+    let displayed = html.split("</code>").next().unwrap();
+    assert!(displayed.contains("# install"));
+  }
+
+  #[test]
+  fn escapes_double_hash_in_example_code() {
+    let html = render("```ts\n## shown\n```");
+    let displayed = html.split("</code>").next().unwrap();
+    assert!(displayed.contains("# shown"));
+    assert!(!displayed.contains("## shown"));
+  }
+
+  #[test]
+  fn comma_in_info_string_is_treated_as_example() {
+    // A comma-separated directive (`ts, no-eval`) leaves the parser handing us
+    // `ts,`; it must still be recognized as a `ts` example so hidden lines are
+    // processed (regression test for broken highlighting on commas).
+    let html = render("```ts, no-eval\n# const x = 1;\nconsole.log(x);\n```");
+    let displayed = html.split("</code>").next().unwrap();
+    assert!(!displayed.contains("const x = 1;"));
+    assert!(displayed.contains("console.log(x);"));
+    // The full snippet is still copyable.
+    assert!(html.contains("const x = 1;"));
   }
 }

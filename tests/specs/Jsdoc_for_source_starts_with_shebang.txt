@@ -21,26 +21,23 @@ export interface B {}
 export function C() {}
 
 # output.txt
-Defined in file:///mod.ts:2:1
-
-  This module provides simple examples of a class, an interface, and a function.
-
-  @module
-      MyModule
+This module provides simple examples of a class, an interface, and a function.
+@module
+    MyModule
 
 
-Defined in file:///mod.ts:20:1
+Defined in file:///mod.ts:19:1
 
 function C(): void
   C is a function.
 
-Defined in file:///mod.ts:10:1
+Defined in file:///mod.ts:9:1
 
 class A
   A is a simple class.
 
 
-Defined in file:///mod.ts:15:1
+Defined in file:///mod.ts:14:1
 
 interface B
   B is a simple interface.
@@ -48,102 +45,81 @@ interface B
 
 
 # output.json
-[
-  {
-    "name": "",
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 2,
-      "col": 0,
-      "byteIndex": 52
-    },
-    "declarationKind": "export",
-    "jsDoc": {
-      "doc": "This module provides simple examples of a class, an interface, and a function.",
-      "tags": [
+{
+  "module_doc": {
+    "doc": "This module provides simple examples of a class, an interface, and a function.",
+    "tags": [
+      {
+        "kind": "module",
+        "name": "MyModule"
+      }
+    ]
+  },
+  "symbols": [
+    {
+      "name": "A",
+      "declarations": [
         {
-          "kind": "module",
-          "name": "MyModule"
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 9,
+            "col": 0,
+            "byteIndex": 193
+          },
+          "declarationKind": "export",
+          "jsDoc": {
+            "doc": "A is a simple class."
+          },
+          "kind": "class",
+          "def": {}
         }
       ]
     },
-    "kind": "moduleDoc"
-  },
-  {
-    "name": "A",
-    "isDefault": false,
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 10,
-      "col": 0,
-      "byteIndex": 193
+    {
+      "name": "B",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 14,
+            "col": 0,
+            "byteIndex": 248
+          },
+          "declarationKind": "export",
+          "jsDoc": {
+            "doc": "B is a simple interface."
+          },
+          "kind": "interface",
+          "def": {}
+        }
+      ]
     },
-    "declarationKind": "export",
-    "jsDoc": {
-      "doc": "A is a simple class."
-    },
-    "kind": "class",
-    "classDef": {
-      "isAbstract": false,
-      "constructors": [],
-      "properties": [],
-      "indexSignatures": [],
-      "methods": [],
-      "extends": null,
-      "implements": [],
-      "typeParams": [],
-      "superTypeParams": []
+    {
+      "name": "C",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 19,
+            "col": 0,
+            "byteIndex": 299
+          },
+          "declarationKind": "export",
+          "jsDoc": {
+            "doc": "C is a function."
+          },
+          "kind": "function",
+          "def": {
+            "params": [],
+            "returnType": {
+              "repr": "void",
+              "kind": "keyword",
+              "value": "void"
+            },
+            "hasBody": true
+          }
+        }
+      ]
     }
-  },
-  {
-    "name": "B",
-    "isDefault": false,
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 15,
-      "col": 0,
-      "byteIndex": 248
-    },
-    "declarationKind": "export",
-    "jsDoc": {
-      "doc": "B is a simple interface."
-    },
-    "kind": "interface",
-    "interfaceDef": {
-      "extends": [],
-      "constructors": [],
-      "methods": [],
-      "properties": [],
-      "callSignatures": [],
-      "indexSignatures": [],
-      "typeParams": []
-    }
-  },
-  {
-    "name": "C",
-    "isDefault": false,
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 20,
-      "col": 0,
-      "byteIndex": 299
-    },
-    "declarationKind": "export",
-    "jsDoc": {
-      "doc": "C is a function."
-    },
-    "kind": "function",
-    "functionDef": {
-      "params": [],
-      "returnType": {
-        "repr": "void",
-        "kind": "keyword",
-        "keyword": "void"
-      },
-      "hasBody": true,
-      "isAsync": false,
-      "isGenerator": false,
-      "typeParams": []
-    }
-  }
-]
+  ]
+}

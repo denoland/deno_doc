@@ -1,0 +1,51 @@
+# old/mod.ts
+export class Dict {
+  [key: string]: number;
+}
+
+# new/mod.ts
+export class Dict {
+  [key: string]: string;
+}
+
+# output.json
+{
+  "modifiedModules": {
+    "file:///mod.ts": {
+      "modified": [
+        {
+          "name": "Dict",
+          "declarations": {
+            "modified": [
+              {
+                "kind": "class",
+                "defChanges": {
+                  "type": "class",
+                  "indexSignatureChanges": {
+                    "modified": [
+                      {
+                        "index": 0,
+                        "typeChange": {
+                          "old": {
+                            "repr": "number",
+                            "kind": "keyword",
+                            "value": "number"
+                          },
+                          "new": {
+                            "repr": "string",
+                            "kind": "keyword",
+                            "value": "string"
+                          }
+                        }
+                      }
+                    ]
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  }
+}

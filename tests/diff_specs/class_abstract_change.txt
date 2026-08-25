@@ -1,0 +1,48 @@
+# old/mod.ts
+export class Foo {
+  bar() {}
+}
+
+# new/mod.ts
+export abstract class Foo {
+  abstract bar(): void;
+}
+
+# output.json
+{
+  "modifiedModules": {
+    "file:///mod.ts": {
+      "modified": [
+        {
+          "name": "Foo",
+          "declarations": {
+            "modified": [
+              {
+                "kind": "class",
+                "defChanges": {
+                  "type": "class",
+                  "isAbstractChange": {
+                    "old": false,
+                    "new": true
+                  },
+                  "methodChanges": {
+                    "modified": [
+                      {
+                        "name": "bar",
+                        "kind": "method",
+                        "isAbstractChange": {
+                          "old": false,
+                          "new": true
+                        }
+                      }
+                    ]
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  }
+}

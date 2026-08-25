@@ -1,0 +1,76 @@
+# old/mod.ts
+export class Foo {
+  a(): void {}
+  b(): void {}
+  c(): void {}
+  d(): void {}
+  e(): void {}
+  f(): void {}
+  g(): void {}
+  h(): void {}
+  i(): void {}
+  j(): void {}
+}
+
+# new/mod.ts
+export class Bar {
+  a(): void {}
+  b(): void {}
+  c(): void {}
+  d(): void {}
+  e(): void {}
+  f(): void {}
+  g(): void {}
+  h(): void {}
+  i(): void {}
+  j(): string { return ""; }
+}
+
+# output.json
+{
+  "modifiedModules": {
+    "file:///mod.ts": {
+      "modified": [
+        {
+          "name": "Bar",
+          "nameChange": {
+            "old": "Foo",
+            "new": "Bar"
+          },
+          "declarations": {
+            "modified": [
+              {
+                "kind": "class",
+                "defChanges": {
+                  "type": "class",
+                  "methodChanges": {
+                    "modified": [
+                      {
+                        "name": "j",
+                        "kind": "method",
+                        "functionDiff": {
+                          "returnTypeChange": {
+                            "old": {
+                              "repr": "void",
+                              "kind": "keyword",
+                              "value": "void"
+                            },
+                            "new": {
+                              "repr": "string",
+                              "kind": "keyword",
+                              "value": "string"
+                            }
+                          }
+                        }
+                      }
+                    ]
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  }
+}

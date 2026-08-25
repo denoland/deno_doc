@@ -1,5 +1,8 @@
 # `deno_doc`
 
+[![](https://img.shields.io/crates/v/deno_doc.svg)](https://crates.io/crates/deno_doc)
+[![JSR](https://jsr.io/badges/@deno/doc)](https://jsr.io/@deno/doc)
+
 A Rust crate to generate documentation for JavaScript and TypeScript modules.
 
 This crate powers

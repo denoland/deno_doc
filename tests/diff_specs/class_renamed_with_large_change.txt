@@ -1,0 +1,137 @@
+# old/mod.ts
+export class Foo {
+  a(): void {}
+  b(): void {}
+}
+
+# new/mod.ts
+export class Bar {
+  a(): void {}
+  c(): void {}
+}
+
+# output.json
+{
+  "modifiedModules": {
+    "file:///mod.ts": {
+      "added": [
+        {
+          "name": "Bar",
+          "declarations": [
+            {
+              "location": {
+                "filename": "file:///mod.ts",
+                "line": 0,
+                "col": 0,
+                "byteIndex": 0
+              },
+              "declarationKind": "export",
+              "kind": "class",
+              "def": {
+                "methods": [
+                  {
+                    "name": "a",
+                    "kind": "method",
+                    "functionDef": {
+                      "params": [],
+                      "returnType": {
+                        "repr": "void",
+                        "kind": "keyword",
+                        "value": "void"
+                      },
+                      "hasBody": true
+                    },
+                    "location": {
+                      "filename": "file:///mod.ts",
+                      "line": 1,
+                      "col": 2,
+                      "byteIndex": 21
+                    }
+                  },
+                  {
+                    "name": "c",
+                    "kind": "method",
+                    "functionDef": {
+                      "params": [],
+                      "returnType": {
+                        "repr": "void",
+                        "kind": "keyword",
+                        "value": "void"
+                      },
+                      "hasBody": true
+                    },
+                    "location": {
+                      "filename": "file:///mod.ts",
+                      "line": 2,
+                      "col": 2,
+                      "byteIndex": 36
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      ],
+      "removed": [
+        {
+          "name": "Foo",
+          "declarations": [
+            {
+              "location": {
+                "filename": "file:///mod.ts",
+                "line": 0,
+                "col": 0,
+                "byteIndex": 0
+              },
+              "declarationKind": "export",
+              "kind": "class",
+              "def": {
+                "methods": [
+                  {
+                    "name": "a",
+                    "kind": "method",
+                    "functionDef": {
+                      "params": [],
+                      "returnType": {
+                        "repr": "void",
+                        "kind": "keyword",
+                        "value": "void"
+                      },
+                      "hasBody": true
+                    },
+                    "location": {
+                      "filename": "file:///mod.ts",
+                      "line": 1,
+                      "col": 2,
+                      "byteIndex": 21
+                    }
+                  },
+                  {
+                    "name": "b",
+                    "kind": "method",
+                    "functionDef": {
+                      "params": [],
+                      "returnType": {
+                        "repr": "void",
+                        "kind": "keyword",
+                        "value": "void"
+                      },
+                      "hasBody": true
+                    },
+                    "location": {
+                      "filename": "file:///mod.ts",
+                      "line": 2,
+                      "col": 2,
+                      "byteIndex": 36
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

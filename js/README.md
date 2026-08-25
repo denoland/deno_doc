@@ -1,29 +1,35 @@
 # `deno_doc`
 
 This repository includes a compiled version of the Rust crate as Web Assembly
-and exposes an interface which is available via the `mod.ts` and can be imported
-like this:
+and exposes an interface which is available via the `mod.ts`.
 
-```ts
-import { doc } from "jsr:@deno/doc@{VERSION}";
+Install:
+
+```sh
+deno add jsr:@deno/doc
 ```
 
-Where `{VERSION}` should be substituted with the specific version you want to
-use.
+Use:
+
+```ts
+import { doc } from "@deno/doc";
+```
 
 ## `doc()`
 
-The `doc()` function takes a string URL module specifier and potentially some
-options, and asynchronously resolves with an array of documentation nodes, which
-represent the surface API of the module.
+The `doc()` function takes an array of string URL module specifiers and
+potentially some options, and asynchronously resolves with a record of
+documentation nodes keyed by the module URL, which represent the surface API of
+the module.
 
 A minimal example of using `doc()` and printing out some information about a
 function:
 
 ```ts
-import { doc } from "jsr:@deno/doc@{VERSION}";
+import { doc } from "@deno/doc";
 
-const colorsDoc = await doc("https://deno.land/std/fmt/colors.ts");
+const records = await doc(["https://deno.land/std/fmt/colors.ts"]);
+const colorsDoc = records["https://deno.land/std/fmt/colors.ts"];
 
 for (const node of colorsDoc) {
   console.log(`name: ${node.name} kind: ${node.kind}`);

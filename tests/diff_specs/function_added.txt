@@ -1,0 +1,40 @@
+# old/mod.ts
+export function foo() {}
+
+# new/mod.ts
+export function foo() {}
+export function bar() {}
+
+# output.json
+{
+  "modifiedModules": {
+    "file:///mod.ts": {
+      "added": [
+        {
+          "name": "bar",
+          "declarations": [
+            {
+              "location": {
+                "filename": "file:///mod.ts",
+                "line": 1,
+                "col": 0,
+                "byteIndex": 25
+              },
+              "declarationKind": "export",
+              "kind": "function",
+              "def": {
+                "params": [],
+                "returnType": {
+                  "repr": "void",
+                  "kind": "keyword",
+                  "value": "void"
+                },
+                "hasBody": true
+              }
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

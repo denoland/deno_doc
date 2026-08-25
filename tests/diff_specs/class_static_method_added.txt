@@ -1,0 +1,62 @@
+# old/mod.ts
+export class Foo {
+  bar() {}
+}
+
+# new/mod.ts
+export class Foo {
+  bar() {}
+  static create(): Foo { return new Foo(); }
+}
+
+# output.json
+{
+  "modifiedModules": {
+    "file:///mod.ts": {
+      "modified": [
+        {
+          "name": "Foo",
+          "declarations": {
+            "modified": [
+              {
+                "kind": "class",
+                "defChanges": {
+                  "type": "class",
+                  "methodChanges": {
+                    "added": [
+                      {
+                        "isStatic": true,
+                        "name": "create",
+                        "kind": "method",
+                        "functionDef": {
+                          "params": [],
+                          "returnType": {
+                            "repr": "Foo",
+                            "kind": "typeRef",
+                            "value": {
+                              "typeName": "Foo",
+                              "resolution": {
+                                "kind": "local"
+                              }
+                            }
+                          },
+                          "hasBody": true
+                        },
+                        "location": {
+                          "filename": "file:///mod.ts",
+                          "line": 2,
+                          "col": 2,
+                          "byteIndex": 32
+                        }
+                      }
+                    ]
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  }
+}

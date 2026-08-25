@@ -1,0 +1,234 @@
+# base.ts
+/** Base of all producers. */
+export interface Base {
+  /** Clears the state. */
+  clear(): void;
+}
+
+# types.ts
+import type { Base } from "./base.ts";
+
+/** Base interface for producing JWTs. */
+export interface ProduceJWT extends Base {
+  /**
+   * Sets the audience claim.
+   *
+   * @param audience The audience to set.
+   * @returns The instance for chaining.
+   */
+  setAudience(audience: string): this;
+
+  /** The current audience. */
+  audience?: string;
+}
+
+# mod.ts
+import type * as types from "./types.ts";
+
+/** Signs JWTs. */
+export class SignJWT implements types.ProduceJWT {
+  audience?: string;
+
+  setAudience(audience: string): this {
+    this.audience = audience;
+    return this;
+  }
+
+  clear(): void {}
+
+  /** Signs the token. */
+  sign(): string {
+    return "";
+  }
+}
+
+# diagnostics
+error[private-type-ref]: public type 'SignJWT' references private type 'ProduceJWT'
+ --> /mod.ts:4:1
+  | 
+4 | export class SignJWT implements types.ProduceJWT {
+  | ^
+  = hint: make the referenced type public or remove the reference
+  | 
+4 | export interface ProduceJWT extends Base {
+  | - this is the referenced type
+  | 
+
+  info: to ensure documentation is complete all types that are exposed in the public API must be public
+
+# output.txt
+Defined in file:///mod.ts:3:1
+
+class SignJWT implements types.ProduceJWT
+  Signs JWTs.
+
+  audience?: string
+    The current audience.
+  setAudience(audience: string): this
+    Sets the audience claim.
+
+    @param audience
+        The audience to set.
+
+    @return
+        The instance for chaining.
+
+  clear(): void
+    Clears the state.
+  sign(): string
+    Signs the token.
+
+
+# output.json
+{
+  "imports": [
+    {
+      "importedName": "types",
+      "src": "file:///types.ts"
+    }
+  ],
+  "symbols": [
+    {
+      "name": "SignJWT",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 3,
+            "col": 0,
+            "byteIndex": 62
+          },
+          "declarationKind": "export",
+          "jsDoc": {
+            "doc": "Signs JWTs."
+          },
+          "kind": "class",
+          "def": {
+            "properties": [
+              {
+                "jsDoc": {
+                  "doc": "The current audience."
+                },
+                "tsType": {
+                  "repr": "string",
+                  "kind": "keyword",
+                  "value": "string"
+                },
+                "optional": true,
+                "name": "audience",
+                "location": {
+                  "filename": "file:///mod.ts",
+                  "line": 4,
+                  "col": 2,
+                  "byteIndex": 115
+                }
+              }
+            ],
+            "methods": [
+              {
+                "jsDoc": {
+                  "doc": "Sets the audience claim.\n",
+                  "tags": [
+                    {
+                      "kind": "param",
+                      "name": "audience",
+                      "doc": "The audience to set."
+                    },
+                    {
+                      "kind": "return",
+                      "doc": "The instance for chaining."
+                    }
+                  ]
+                },
+                "name": "setAudience",
+                "kind": "method",
+                "functionDef": {
+                  "params": [
+                    {
+                      "kind": "identifier",
+                      "name": "audience",
+                      "optional": false,
+                      "tsType": {
+                        "repr": "string",
+                        "kind": "keyword",
+                        "value": "string"
+                      }
+                    }
+                  ],
+                  "returnType": {
+                    "repr": "this",
+                    "kind": "this"
+                  },
+                  "hasBody": true
+                },
+                "location": {
+                  "filename": "file:///mod.ts",
+                  "line": 6,
+                  "col": 2,
+                  "byteIndex": 137
+                }
+              },
+              {
+                "jsDoc": {
+                  "doc": "Clears the state."
+                },
+                "name": "clear",
+                "kind": "method",
+                "functionDef": {
+                  "params": [],
+                  "returnType": {
+                    "repr": "void",
+                    "kind": "keyword",
+                    "value": "void"
+                  },
+                  "hasBody": true
+                },
+                "location": {
+                  "filename": "file:///mod.ts",
+                  "line": 11,
+                  "col": 2,
+                  "byteIndex": 229
+                }
+              },
+              {
+                "jsDoc": {
+                  "doc": "Signs the token."
+                },
+                "name": "sign",
+                "kind": "method",
+                "functionDef": {
+                  "params": [],
+                  "returnType": {
+                    "repr": "string",
+                    "kind": "keyword",
+                    "value": "string"
+                  },
+                  "hasBody": true
+                },
+                "location": {
+                  "filename": "file:///mod.ts",
+                  "line": 14,
+                  "col": 2,
+                  "byteIndex": 275
+                }
+              }
+            ],
+            "implements": [
+              {
+                "repr": "types.ProduceJWT",
+                "kind": "typeRef",
+                "value": {
+                  "typeName": "types.ProduceJWT",
+                  "resolution": {
+                    "kind": "import",
+                    "specifier": "./types.ts"
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

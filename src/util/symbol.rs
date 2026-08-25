@@ -49,6 +49,6 @@ fn decl_has_ignorable_js_doc_tag(
   let Some(module) = module.esm() else {
     return false;
   };
-  let js_doc = js_doc_for_range_include_ignore(module.source(), &decl.range);
+  let js_doc = js_doc_for_range_include_ignore(module, &decl.range);
   has_ignorable_js_doc_tag(&js_doc)
 }

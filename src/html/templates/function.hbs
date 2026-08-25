@@ -1,6 +1,6 @@
 <div class="mt-3 space-y-8">
   {{~#each functions~}}
-    <div class="scroll-mt-16" id="{{this.id}}">
+    <div class="scroll-mt-16" id="{{this.anchor.id}}">
       <code class="anchorable text-base break-words">
         {{~> anchor this.anchor ~}}
 
@@ -12,7 +12,7 @@
       {{~> symbol_content this.content ~}}
     </div>
     {{~#if (not @last)~}}
-      <div class="border-b border-gray-300 max-w-[75ch]"></div>
+      <div class="border-b border-gray-300 max-w-[75ch] dark:border-gray-700"></div>
     {{~/if~}}
   {{~/each~}}
 </div>

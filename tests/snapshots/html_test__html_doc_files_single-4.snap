@@ -2,4 +2,14 @@
 source: tests/html_test.rs
 expression: files.get(file_name).unwrap()
 ---
-<meta http-equiv="refresh" content="0; url=..&#x2F;.&#x2F;.&#x2F;~&#x2F;Bar.html">
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="refresh" content="0; url=..&#x2F;.&#x2F;.&#x2F;~&#x2F;Bar.html" />
+    <title>Redirecting…</title>
+  </head>
+  <body>
+    <a href="..&#x2F;.&#x2F;.&#x2F;~&#x2F;Bar.html">Click here if you are not redirected.</a>
+  </body>
+</html>

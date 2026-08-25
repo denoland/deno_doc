@@ -27,21 +27,21 @@ class NonExportedType2 {
 }
 
 # output.txt
-Defined in https://localhost/mod.ts:1:1
+Defined in https://localhost/mod.ts:0:1
 
 function myFunction()
 
-Defined in http://localhost/mod.ts:1:1
+Defined in http://localhost/mod.ts:0:1
 
 function myFunction2()
 
-Defined in https://localhost/mod.ts:5:1
+Defined in https://localhost/mod.ts:4:1
 
 class PublicType
 
   prop: NonExportedType
 
-Defined in http://localhost/mod.ts:5:1
+Defined in http://localhost/mod.ts:4:1
 
 class PublicType2
 
@@ -49,137 +49,121 @@ class PublicType2
 
 
 # output.json
-[
-  {
-    "name": "myFunction",
-    "isDefault": false,
-    "location": {
-      "filename": "https://localhost/mod.ts",
-      "line": 1,
-      "col": 0,
-      "byteIndex": 0
-    },
-    "declarationKind": "export",
-    "kind": "function",
-    "functionDef": {
-      "params": [],
-      "returnType": null,
-      "hasBody": true,
-      "isAsync": false,
-      "isGenerator": false,
-      "typeParams": []
-    }
-  },
-  {
-    "name": "PublicType",
-    "isDefault": false,
-    "location": {
-      "filename": "https://localhost/mod.ts",
-      "line": 5,
-      "col": 0,
-      "byteIndex": 58
-    },
-    "declarationKind": "export",
-    "kind": "class",
-    "classDef": {
-      "isAbstract": false,
-      "constructors": [],
-      "properties": [
+{
+  "symbols": [
+    {
+      "name": "myFunction",
+      "declarations": [
         {
-          "tsType": {
-            "repr": "NonExportedType",
-            "kind": "typeRef",
-            "typeRef": {
-              "typeParams": null,
-              "typeName": "NonExportedType"
-            }
-          },
-          "readonly": false,
-          "accessibility": null,
-          "optional": false,
-          "isAbstract": false,
-          "isStatic": false,
-          "name": "prop",
           "location": {
             "filename": "https://localhost/mod.ts",
-            "line": 6,
-            "col": 2,
-            "byteIndex": 86
+            "line": 0,
+            "col": 0,
+            "byteIndex": 0
+          },
+          "declarationKind": "export",
+          "kind": "function",
+          "def": {
+            "params": [],
+            "hasBody": true
           }
         }
-      ],
-      "indexSignatures": [],
-      "methods": [],
-      "extends": null,
-      "implements": [],
-      "typeParams": [],
-      "superTypeParams": []
-    }
-  },
-  {
-    "name": "myFunction2",
-    "isDefault": false,
-    "location": {
-      "filename": "http://localhost/mod.ts",
-      "line": 1,
-      "col": 0,
-      "byteIndex": 0
+      ]
     },
-    "declarationKind": "export",
-    "kind": "function",
-    "functionDef": {
-      "params": [],
-      "returnType": null,
-      "hasBody": true,
-      "isAsync": false,
-      "isGenerator": false,
-      "typeParams": []
-    }
-  },
-  {
-    "name": "PublicType2",
-    "isDefault": false,
-    "location": {
-      "filename": "http://localhost/mod.ts",
-      "line": 5,
-      "col": 0,
-      "byteIndex": 59
-    },
-    "declarationKind": "export",
-    "kind": "class",
-    "classDef": {
-      "isAbstract": false,
-      "constructors": [],
-      "properties": [
+    {
+      "name": "PublicType",
+      "declarations": [
         {
-          "tsType": {
-            "repr": "NonExportedType2",
-            "kind": "typeRef",
-            "typeRef": {
-              "typeParams": null,
-              "typeName": "NonExportedType2"
-            }
+          "location": {
+            "filename": "https://localhost/mod.ts",
+            "line": 4,
+            "col": 0,
+            "byteIndex": 58
           },
-          "readonly": false,
-          "accessibility": null,
-          "optional": false,
-          "isAbstract": false,
-          "isStatic": false,
-          "name": "prop",
+          "declarationKind": "export",
+          "kind": "class",
+          "def": {
+            "properties": [
+              {
+                "tsType": {
+                  "repr": "NonExportedType",
+                  "kind": "typeRef",
+                  "value": {
+                    "typeName": "NonExportedType",
+                    "resolution": {
+                      "kind": "local"
+                    }
+                  }
+                },
+                "name": "prop",
+                "location": {
+                  "filename": "https://localhost/mod.ts",
+                  "line": 5,
+                  "col": 2,
+                  "byteIndex": 86
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "myFunction2",
+      "declarations": [
+        {
           "location": {
             "filename": "http://localhost/mod.ts",
-            "line": 6,
-            "col": 2,
-            "byteIndex": 88
+            "line": 0,
+            "col": 0,
+            "byteIndex": 0
+          },
+          "declarationKind": "export",
+          "kind": "function",
+          "def": {
+            "params": [],
+            "hasBody": true
           }
         }
-      ],
-      "indexSignatures": [],
-      "methods": [],
-      "extends": null,
-      "implements": [],
-      "typeParams": [],
-      "superTypeParams": []
+      ]
+    },
+    {
+      "name": "PublicType2",
+      "declarations": [
+        {
+          "location": {
+            "filename": "http://localhost/mod.ts",
+            "line": 4,
+            "col": 0,
+            "byteIndex": 59
+          },
+          "declarationKind": "export",
+          "kind": "class",
+          "def": {
+            "properties": [
+              {
+                "tsType": {
+                  "repr": "NonExportedType2",
+                  "kind": "typeRef",
+                  "value": {
+                    "typeName": "NonExportedType2",
+                    "resolution": {
+                      "kind": "local"
+                    }
+                  }
+                },
+                "name": "prop",
+                "location": {
+                  "filename": "http://localhost/mod.ts",
+                  "line": 5,
+                  "col": 2,
+                  "byteIndex": 88
+                }
+              }
+            ]
+          }
+        }
+      ]
     }
-  }
-]
+  ]
+}

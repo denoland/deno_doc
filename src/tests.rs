@@ -1,24 +1,24 @@
 // Copyright 2018-2024 the Deno authors. All rights reserved. MIT license.
 
-use crate::node::DocNodeDef;
+use crate::DocParserOptions;
+use crate::node::DeclarationDef;
 use crate::parser::DocParser;
 use crate::printer::DocPrinter;
-use crate::DocParserOptions;
-use deno_graph::source::MemoryLoader;
-use deno_graph::source::Source;
 use deno_graph::BuildOptions;
-use deno_graph::CapturingModuleAnalyzer;
 use deno_graph::GraphKind;
 use deno_graph::ModuleGraph;
 use deno_graph::ModuleSpecifier;
+use deno_graph::ast::CapturingModuleAnalyzer;
+use deno_graph::source::MemoryLoader;
+use deno_graph::source::Source;
 use pretty_assertions::assert_eq;
 use serde_json::json;
 
 type MaybeHeaders<S> = Option<Vec<(S, S)>>;
 
-pub(crate) async fn setup<S: AsRef<str> + Copy>(
+pub(crate) async fn setup<S: AsRef<str> + Copy, C: AsRef<[u8]>>(
   root: S,
-  sources: Vec<(S, MaybeHeaders<S>, S)>,
+  sources: Vec<(S, MaybeHeaders<S>, C)>,
 ) -> (ModuleGraph, CapturingModuleAnalyzer, ModuleSpecifier) {
   let sources = sources
     .into_iter()
@@ -40,6 +40,7 @@ pub(crate) async fn setup<S: AsRef<str> + Copy>(
   graph
     .build(
       vec![root.clone()],
+      Vec::new(),
       &memory_loader,
       BuildOptions {
         module_analyzer: &analyzer,
@@ -72,6 +73,7 @@ async fn content_type_handling() {
   graph
     .build(
       vec![root.clone()],
+      Vec::new(),
       &memory_loader,
       BuildOptions {
         module_analyzer: &analyzer,
@@ -86,7 +88,8 @@ async fn content_type_handling() {
       .unwrap()
       .into_values()
       .next()
-      .unwrap();
+      .unwrap()
+      .symbols;
   assert_eq!(entries.len(), 1);
 }
 
@@ -123,6 +126,7 @@ async fn types_header_handling() {
   graph
     .build(
       vec![root.clone()],
+      Vec::new(),
       &memory_loader,
       BuildOptions {
         module_analyzer: &analyzer,
@@ -137,31 +141,33 @@ async fn types_header_handling() {
       .unwrap()
       .into_values()
       .next()
-      .unwrap();
+      .unwrap()
+      .symbols;
   assert_eq!(
     serde_json::to_value(&entries).unwrap(),
     json!([{
-      "kind": "variable",
       "name": "a",
-      "isDefault": false,
-      "location": {
-        "filename": "https://example.com/a.d.ts",
-        "line": 1,
-        "col": 13,
-        "byteIndex": 13
-      },
-      "declarationKind": "export",
-      "variableDef": {
-        "tsType": {
-          "repr": "a",
-          "kind": "literal",
-          "literal": {
-            "kind": "string",
-            "string": "a"
-          }
+      "declarations": [{
+        "kind": "variable",
+        "location": {
+          "filename": "https://example.com/a.d.ts",
+          "line": 0,
+          "col": 13,
+          "byteIndex": 13
         },
-        "kind": "const"
-      }
+        "declarationKind": "export",
+        "def": {
+          "tsType": {
+            "repr": "a",
+            "kind": "literal",
+            "value": {
+              "kind": "string",
+              "string": "a"
+            }
+          },
+          "kind": "const"
+        }
+      }]
     }])
   );
 }
@@ -218,7 +224,7 @@ export function fooFn(a: number) {
     ],
   )
   .await;
-  let entries = DocParser::new(
+  let output = DocParser::new(
     &graph,
     &analyzer,
     &[specifier],
@@ -226,121 +232,115 @@ export function fooFn(a: number) {
   )
   .unwrap()
   .parse()
-  .unwrap()
-  .into_values()
-  .next()
   .unwrap();
+  let document = output.values().next().unwrap();
 
-  let expected_json = json!([
+  let expected_symbols = json!([
     {
-      "kind": "variable",
       "name": "fooConst",
-      "isDefault": false,
-      "location": {
-        "filename": "file:///reexport.ts",
-        "line": 7,
-        "col": 13,
-        "byteIndex": 86
-      },
-      "declarationKind": "export",
-      "jsDoc": {
-        "doc": "JSDoc for const",
-      },
-      "variableDef": {
-        "tsType": {
-          "repr": "foo",
-          "kind": "literal",
-          "literal": {
-            "kind": "string",
-            "string": "foo"
-          }
+      "declarations": [{
+        "location": {
+          "filename": "file:///reexport.ts",
+          "line": 6,
+          "col": 13,
+          "byteIndex": 86
         },
-        "kind": "const"
-      }
-    },
-    {
-      "kind": "variable",
-      "name": "barReExport",
-      "isDefault": false,
-      "location": {
-        "filename": "file:///nested_reexport.ts",
-        "line": 5,
-        "col": 13,
-        "byteIndex": 41
-      },
-      "declarationKind": "export",
-      "jsDoc": {
-        "doc": "JSDoc for bar",
-      },
-      "variableDef": {
-        "tsType": {
-          "repr": "bar",
-          "kind": "literal",
-          "literal": {
-            "kind": "string",
-            "string": "bar"
-          }
+        "declarationKind": "export",
+        "jsDoc": {
+          "doc": "JSDoc for const",
         },
-        "kind": "const"
-      }
-    },
-    {
-      "kind": "function",
-      "name": "fooFn",
-      "isDefault": false,
-      "location": {
-        "filename": "file:///test.ts",
-        "line": 6,
-        "col": 0,
-        "byteIndex": 152
-      },
-      "declarationKind": "export",
-      "jsDoc": {
-        "doc": "JSDoc for function",
-      },
-      "functionDef": {
-        "params": [
-            {
-              "name": "a",
-              "kind": "identifier",
-              "optional": false,
-              "tsType": {
-                "keyword": "number",
-                "kind": "keyword",
-                "repr": "number",
-              },
+        "kind": "variable",
+        "def": {
+          "tsType": {
+            "repr": "foo",
+            "kind": "literal",
+            "value": {
+              "kind": "string",
+              "string": "foo"
             }
-        ],
-        "typeParams": [],
-        "returnType": null,
-        "hasBody": true,
-        "isAsync": false,
-        "isGenerator": false
-      },
+          },
+          "kind": "const"
+        }
+      }]
     },
     {
-      "kind": "import",
-      "name": "buzz",
-      "location": {
-        "filename": "file:///test.ts",
-        "line": 3,
-        "col": 0,
-        "byteIndex": 79
-      },
-      "declarationKind": "private",
-      "importDef": {
-        "src": "file:///reexport.ts",
-        "imported": "fizz",
-      }
+      "name": "barReExport",
+      "declarations": [{
+        "location": {
+          "filename": "file:///nested_reexport.ts",
+          "line": 4,
+          "col": 13,
+          "byteIndex": 41
+        },
+        "declarationKind": "export",
+        "jsDoc": {
+          "doc": "JSDoc for bar",
+        },
+        "kind": "variable",
+        "def": {
+          "tsType": {
+            "repr": "bar",
+            "kind": "literal",
+            "value": {
+              "kind": "string",
+              "string": "bar"
+            }
+          },
+          "kind": "const"
+        }
+      }]
+    },
+    {
+      "name": "fooFn",
+      "declarations": [{
+        "location": {
+          "filename": "file:///test.ts",
+          "line": 5,
+          "col": 0,
+          "byteIndex": 152
+        },
+        "declarationKind": "export",
+        "jsDoc": {
+          "doc": "JSDoc for function",
+        },
+        "kind": "function",
+        "def": {
+          "params": [
+              {
+                "name": "a",
+                "kind": "identifier",
+                "optional": false,
+                "tsType": {
+                  "repr": "number",
+                  "kind": "keyword",
+                  "value": "number",
+                },
+              }
+          ],
+          "hasBody": true
+        },
+      }]
+    },
+  ]);
+  let actual = serde_json::to_value(&document.symbols).unwrap();
+  assert_eq!(actual, expected_symbols);
+
+  let expected_imports = json!([
+    {
+      "importedName": "buzz",
+      "originalName": "fizz",
+      "src": "file:///reexport.ts",
     }
   ]);
-  let actual = serde_json::to_value(&entries).unwrap();
-  assert_eq!(actual, expected_json);
+  let actual = serde_json::to_value(&document.imports).unwrap();
+  assert_eq!(actual, expected_imports);
 
-  assert!(DocPrinter::new(&entries, false, false)
-    .to_string()
-    .as_str()
-    .contains("function fooFn(a: number)"));
+  assert!(
+    DocPrinter::new(&output, false, false)
+      .to_string()
+      .as_str()
+      .contains("function fooFn(a: number)")
+  );
 }
 
 #[tokio::test]
@@ -361,7 +361,7 @@ export { Hello } from "./reexport.ts";
     ],
   )
   .await;
-  let entries = DocParser::new(
+  let output = DocParser::new(
     &graph,
     &analyzer,
     &[specifier],
@@ -369,63 +369,44 @@ export { Hello } from "./reexport.ts";
   )
   .unwrap()
   .parse()
-  .unwrap()
-  .into_values()
-  .next()
   .unwrap();
+  let entries = &output.values().next().unwrap().symbols;
 
   let expected_json = json!([
     {
-      "kind": "interface",
       "name": "Hello",
-      "isDefault": false,
-      "location": {
-        "filename": "file:///reexport.ts",
-        "line": 2,
-        "col": 0,
-        "byteIndex": 1
-      },
-      "declarationKind": "export",
-      "interfaceDef": {
-        "extends": [],
-        "constructors": [],
-        "methods": [],
-        "properties": [],
-        "callSignatures": [],
-        "indexSignatures": [],
-        "typeParams": []
-      }
-    },
-    {
-      "kind": "class",
-      "name": "Hello",
-      "isDefault": false,
-      "location": {
-        "filename": "file:///reexport.ts",
-        "line": 3,
-        "col": 0,
-        "byteIndex": 27
-      },
-      "declarationKind": "export",
-      "classDef": {
-        "isAbstract": false,
-        "constructors": [],
-        "properties": [],
-        "indexSignatures": [],
-        "methods": [],
-        "extends": null,
-        "implements": [],
-        "typeParams": [],
-        "superTypeParams": []
-      }
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///reexport.ts",
+            "line": 1,
+            "col": 0,
+            "byteIndex": 1
+          },
+          "declarationKind": "export",
+          "kind": "interface",
+          "def": {}
+        },
+        {
+          "location": {
+            "filename": "file:///reexport.ts",
+            "line": 2,
+            "col": 0,
+            "byteIndex": 27
+          },
+          "declarationKind": "export",
+          "kind": "class",
+          "def": {}
+        }
+      ]
     }
   ]);
-  let actual = serde_json::to_value(&entries).unwrap();
+  let actual = serde_json::to_value(entries).unwrap();
   assert_eq!(actual, expected_json);
 
-  let output = DocPrinter::new(&entries, false, false).to_string();
-  assert!(output.contains("class Hello"));
-  assert!(output.contains("interface Hello"));
+  let text = DocPrinter::new(&output, false, false).to_string();
+  assert!(text.contains("class Hello"));
+  assert!(text.contains("interface Hello"));
 }
 
 #[tokio::test]
@@ -443,7 +424,7 @@ async fn deep_reexports() {
     ],
   )
   .await;
-  let entries = DocParser::new(
+  let output = DocParser::new(
     &graph,
     &analyzer,
     &[specifier],
@@ -451,39 +432,40 @@ async fn deep_reexports() {
   )
   .unwrap()
   .parse()
-  .unwrap()
-  .into_values()
-  .next()
   .unwrap();
+  let entries = &output.values().next().unwrap().symbols;
 
   let expected_json = json!([
     {
-      "kind": "variable",
       "name": "foo",
-      "isDefault": false,
-      "location": {
-        "filename": "file:///foo.ts",
-        "line": 1,
-        "col": 13,
-        "byteIndex": 13
-      },
-      "declarationKind": "export",
-      "variableDef": {
-        "tsType": {
-          "repr": "string",
-          "kind": "keyword",
-          "keyword": "string"
+      "declarations": [{
+        "kind": "variable",
+        "location": {
+          "filename": "file:///foo.ts",
+          "line": 0,
+          "col": 13,
+          "byteIndex": 13
         },
-        "kind": "const"
-      }
+        "declarationKind": "export",
+        "def": {
+          "tsType": {
+            "repr": "string",
+            "kind": "keyword",
+            "value": "string"
+          },
+          "kind": "const"
+        }
+      }]
     }
   ]);
-  let actual = serde_json::to_value(&entries).unwrap();
+  let actual = serde_json::to_value(entries).unwrap();
   assert_eq!(actual, expected_json);
 
-  assert!(DocPrinter::new(&entries, false, false)
-    .to_string()
-    .contains("const foo"));
+  assert!(
+    DocPrinter::new(&output, false, false)
+      .to_string()
+      .contains("const foo")
+  );
 }
 
 #[tokio::test]
@@ -520,59 +502,62 @@ export * as b from "./mod_doc.ts";
   .unwrap()
   .into_values()
   .next()
-  .unwrap();
+  .unwrap()
+  .symbols;
 
   let actual = serde_json::to_value(&entries).unwrap();
   let expected = json!([
     {
-      "kind": "namespace",
       "name": "b",
-      "isDefault": false,
-      "location": {
-        "filename": "file:///ns.ts",
-        "line": 2,
-        "col": 7,
-        "byteIndex": 8
-      },
-      "declarationKind": "export",
-      "jsDoc": {
-        "doc": "This is some module doc.\n",
-        "tags": [
-          {
-            "kind": "module"
-          }
-        ]
-      },
-      "namespaceDef": {
-        "elements": [
-          {
-            "kind": "variable",
-            "name": "a",
-            "isDefault": false,
-            "location": {
-              "filename": "file:///mod_doc.ts",
-              "line": 9,
-              "col": 13,
-              "byteIndex": 83
-            },
-            "declarationKind": "export",
-            "jsDoc": {
-              "doc": "a variable"
-            },
-            "variableDef": {
-              "tsType": {
-                "repr": "a",
-                "kind": "literal",
-                "literal": {
-                  "kind": "string",
-                  "string": "a"
-                }
-              },
-              "kind": "const"
+      "declarations": [{
+        "kind": "namespace",
+        "location": {
+          "filename": "file:///ns.ts",
+          "line": 1,
+          "col": 7,
+          "byteIndex": 8
+        },
+        "declarationKind": "export",
+        "jsDoc": {
+          "doc": "This is some module doc.\n",
+          "tags": [
+            {
+              "kind": "module"
             }
-          }
-        ]
-      }
+          ]
+        },
+        "def": {
+          "elements": [
+            {
+              "name": "a",
+              "declarations": [{
+                "kind": "variable",
+                "location": {
+                  "filename": "file:///mod_doc.ts",
+                  "line": 8,
+                  "col": 13,
+                  "byteIndex": 83
+                },
+                "declarationKind": "export",
+                "jsDoc": {
+                  "doc": "a variable"
+                },
+                "def": {
+                  "tsType": {
+                    "repr": "a",
+                    "kind": "literal",
+                    "value": {
+                      "kind": "string",
+                      "string": "a"
+                    }
+                  },
+                  "kind": "const"
+                }
+              }]
+            }
+          ]
+        }
+      }]
     }
   ]);
   assert_eq!(actual, expected);
@@ -622,19 +607,19 @@ export namespace Deno {
   .unwrap()
   .into_values()
   .next()
-  .unwrap();
+  .unwrap()
+  .symbols;
 
   // Namespace
   let found = find_nodes_by_name_recursively(entries.clone(), "Deno");
   assert_eq!(found.len(), 1);
   assert_eq!(found[0].name.as_ref(), "Deno");
 
-  // Overloaded functions
+  // Overloaded functions (merged into a single symbol with 3 declarations)
   let found = find_nodes_by_name_recursively(entries.clone(), "Deno.test");
-  assert_eq!(found.len(), 3);
+  assert_eq!(found.len(), 1);
   assert_eq!(found[0].name.as_ref(), "test");
-  assert_eq!(found[1].name.as_ref(), "test");
-  assert_eq!(found[2].name.as_ref(), "test");
+  assert_eq!(found[0].declarations.len(), 3);
 
   // Nested namespace
   let found = find_nodes_by_name_recursively(entries.clone(), "Deno.Inner.a");
@@ -645,28 +630,40 @@ export namespace Deno {
   let found = find_nodes_by_name_recursively(entries.clone(), "Deno.Conn.rid");
   assert_eq!(found.len(), 1);
   assert_eq!(found[0].name.as_ref(), "rid");
-  assert!(matches!(found[0].def, DocNodeDef::Variable { .. }));
+  assert!(matches!(
+    found[0].declarations[0].def,
+    DeclarationDef::Variable(..)
+  ));
 
   // Interface method
   let found =
     find_nodes_by_name_recursively(entries.clone(), "Deno.Conn.closeWrite");
   assert_eq!(found.len(), 1);
   assert_eq!(found[0].name.as_ref(), "closeWrite");
-  assert!(matches!(found[0].def, DocNodeDef::Function { .. }));
+  assert!(matches!(
+    found[0].declarations[0].def,
+    DeclarationDef::Function(..)
+  ));
 
   // Class property
   let found =
     find_nodes_by_name_recursively(entries.clone(), "Deno.Process.pid");
   assert_eq!(found.len(), 1);
   assert_eq!(found[0].name.as_ref(), "pid");
-  assert!(matches!(found[0].def, DocNodeDef::Variable { .. }));
+  assert!(matches!(
+    found[0].declarations[0].def,
+    DeclarationDef::Variable(..)
+  ));
 
   // Class method
   let found =
     find_nodes_by_name_recursively(entries.clone(), "Deno.Process.output");
   assert_eq!(found.len(), 1);
   assert_eq!(found[0].name.as_ref(), "output");
-  assert!(matches!(found[0].def, DocNodeDef::Function { .. }));
+  assert!(matches!(
+    found[0].declarations[0].def,
+    DeclarationDef::Function(..)
+  ));
 
   // No match
   let found = find_nodes_by_name_recursively(entries.clone(), "Deno.test.a");
@@ -693,7 +690,7 @@ async fn exports_imported_earlier() {
     ],
   )
   .await;
-  let entries = DocParser::new(
+  let document = DocParser::new(
     &graph,
     &analyzer,
     &[specifier],
@@ -706,45 +703,41 @@ async fn exports_imported_earlier() {
   .next()
   .unwrap();
 
-  let expected_json = json!([
+  let expected_symbols = json!([
     {
-      "kind": "variable",
       "name": "foo",
-      "isDefault": false,
-      "location": {
-        "filename": "file:///foo.ts",
-        "line": 1,
-        "col": 13,
-        "byteIndex": 13
-      },
-      "declarationKind": "export",
-      "variableDef": {
-        "tsType": {
-          "repr": "string",
-          "kind": "keyword",
-          "keyword": "string"
+      "declarations": [{
+        "kind": "variable",
+        "location": {
+          "filename": "file:///foo.ts",
+          "line": 0,
+          "col": 13,
+          "byteIndex": 13
         },
-        "kind": "const"
-      }
-    },
-    {
-      "kind": "import",
-      "name": "foo",
-      "location": {
-        "filename": "file:///test.ts",
-        "line": 2,
-        "col": 2,
-        "byteIndex": 3
-      },
-      "declarationKind": "private",
-      "importDef": {
-        "src": "file:///foo.ts",
-        "imported": "foo",
-      },
+        "declarationKind": "export",
+        "def": {
+          "tsType": {
+            "repr": "string",
+            "kind": "keyword",
+            "value": "string"
+          },
+          "kind": "const"
+        }
+      }]
     },
   ]);
-  let actual = serde_json::to_value(&entries).unwrap();
-  assert_eq!(actual, expected_json);
+  let actual = serde_json::to_value(&document.symbols).unwrap();
+  assert_eq!(actual, expected_symbols);
+
+  let expected_imports = json!([
+    {
+      "importedName": "foo",
+      "originalName": "foo",
+      "src": "file:///foo.ts",
+    },
+  ]);
+  let actual = serde_json::to_value(&document.imports).unwrap();
+  assert_eq!(actual, expected_imports);
 }
 
 #[tokio::test]
@@ -764,7 +757,7 @@ async fn exports_imported_earlier_renamed() {
     ],
   )
   .await;
-  let entries = DocParser::new(
+  let document = DocParser::new(
     &graph,
     &analyzer,
     &[specifier],
@@ -777,45 +770,41 @@ async fn exports_imported_earlier_renamed() {
   .next()
   .unwrap();
 
-  let expected_json = json!([
+  let expected_symbols = json!([
     {
-      "kind": "variable",
       "name": "f",
-      "isDefault": false,
-      "location": {
-        "filename": "file:///foo.ts",
-        "line": 1,
-        "col": 13,
-        "byteIndex": 13
-      },
-      "declarationKind": "export",
-      "variableDef": {
-        "tsType": {
-          "repr": "string",
-          "kind": "keyword",
-          "keyword": "string"
+      "declarations": [{
+        "kind": "variable",
+        "location": {
+          "filename": "file:///foo.ts",
+          "line": 0,
+          "col": 13,
+          "byteIndex": 13
         },
-        "kind": "const"
-      }
+        "declarationKind": "export",
+        "def": {
+          "tsType": {
+            "repr": "string",
+            "kind": "keyword",
+            "value": "string"
+          },
+          "kind": "const"
+        }
+      }]
     },
+  ]);
+  let actual = serde_json::to_value(&document.symbols).unwrap();
+  assert_eq!(actual, expected_symbols);
+
+  let expected_imports = json!([
     {
-      "kind": "import",
-      "name": "f",
-      "location": {
-        "filename": "file:///test.ts",
-        "line": 2,
-        "col": 2,
-        "byteIndex": 3
-      },
-      "declarationKind": "private",
-      "importDef": {
-        "src": "file:///foo.ts",
-        "imported": "foo"
-      }
+      "importedName": "f",
+      "originalName": "foo",
+      "src": "file:///foo.ts",
     }
   ]);
-  let actual = serde_json::to_value(&entries).unwrap();
-  assert_eq!(actual, expected_json);
+  let actual = serde_json::to_value(&document.imports).unwrap();
+  assert_eq!(actual, expected_imports);
 }
 
 #[tokio::test]
@@ -836,7 +825,7 @@ async fn exports_imported_earlier_default() {
     ],
   )
   .await;
-  let entries = DocParser::new(
+  let document = DocParser::new(
     &graph,
     &analyzer,
     &[specifier],
@@ -849,45 +838,41 @@ async fn exports_imported_earlier_default() {
   .next()
   .unwrap();
 
-  let expected_json = json!([
+  let expected_symbols = json!([
     {
-      "kind": "variable",
       "name": "foo",
-      "isDefault": false,
-      "location": {
-        "filename": "file:///foo.ts",
-        "line": 1,
-        "col": 6,
-        "byteIndex": 6
-      },
-      "declarationKind": "export",
-      "variableDef": {
-        "tsType": {
-          "repr": "string",
-          "kind": "keyword",
-          "keyword": "string"
+      "declarations": [{
+        "kind": "variable",
+        "location": {
+          "filename": "file:///foo.ts",
+          "line": 0,
+          "col": 6,
+          "byteIndex": 6
         },
-        "kind": "const"
-      }
+        "declarationKind": "export",
+        "def": {
+          "tsType": {
+            "repr": "string",
+            "kind": "keyword",
+            "value": "string"
+          },
+          "kind": "const"
+        }
+      }]
     },
+  ]);
+  let actual = serde_json::to_value(&document.symbols).unwrap();
+  assert_eq!(actual, expected_symbols);
+
+  let expected_imports = json!([
     {
-      "kind": "import",
-      "name": "foo",
-      "location": {
-        "filename": "file:///test.ts",
-        "line": 2,
-        "col": 2,
-        "byteIndex": 3
-      },
-      "declarationKind": "private",
-      "importDef": {
-        "src": "file:///foo.ts",
-        "imported": "default"
-      }
+      "importedName": "foo",
+      "originalName": "default",
+      "src": "file:///foo.ts",
     }
   ]);
-  let actual = serde_json::to_value(&entries).unwrap();
-  assert_eq!(actual, expected_json);
+  let actual = serde_json::to_value(&document.imports).unwrap();
+  assert_eq!(actual, expected_imports);
 }
 
 #[tokio::test]
@@ -907,7 +892,7 @@ async fn exports_imported_earlier_private() {
     ],
   )
   .await;
-  let entries = DocParser::new(
+  let document = DocParser::new(
     &graph,
     &analyzer,
     &[specifier],
@@ -923,45 +908,41 @@ async fn exports_imported_earlier_private() {
   .next()
   .unwrap();
 
-  let expected_json = json!([
+  let expected_symbols = json!([
     {
-      "kind": "variable",
       "name": "foo",
-      "isDefault": false,
-      "location": {
-        "filename": "file:///foo.ts",
-        "line": 1,
-        "col": 13,
-        "byteIndex": 13
-      },
-      "declarationKind": "export",
-      "variableDef": {
-        "tsType": {
-          "repr": "string",
-          "kind": "keyword",
-          "keyword": "string"
+      "declarations": [{
+        "kind": "variable",
+        "location": {
+          "filename": "file:///foo.ts",
+          "line": 0,
+          "col": 13,
+          "byteIndex": 13
         },
-        "kind": "const"
-      }
-    },
-    {
-      "kind": "import",
-      "name": "foo",
-      "location": {
-        "filename": "file:///test.ts",
-        "line": 2,
-        "col": 2,
-        "byteIndex": 3
-      },
-      "declarationKind": "private",
-      "importDef": {
-        "src": "file:///foo.ts",
-        "imported": "foo",
-      },
+        "declarationKind": "export",
+        "def": {
+          "tsType": {
+            "repr": "string",
+            "kind": "keyword",
+            "value": "string"
+          },
+          "kind": "const"
+        }
+      }]
     },
   ]);
-  let actual = serde_json::to_value(&entries).unwrap();
-  assert_eq!(actual, expected_json);
+  let actual = serde_json::to_value(&document.symbols).unwrap();
+  assert_eq!(actual, expected_symbols);
+
+  let expected_imports = json!([
+    {
+      "importedName": "foo",
+      "originalName": "foo",
+      "src": "file:///foo.ts",
+    },
+  ]);
+  let actual = serde_json::to_value(&document.imports).unwrap();
+  assert_eq!(actual, expected_imports);
 }
 
 #[tokio::test]
@@ -1004,27 +985,25 @@ async fn json_module() {
   .unwrap()
   .into_values()
   .next()
-  .unwrap();
+  .unwrap()
+  .symbols;
 
   let expected_json = json!([
     {
-      "kind": "variable",
       "name": "configFile",
-      "isDefault": false,
-      "location": {
-        "filename": "file:///bar.json",
-        "line": 1,
-        "col": 0,
-        "byteIndex": 0,
-      },
-      "declarationKind": "export",
-      "variableDef": {
+      "declarations": [{
+        "kind": "variable",
+        "location": {
+          "filename": "file:///bar.json",
+          "line": 0,
+          "col": 0,
+          "byteIndex": 0,
+        },
+        "declarationKind": "export",
+        "def": {
         "tsType": {
-          "repr": "",
           "kind": "typeLiteral",
-          "typeLiteral": {
-            "constructors": [],
-            "methods": [],
+          "value": {
             "properties": [{
               "name": "a",
               "location": {
@@ -1033,18 +1012,14 @@ async fn json_module() {
                 "col": 0,
                 "byteIndex": 0,
               },
-              "params": [],
-              "computed": false,
-              "optional": false,
               "tsType": {
                 "repr": "5",
                 "kind": "literal",
-                "literal": {
+                "value": {
                   "kind": "number",
                   "number": 5.0,
                 },
               },
-              "typeParams": []
             }, {
               "name": "b",
               "location": {
@@ -1053,18 +1028,14 @@ async fn json_module() {
                 "col": 0,
                 "byteIndex": 0,
               },
-              "params": [],
-              "computed": false,
-              "optional": false,
               "tsType": {
                 "repr": "text",
                 "kind": "literal",
-                "literal": {
+                "value": {
                   "kind": "string",
                   "string": "text",
                 },
               },
-              "typeParams": []
             }, {
               "name": "c",
               "location": {
@@ -1073,15 +1044,11 @@ async fn json_module() {
                 "col": 0,
                 "byteIndex": 0,
               },
-              "params": [],
-              "computed": false,
-              "optional": false,
               "tsType": {
                 "repr": "null",
                 "kind": "keyword",
-                "keyword": "null",
+                "value": "null",
               },
-              "typeParams": []
             }, {
               "name": "d",
               "location": {
@@ -1090,36 +1057,26 @@ async fn json_module() {
                 "col": 0,
                 "byteIndex": 0,
               },
-              "params": [],
-              "computed": false,
-              "optional": false,
               "tsType": {
                 "repr": "unknown[]",
                 "kind": "array",
-                "array": {
+                "value": {
                   "repr": "unknown",
                   "kind": "keyword",
-                  "keyword": "unknown",
+                  "value": "unknown",
                 },
               },
-              "typeParams": []
             }, {
               "name": "e",
-              "params": [],
               "location": {
                 "filename": "",
                 "line": 0,
                 "col": 0,
                 "byteIndex": 0,
               },
-              "computed": false,
-              "optional": false,
               "tsType": {
-                "repr": "",
                 "kind": "typeLiteral",
-                "typeLiteral": {
-                  "constructors": [],
-                  "methods": [],
+                "value": {
                   "properties": [{
                     "name": "a",
                     "location": {
@@ -1128,31 +1085,23 @@ async fn json_module() {
                       "col": 0,
                       "byteIndex": 0,
                     },
-                    "params": [],
-                    "computed": false,
-                    "optional": false,
                     "tsType": {
                       "repr": "1",
                       "kind": "literal",
-                      "literal": {
+                      "value": {
                         "kind": "number",
                         "number": 1.0,
                       },
                     },
-                    "typeParams": []
                   }],
-                  "callSignatures": [],
-                  "indexSignatures": [],
                 },
               },
-              "typeParams": []
             }],
-            "callSignatures": [],
-            "indexSignatures": [],
           },
         },
         "kind": "var",
       },
+      }]
     },
   ]);
   let actual = serde_json::to_value(&entries).unwrap();

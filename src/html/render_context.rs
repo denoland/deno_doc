@@ -1,31 +1,39 @@
-use crate::html::util::BreadcrumbCtx;
-use crate::html::util::BreadcrumbsCtx;
-use crate::html::util::NamespacedSymbols;
 use crate::html::DocNodeWithContext;
 use crate::html::GenerateCtx;
 use crate::html::UrlResolveKind;
-use crate::node::DocNodeDef;
+use crate::html::util::BreadcrumbCtx;
+use crate::html::util::BreadcrumbsCtx;
+use crate::html::util::NamespacedSymbols;
 use deno_graph::ModuleSpecifier;
+use serde::Deserialize;
 use serde::Serialize;
 use std::cmp::Ordering;
 use std::collections::HashMap;
 use std::collections::HashSet;
-use std::rc::Rc;
 use std::sync::Arc;
 use std::sync::Mutex;
+
+#[derive(Debug, Clone)]
+pub(crate) struct CurrentImport {
+  src: String,
+  /// The name of the symbol in the source module (`default` for default
+  /// imports); `None` for namespace imports (`import * as foo`).
+  original_name: Option<String>,
+}
 
 #[derive(Clone)]
 pub struct RenderContext<'ctx> {
   pub ctx: &'ctx GenerateCtx,
   scoped_symbols: NamespacedSymbols,
-  current_imports: Rc<HashMap<String, String>>,
-  current_type_params: Rc<HashSet<&'ctx str>>,
+  current_imports: Arc<HashMap<String, CurrentImport>>,
+  current_type_params: Arc<HashSet<&'ctx str>>,
   current_resolve: UrlResolveKind<'ctx>,
   /// A vector of parts of the current namespace, eg. `vec!["Deno", "errors"]`.
-  namespace_parts: Rc<[String]>,
+  namespace_parts: Arc<[String]>,
   /// Only some when in `FileMode::SingleDts` and using categories
   pub category: Option<&'ctx str>,
   pub toc: HeadingToCAdapter,
+  pub disable_links: bool,
 }
 
 impl<'ctx> RenderContext<'ctx> {
@@ -34,15 +42,22 @@ impl<'ctx> RenderContext<'ctx> {
     doc_nodes: &[DocNodeWithContext],
     current_resolve: UrlResolveKind<'ctx>,
   ) -> Self {
+    let current_imports = current_resolve
+      .get_file()
+      .and_then(|file| ctx.imports.get(file))
+      .map(|imports| get_current_imports(imports))
+      .unwrap_or_default();
+
     Self {
       ctx,
       scoped_symbols: NamespacedSymbols::new(ctx, doc_nodes),
-      current_imports: Rc::new(get_current_imports(doc_nodes)),
+      current_imports: Arc::new(current_imports),
       current_type_params: Default::default(),
       current_resolve,
-      namespace_parts: Rc::new([]),
+      namespace_parts: Arc::new([]),
       category: None,
       toc: Default::default(),
+      disable_links: false,
     }
   }
 
@@ -51,12 +66,12 @@ impl<'ctx> RenderContext<'ctx> {
     current_type_params: HashSet<&'ctx str>,
   ) -> Self {
     Self {
-      current_type_params: Rc::new(current_type_params),
+      current_type_params: Arc::new(current_type_params),
       ..self.clone()
     }
   }
 
-  pub fn with_namespace(&self, namespace_parts: Rc<[String]>) -> Self {
+  pub fn with_namespace(&self, namespace_parts: Arc<[String]>) -> Self {
     Self {
       namespace_parts,
       ..self.clone()
@@ -82,11 +97,18 @@ impl<'ctx> RenderContext<'ctx> {
     }
   }
 
+  pub fn with_disable_links(&self, disable_links: bool) -> Self {
+    Self {
+      disable_links,
+      ..self.clone()
+    }
+  }
+
   pub fn contains_type_param(&self, name: &str) -> bool {
     self.current_type_params.contains(name)
   }
 
-  pub fn get_current_resolve(&self) -> UrlResolveKind {
+  pub fn get_current_resolve(&self) -> UrlResolveKind<'_> {
     self.current_resolve
   }
 
@@ -97,13 +119,18 @@ impl<'ctx> RenderContext<'ctx> {
       .collect::<Vec<_>>();
 
     if !self.namespace_parts.is_empty() {
-      // TODO: clean this up to not clone and to_vec
-      let mut parts = self.namespace_parts.to_vec();
-      while !parts.is_empty() {
-        let mut current_parts = parts.clone();
-        current_parts.extend_from_slice(&target_symbol_parts);
+      let ns_len = self.namespace_parts.len();
+      let target_len = target_symbol_parts.len();
+      // Reusable buffer: [ns_prefix..., target_parts...]
+      let mut lookup = Vec::with_capacity(ns_len + target_len);
 
-        if let Some(origin) = self.scoped_symbols.get(&current_parts) {
+      // Try progressively shorter namespace prefixes: ns_len, ns_len-1, ..., 1
+      for prefix_len in (1..=ns_len).rev() {
+        lookup.clear();
+        lookup.extend(self.namespace_parts[..prefix_len].iter().cloned());
+        lookup.extend_from_slice(&target_symbol_parts);
+
+        if let Some(origin) = self.scoped_symbols.get(&lookup) {
           return Some(
             self.ctx.resolve_path(
               self.get_current_resolve(),
@@ -113,13 +140,11 @@ impl<'ctx> RenderContext<'ctx> {
                   .get_file()
                   .or_else(|| origin.as_ref().map(|origin| &**origin))
                   .unwrap(),
-                symbol: &current_parts.join("."),
+                symbol: &lookup.join("."),
               },
             ),
           );
         }
-
-        parts.pop();
       }
     }
 
@@ -141,28 +166,51 @@ impl<'ctx> RenderContext<'ctx> {
       );
     }
 
-    if let Some(src) = self.current_imports.get(target_symbol) {
-      if let Ok(module_specifier) = ModuleSpecifier::parse(src) {
-        if let Some(short_path) = self
-          .ctx
-          .doc_nodes
-          .keys()
-          .find(|short_path| short_path.specifier == module_specifier)
-        {
-          return Some(self.ctx.resolve_path(
-            self.get_current_resolve(),
-            UrlResolveKind::Symbol {
-              file: short_path,
-              symbol: target_symbol,
-            },
-          ));
+    if let Some(import) = self.current_imports.get(&target_symbol_parts[0]) {
+      let remote_parts = match &import.original_name {
+        // Named or default import: the symbol goes by its original name in
+        // the source module.
+        Some(original_name) => {
+          let mut parts = Vec::with_capacity(target_symbol_parts.len());
+          parts.push(original_name.clone());
+          parts.extend_from_slice(&target_symbol_parts[1..]);
+          Some(parts)
         }
-      }
+        // Namespace import (`import * as foo`): strip the namespace part to
+        // get the path of the symbol in the source module.
+        None => (target_symbol_parts.len() > 1)
+          .then(|| target_symbol_parts[1..].to_vec()),
+      };
 
-      return self
-        .ctx
-        .href_resolver
-        .resolve_import_href(&target_symbol_parts, src);
+      if let Some(remote_parts) = remote_parts {
+        if let Ok(module_specifier) = ModuleSpecifier::parse(&import.src)
+          && let Some(short_path) = self
+            .ctx
+            .doc_nodes
+            .keys()
+            .find(|short_path| short_path.specifier == module_specifier)
+        {
+          // The import points to another documented file. Only link if the
+          // symbol actually exists there to avoid dead links.
+          return if self.ctx.file_has_linkable_symbol(short_path, &remote_parts)
+          {
+            Some(self.ctx.resolve_path(
+              self.get_current_resolve(),
+              UrlResolveKind::Symbol {
+                file: short_path,
+                symbol: &remote_parts.join("."),
+              },
+            ))
+          } else {
+            None
+          };
+        }
+
+        return self
+          .ctx
+          .href_resolver
+          .resolve_import_href(&remote_parts, &import.src);
+      }
     }
 
     self
@@ -172,145 +220,118 @@ impl<'ctx> RenderContext<'ctx> {
   }
 
   pub fn get_breadcrumbs(&self) -> BreadcrumbsCtx {
-    let index_name =
-      self.ctx.package_name.clone().unwrap_or("index".to_string());
+    let root = BreadcrumbCtx {
+      name: self.ctx.package_name.clone().unwrap_or("index".to_string()),
+      href: self
+        .ctx
+        .resolve_path(self.current_resolve, UrlResolveKind::Root),
+    };
+    let mut current_entrypoint = None;
 
-    let parts = match self.current_resolve {
-      UrlResolveKind::Root => vec![BreadcrumbCtx {
-        name: index_name,
-        href: "".to_string(),
-        is_symbol: false,
-        is_first_symbol: false,
-      }],
+    let mut entrypoints = self
+      .ctx
+      .doc_nodes
+      .keys()
+      .map(|short_path| BreadcrumbCtx {
+        name: short_path.display_name().to_string(),
+        href: self.ctx.resolve_path(
+          self.current_resolve,
+          UrlResolveKind::File { file: short_path },
+        ),
+      })
+      .collect::<Vec<_>>();
+
+    entrypoints.insert(
+      0,
+      BreadcrumbCtx {
+        name: "all symbols".to_string(),
+        href: self
+          .ctx
+          .resolve_path(self.current_resolve, UrlResolveKind::AllSymbols),
+      },
+    );
+
+    let mut symbols = vec![];
+
+    match self.current_resolve {
+      UrlResolveKind::Root => {
+        entrypoints = vec![];
+      }
       UrlResolveKind::AllSymbols => {
-        vec![
-          BreadcrumbCtx {
-            name: index_name,
-            href: self
-              .ctx
-              .resolve_path(self.current_resolve, UrlResolveKind::Root),
-            is_symbol: false,
-            is_first_symbol: false,
-          },
-          BreadcrumbCtx {
-            name: "all symbols".to_string(),
-            href: "".to_string(),
-            is_symbol: false,
-            is_first_symbol: false,
-          },
-        ]
-      }
-      UrlResolveKind::Category { category } => {
-        vec![
-          BreadcrumbCtx {
-            name: index_name,
-            href: self
-              .ctx
-              .resolve_path(self.current_resolve, UrlResolveKind::Root),
-            is_symbol: false,
-            is_first_symbol: false,
-          },
-          BreadcrumbCtx {
-            name: category.to_owned(),
-            href: super::util::slugify(category),
-            is_symbol: false,
-            is_first_symbol: false,
-          },
-        ]
-      }
-      UrlResolveKind::File { file } => {
-        if file.is_main {
-          vec![BreadcrumbCtx {
-            name: index_name,
-            href: "".to_string(),
-            is_symbol: false,
-            is_first_symbol: false,
-          }]
-        } else {
-          vec![
-            BreadcrumbCtx {
-              name: index_name,
-              href: self
-                .ctx
-                .resolve_path(self.current_resolve, UrlResolveKind::Root),
-              is_symbol: false,
-              is_first_symbol: false,
-            },
-            BreadcrumbCtx {
-              name: file.display_name().to_string(),
-              href: "".to_string(),
-              is_symbol: false,
-              is_first_symbol: false,
-            },
-          ]
-        }
-      }
-      UrlResolveKind::Symbol { file, symbol } => {
-        let mut parts = vec![BreadcrumbCtx {
-          name: index_name,
+        current_entrypoint = Some(BreadcrumbCtx {
+          name: "all symbols".to_string(),
           href: self
             .ctx
-            .resolve_path(self.current_resolve, UrlResolveKind::Root),
-          is_symbol: false,
-          is_first_symbol: false,
-        }];
-
-        if !file.is_main {
-          parts.push(BreadcrumbCtx {
-            name: file.display_name().to_string(),
-            href: self.ctx.resolve_path(
-              self.current_resolve,
-              UrlResolveKind::File { file },
-            ),
-            is_symbol: false,
-            is_first_symbol: false,
-          });
-        } else if let Some(category) = self.category {
-          parts.push(BreadcrumbCtx {
+            .resolve_path(self.current_resolve, UrlResolveKind::AllSymbols),
+        });
+      }
+      UrlResolveKind::Category { category } => {
+        current_entrypoint = Some(BreadcrumbCtx {
+          name: category.to_owned(),
+          href: super::util::slugify(category),
+        });
+      }
+      UrlResolveKind::File { file } => {
+        current_entrypoint = Some(BreadcrumbCtx {
+          name: file.display_name().to_string(),
+          href: self
+            .ctx
+            .resolve_path(self.current_resolve, UrlResolveKind::File { file }),
+        });
+      }
+      UrlResolveKind::Symbol { file, symbol } => {
+        if let Some(category) = self.category {
+          current_entrypoint = Some(BreadcrumbCtx {
             name: category.to_string(),
             href: self.ctx.resolve_path(
               self.current_resolve,
               UrlResolveKind::Category { category },
             ),
-            is_symbol: false,
-            is_first_symbol: false,
+          });
+        } else {
+          current_entrypoint = Some(BreadcrumbCtx {
+            name: file.display_name().to_string(),
+            href: self.ctx.resolve_path(
+              self.current_resolve,
+              UrlResolveKind::File { file },
+            ),
           });
         }
 
-        let (_, symbol_parts) =
-          split_with_brackets(symbol).into_iter().enumerate().fold(
-            (vec![], vec![]),
-            |(mut symbol_parts, mut breadcrumbs), (i, symbol_part)| {
-              symbol_parts.push(symbol_part.clone());
-              let breadcrumb = BreadcrumbCtx {
-                name: symbol_part,
-                href: self.ctx.resolve_path(
-                  self.current_resolve,
-                  UrlResolveKind::Symbol {
-                    file,
-                    symbol: &symbol_parts.join("."),
-                  },
-                ),
-                is_symbol: true,
-                is_first_symbol: i == 0,
-              };
-              breadcrumbs.push(breadcrumb);
+        let (_, symbol_parts) = split_with_brackets(symbol).into_iter().fold(
+          (vec![], vec![]),
+          |(mut symbol_parts, mut breadcrumbs), symbol_part| {
+            symbol_parts.push(symbol_part.clone());
+            let breadcrumb = BreadcrumbCtx {
+              name: symbol_part,
+              href: self.ctx.resolve_path(
+                self.current_resolve,
+                UrlResolveKind::Symbol {
+                  file,
+                  symbol: &symbol_parts.join("."),
+                },
+              ),
+            };
+            breadcrumbs.push(breadcrumb);
 
-              (symbol_parts, breadcrumbs)
-            },
-          );
+            (symbol_parts, breadcrumbs)
+          },
+        );
 
-        parts.extend(symbol_parts);
-
-        parts
+        symbols = symbol_parts;
       }
-    };
+    }
 
-    BreadcrumbsCtx { parts }
+    BreadcrumbsCtx {
+      root,
+      current_entrypoint,
+      entrypoints,
+      symbol: symbols,
+    }
   }
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct ToCEntry {
   pub level: u8,
   pub content: String,
@@ -365,16 +386,25 @@ impl Default for HeadingToCAdapter {
 
 lazy_static! {
   static ref REJECTED_CHARS: regex::Regex =
-    regex::Regex::new(r"[^\p{L}\p{M}\p{N}\p{Pc} -]").unwrap();
+    regex::Regex::new(r"[^\p{L}\p{M}\p{N}\p{Pc} -_/]").unwrap();
 }
 
 impl HeadingToCAdapter {
-  pub fn anchorize(&self, content: &str) -> String {
+  pub fn anchorize(&self, content: &str) -> super::util::Id {
     let mut anchorizer = self.anchorizer.lock().unwrap();
-    anchorizer.anchorize(content)
+    super::util::Id::from_raw(anchorizer.anchorize(content))
   }
 
-  pub fn add_entry(&self, level: u8, content: &str, anchor: &str) {
+  /// Apply the same GFM sanitization as anchorize but without registering
+  /// in the deduplication map. Use for IDs referencing anchors on other pages.
+  pub fn sanitize(&self, content: &str) -> super::util::Id {
+    let s = REJECTED_CHARS
+      .replace_all(&content.to_lowercase(), "")
+      .replace(' ', "-");
+    super::util::Id::from_raw(s)
+  }
+
+  pub fn add_entry(&self, level: u8, content: &str, anchor: &super::util::Id) {
     let mut toc = self.toc.lock().unwrap();
     let mut offset = self.offset.lock().unwrap();
 
@@ -384,7 +414,7 @@ impl HeadingToCAdapter {
       toc.push(ToCEntry {
         level,
         content: content.to_owned(),
-        anchor: anchor.to_owned(),
+        anchor: anchor.as_str().to_owned(),
       });
     }
   }
@@ -417,7 +447,10 @@ impl HeadingToCAdapter {
 
       toc_content.push(format!(
         r##"<li><a href="#{}" title="{}">{}</a></li>"##,
-        entry.anchor,
+        // The anchorizer keeps `"`, `<` and `&` (its character class has ` -_`
+        // as a range over U+0020..=U+005F), so an anchor built from a markdown
+        // heading would otherwise break out of the attribute.
+        html_escape::encode_double_quoted_attribute(&entry.anchor),
         html_escape::encode_double_quoted_attribute(&entry.content),
         entry.content
       ));
@@ -469,33 +502,33 @@ fn split_with_brackets(s: &str) -> Vec<String> {
 }
 
 fn get_current_imports(
-  doc_nodes: &[DocNodeWithContext],
-) -> HashMap<String, String> {
-  let mut imports = HashMap::new();
+  imports: &[crate::node::Import],
+) -> HashMap<String, CurrentImport> {
+  let mut imports_out = HashMap::new();
 
-  for doc_node in doc_nodes {
-    if let DocNodeDef::Import { import_def } = &doc_node.def {
-      // TODO: handle import aliasing
-      if import_def.imported.as_deref() == Some(doc_node.get_name()) {
-        imports.insert(doc_node.get_name().to_string(), import_def.src.clone());
-      }
-    }
+  for import in imports {
+    imports_out.insert(
+      import.imported_name.to_string(),
+      CurrentImport {
+        src: import.src.clone(),
+        original_name: import.original_name.clone(),
+      },
+    );
   }
 
-  imports
+  imports_out
 }
 
 #[cfg(test)]
 mod test {
   use super::*;
+  use crate::Location;
   use crate::html::HrefResolver;
   use crate::html::{
     GenerateOptions, UsageComposer, UsageComposerEntry, UsageToMd,
   };
-  use crate::node::DeclarationKind;
-  use crate::node::ImportDef;
-  use crate::DocNode;
-  use crate::Location;
+  use crate::node::Document;
+  use crate::node::Import;
   use indexmap::IndexMap;
 
   struct TestResolver;
@@ -567,32 +600,44 @@ mod test {
   fn lookup_symbol_href() {
     let doc_nodes_by_url = indexmap::IndexMap::from([(
       ModuleSpecifier::parse("file:///mod.ts").unwrap(),
-      vec![DocNode {
-        name: "foo".into(),
-        is_default: None,
-        location: Location {
-          filename: "a".into(),
-          line: 0,
-          col: 0,
-          byte_index: 0,
-        },
-        declaration_kind: DeclarationKind::Private,
-        js_doc: Default::default(),
-        def: crate::node::DocNodeDef::Import {
-          import_def: ImportDef {
+      Document {
+        module_doc: Default::default(),
+        imports: vec![
+          Import {
+            imported_name: "foo".into(),
+            js_doc: Default::default(),
             src: "b".to_string(),
-            imported: Some("foo".to_string()),
+            original_name: Some("foo".to_string()),
           },
-        },
-      }],
+          Import {
+            imported_name: "Stmt".into(),
+            js_doc: Default::default(),
+            src: "b".to_string(),
+            original_name: Some("Statement".to_string()),
+          },
+          Import {
+            imported_name: "def".into(),
+            js_doc: Default::default(),
+            src: "b".to_string(),
+            original_name: Some("default".to_string()),
+          },
+          Import {
+            imported_name: "ns".into(),
+            js_doc: Default::default(),
+            src: "b".to_string(),
+            original_name: None,
+          },
+        ],
+        symbols: vec![],
+      },
     )]);
 
     let ctx = GenerateCtx::new(
       GenerateOptions {
         package_name: None,
         main_entrypoint: None,
-        href_resolver: Rc::new(TestResolver),
-        usage_composer: Rc::new(TestResolver),
+        href_resolver: Arc::new(TestResolver),
+        usage_composer: Some(Arc::new(TestResolver)),
         rewrite_map: None,
         category_docs: None,
         disable_search: false,
@@ -601,12 +646,16 @@ mod test {
         markdown_renderer: crate::html::comrak::create_renderer(
           None, None, None,
         ),
-        markdown_stripper: Rc::new(crate::html::comrak::strip),
+        markdown_stripper: Arc::new(crate::html::comrak::strip),
         head_inject: None,
+        id_prefix: None,
+        diff_only: false,
+        symbol_listing_limit: None,
       },
       None,
       Default::default(),
       doc_nodes_by_url,
+      None,
     )
     .unwrap();
 
@@ -616,15 +665,34 @@ mod test {
     let render_ctx = RenderContext::new(&ctx, doc_nodes, UrlResolveKind::Root);
     assert_eq!(render_ctx.lookup_symbol_href("bar").unwrap(), "global$bar");
 
-    // imports
-    let render_ctx = RenderContext::new(&ctx, doc_nodes, UrlResolveKind::Root);
-    assert_eq!(render_ctx.lookup_symbol_href("foo").unwrap(), "b/foo");
-
+    // imports (only available when current resolve is a file)
     let render_ctx = RenderContext::new(
       &ctx,
       doc_nodes,
       UrlResolveKind::File { file: short_path },
     );
     assert_eq!(render_ctx.lookup_symbol_href("foo").unwrap(), "b/foo");
+
+    // aliased import (`import { Statement as Stmt }`) resolves to the
+    // original name in the source module
+    assert_eq!(
+      render_ctx.lookup_symbol_href("Stmt").unwrap(),
+      "b/Statement"
+    );
+
+    // default import (`import def from "b"`)
+    assert_eq!(render_ctx.lookup_symbol_href("def").unwrap(), "b/default");
+
+    // namespace import (`import * as ns from "b"`)
+    assert_eq!(
+      render_ctx.lookup_symbol_href("ns.Expression").unwrap(),
+      "b/Expression"
+    );
+    assert_eq!(
+      render_ctx.lookup_symbol_href("ns.foo.bar").unwrap(),
+      "b/foo.bar"
+    );
+    // a bare reference to the namespace itself is not linkable
+    assert!(render_ctx.lookup_symbol_href("ns").is_none());
   }
 }

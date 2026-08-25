@@ -1,34 +1,190 @@
-use crate::html::jsdoc::markdown_to_html;
-use crate::html::jsdoc::MarkdownToHTMLOptions;
-use crate::html::render_context::ToCEntry;
-use crate::html::usage::UsagesCtx;
-use crate::html::DocNodeKind;
+use crate::Declaration;
+use crate::diff::JsDocDiff;
+use crate::html::DiffStatus;
 use crate::html::DocNodeWithContext;
 use crate::html::FileMode;
 use crate::html::GenerateCtx;
 use crate::html::RenderContext;
 use crate::html::ShortPath;
+use crate::html::partition::flatten_namespace;
+use crate::html::render_context::ToCEntry;
+use crate::html::usage::UsagesCtx;
 use crate::js_doc::JsDoc;
 use crate::js_doc::JsDocTag;
-use crate::node::DocNodeDef;
+use crate::node::DeclarationDef;
+use crate::node::DocNodeKind;
 use deno_ast::swc::ast::Accessibility;
 use deno_ast::swc::atoms::once_cell::sync::Lazy;
 use indexmap::IndexSet;
 use regex::Regex;
+use serde::Deserialize;
 use serde::Serialize;
 use std::borrow::Cow;
 use std::collections::HashMap;
-use std::rc::Rc;
+use std::fmt::Display;
+use std::fmt::Formatter;
+use std::sync::Arc;
 
 lazy_static! {
   static ref TARGET_RE: Regex = Regex::new(r"\s*\* ?|\.").unwrap();
 }
 
-pub(crate) fn name_to_id(kind: &str, name: &str) -> String {
-  format!(
-    "{kind}_{}",
-    html_escape::encode_safe(&TARGET_RE.replace_all(name, "_"))
-  )
+pub enum IdKind {
+  Constructor,
+  ConstructSignature,
+  Property,
+  Method,
+  Function,
+  Variable,
+  Class,
+  Enum,
+  Interface,
+  TypeAlias,
+  Namespace,
+  Accessor,
+  Parameter,
+  Return,
+  TypeParam,
+  Throws,
+  IndexSignature,
+  CallSignature,
+  Example,
+}
+
+impl IdKind {
+  fn as_str(&self) -> &'static str {
+    match self {
+      IdKind::Constructor => "constructor",
+      IdKind::ConstructSignature => "construct_signature",
+      IdKind::Property => "property",
+      IdKind::Method => "method",
+      IdKind::Function => "function",
+      IdKind::Variable => "variable",
+      IdKind::Class => "class",
+      IdKind::Enum => "enum",
+      IdKind::Interface => "interface",
+      IdKind::TypeAlias => "typeAlias",
+      IdKind::Namespace => "namespace",
+      IdKind::Accessor => "accessor",
+      IdKind::Parameter => "parameter",
+      IdKind::Return => "return",
+      IdKind::TypeParam => "type_param",
+      IdKind::Throws => "throws",
+      IdKind::IndexSignature => "index_signature",
+      IdKind::CallSignature => "call_signature",
+      IdKind::Example => "example",
+    }
+  }
+}
+
+pub struct IdBuilder<'a> {
+  ctx: &'a RenderContext<'a>,
+  components: Vec<Cow<'a, str>>,
+}
+
+impl<'a> IdBuilder<'a> {
+  pub fn new(ctx: &'a RenderContext<'a>) -> Self {
+    let mut builder = Self {
+      ctx,
+      components: Vec::new(),
+    };
+
+    if let Some(prefix) = &ctx.ctx.id_prefix {
+      builder.components.push(Cow::Borrowed(prefix));
+    }
+
+    builder
+  }
+
+  pub fn new_with_parent(ctx: &'a RenderContext<'a>, parent: &Id) -> Self {
+    let mut builder = Self::new(ctx);
+
+    let component = parent.as_ref();
+    if !component.is_empty() {
+      builder
+        .components
+        .push(Cow::Owned(sanitize_id_part(component)));
+    }
+
+    builder
+  }
+
+  pub fn kind(mut self, kind: IdKind) -> Self {
+    self.components.push(Cow::Borrowed(kind.as_str()));
+    self
+  }
+
+  pub fn name(mut self, name: &str) -> Self {
+    if !name.is_empty() {
+      self.components.push(Cow::Owned(sanitize_id_part(name)));
+    }
+    self
+  }
+
+  pub fn index(mut self, index: usize) -> Self {
+    self.components.push(Cow::Owned(index.to_string()));
+    self
+  }
+
+  pub fn build(self) -> Id {
+    self.ctx.toc.anchorize(&self.components.join("_"))
+  }
+
+  /// Build an ID without registering it in the anchorizer.
+  /// Use this for IDs that reference anchors on other pages (e.g. href targets).
+  pub fn build_unregistered(self) -> Id {
+    self.ctx.toc.sanitize(&self.components.join("_"))
+  }
+}
+
+#[derive(
+  Debug,
+  Clone,
+  Serialize,
+  Deserialize,
+  Ord,
+  PartialOrd,
+  Eq,
+  PartialEq,
+  Hash,
+  Default,
+)]
+pub struct Id(String);
+
+impl Id {
+  pub(crate) fn as_str(&self) -> &str {
+    self.0.as_str()
+  }
+
+  pub(crate) fn from_raw(s: String) -> Self {
+    Id(s)
+  }
+
+  pub fn empty() -> Self {
+    Id(String::new())
+  }
+}
+
+impl Display for Id {
+  fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+    write!(f, "{}", self.0)
+  }
+}
+
+impl AsRef<str> for Id {
+  fn as_ref(&self) -> &str {
+    self.0.as_str()
+  }
+}
+
+/// Anchors are stored unescaped; every site that writes one into markup
+/// escapes it there (handlebars does it for templates, and the two hand-written
+/// emitters -- the table of contents and the markdown heading adapter -- do it
+/// explicitly). Escaping here too would double-escape the `id` attributes that
+/// go through handlebars, leaving them unable to match the `href`s pointing at
+/// them.
+fn sanitize_id_part(part: &str) -> String {
+  TARGET_RE.replace_all(part, "_").into_owned()
 }
 
 /// A container to hold a list of symbols with their namespaces:
@@ -39,7 +195,7 @@ pub(crate) fn name_to_id(kind: &str, name: &str) -> String {
 /// ["Deno", "errors", "HttpError"]
 #[derive(Clone, Debug)]
 pub(crate) struct NamespacedSymbols(
-  Rc<HashMap<Vec<String>, Option<Rc<ShortPath>>>>,
+  Arc<HashMap<Vec<String>, Option<Arc<ShortPath>>>>,
 );
 
 impl NamespacedSymbols {
@@ -51,179 +207,134 @@ impl NamespacedSymbols {
       ctx,
       Box::new(doc_nodes.iter().map(Cow::Borrowed)),
     );
-    Self(Rc::new(symbols))
+    Self(Arc::new(symbols))
   }
 
-  pub(crate) fn get(&self, path: &[String]) -> Option<&Option<Rc<ShortPath>>> {
+  pub(crate) fn get(&self, path: &[String]) -> Option<&Option<Arc<ShortPath>>> {
     self.0.get(path)
   }
 }
 
 pub fn compute_namespaced_symbols<'a>(
   ctx: &'a GenerateCtx,
-  doc_nodes: Box<dyn Iterator<Item = Cow<'a, DocNodeWithContext>> + 'a>,
-) -> HashMap<Vec<String>, Option<Rc<ShortPath>>> {
+  symbols: Box<dyn Iterator<Item = Cow<'a, DocNodeWithContext>> + 'a>,
+) -> HashMap<Vec<String>, Option<Arc<ShortPath>>> {
   let mut namespaced_symbols =
-    HashMap::<Vec<String>, Option<Rc<ShortPath>>>::new();
+    HashMap::<Vec<String>, Option<Arc<ShortPath>>>::new();
 
-  for doc_node in doc_nodes {
-    if matches!(
-      doc_node.def,
-      DocNodeDef::ModuleDoc | DocNodeDef::Import { .. }
-    ) {
+  // Reusable buffer for building drilldown paths
+  let mut path_buf = Vec::new();
+
+  for symbol in symbols {
+    // Internal symbols (non-exported or `@internal`) don't get their own
+    // pages, so linking to them would produce dead links.
+    if symbol.is_internal(ctx) {
       continue;
     }
 
-    // TODO: handle export aliasing
+    let name_path: Arc<[String]> = symbol.sub_qualifier().into();
+    // Precompute prefix (ns_qualifiers) once per symbol
+    let ns_prefix = &*symbol.ns_qualifiers;
+    let origin = Some(symbol.origin.clone());
 
-    let name_path: Rc<[String]> = doc_node.sub_qualifier().into();
-
-    match &doc_node.def {
-      DocNodeDef::Class { class_def } => {
-        namespaced_symbols.extend(class_def.methods.iter().map(|method| {
-          let mut method_path = doc_node.ns_qualifiers.to_vec();
-          method_path.extend(
-            qualify_drilldown_name(
-              doc_node.get_name(),
-              &method.name,
-              method.is_static,
-            )
+    // Helper: build a drilldown path by reusing the buffer
+    let mut build_drilldown_path =
+      |member_name: &str, is_static: bool| -> Vec<String> {
+        path_buf.clear();
+        path_buf.extend(ns_prefix.iter().cloned());
+        path_buf.extend(
+          qualify_drilldown_name(symbol.get_name(), member_name, is_static)
             .split('.')
             .map(|part| part.to_string()),
-          );
-          (method_path, Some(doc_node.origin.clone()))
-        }));
+        );
+        path_buf.clone()
+      };
 
-        namespaced_symbols.extend(class_def.properties.iter().map(
-          |property| {
-            let mut method_path = doc_node.ns_qualifiers.to_vec();
-            method_path.extend(
-              qualify_drilldown_name(
-                doc_node.get_name(),
-                &property.name,
-                property.is_static,
-              )
-              .split('.')
-              .map(|part| part.to_string()),
-            );
-            (method_path, Some(doc_node.origin.clone()))
-          },
-        ));
-      }
-      DocNodeDef::Interface { interface_def } => {
-        namespaced_symbols.extend(interface_def.methods.iter().map(|method| {
-          let mut method_path = doc_node.ns_qualifiers.to_vec();
-          method_path.extend(
-            qualify_drilldown_name(doc_node.get_name(), &method.name, true)
-              .split('.')
-              .map(|part| part.to_string()),
-          );
-          (method_path, Some(doc_node.origin.clone()))
-        }));
+    for decl in &symbol.declarations {
+      // TODO: handle export aliasing
 
-        namespaced_symbols.extend(interface_def.properties.iter().map(
-          |property| {
-            let mut method_path = doc_node.ns_qualifiers.to_vec();
-            method_path.extend(
-              qualify_drilldown_name(doc_node.get_name(), &property.name, true)
-                .split('.')
-                .map(|part| part.to_string()),
-            );
-            (method_path, Some(doc_node.origin.clone()))
-          },
-        ));
-      }
-      DocNodeDef::TypeAlias { type_alias_def } => {
-        if let Some(type_literal) = type_alias_def.ts_type.type_literal.as_ref()
-        {
-          namespaced_symbols.extend(type_literal.methods.iter().map(
-            |method| {
-              let mut method_path = doc_node.ns_qualifiers.to_vec();
-              method_path.extend(
-                qualify_drilldown_name(doc_node.get_name(), &method.name, true)
-                  .split('.')
-                  .map(|part| part.to_string()),
-              );
-              (method_path, Some(doc_node.origin.clone()))
-            },
-          ));
-
-          namespaced_symbols.extend(type_literal.properties.iter().map(
-            |property| {
-              let mut method_path = doc_node.ns_qualifiers.to_vec();
-              method_path.extend(
-                qualify_drilldown_name(
-                  doc_node.get_name(),
-                  &property.name,
-                  true,
-                )
-                .split('.')
-                .map(|part| part.to_string()),
-              );
-              (method_path, Some(doc_node.origin.clone()))
-            },
-          ));
-        }
-      }
-      DocNodeDef::Variable { variable_def } => {
-        if let Some(type_literal) = variable_def
-          .ts_type
-          .as_ref()
-          .and_then(|ts_type| ts_type.type_literal.as_ref())
-        {
-          namespaced_symbols.extend(type_literal.methods.iter().map(
-            |method| {
-              let mut method_path = doc_node.ns_qualifiers.to_vec();
-              method_path.extend(
-                qualify_drilldown_name(doc_node.get_name(), &method.name, true)
-                  .split('.')
-                  .map(|part| part.to_string()),
-              );
-              (method_path, Some(doc_node.origin.clone()))
-            },
-          ));
-
-          namespaced_symbols.extend(type_literal.properties.iter().map(
-            |property| {
-              let mut method_path = doc_node.ns_qualifiers.to_vec();
-              method_path.extend(
-                qualify_drilldown_name(
-                  doc_node.get_name(),
-                  &property.name,
-                  true,
-                )
-                .split('.')
-                .map(|part| part.to_string()),
-              );
-              (method_path, Some(doc_node.origin.clone()))
-            },
-          ));
-        }
-      }
-      _ => {}
-    }
-
-    namespaced_symbols
-      .insert(name_path.to_vec(), Some(doc_node.origin.clone()));
-
-    if matches!(doc_node.def, DocNodeDef::Namespace { .. }) {
-      let children = doc_node
-        .namespace_children
-        .as_ref()
-        .unwrap()
-        .iter()
-        .flat_map(|element| {
-          if let Some(reference_def) = element.reference_def() {
-            Box::new(
-              ctx.resolve_reference(Some(&doc_node), &reference_def.target),
-            ) as Box<dyn Iterator<Item = Cow<DocNodeWithContext>>>
-          } else {
-            Box::new(std::iter::once(Cow::Borrowed(element))) as _
+      match &decl.def {
+        DeclarationDef::Class(class_def) => {
+          for method in &class_def.methods {
+            let path = build_drilldown_path(&method.name, method.is_static);
+            namespaced_symbols.insert(path, origin.clone());
           }
-        });
+          for property in &class_def.properties {
+            let path = build_drilldown_path(&property.name, property.is_static);
+            namespaced_symbols.insert(path, origin.clone());
+          }
+        }
+        DeclarationDef::Interface(interface_def) => {
+          for method in &interface_def.methods {
+            let path = build_drilldown_path(&method.name, true);
+            namespaced_symbols.insert(path, origin.clone());
+          }
+          for property in &interface_def.properties {
+            let path = build_drilldown_path(&property.name, true);
+            namespaced_symbols.insert(path, origin.clone());
+          }
+        }
+        DeclarationDef::TypeAlias(type_alias_def) => {
+          if let crate::ts_type::TsTypeDefKind::TypeLiteral(type_literal) =
+            &type_alias_def.ts_type.kind
+          {
+            for method in &type_literal.methods {
+              let path = build_drilldown_path(&method.name, true);
+              namespaced_symbols.insert(path, origin.clone());
+            }
+            for property in &type_literal.properties {
+              let path = build_drilldown_path(&property.name, true);
+              namespaced_symbols.insert(path, origin.clone());
+            }
+          }
+        }
+        DeclarationDef::Variable(variable_def) => {
+          if let Some(type_literal) =
+            variable_def.ts_type.as_ref().and_then(|ts_type| {
+              if let crate::ts_type::TsTypeDefKind::TypeLiteral(tl) =
+                &ts_type.kind
+              {
+                Some(tl)
+              } else {
+                None
+              }
+            })
+          {
+            for method in &type_literal.methods {
+              let path = build_drilldown_path(&method.name, true);
+              namespaced_symbols.insert(path, origin.clone());
+            }
+            for property in &type_literal.properties {
+              let path = build_drilldown_path(&property.name, true);
+              namespaced_symbols.insert(path, origin.clone());
+            }
+          }
+        }
+        _ => {}
+      }
 
-      namespaced_symbols
-        .extend(compute_namespaced_symbols(ctx, Box::new(children)))
+      namespaced_symbols.insert(name_path.to_vec(), origin.clone());
+
+      if matches!(decl.def, DeclarationDef::Namespace(..)) {
+        let children =
+          symbol.namespace_children.as_ref().unwrap().iter().flat_map(
+            |element| {
+              element.declarations.iter().flat_map(|decl| {
+                if let Some(reference_def) = decl.reference_def() {
+                  Box::new(
+                    ctx.resolve_reference(Some(&symbol), &reference_def.target),
+                  )
+                    as Box<dyn Iterator<Item = Cow<DocNodeWithContext>>>
+                } else {
+                  Box::new(std::iter::once(Cow::Borrowed(element))) as _
+                }
+              })
+            },
+          );
+
+        namespaced_symbols
+          .extend(compute_namespaced_symbols(ctx, Box::new(children)))
+      }
     }
   }
 
@@ -231,11 +342,11 @@ pub fn compute_namespaced_symbols<'a>(
 }
 
 #[derive(Clone, Default)]
-pub struct NamespacedGlobalSymbols(Rc<HashMap<Vec<String>, String>>);
+pub struct NamespacedGlobalSymbols(Arc<HashMap<Vec<String>, String>>);
 
 impl NamespacedGlobalSymbols {
   pub fn new(symbols: HashMap<Vec<String>, String>) -> Self {
-    Self(Rc::new(symbols))
+    Self(Arc::new(symbols))
   }
 
   pub fn get(&self, path: &[String]) -> Option<&String> {
@@ -277,17 +388,25 @@ pub fn href_path_resolve(
   current: UrlResolveKind,
   target: UrlResolveKind,
 ) -> String {
-  let backs = match current {
-    UrlResolveKind::File { file } => "../".repeat(if file.is_main {
-      1
+  // The number of directories a file's page is nested under, measured from
+  // the output root. A page lives at `{file.path}/index.html` (or, for a symbol,
+  // `{file.path}/~/{symbol}.html`), so the depth is the number of segments in
+  // `file.path`. The main entrypoint is rewritten to `.`, which adds no
+  // directory, so it counts as zero segments. Previously the main entrypoint
+  // was hard-coded to a depth of 1; that is only correct when its path is `.`
+  // and produced broken `../` links whenever the main module had a deeper path
+  // (e.g. when multiple entrypoints share a common ancestor).
+  fn path_depth(file: &ShortPath) -> usize {
+    if file.path == "." {
+      0
     } else {
       file.path.split('/').count()
-    }),
-    UrlResolveKind::Symbol { file, .. } => "../".repeat(if file.is_main {
-      1
-    } else {
-      file.path.split('/').count() + 1
-    }),
+    }
+  }
+
+  let backs = match current {
+    UrlResolveKind::File { file } => "../".repeat(path_depth(file)),
+    UrlResolveKind::Symbol { file, .. } => "../".repeat(path_depth(file) + 1),
     UrlResolveKind::Root => String::new(),
     UrlResolveKind::AllSymbols => String::from("./"),
     UrlResolveKind::Category { .. } => String::from("./"),
@@ -302,7 +421,11 @@ pub fn href_path_resolve(
       symbol: target_symbol,
       ..
     } => {
-      format!("{backs}./{}/~/{target_symbol}.html", target_file.path)
+      format!(
+        "{backs}./{}/~/{}.html",
+        target_file.path,
+        sanitize_symbol_path_part(target_symbol)
+      )
     }
     UrlResolveKind::File { file: target_file } => {
       format!("{backs}./{}/index.html", target_file.path)
@@ -314,7 +437,7 @@ pub fn href_path_resolve(
 }
 
 /// A trait used to define various functions used to resolve urls.
-pub trait HrefResolver {
+pub trait HrefResolver: Send + Sync {
   fn resolve_path(
     &self,
     current: UrlResolveKind,
@@ -326,7 +449,7 @@ pub trait HrefResolver {
 
   /// Resolver for symbols from non-relative imports
   fn resolve_import_href(&self, symbol: &[String], src: &str)
-    -> Option<String>;
+  -> Option<String>;
 
   /// Resolve the URL used in source code link buttons.
   fn resolve_source(&self, location: &crate::Location) -> Option<String>;
@@ -340,55 +463,78 @@ pub trait HrefResolver {
   ) -> Option<(String, String)>;
 }
 
-#[derive(Debug, Serialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct BreadcrumbCtx {
   pub name: String,
   pub href: String,
-  pub is_symbol: bool,
-  pub is_first_symbol: bool,
 }
 
-#[derive(Debug, Serialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct BreadcrumbsCtx {
-  pub parts: Vec<BreadcrumbCtx>,
+  pub root: BreadcrumbCtx,
+  pub current_entrypoint: Option<BreadcrumbCtx>,
+  pub entrypoints: Vec<BreadcrumbCtx>,
+  pub symbol: Vec<BreadcrumbCtx>,
 }
 
 impl BreadcrumbsCtx {
   pub const TEMPLATE: &'static str = "breadcrumbs";
 
-  pub fn to_strings(&self) -> Vec<Cow<str>> {
-    let mut title_parts = vec![];
-    let mut symbol_parts = vec![];
+  pub fn to_strings(&self) -> Vec<Cow<'_, str>> {
+    let mut title_parts = vec![Cow::Borrowed(self.root.name.as_str())];
 
-    for breadcrumb in self.parts.iter() {
-      if breadcrumb.is_symbol {
-        symbol_parts.push(breadcrumb.name.as_str());
-      } else {
-        title_parts.push(Cow::Borrowed(breadcrumb.name.as_str()));
-      }
+    if let Some(entrypoint) = &self.current_entrypoint {
+      title_parts.push(Cow::Borrowed(entrypoint.name.as_str()));
     }
-    title_parts.push(Cow::Owned(symbol_parts.join(".")));
+
+    if !self.symbol.is_empty() {
+      title_parts.push(Cow::Owned(
+        self
+          .symbol
+          .iter()
+          .map(|crumb| crumb.name.as_str())
+          .collect::<Vec<_>>()
+          .join("."),
+      ));
+    }
 
     title_parts
   }
 }
 
-#[derive(Debug, Serialize, Clone, Eq, PartialEq, Hash)]
+#[derive(Debug, Serialize, Deserialize, Clone, Eq, PartialEq, Hash)]
 pub struct DocNodeKindCtx {
-  pub kind: &'static str,
+  pub kind: Cow<'static, str>,
   pub char: char,
-  pub title: &'static str,
-  pub title_lowercase: &'static str,
-  pub title_plural: &'static str,
+  pub title: Cow<'static, str>,
+  pub title_lowercase: Cow<'static, str>,
+  pub title_plural: Cow<'static, str>,
+}
+
+impl From<super::DrilldownKind> for DocNodeKindCtx {
+  fn from(kind: super::DrilldownKind) -> Self {
+    let (char, kind, title, title_lowercase, title_plural) = match kind {
+      super::DrilldownKind::Property => {
+        ('p', "Property", "Property", "property", "Properties")
+      }
+      super::DrilldownKind::Method(_) => {
+        ('m', "Method", "Method", "method", "Methods")
+      }
+    };
+
+    Self {
+      kind: kind.into(),
+      char,
+      title: title.into(),
+      title_lowercase: title_lowercase.into(),
+      title_plural: title_plural.into(),
+    }
+  }
 }
 
 impl From<DocNodeKind> for DocNodeKindCtx {
   fn from(kind: DocNodeKind) -> Self {
     let (char, kind, title, title_lowercase, title_plural) = match kind {
-      DocNodeKind::Property => {
-        ('p', "Property", "Property", "property", "Properties")
-      }
-      DocNodeKind::Method(_) => ('m', "Method", "Method", "method", "Methods"),
       DocNodeKind::Function => {
         ('f', "Function", "Function", "function", "Functions")
       }
@@ -406,31 +552,37 @@ impl From<DocNodeKind> for DocNodeKindCtx {
       DocNodeKind::Namespace => {
         ('N', "Namespace", "Namespace", "namespace", "Namespaces")
       }
-      DocNodeKind::ModuleDoc | DocNodeKind::Import | DocNodeKind::Reference => {
+      DocNodeKind::Reference => {
         unreachable!()
       }
     };
 
     Self {
-      kind,
+      kind: kind.into(),
       char,
-      title,
-      title_lowercase,
-      title_plural,
+      title: title.into(),
+      title_lowercase: title_lowercase.into(),
+      title_plural: title_plural.into(),
     }
   }
 }
 
-#[derive(Debug, Serialize, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
+#[derive(
+  Debug, Serialize, Deserialize, Clone, Ord, PartialOrd, Eq, PartialEq, Hash,
+)]
 pub struct AnchorCtx {
-  pub id: String,
+  pub id: Id,
 }
 
 impl AnchorCtx {
   pub const TEMPLATE: &'static str = "anchor";
+
+  pub fn new(id: Id) -> Self {
+    Self { id }
+  }
 }
 
-#[derive(Debug, Serialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "snake_case", tag = "kind", content = "content")]
 pub enum SectionContentCtx {
   DocEntry(Vec<DocEntryCtx>),
@@ -441,7 +593,9 @@ pub enum SectionContentCtx {
   Empty,
 }
 
-#[derive(Debug, Serialize, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
+#[derive(
+  Debug, Serialize, Deserialize, Clone, Ord, PartialOrd, Eq, PartialEq, Hash,
+)]
 pub struct SectionHeaderCtx {
   pub title: String,
   pub anchor: AnchorCtx,
@@ -449,49 +603,7 @@ pub struct SectionHeaderCtx {
   pub doc: Option<String>,
 }
 
-impl SectionHeaderCtx {
-  pub fn new_for_all_symbols(
-    render_ctx: &RenderContext,
-    path: &ShortPath,
-  ) -> Option<Self> {
-    if render_ctx.ctx.file_mode == FileMode::SingleDts {
-      return None;
-    }
-
-    let module_doc_nodes = render_ctx.ctx.doc_nodes.get(path).unwrap();
-
-    let doc = module_doc_nodes
-      .iter()
-      .find(|n| matches!(n.def, DocNodeDef::ModuleDoc))
-      .and_then(|node| node.js_doc.doc.as_ref())
-      .and_then(|doc| {
-        markdown_to_html(
-          render_ctx,
-          doc,
-          MarkdownToHTMLOptions {
-            title_only: true,
-            no_toc: false,
-          },
-        )
-      });
-
-    let title = path.display_name();
-
-    Some(SectionHeaderCtx {
-      title: title.to_string(),
-      anchor: AnchorCtx {
-        id: title.to_string(),
-      },
-      href: Some(render_ctx.ctx.resolve_path(
-        render_ctx.get_current_resolve(),
-        path.as_resolve_kind(),
-      )),
-      doc,
-    })
-  }
-}
-
-#[derive(Debug, Serialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct SectionCtx {
   pub header: Option<SectionHeaderCtx>,
   pub content: SectionContentCtx,
@@ -503,15 +615,15 @@ impl SectionCtx {
   pub fn new(
     render_context: &RenderContext,
     title: &str,
-    mut content: SectionContentCtx,
+    content: SectionContentCtx,
   ) -> Self {
     let header = if !title.is_empty() {
-      let anchor = render_context.toc.anchorize(title);
-      render_context.toc.add_entry(1, title, &anchor);
+      let id = render_context.toc.anchorize(title);
+      render_context.toc.add_entry(1, title, &id);
 
       Some(SectionHeaderCtx {
         title: title.to_string(),
-        anchor: AnchorCtx { id: anchor },
+        anchor: AnchorCtx::new(id),
         href: None,
         doc: None,
       })
@@ -519,44 +631,29 @@ impl SectionCtx {
       None
     };
 
-    match &mut content {
+    match &content {
       SectionContentCtx::DocEntry(entries) => {
         for entry in entries {
           let Some(name) = &entry.name else {
             continue;
           };
 
-          let anchor = render_context.toc.anchorize(&entry.id);
-
-          render_context.toc.add_entry(2, name, &anchor);
-
-          entry.id = anchor.clone();
-          entry.anchor.id = anchor;
+          render_context.toc.add_entry(2, name, &entry.anchor.id);
         }
       }
       SectionContentCtx::Example(examples) => {
         for example in examples {
-          let anchor = render_context.toc.anchorize(&example.id);
-
           render_context.toc.add_entry(
             2,
             &super::jsdoc::strip(render_context, &example.title),
-            &anchor,
+            &example.anchor.id,
           );
-
-          example.id = anchor.clone();
-          example.anchor.id = anchor;
         }
       }
       SectionContentCtx::IndexSignature(_) => {}
       SectionContentCtx::NamespaceSection(nodes) => {
         for node in nodes {
-          let anchor = render_context.toc.anchorize(&node.id);
-
-          render_context.toc.add_entry(2, &node.name, &anchor);
-
-          node.id = anchor.clone();
-          node.anchor.id = anchor;
+          render_context.toc.add_entry(2, &node.name, &node.anchor.id);
         }
       }
       SectionContentCtx::See(_) => {}
@@ -567,7 +664,7 @@ impl SectionCtx {
   }
 }
 
-#[derive(Debug, Serialize, Clone, Eq, PartialEq, Hash)]
+#[derive(Debug, Serialize, Deserialize, Clone, Eq, PartialEq, Hash)]
 #[serde(rename_all = "snake_case", tag = "kind", content = "value")]
 pub enum Tag {
   New,
@@ -596,28 +693,108 @@ impl Tag {
     }
   }
 
+  /// Builds the chip shown for a `@since <version>` tag, eg. `Since 1.2.0`.
+  ///
+  /// Only the first line of the tag's doc is used: `@since` takes a version,
+  /// and any prose following it on subsequent lines would not fit in a chip.
+  /// A `@since` without a version renders no chip.
+  pub fn from_since(doc: &str) -> Option<Self> {
+    let version = doc.lines().next()?.trim();
+    if version.is_empty() {
+      None
+    } else {
+      Some(Tag::Other(format!("Since {version}").into_boxed_str()))
+    }
+  }
+
   pub fn from_js_doc(js_doc: &JsDoc) -> IndexSet<Tag> {
     js_doc
       .tags
       .iter()
       .filter_map(|tag| match tag {
         JsDocTag::Deprecated { .. } => Some(Tag::Deprecated),
+        JsDocTag::Since { doc } => Tag::from_since(doc),
         _ => None,
       })
       .collect()
   }
 }
 
-#[derive(Debug, Serialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone, Eq, PartialEq)]
+#[serde(rename_all = "snake_case")]
+pub enum TagDiffKind {
+  Added,
+  Removed,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct TagCtx {
+  #[serde(flatten)]
+  pub tag: Tag,
+  #[serde(skip_serializing_if = "Option::is_none")]
+  pub diff: Option<TagDiffKind>,
+}
+
+pub fn compute_tag_ctx(
+  current: IndexSet<Tag>,
+  old: Option<IndexSet<Tag>>,
+) -> Vec<TagCtx> {
+  match old {
+    None => current
+      .into_iter()
+      .map(|tag| TagCtx { tag, diff: None })
+      .collect(),
+    Some(old) => {
+      let mut result = Vec::new();
+      for tag in &current {
+        let diff = if old.contains(tag) {
+          None
+        } else {
+          Some(TagDiffKind::Added)
+        };
+        result.push(TagCtx {
+          tag: tag.clone(),
+          diff,
+        });
+      }
+      for tag in &old {
+        if !current.contains(tag) {
+          result.push(TagCtx {
+            tag: tag.clone(),
+            diff: Some(TagDiffKind::Removed),
+          });
+        }
+      }
+      result
+    }
+  }
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct DocEntryCtx {
-  id: String,
+  pub name_prefix: Option<Cow<'static, str>>,
   name: Option<String>,
   name_href: Option<String>,
   content: String,
-  anchor: AnchorCtx,
-  tags: IndexSet<Tag>,
+  pub anchor: AnchorCtx,
+  pub tags: Vec<TagCtx>,
   js_doc: Option<String>,
   source_href: Option<String>,
+  #[serde(skip_serializing_if = "Vec::is_empty", default)]
+  pub examples: Vec<crate::html::jsdoc::ExampleCtx>,
+  /// Documentation for the entry's own parameters. Only populated for entries
+  /// that have no symbol page of their own to carry a Parameters section —
+  /// class constructors, construct signatures and call signatures — where the
+  /// `@param` docs would otherwise have nowhere to be shown.
+  #[serde(skip_serializing_if = "Vec::is_empty", default)]
+  pub params: Vec<DocEntryCtx>,
+  /// Rendered `@returns` documentation, for the same entries as `params`.
+  #[serde(skip_serializing_if = "Option::is_none")]
+  pub return_doc: Option<String>,
+  #[serde(skip_serializing_if = "Option::is_none")]
+  pub diff_status: Option<DiffStatus>,
+  #[serde(skip_serializing_if = "Option::is_none")]
+  pub old_content: Option<String>,
 }
 
 impl DocEntryCtx {
@@ -626,7 +803,50 @@ impl DocEntryCtx {
   #[allow(clippy::too_many_arguments)]
   pub fn new(
     ctx: &RenderContext,
-    id: &str,
+    id: Id,
+    name: Option<String>,
+    name_href: Option<String>,
+    content: &str,
+    tags: IndexSet<Tag>,
+    jsdoc: Option<&str>,
+    location: &crate::Location,
+    diff_status: Option<DiffStatus>,
+    old_content: Option<String>,
+    old_tags: Option<IndexSet<Tag>>,
+    js_doc_diff: Option<&JsDocDiff>,
+  ) -> Self {
+    let maybe_jsdoc = if let Some(doc_change) =
+      js_doc_diff.and_then(|d| d.doc_change.as_ref())
+    {
+      let old_doc = doc_change.old.as_deref().unwrap_or_default();
+      let new_doc = jsdoc.unwrap_or_default();
+      crate::html::jsdoc::render_docs_with_diff(ctx, old_doc, new_doc)
+    } else {
+      jsdoc.map(|doc| crate::html::jsdoc::render_markdown(ctx, doc, true))
+    };
+    let source_href = ctx.ctx.href_resolver.resolve_source(location);
+
+    DocEntryCtx {
+      name_prefix: None,
+      name,
+      name_href,
+      content: content.to_string(),
+      anchor: AnchorCtx::new(id),
+      tags: compute_tag_ctx(tags, old_tags),
+      js_doc: maybe_jsdoc,
+      source_href,
+      examples: Vec::new(),
+      params: vec![],
+      return_doc: None,
+      diff_status,
+      old_content,
+    }
+  }
+
+  #[allow(clippy::too_many_arguments)]
+  pub fn removed(
+    ctx: &RenderContext,
+    id: Id,
     name: Option<String>,
     name_href: Option<String>,
     content: &str,
@@ -634,26 +854,26 @@ impl DocEntryCtx {
     jsdoc: Option<&str>,
     location: &crate::Location,
   ) -> Self {
-    let maybe_jsdoc =
-      jsdoc.map(|doc| crate::html::jsdoc::render_markdown(ctx, doc, true));
-    let source_href = ctx.ctx.href_resolver.resolve_source(location);
-
-    DocEntryCtx {
-      id: id.to_string(),
+    Self::new(
+      ctx,
+      id,
       name,
       name_href,
-      content: content.to_string(),
-      anchor: AnchorCtx { id: id.to_string() },
+      content,
       tags,
-      js_doc: maybe_jsdoc,
-      source_href,
-    }
+      jsdoc,
+      location,
+      Some(DiffStatus::Removed),
+      None,
+      None,
+      None,
+    )
   }
 }
 
-pub(crate) fn all_deprecated(nodes: &[&DocNodeWithContext]) -> bool {
-  nodes.iter().all(|node| {
-    node
+pub(crate) fn all_deprecated(decls: &[&Declaration]) -> bool {
+  decls.iter().all(|decl| {
+    decl
       .js_doc
       .tags
       .iter()
@@ -672,14 +892,14 @@ pub fn qualify_drilldown_name(
   )
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct TopSymbolCtx {
   pub kind: IndexSet<DocNodeKindCtx>,
   pub name: String,
   pub href: String,
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct TopSymbolsCtx {
   pub symbols: Vec<TopSymbolCtx>,
   pub total_symbols: usize,
@@ -688,39 +908,37 @@ pub struct TopSymbolsCtx {
 
 impl TopSymbolsCtx {
   pub fn new(ctx: &RenderContext) -> Option<Self> {
-    let partitions = ctx
+    let symbols = ctx
       .ctx
       .doc_nodes
       .values()
       .flat_map(|nodes| {
-        super::partition::partition_nodes_by_name(
-          ctx.ctx,
-          nodes.iter().map(Cow::Borrowed),
-          true,
-        )
+        flatten_namespace(ctx.ctx, nodes.iter().map(Cow::Borrowed))
       })
-      .filter(|(_name, node)| !node[0].is_internal(ctx.ctx))
+      .filter(|node| !node.is_internal(ctx.ctx))
       .collect::<Vec<_>>();
 
-    if partitions.is_empty() {
+    if symbols.is_empty() {
       return None;
     }
 
-    let total_symbols = partitions.len();
+    let total_symbols = symbols.len();
 
-    let symbols = partitions
+    let symbols = symbols
       .into_iter()
       .take(5)
-      .map(|(name, nodes)| TopSymbolCtx {
-        kind: nodes.iter().map(|node| node.kind.into()).collect(),
+      .map(|node| TopSymbolCtx {
+        kind: node.get_kind_ctxs(),
         href: ctx.ctx.resolve_path(
           ctx.get_current_resolve(),
           UrlResolveKind::Symbol {
-            file: &nodes[0].origin,
-            symbol: &name,
+            file: &node.origin,
+            // the page for a namespace member lives under its qualified
+            // name; the bare name would produce a dead link
+            symbol: node.get_qualified_name(),
           },
         ),
-        name,
+        name: node.get_qualified_name().to_string(),
       })
       .collect();
 
@@ -734,7 +952,7 @@ impl TopSymbolsCtx {
   }
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct ToCCtx {
   pub usages: Option<UsagesCtx>,
   pub top_symbols: Option<TopSymbolsCtx>,
@@ -748,7 +966,7 @@ impl ToCCtx {
   pub fn new(
     ctx: RenderContext,
     include_top_symbols: bool,
-    usage_doc_nodes: Option<&[DocNodeWithContext]>,
+    usage_symbol: Option<Option<&DocNodeWithContext>>,
   ) -> Self {
     if ctx.get_current_resolve() == UrlResolveKind::Root
       && matches!(ctx.ctx.file_mode, FileMode::SingleDts | FileMode::Dts)
@@ -767,8 +985,7 @@ impl ToCCtx {
       {
         None
       } else {
-        usage_doc_nodes
-          .and_then(|usage_doc_nodes| UsagesCtx::new(&ctx, usage_doc_nodes))
+        usage_symbol.and_then(|usage_symbol| UsagesCtx::new(&ctx, usage_symbol))
       },
       top_symbols: if include_top_symbols {
         TopSymbolsCtx::new(&ctx)
@@ -791,4 +1008,142 @@ pub fn slugify(name: &str) -> String {
   REJECTED_CHARS
     .replace_all(&name.to_lowercase(), "")
     .replace(' ', "-")
+}
+
+/// Whether a character is unsafe inside the file-name component of a symbol
+/// page, either because it is reserved on common filesystems (Windows forbids
+/// `<>:"/\|?*`) or because it has special meaning in a URL path segment (`#`,
+/// `?`, `%`, whitespace, …).
+fn is_symbol_path_unsafe(c: char) -> bool {
+  c.is_control()
+    || c.is_whitespace()
+    || matches!(
+      c,
+      '"'
+        | '#'
+        | '%'
+        | '<'
+        | '>'
+        | '?'
+        | '`'
+        | '{'
+        | '}'
+        | '|'
+        | '\\'
+        | '^'
+        | '*'
+        | ':'
+        | '/'
+    )
+}
+
+/// Percent-encode any character of a symbol name that is unsafe to use as the
+/// file-name component of its generated page. Symbol names are normally plain
+/// identifiers, for which this is a borrow-only no-op; but a symbol whose name
+/// comes from a string literal (e.g. `obj["a/b"]` or `'"><img …>'`) can contain
+/// characters that would otherwise produce an invalid file path or a broken —
+/// and potentially HTML-injecting — link. The same encoding is applied wherever
+/// such a path is built (the written file name and every link to it) so they
+/// stay consistent. See issue #724.
+pub(crate) fn sanitize_symbol_path_part(name: &str) -> Cow<'_, str> {
+  if !name.chars().any(is_symbol_path_unsafe) {
+    return Cow::Borrowed(name);
+  }
+
+  let mut out = String::with_capacity(name.len());
+  let mut buf = [0u8; 4];
+  for c in name.chars() {
+    if is_symbol_path_unsafe(c) {
+      for b in c.encode_utf8(&mut buf).as_bytes() {
+        out.push_str(&format!("%{b:02X}"));
+      }
+    } else {
+      out.push(c);
+    }
+  }
+  Cow::Owned(out)
+}
+
+#[cfg(test)]
+mod tests {
+  use super::*;
+  use deno_ast::ModuleSpecifier;
+
+  fn short_path(path: &str, is_main: bool) -> ShortPath {
+    ShortPath {
+      path: path.to_string(),
+      specifier: ModuleSpecifier::parse("file:///mod.ts").unwrap(),
+      is_main,
+    }
+  }
+
+  #[test]
+  fn href_path_resolve_main_entrypoint_depth() {
+    // The main entrypoint rewritten to `.` has no directory of its own, so its
+    // symbol pages live at `./~/Foo.html` (one level deep) and link back to the
+    // root with a single `../`.
+    let main_root = short_path(".", true);
+    assert_eq!(
+      href_path_resolve(
+        UrlResolveKind::Symbol {
+          file: &main_root,
+          symbol: "Foo",
+        },
+        UrlResolveKind::Root,
+      ),
+      "../",
+    );
+
+    // When the main entrypoint has a deeper path (e.g. several entrypoints share
+    // a common ancestor, so the main module is `index.ts`), its symbol page
+    // lives at `index.ts/~/Foo.html` — two levels deep — and must reach the root
+    // with `../../`. Regression test for incorrect `../` links on default-module
+    // subpages.
+    let main_nested = short_path("index.ts", true);
+    assert_eq!(
+      href_path_resolve(
+        UrlResolveKind::Symbol {
+          file: &main_nested,
+          symbol: "Foo",
+        },
+        UrlResolveKind::Root,
+      ),
+      "../../",
+    );
+    // Linking to the all-symbols page from such a subpage must also climb out.
+    assert_eq!(
+      href_path_resolve(
+        UrlResolveKind::Symbol {
+          file: &main_nested,
+          symbol: "Foo",
+        },
+        UrlResolveKind::AllSymbols,
+      ),
+      "../.././all_symbols.html",
+    );
+  }
+
+  #[test]
+  fn href_path_resolve_non_main_unchanged() {
+    let file = short_path("foo", false);
+    // index page: `foo/index.html` -> one level deep.
+    assert_eq!(
+      href_path_resolve(
+        UrlResolveKind::File { file: &file },
+        UrlResolveKind::Root,
+      ),
+      "../",
+    );
+    // symbol page: `foo/~/Bar.html` -> two levels deep.
+    assert_eq!(
+      href_path_resolve(
+        UrlResolveKind::Symbol {
+          file: &file,
+          symbol: "Bar",
+        },
+        UrlResolveKind::Root,
+      ),
+      "../../",
+    );
+  }
 }

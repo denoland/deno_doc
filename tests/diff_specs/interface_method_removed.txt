@@ -1,0 +1,53 @@
+# old/mod.ts
+export interface Foo {
+  bar(): void;
+  baz(): string;
+}
+
+# new/mod.ts
+export interface Foo {
+  bar(): void;
+}
+
+# output.json
+{
+  "modifiedModules": {
+    "file:///mod.ts": {
+      "modified": [
+        {
+          "name": "Foo",
+          "declarations": {
+            "modified": [
+              {
+                "kind": "interface",
+                "defChanges": {
+                  "type": "interface",
+                  "methodChanges": {
+                    "removed": [
+                      {
+                        "name": "baz",
+                        "kind": "method",
+                        "location": {
+                          "filename": "file:///mod.ts",
+                          "line": 2,
+                          "col": 2,
+                          "byteIndex": 40
+                        },
+                        "params": [],
+                        "returnType": {
+                          "repr": "string",
+                          "kind": "keyword",
+                          "value": "string"
+                        }
+                      }
+                    ]
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  }
+}

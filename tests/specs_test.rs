@@ -3,15 +3,14 @@
 use std::panic::AssertUnwindSafe;
 
 use deno_ast::diagnostics::Diagnostic;
-use deno_doc::DocNode;
-use deno_graph::source::Source;
 use deno_graph::ModuleSpecifier;
-use file_test_runner::collect_and_run_tests;
-use file_test_runner::collection::strategies::TestPerFileCollectionStrategy;
-use file_test_runner::collection::CollectOptions;
-use file_test_runner::collection::CollectedTest;
+use deno_graph::source::Source;
 use file_test_runner::RunOptions;
 use file_test_runner::TestResult;
+use file_test_runner::collect_and_run_tests;
+use file_test_runner::collection::CollectOptions;
+use file_test_runner::collection::CollectedTest;
+use file_test_runner::collection::strategies::TestPerFileCollectionStrategy;
 use indexmap::IndexMap;
 use pretty_assertions::assert_eq;
 use serde::Deserialize;
@@ -104,7 +103,7 @@ fn run_test(test: &CollectedTest) {
   );
 
   // Check that the JSON output is round-trippable.
-  let _parsed_json_output: Vec<DocNode> =
+  let _parsed_json_output: deno_doc::Document =
     serde_json::from_str(&json_output).unwrap();
 }
 
@@ -182,7 +181,9 @@ fn parse_spec(text: String) -> Spec {
       options = Some(serde_json::from_str(line).unwrap());
       continue;
     }
-    if let Some(specifier) = line.strip_prefix("# ") {
+    if let Some(specifier) = line.strip_prefix("# ")
+      && (specifier.contains('.') || specifier == "diagnostics")
+    {
       if let Some(file) = current_file.take() {
         files.push(file);
       }

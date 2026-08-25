@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>{{title}}</title>
+  <title>{{{escape_text title}}}</title>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="doc-current-file" content="{{current_file}}">
@@ -10,11 +10,13 @@
   <link id="ddocResetStylesheet" rel="stylesheet" href="{{reset_stylesheet_url}}">
   {{{~head_inject~}}}
 
+  <script src="{{script_js}}" defer></script>
+  <script src="{{darkmode_toggle_js}}"></script>
+
   {{~#if (not disable_search)~}}
     <script src="{{url_search_index}}" defer></script>
-    <script src="{{script_js}}" defer></script>
     <script src="{{fuse_js}}" defer></script>
-    <script src="{{url_search}}" defer></script>
+    <script src="{{search_js}}" defer></script>
   {{~/if~}}
 </head>
 <body>

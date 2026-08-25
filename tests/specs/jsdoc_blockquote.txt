@@ -1,0 +1,317 @@
+# mod.ts
+/**
+ * Simple blockquote.
+ *
+ * > This is quoted text.
+ */
+export function simple(): void {}
+/**
+ * Blockquote with multiple paragraphs.
+ *
+ * > First paragraph inside the quote.
+ * >
+ * > Second paragraph inside the quote.
+ */
+export function multiParagraph(): void {}
+/**
+ * Nested blockquotes.
+ *
+ * > Outer quote.
+ * >> Inner quote.
+ */
+export function nested(): void {}
+/**
+ * Blockquote followed by normal text.
+ *
+ * > Quoted section.
+ *
+ * Back to normal text.
+ */
+export function followedByText(): void {}
+/**
+ * Blockquote containing a code span.
+ *
+ * > Use `console.log()` for debugging.
+ */
+export function withCodeSpan(): void {}
+/**
+ * Blockquote containing a list.
+ *
+ * > Items:
+ * > - one
+ * > - two
+ */
+export function withList(): void {}
+/**
+ * Deeply nested blockquotes.
+ *
+ * > Level one.
+ * >> Level two.
+ * >>> Level three.
+ */
+export function deepNested(): void {}
+
+# output.txt
+Defined in file:///mod.ts:50:1
+
+function deepNested(): void
+  Deeply nested blockquotes.
+
+  │ Level one.
+  │
+  ││ Level two.
+  ││
+  │││ Level three.
+  │││
+
+Defined in file:///mod.ts:28:1
+
+function followedByText(): void
+  Blockquote followed by normal text.
+
+  │ Quoted section.
+  │
+
+  Back to normal text.
+
+Defined in file:///mod.ts:13:1
+
+function multiParagraph(): void
+  Blockquote with multiple paragraphs.
+
+  │ First paragraph inside the quote.
+  │
+  │ Second paragraph inside the quote.
+  │
+
+Defined in file:///mod.ts:20:1
+
+function nested(): void
+  Nested blockquotes.
+
+  │ Outer quote.
+  │
+  ││ Inner quote.
+  ││
+
+Defined in file:///mod.ts:5:1
+
+function simple(): void
+  Simple blockquote.
+
+  │ This is quoted text.
+  │
+
+Defined in file:///mod.ts:34:1
+
+function withCodeSpan(): void
+  Blockquote containing a code span.
+
+  │ Use `console.log()` for debugging.
+  │
+
+Defined in file:///mod.ts:42:1
+
+function withList(): void
+  Blockquote containing a list.
+
+  │ Items:
+  │
+  │ - one
+  │ - two
+
+
+# output.json
+{
+  "symbols": [
+    {
+      "name": "simple",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 5,
+            "col": 0,
+            "byteIndex": 59
+          },
+          "declarationKind": "export",
+          "jsDoc": {
+            "doc": "Simple blockquote.\n\n> This is quoted text."
+          },
+          "kind": "function",
+          "def": {
+            "params": [],
+            "returnType": {
+              "repr": "void",
+              "kind": "keyword",
+              "value": "void"
+            },
+            "hasBody": true
+          }
+        }
+      ]
+    },
+    {
+      "name": "multiParagraph",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 13,
+            "col": 0,
+            "byteIndex": 228
+          },
+          "declarationKind": "export",
+          "jsDoc": {
+            "doc": "Blockquote with multiple paragraphs.\n\n> First paragraph inside the quote.\n>\n> Second paragraph inside the quote."
+          },
+          "kind": "function",
+          "def": {
+            "params": [],
+            "returnType": {
+              "repr": "void",
+              "kind": "keyword",
+              "value": "void"
+            },
+            "hasBody": true
+          }
+        }
+      ]
+    },
+    {
+      "name": "nested",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 20,
+            "col": 0,
+            "byteIndex": 341
+          },
+          "declarationKind": "export",
+          "jsDoc": {
+            "doc": "Nested blockquotes.\n\n> Outer quote.\n>> Inner quote."
+          },
+          "kind": "function",
+          "def": {
+            "params": [],
+            "returnType": {
+              "repr": "void",
+              "kind": "keyword",
+              "value": "void"
+            },
+            "hasBody": true
+          }
+        }
+      ]
+    },
+    {
+      "name": "followedByText",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 28,
+            "col": 0,
+            "byteIndex": 473
+          },
+          "declarationKind": "export",
+          "jsDoc": {
+            "doc": "Blockquote followed by normal text.\n\n> Quoted section.\n\nBack to normal text."
+          },
+          "kind": "function",
+          "def": {
+            "params": [],
+            "returnType": {
+              "repr": "void",
+              "kind": "keyword",
+              "value": "void"
+            },
+            "hasBody": true
+          }
+        }
+      ]
+    },
+    {
+      "name": "withCodeSpan",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 34,
+            "col": 0,
+            "byteIndex": 604
+          },
+          "declarationKind": "export",
+          "jsDoc": {
+            "doc": "Blockquote containing a code span.\n\n> Use `console.log()` for debugging."
+          },
+          "kind": "function",
+          "def": {
+            "params": [],
+            "returnType": {
+              "repr": "void",
+              "kind": "keyword",
+              "value": "void"
+            },
+            "hasBody": true
+          }
+        }
+      ]
+    },
+    {
+      "name": "withList",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 42,
+            "col": 0,
+            "byteIndex": 722
+          },
+          "declarationKind": "export",
+          "jsDoc": {
+            "doc": "Blockquote containing a list.\n\n> Items:\n> - one\n> - two"
+          },
+          "kind": "function",
+          "def": {
+            "params": [],
+            "returnType": {
+              "repr": "void",
+              "kind": "keyword",
+              "value": "void"
+            },
+            "hasBody": true
+          }
+        }
+      ]
+    },
+    {
+      "name": "deepNested",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 50,
+            "col": 0,
+            "byteIndex": 852
+          },
+          "declarationKind": "export",
+          "jsDoc": {
+            "doc": "Deeply nested blockquotes.\n\n> Level one.\n>> Level two.\n>>> Level three."
+          },
+          "kind": "function",
+          "def": {
+            "params": [],
+            "returnType": {
+              "repr": "void",
+              "kind": "keyword",
+              "value": "void"
+            },
+            "hasBody": true
+          }
+        }
+      ]
+    }
+  ]
+}

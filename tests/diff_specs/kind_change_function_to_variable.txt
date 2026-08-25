@@ -1,0 +1,64 @@
+# old/mod.ts
+export function foo() {}
+
+# new/mod.ts
+export const foo = 1;
+
+# output.json
+{
+  "modifiedModules": {
+    "file:///mod.ts": {
+      "modified": [
+        {
+          "name": "foo",
+          "declarations": {
+            "added": [
+              {
+                "location": {
+                  "filename": "file:///mod.ts",
+                  "line": 0,
+                  "col": 13,
+                  "byteIndex": 13
+                },
+                "declarationKind": "export",
+                "kind": "variable",
+                "def": {
+                  "tsType": {
+                    "repr": "1",
+                    "kind": "literal",
+                    "value": {
+                      "kind": "number",
+                      "number": 1.0
+                    }
+                  },
+                  "kind": "const"
+                }
+              }
+            ],
+            "removed": [
+              {
+                "location": {
+                  "filename": "file:///mod.ts",
+                  "line": 0,
+                  "col": 0,
+                  "byteIndex": 0
+                },
+                "declarationKind": "export",
+                "kind": "function",
+                "def": {
+                  "params": [],
+                  "returnType": {
+                    "repr": "void",
+                    "kind": "keyword",
+                    "value": "void"
+                  },
+                  "hasBody": true
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  }
+}

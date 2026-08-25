@@ -10,13 +10,10 @@
 export class A {}
 
 # output.txt
-Defined in file:///mod.ts:3:1
+A leading JSDoc comment
+@module
 
-  A leading JSDoc comment
-
-  @module
-
-Defined in file:///mod.ts:9:1
+Defined in file:///mod.ts:8:1
 
 class A
   One associated with a class
@@ -24,50 +21,34 @@ class A
 
 
 # output.json
-[
-  {
-    "name": "",
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 3,
-      "col": 0,
-      "byteIndex": 27
-    },
-    "declarationKind": "export",
-    "jsDoc": {
-      "doc": "A leading JSDoc comment",
-      "tags": [
+{
+  "module_doc": {
+    "doc": "A leading JSDoc comment",
+    "tags": [
+      {
+        "kind": "module"
+      }
+    ]
+  },
+  "symbols": [
+    {
+      "name": "A",
+      "declarations": [
         {
-          "kind": "module"
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 8,
+            "col": 0,
+            "byteIndex": 109
+          },
+          "declarationKind": "export",
+          "jsDoc": {
+            "doc": "One associated with a class"
+          },
+          "kind": "class",
+          "def": {}
         }
       ]
-    },
-    "kind": "moduleDoc"
-  },
-  {
-    "name": "A",
-    "isDefault": false,
-    "location": {
-      "filename": "file:///mod.ts",
-      "line": 9,
-      "col": 0,
-      "byteIndex": 109
-    },
-    "declarationKind": "export",
-    "jsDoc": {
-      "doc": "One associated with a class"
-    },
-    "kind": "class",
-    "classDef": {
-      "isAbstract": false,
-      "constructors": [],
-      "properties": [],
-      "indexSignatures": [],
-      "methods": [],
-      "extends": null,
-      "implements": [],
-      "typeParams": [],
-      "superTypeParams": []
     }
-  }
-]
+  ]
+}

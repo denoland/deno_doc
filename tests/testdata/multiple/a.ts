@@ -37,6 +37,17 @@ import { externalFunction } from "./_d.ts";
  * baz
  */
 export class Foo<T> {
+  /**
+   * Constructs a new Foo.
+   *
+   * @param value the value to wrap
+   * @returns the new Foo
+   *
+   * @example Create a Foo
+   * ```ts
+   * const foo = new Foo("value");
+   * ```
+   */
   constructor(value: T) {}
 
   static bar: "string";
@@ -57,6 +68,12 @@ export class Foo<T> {
     return "";
   }
   set getterAndSetter(s) {
+  }
+
+  get divergentAccessor(): string | null {
+    return null;
+  }
+  set divergentAccessor(s: string) {
   }
 
   static set staticSetter(s: number) {}
@@ -98,6 +115,7 @@ export class Bar extends Foo<string> {
  * ## sub heading
  *
  * @see https://example.com
+ * @priority 10
  */
 export default class Foobar {
 }
@@ -108,6 +126,9 @@ export abstract class AbstractClass {
   abstract get getter(): string;
 }
 
+/**
+ * @priority 5
+ */
 export interface Hello<T extends string, E extends T, R = number> {
   (a: string): string;
   /**
@@ -123,6 +144,16 @@ export interface Hello<T extends string, E extends T, R = number> {
   optionalMethod?(): [string?];
   ["computedMethod"]?(a: T extends () => infer R ? R : any): void;
 
+  /**
+   * a getter/setter pair
+   */
+  get accessor(): string;
+  set accessor(value: string);
+  get readonlyAccessor(): number;
+  set writeonlyAccessor(value: number);
+  get divergentAccessor(): number | null;
+  set divergentAccessor(value: number);
+
   x: {
     [foo: string]: number;
   };
@@ -135,6 +166,16 @@ export interface InterfaceWithIndexSignature {
 }
 
 export type Baz<T> = {
+  /**
+   * Constructs a Baz.
+   * @param value the value to wrap
+   */
+  new (value: T): Baz<T>;
+  /**
+   * Calls the Baz.
+   * @param key the key to look up
+   */
+  (key: string): number;
   foo: Record<string, T extends string ? 0 : 1>;
   bar(): InterfaceWithIndexSignature["test"];
 };
@@ -199,6 +240,11 @@ export enum Enum {
   Bar = "bar",
 }
 
+/**
+ * description to be overwritten
+ * @summary the summary
+ * @description the description
+ */
 export enum Enum2 {
   Foo,
   Bar,

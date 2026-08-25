@@ -1,9 +1,3 @@
-use super::partition;
-use super::symbols::SymbolContentCtx;
-use super::util;
-use super::util::AnchorCtx;
-use super::util::BreadcrumbsCtx;
-use super::util::SectionHeaderCtx;
 use super::DocNodeWithContext;
 use super::FileMode;
 use super::GenerateCtx;
@@ -11,10 +5,17 @@ use super::RenderContext;
 use super::ShortPath;
 use super::SymbolGroupCtx;
 use super::UrlResolveKind;
+use super::diff::DiffStatus;
+use super::partition;
+use super::symbols::SymbolContentCtx;
+use super::util;
+use super::util::AnchorCtx;
+use super::util::BreadcrumbsCtx;
+use super::util::SectionHeaderCtx;
 use std::borrow::Cow;
-use std::cmp::Ordering;
-use std::rc::Rc;
+use std::sync::Arc;
 
+use super::DARKMODE_TOGGLE_FILENAME;
 use super::FUSE_FILENAME;
 use super::PAGE_STYLESHEET_FILENAME;
 use super::RESET_STYLESHEET_FILENAME;
@@ -23,13 +24,13 @@ use super::SEARCH_FILENAME;
 use super::SEARCH_INDEX_FILENAME;
 use super::STYLESHEET_FILENAME;
 
+use crate::DeclarationDef;
 use crate::html::usage::UsagesCtx;
 use crate::js_doc::JsDocTag;
-use crate::node::DocNodeDef;
-use indexmap::IndexMap;
+use serde::Deserialize;
 use serde::Serialize;
 
-#[derive(Debug, Serialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct HtmlHeadCtx {
   title: String,
   current_file: String,
@@ -39,7 +40,8 @@ pub struct HtmlHeadCtx {
   url_search_index: String,
   script_js: String,
   fuse_js: String,
-  url_search: String,
+  search_js: String,
+  darkmode_toggle_js: String,
   head_inject: Option<String>,
   disable_search: bool,
 }
@@ -73,14 +75,15 @@ impl HtmlHeadCtx {
       url_search_index: format!("{root}{SEARCH_INDEX_FILENAME}"),
       script_js: format!("{root}{SCRIPT_FILENAME}"),
       fuse_js: format!("{root}{FUSE_FILENAME}"),
-      url_search: format!("{root}{SEARCH_FILENAME}"),
+      search_js: format!("{root}{SEARCH_FILENAME}"),
+      darkmode_toggle_js: format!("{root}{DARKMODE_TOGGLE_FILENAME}"),
       head_inject: ctx.head_inject.clone().map(|head_inject| head_inject(root)),
       disable_search: ctx.disable_search,
     }
   }
 }
 
-#[derive(Debug, Serialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct CategoriesPanelCtx {
   pub categories: Vec<CategoriesPanelCategoryCtx>,
   pub all_symbols_href: String,
@@ -98,16 +101,11 @@ impl CategoriesPanelCtx {
           .doc_nodes
           .values()
           .flat_map(|nodes| {
-            partition::partition_nodes_by_name(
-              ctx.ctx,
-              nodes.iter().map(Cow::Borrowed),
-              true,
-            )
+            nodes.iter().filter(|node| !node.is_internal(ctx.ctx))
           })
-          .filter(|(_name, node)| !node[0].is_internal(ctx.ctx))
           .count();
 
-        let mut categories = ctx
+        let categories = ctx
           .ctx
           .doc_nodes
           .keys()
@@ -122,8 +120,6 @@ impl CategoriesPanelCtx {
             }),
           })
           .collect::<Vec<_>>();
-
-        categories.sort_by(|a, b| a.name.cmp(&b.name));
 
         Some(CategoriesPanelCtx {
           categories,
@@ -140,13 +136,8 @@ impl CategoriesPanelCtx {
           .doc_nodes
           .values()
           .flat_map(|nodes| {
-            partition::partition_nodes_by_name(
-              ctx.ctx,
-              nodes.iter().map(Cow::Borrowed),
-              true,
-            )
+            nodes.iter().filter(|node| !node.is_internal(ctx.ctx))
           })
-          .filter(|(_name, node)| !node[0].is_internal(ctx.ctx))
           .count();
 
         let (_, nodes) = ctx.ctx.doc_nodes.first().unwrap();
@@ -187,14 +178,14 @@ impl CategoriesPanelCtx {
   }
 }
 
-#[derive(Debug, Serialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct CategoriesPanelCategoryCtx {
   pub name: String,
   pub href: String,
   pub active: bool,
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, Deserialize)]
 #[serde(tag = "kind")]
 pub struct IndexCtx {
   pub html_head_ctx: HtmlHeadCtx,
@@ -213,7 +204,7 @@ impl IndexCtx {
   /// short_path is None in the case this is a root index page but there is no main entrypoint
   pub fn new(
     ctx: &GenerateCtx,
-    short_path: Option<Rc<ShortPath>>,
+    short_path: Option<Arc<ShortPath>>,
     partitions: partition::Partitions<String>,
     uses_categories: bool,
   ) -> Self {
@@ -233,7 +224,12 @@ impl IndexCtx {
     );
 
     let module_doc = short_path.as_ref().map(|short_path| {
-      super::jsdoc::ModuleDocCtx::new(&render_ctx, short_path)
+      super::jsdoc::ModuleDocCtx::new(
+        &render_ctx,
+        short_path,
+        !short_path.is_main,
+        false,
+      )
     });
 
     let root =
@@ -254,25 +250,18 @@ impl IndexCtx {
 
     let overview = match ctx.file_mode {
       FileMode::Dts if short_path.is_none() => {
-        let mut sections = ctx
+        let sections = ctx
           .doc_nodes
           .iter()
-          .map(|(short_path, nodes)| {
-            let doc = nodes
-              .iter()
-              .find(|node| matches!(node.def, DocNodeDef::ModuleDoc))
-              .and_then(|node| {
-                crate::html::jsdoc::jsdoc_body_to_html(
-                  &render_ctx,
-                  &node.js_doc,
-                  true,
-                )
-              });
+          .map(|(short_path, _nodes)| {
+            let doc = ctx.module_docs.get(short_path).and_then(|js_doc| {
+              crate::html::jsdoc::jsdoc_body_to_html(&render_ctx, js_doc, true)
+            });
 
             let title = short_path.display_name();
 
-            let anchor = render_ctx.toc.anchorize(title);
-            render_ctx.toc.add_entry(1, title, &anchor);
+            let id = render_ctx.toc.anchorize(title);
+            render_ctx.toc.add_entry(1, title, &id);
 
             util::SectionCtx {
               header: Some(SectionHeaderCtx {
@@ -281,7 +270,7 @@ impl IndexCtx {
                   short_path.as_resolve_kind(),
                 )),
                 title: title.to_string(),
-                anchor: AnchorCtx { id: anchor },
+                anchor: AnchorCtx::new(id),
                 doc,
               }),
               content: util::SectionContentCtx::Empty,
@@ -289,15 +278,8 @@ impl IndexCtx {
           })
           .collect::<Vec<_>>();
 
-        sections.sort_by(|a, b| match (&a.header, &b.header) {
-          (Some(x), Some(y)) => x.title.cmp(&y.title),
-          (None, Some(_)) => Ordering::Less,
-          (Some(_), None) => Ordering::Greater,
-          (None, None) => Ordering::Equal,
-        });
-
         Some(SymbolContentCtx {
-          id: String::new(),
+          id: util::Id::empty(),
           sections,
           docs: None,
         })
@@ -306,8 +288,8 @@ impl IndexCtx {
         let sections = partitions
           .into_keys()
           .map(|title| {
-            let anchor = render_ctx.toc.anchorize(&title);
-            render_ctx.toc.add_entry(1, &title, &anchor);
+            let id = render_ctx.toc.anchorize(&title);
+            render_ctx.toc.add_entry(1, &title, &id);
 
             let doc = ctx
               .category_docs
@@ -333,7 +315,7 @@ impl IndexCtx {
                   UrlResolveKind::Category { category: &title },
                 )),
                 title,
-                anchor: AnchorCtx { id: anchor },
+                anchor: AnchorCtx::new(id),
                 doc,
               }),
               content: util::SectionContentCtx::Empty,
@@ -342,12 +324,24 @@ impl IndexCtx {
           .collect::<Vec<_>>();
 
         Some(SymbolContentCtx {
-          id: String::new(),
+          id: util::Id::empty(),
           sections,
           docs: None,
         })
       }
       _ => None,
+    };
+
+    let overview = if ctx.diff_only {
+      overview.and_then(|mut o| {
+        crate::html::diff::filter_sections_diff_only(
+          &mut o.sections,
+          &render_ctx.toc,
+        );
+        if o.sections.is_empty() { None } else { Some(o) }
+      })
+    } else {
+      overview
     };
 
     let breadcrumbs_ctx = render_ctx.get_breadcrumbs();
@@ -360,12 +354,14 @@ impl IndexCtx {
         .as_ref()
         .map(|short_path| short_path.display_name()),
     );
-    let usage = dts_mode.then(|| UsagesCtx::new(&render_ctx, &[])).flatten();
+    let usage = dts_mode
+      .then(|| UsagesCtx::new(&render_ctx, None))
+      .flatten();
 
     let toc_ctx = util::ToCCtx::new(
       render_ctx,
       !dts_mode,
-      if dts_mode { None } else { Some(&[]) },
+      if dts_mode { None } else { Some(None) },
     );
 
     IndexCtx {
@@ -392,16 +388,18 @@ impl IndexCtx {
       UrlResolveKind::Category { category: name },
     );
 
-    let sections = super::namespace::render_namespace(
+    let mut sections = super::namespace::render_namespace(
       partitions.into_iter().map(|(title, nodes)| {
         let doc = ctx.category_docs.as_ref().and_then(|category_docs| {
           category_docs.get(&title).cloned().flatten()
         });
 
+        let id = render_ctx.toc.anchorize(&title);
+
         (
           render_ctx.clone(),
           Some(SectionHeaderCtx {
-            anchor: AnchorCtx { id: title.clone() },
+            anchor: AnchorCtx::new(id),
             title,
             href: None,
             doc,
@@ -410,6 +408,13 @@ impl IndexCtx {
         )
       }),
     );
+
+    if ctx.diff_only {
+      crate::html::diff::filter_sections_diff_only(
+        &mut sections,
+        &render_ctx.toc,
+      );
+    }
 
     let root = ctx.resolve_path(
       UrlResolveKind::Category { category: name },
@@ -421,7 +426,7 @@ impl IndexCtx {
     let breadcrumbs_ctx = render_ctx.get_breadcrumbs();
 
     let categories_panel = CategoriesPanelCtx::new(&render_ctx, Some(name));
-    let usage = UsagesCtx::new(&render_ctx, &[]);
+    let usage = UsagesCtx::new(&render_ctx, None);
 
     let toc_ctx = util::ToCCtx::new(
       render_ctx,
@@ -433,7 +438,7 @@ impl IndexCtx {
       html_head_ctx,
       module_doc: None,
       overview: Some(SymbolContentCtx {
-        id: String::new(),
+        id: util::Id::empty(),
         sections,
         docs: None,
       }),
@@ -448,44 +453,27 @@ impl IndexCtx {
 
 #[derive(Serialize)]
 #[serde(tag = "kind")]
-pub struct AllSymbolsCtx {
+pub struct AllSymbolsPageCtx {
   pub html_head_ctx: HtmlHeadCtx,
-  pub content: SymbolContentCtx,
+  pub content: crate::html::symbols::AllSymbolsCtx,
   pub breadcrumbs_ctx: BreadcrumbsCtx,
   pub disable_search: bool,
   pub categories_panel: Option<CategoriesPanelCtx>,
 }
 
-impl AllSymbolsCtx {
+impl AllSymbolsPageCtx {
   pub const TEMPLATE: &'static str = "pages/all_symbols";
 
-  pub fn new(
-    ctx: &GenerateCtx,
-    partitions: partition::Partitions<Rc<ShortPath>>,
-  ) -> Self {
+  pub fn new(ctx: &GenerateCtx) -> Self {
     let render_ctx = RenderContext::new(ctx, &[], UrlResolveKind::AllSymbols);
-
-    let sections = super::namespace::render_namespace(
-      partitions.into_iter().map(|(path, nodes)| {
-        let render_ctx =
-          RenderContext::new(ctx, &nodes, UrlResolveKind::AllSymbols);
-        let header = SectionHeaderCtx::new_for_all_symbols(&render_ctx, &path);
-
-        (render_ctx, header, nodes)
-      }),
-    );
 
     let html_head_ctx = HtmlHeadCtx::new(ctx, "./", Some("All Symbols"), None);
 
     let categories_panel = CategoriesPanelCtx::new(&render_ctx, None);
 
-    AllSymbolsCtx {
+    AllSymbolsPageCtx {
       html_head_ctx,
-      content: SymbolContentCtx {
-        id: String::new(),
-        sections,
-        docs: None,
-      },
+      content: crate::html::symbols::AllSymbolsCtx::new(&render_ctx),
       breadcrumbs_ctx: render_ctx.get_breadcrumbs(),
       disable_search: ctx.disable_search,
       categories_panel,
@@ -493,6 +481,7 @@ impl AllSymbolsCtx {
   }
 }
 
+#[allow(clippy::large_enum_variant)]
 pub enum SymbolPage {
   Symbol {
     breadcrumbs_ctx: BreadcrumbsCtx,
@@ -503,6 +492,7 @@ pub enum SymbolPage {
   Redirect {
     current_symbol: String,
     href: String,
+    diff_status: Option<DiffStatus>,
   },
 }
 
@@ -511,27 +501,25 @@ pub fn generate_symbol_pages_for_module(
   short_path: &ShortPath,
   module_doc_nodes: &[DocNodeWithContext],
 ) -> Vec<SymbolPage> {
-  let mut name_partitions = partition::partition_nodes_by_name(
+  let mut symbols = partition::flatten_namespace(
     ctx,
     module_doc_nodes.iter().map(Cow::Borrowed),
-    true,
   );
 
-  let mut drilldown_partitions = IndexMap::new();
-  for doc_nodes in name_partitions.values() {
-    for doc_node in doc_nodes {
-      if let Some(drilldown_symbols) = doc_node.get_drilldown_symbols() {
-        drilldown_partitions.extend(partition::partition_nodes_by_name(
-          ctx,
-          drilldown_symbols.map(Cow::Owned),
-          false,
-        ))
-      }
+  // Internal symbols (non-exported or `@internal`) are hidden from listings
+  // and nothing links to them, so don't generate pages for them either.
+  symbols.retain(|symbol| !symbol.is_internal(ctx));
+
+  let mut drilldown_partitions = vec![];
+  for symbol in &symbols {
+    if let Some(drilldown_symbols) = symbol.get_drilldown_symbols() {
+      drilldown_partitions
+        .extend(drilldown_symbols.into_iter().map(Cow::Owned));
     }
   }
-  name_partitions.extend(drilldown_partitions);
+  symbols.extend(drilldown_partitions);
 
-  let mut generated_pages = Vec::with_capacity(name_partitions.values().len());
+  let mut generated_pages = Vec::with_capacity(symbols.len());
 
   let render_ctx = RenderContext::new(
     ctx,
@@ -539,9 +527,11 @@ pub fn generate_symbol_pages_for_module(
     UrlResolveKind::File { file: short_path },
   );
 
-  for (name, doc_nodes) in name_partitions {
+  for symbol in symbols {
     let (breadcrumbs_ctx, symbol_group_ctx, toc_ctx, categories_panel) =
-      render_symbol_page(&render_ctx, short_path, &name, &doc_nodes);
+      render_symbol_page(&render_ctx, short_path, &symbol);
+
+    let diff_status = symbol_group_ctx.diff_status.clone();
 
     generated_pages.push(SymbolPage::Symbol {
       breadcrumbs_ctx,
@@ -550,10 +540,12 @@ pub fn generate_symbol_pages_for_module(
       categories_panel,
     });
 
-    if doc_nodes
+    if symbol
+      .declarations
       .iter()
-      .any(|doc_node| matches!(doc_node.def, DocNodeDef::Class { .. }))
+      .any(|decl| matches!(decl.def, DeclarationDef::Class(..)))
     {
+      let name = symbol.get_qualified_name();
       let prototype_name = format!("{name}.prototype");
       generated_pages.push(SymbolPage::Redirect {
         href: ctx.resolve_path(
@@ -563,10 +555,11 @@ pub fn generate_symbol_pages_for_module(
           },
           UrlResolveKind::Symbol {
             file: short_path,
-            symbol: &name,
+            symbol: name,
           },
         ),
         current_symbol: prototype_name,
+        diff_status,
       });
     }
   }
@@ -574,7 +567,7 @@ pub fn generate_symbol_pages_for_module(
   generated_pages
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, Deserialize)]
 #[serde(tag = "kind")]
 pub struct SymbolPageCtx {
   pub html_head_ctx: HtmlHeadCtx,
@@ -592,8 +585,7 @@ impl SymbolPageCtx {
 pub fn render_symbol_page(
   render_ctx: &RenderContext,
   short_path: &ShortPath,
-  namespaced_name: &str,
-  doc_nodes: &[DocNodeWithContext],
+  symbol: &DocNodeWithContext,
 ) -> (
   BreadcrumbsCtx,
   SymbolGroupCtx,
@@ -603,11 +595,10 @@ pub fn render_symbol_page(
   let mut render_ctx = render_ctx
     .with_current_resolve(UrlResolveKind::Symbol {
       file: short_path,
-      symbol: namespaced_name,
+      symbol: symbol.get_qualified_name(),
     })
     .with_category(if render_ctx.ctx.file_mode == FileMode::SingleDts {
-      doc_nodes[0]
-        .get_topmost_ancestor()
+      symbol.get_topmost_ancestor().declarations[0]
         .js_doc
         .tags
         .iter()
@@ -622,13 +613,11 @@ pub fn render_symbol_page(
       None
     });
 
-  if !doc_nodes[0].ns_qualifiers.is_empty() {
-    render_ctx = render_ctx.with_namespace(doc_nodes[0].ns_qualifiers.clone());
+  if !symbol.ns_qualifiers.is_empty() {
+    render_ctx = render_ctx.with_namespace(symbol.ns_qualifiers.clone());
   }
 
-  // NOTE: `doc_nodes` should be sorted at this point.
-  let symbol_group_ctx =
-    SymbolGroupCtx::new(&render_ctx, doc_nodes, namespaced_name);
+  let symbol_group_ctx = SymbolGroupCtx::new(&render_ctx, symbol);
 
   let categories_panel = CategoriesPanelCtx::new(
     &render_ctx,
@@ -639,11 +628,14 @@ pub fn render_symbol_page(
     ),
   );
 
-  let toc_nodes = (!matches!(
+  let toc_nodes = if !matches!(
     render_ctx.ctx.file_mode,
     FileMode::SingleDts | FileMode::Dts
-  ))
-  .then_some(doc_nodes);
+  ) {
+    Some(Some(symbol))
+  } else {
+    None
+  };
 
   (
     render_ctx.get_breadcrumbs(),

@@ -1,0 +1,46 @@
+# old/mod.ts
+export enum Color {
+  Red,
+  Green,
+  Blue,
+}
+
+# new/mod.ts
+export enum Color {
+  Red,
+  Green,
+}
+
+# output.json
+{
+  "modifiedModules": {
+    "file:///mod.ts": {
+      "modified": [
+        {
+          "name": "Color",
+          "declarations": {
+            "modified": [
+              {
+                "kind": "enum",
+                "defChanges": {
+                  "type": "enum",
+                  "removedMembers": [
+                    {
+                      "name": "Blue",
+                      "location": {
+                        "filename": "file:///mod.ts",
+                        "line": 3,
+                        "col": 2,
+                        "byteIndex": 38
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  }
+}

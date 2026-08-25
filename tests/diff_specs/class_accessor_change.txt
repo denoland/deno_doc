@@ -1,0 +1,118 @@
+# old/mod.ts
+export class Widget {
+  get label(): string { return ""; }
+  set label(value: string) {}
+
+  get count(): number { return 0; }
+}
+
+# new/mod.ts
+export class Widget {
+  get label(): number { return 0; }
+  set label(value: number) {}
+
+  get count(): number { return 0; }
+  set count(value: number) {}
+}
+
+# output.json
+{
+  "modifiedModules": {
+    "file:///mod.ts": {
+      "modified": [
+        {
+          "name": "Widget",
+          "declarations": {
+            "modified": [
+              {
+                "kind": "class",
+                "defChanges": {
+                  "type": "class",
+                  "methodChanges": {
+                    "added": [
+                      {
+                        "name": "count",
+                        "kind": "setter",
+                        "functionDef": {
+                          "params": [
+                            {
+                              "kind": "identifier",
+                              "name": "value",
+                              "optional": false,
+                              "tsType": {
+                                "repr": "number",
+                                "kind": "keyword",
+                                "value": "number"
+                              }
+                            }
+                          ],
+                          "returnType": {
+                            "repr": "void",
+                            "kind": "keyword",
+                            "value": "void"
+                          },
+                          "hasBody": true
+                        },
+                        "location": {
+                          "filename": "file:///mod.ts",
+                          "line": 5,
+                          "col": 2,
+                          "byteIndex": 127
+                        }
+                      }
+                    ],
+                    "modified": [
+                      {
+                        "name": "label",
+                        "kind": "getter",
+                        "functionDiff": {
+                          "returnTypeChange": {
+                            "old": {
+                              "repr": "string",
+                              "kind": "keyword",
+                              "value": "string"
+                            },
+                            "new": {
+                              "repr": "number",
+                              "kind": "keyword",
+                              "value": "number"
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "name": "label",
+                        "kind": "setter",
+                        "functionDiff": {
+                          "paramsChange": {
+                            "modified": [
+                              {
+                                "index": 0,
+                                "typeChange": {
+                                  "old": {
+                                    "repr": "string",
+                                    "kind": "keyword",
+                                    "value": "string"
+                                  },
+                                  "new": {
+                                    "repr": "number",
+                                    "kind": "keyword",
+                                    "value": "number"
+                                  }
+                                }
+                              }
+                            ]
+                          }
+                        }
+                      }
+                    ]
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  }
+}

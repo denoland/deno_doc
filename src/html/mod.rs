@@ -1,24 +1,25 @@
-use crate::node::DocNodeDef;
-use crate::DocNode;
+use crate::Symbol;
+use crate::node::DeclarationDef;
 use deno_ast::ModuleSpecifier;
-use handlebars::handlebars_helper;
 use handlebars::Handlebars;
+use handlebars::handlebars_helper;
 use indexmap::IndexMap;
+use indexmap::IndexSet;
 use serde::Deserialize;
 use serde::Serialize;
 use std::borrow::Cow;
 use std::cmp::Ordering;
 use std::collections::HashMap;
 use std::path::PathBuf;
-use std::rc::Rc;
 use std::sync::Arc;
 
+pub mod diff;
 pub mod jsdoc;
 pub mod pages;
 mod parameters;
 pub mod partition;
 mod render_context;
-mod search;
+pub mod search;
 mod symbols;
 mod types;
 mod usage;
@@ -29,18 +30,20 @@ pub mod comrak;
 
 use crate::html::pages::SymbolPage;
 use crate::js_doc::JsDocTag;
+use crate::parser::ParseOutput;
+pub use diff::DiffIndex;
+pub use diff::DiffStatus;
 pub use pages::generate_symbol_pages_for_module;
 pub use render_context::RenderContext;
 pub use search::generate_search_index;
-pub use symbols::namespace;
+pub use symbols::AllSymbolsCtx;
+pub use symbols::AllSymbolsEntrypointCtx;
 pub use symbols::SymbolContentCtx;
 pub use symbols::SymbolGroupCtx;
+pub use symbols::namespace;
 pub use usage::UsageComposer;
 pub use usage::UsageComposerEntry;
 pub use usage::UsageToMd;
-pub use util::compute_namespaced_symbols;
-pub use util::href_path_resolve;
-pub use util::qualify_drilldown_name;
 pub use util::DocNodeKindCtx;
 pub use util::HrefResolver;
 pub use util::NamespacedGlobalSymbols;
@@ -49,6 +52,9 @@ pub use util::ToCCtx;
 pub use util::TopSymbolCtx;
 pub use util::TopSymbolsCtx;
 pub use util::UrlResolveKind;
+pub use util::compute_namespaced_symbols;
+pub use util::href_path_resolve;
+pub use util::qualify_drilldown_name;
 
 pub const STYLESHEET: &str = include_str!("./templates/styles.gen.css");
 pub const STYLESHEET_FILENAME: &str = "styles.css";
@@ -72,6 +78,10 @@ const FUSE_FILENAME: &str = "fuse.js";
 const SEARCH_JS: &str = include_str!("./templates/pages/search.js");
 const SEARCH_FILENAME: &str = "search.js";
 
+const DARKMODE_TOGGLE_JS: &str =
+  include_str!("./templates/pages/darkmode_toggle.js");
+const DARKMODE_TOGGLE_FILENAME: &str = "darkmode_toggle.js";
+
 fn setup_hbs() -> Result<Handlebars<'static>, anyhow::Error> {
   let mut reg = Handlebars::new();
   reg.register_escape_fn(|str| html_escape::encode_safe(str).into_owned());
@@ -85,6 +95,13 @@ fn setup_hbs() -> Result<Handlebars<'static>, anyhow::Error> {
 
   handlebars_helper!(print: |a: Json| println!("{a:#?}"));
   reg.register_helper("print", Box::new(print));
+
+  // Escape a value for use in plain text contexts (such as `<title>`), where
+  // only `&`, `<` and `>` need escaping. The registry-wide escaper is the
+  // stricter `encode_safe`, which also escapes characters like `/` that are
+  // harmless in text content, turning e.g. `I/O` into `I&#x2F;O`.
+  handlebars_helper!(escape_text: |a: str| html_escape::encode_text(a).into_owned());
+  reg.register_helper("escape_text", Box::new(escape_text));
 
   reg.register_template_string(
     ToCCtx::TEMPLATE,
@@ -171,6 +188,10 @@ fn setup_hbs() -> Result<Handlebars<'static>, anyhow::Error> {
     include_str!("./templates/category_panel.hbs"),
   )?;
   reg.register_template_string("see", include_str!("./templates/see.hbs"))?;
+  reg.register_template_string(
+    AllSymbolsCtx::TEMPLATE,
+    include_str!("./templates/all_symbols.hbs"),
+  )?;
 
   // pages
   reg.register_template_string(
@@ -178,7 +199,7 @@ fn setup_hbs() -> Result<Handlebars<'static>, anyhow::Error> {
     include_str!("./templates/pages/html_head.hbs"),
   )?;
   reg.register_template_string(
-    pages::AllSymbolsCtx::TEMPLATE,
+    pages::AllSymbolsPageCtx::TEMPLATE,
     include_str!("./templates/pages/all_symbols.hbs"),
   )?;
   reg.register_template_string(
@@ -227,6 +248,14 @@ fn setup_hbs() -> Result<Handlebars<'static>, anyhow::Error> {
     "icons/menu",
     include_str!("./templates/icons/menu.svg"),
   )?;
+  reg.register_template_string(
+    "icons/sun",
+    include_str!("./templates/icons/sun.svg"),
+  )?;
+  reg.register_template_string(
+    "icons/moon",
+    include_str!("./templates/icons/moon.svg"),
+  )?;
 
   Ok(reg)
 }
@@ -235,7 +264,7 @@ lazy_static! {
   pub static ref HANDLEBARS: Handlebars<'static> = setup_hbs().unwrap();
 }
 
-pub type HeadInject = Rc<dyn Fn(&str) -> String>;
+pub type HeadInject = Arc<dyn Fn(&str) -> String + Send + Sync>;
 
 #[derive(Clone)]
 pub struct GenerateOptions {
@@ -245,8 +274,8 @@ pub struct GenerateOptions {
   /// If only a single file is specified during generation, this will always
   /// default to that file.
   pub main_entrypoint: Option<ModuleSpecifier>,
-  pub href_resolver: Rc<dyn HrefResolver>,
-  pub usage_composer: Rc<dyn UsageComposer>,
+  pub href_resolver: Arc<dyn HrefResolver>,
+  pub usage_composer: Option<Arc<dyn UsageComposer>>,
   pub rewrite_map: Option<IndexMap<ModuleSpecifier, String>>,
   pub category_docs: Option<IndexMap<String, Option<String>>>,
   pub disable_search: bool,
@@ -255,17 +284,29 @@ pub struct GenerateOptions {
   pub markdown_renderer: jsdoc::MarkdownRenderer,
   pub markdown_stripper: jsdoc::MarkdownStripper,
   pub head_inject: Option<HeadInject>,
+  pub id_prefix: Option<String>,
+  pub diff_only: bool,
+  /// Maximum number of symbol rows to render in a single module symbol
+  /// listing (the per-file overview; the "all symbols" page contains one
+  /// such listing per entrypoint). While a listing exceeds the limit, its
+  /// deepest level of namespace nesting is dropped whole — so the result
+  /// can undershoot the limit, but every namespace is either fully listed
+  /// or deferred to its own page, never partially listed. Top-level symbols
+  /// are always rendered. `None` renders everything.
+  pub symbol_listing_limit: Option<usize>,
 }
 
 #[non_exhaustive]
 pub struct GenerateCtx {
   pub package_name: Option<String>,
   pub common_ancestor: Option<PathBuf>,
-  pub doc_nodes: IndexMap<Rc<ShortPath>, Vec<DocNodeWithContext>>,
-  pub href_resolver: Rc<dyn HrefResolver>,
-  pub usage_composer: Rc<dyn UsageComposer>,
+  pub module_docs: IndexMap<Arc<ShortPath>, crate::js_doc::JsDoc>,
+  pub imports: IndexMap<Arc<ShortPath>, Vec<crate::node::Import>>,
+  pub doc_nodes: IndexMap<Arc<ShortPath>, Vec<DocNodeWithContext>>,
+  pub href_resolver: Arc<dyn HrefResolver>,
+  pub usage_composer: Option<Arc<dyn UsageComposer>>,
   pub rewrite_map: Option<IndexMap<ModuleSpecifier, String>>,
-  pub main_entrypoint: Option<Rc<ShortPath>>,
+  pub main_entrypoint: Option<Arc<ShortPath>>,
   pub file_mode: FileMode,
   pub category_docs: Option<IndexMap<String, Option<String>>>,
   pub disable_search: bool,
@@ -274,6 +315,21 @@ pub struct GenerateCtx {
   pub markdown_renderer: jsdoc::MarkdownRenderer,
   pub markdown_stripper: jsdoc::MarkdownStripper,
   pub head_inject: Option<HeadInject>,
+  pub id_prefix: Option<String>,
+  pub diff_only: bool,
+  pub symbol_listing_limit: Option<usize>,
+  /// Index from Location to (depth, node) for fast reference resolution.
+  /// Built lazily on first access to avoid the cost when not needed.
+  reference_index: std::sync::OnceLock<
+    HashMap<crate::Location, Vec<(usize, DocNodeWithContext)>>,
+  >,
+  /// Per-file sets of linkable symbols, used to verify that a symbol exists
+  /// in another documented file before linking to it. Built lazily on first
+  /// access.
+  linkable_symbols:
+    std::sync::OnceLock<HashMap<Arc<ShortPath>, util::NamespacedSymbols>>,
+  /// Optional diff index for annotating rendered output with diff status.
+  pub diff: Option<DiffIndex>,
 }
 
 impl GenerateCtx {
@@ -281,14 +337,19 @@ impl GenerateCtx {
     options: GenerateOptions,
     common_ancestor: Option<PathBuf>,
     file_mode: FileMode,
-    doc_nodes_by_url: IndexMap<ModuleSpecifier, Vec<DocNode>>,
+    doc_nodes_by_url: ParseOutput,
+    diff: Option<crate::diff::DocDiff>,
   ) -> Result<Self, anyhow::Error> {
-    let mut main_entrypoint = None;
+    let diff = diff.map(DiffIndex::new);
 
-    let doc_nodes = doc_nodes_by_url
+    let mut main_entrypoint = None;
+    let mut module_docs = IndexMap::new();
+    let mut imports = IndexMap::new();
+
+    let mut doc_nodes = doc_nodes_by_url
       .into_iter()
-      .map(|(specifier, nodes)| {
-        let short_path = Rc::new(ShortPath::new(
+      .map(|(specifier, document)| {
+        let short_path = Arc::new(ShortPath::new(
           specifier,
           options.main_entrypoint.as_ref(),
           options.rewrite_map.as_ref(),
@@ -299,71 +360,91 @@ impl GenerateCtx {
           main_entrypoint = Some(short_path.clone());
         }
 
-        let nodes = nodes
+        module_docs.insert(short_path.clone(), document.module_doc);
+        imports.insert(short_path.clone(), document.imports);
+
+        let nodes = document
+          .symbols
           .into_iter()
-          .map(|mut node| {
-            if &*node.name == "default" {
-              if let Some(default_rename) =
+          .map(|mut symbol| {
+            if &*symbol.name == "default"
+              && let Some(default_rename) =
                 options.default_symbol_map.as_ref().and_then(
                   |default_symbol_map| default_symbol_map.get(&short_path.path),
                 )
-              {
-                node.name = default_rename.as_str().into();
+            {
+              Arc::make_mut(&mut symbol).name = default_rename.as_str().into();
+            }
+
+            // Only mutate if there's actually a FnOrConstructor to convert
+            {
+              let needs_mutation = symbol.declarations.iter().any(|decl| {
+                // TODO(@crowlKats): support this in namespaces
+                decl
+                  .variable_def()
+                  .as_ref()
+                  .and_then(|def| def.ts_type.as_ref())
+                  .is_some_and(|ts_type| {
+                    matches!(
+                      ts_type.kind,
+                      crate::ts_type::TsTypeDefKind::FnOrConstructor(_)
+                    )
+                  })
+              });
+
+              if needs_mutation {
+                for declaration in &mut Arc::make_mut(&mut symbol).declarations
+                {
+                  if let Some(crate::ts_type::TsTypeDefKind::FnOrConstructor(
+                    fn_or_constructor,
+                  )) = declaration
+                    .variable_def()
+                    .as_ref()
+                    .and_then(|def| def.ts_type.as_ref())
+                    .map(|ts_type| ts_type.kind.clone())
+                  {
+                    declaration.def =
+                      DeclarationDef::Function(crate::function::FunctionDef {
+                        def_name: None,
+                        params: fn_or_constructor.params,
+                        return_type: Some(fn_or_constructor.ts_type),
+                        has_body: false,
+                        is_async: false,
+                        is_generator: false,
+                        type_params: fn_or_constructor.type_params,
+                        decorators: Box::new([]),
+                      });
+                  }
+                }
               }
             }
 
-            // TODO(@crowlKats): support this in namespaces
-            let node = if node
-              .variable_def()
-              .as_ref()
-              .and_then(|def| def.ts_type.as_ref())
-              .and_then(|ts_type| ts_type.kind.as_ref())
-              .is_some_and(|kind| {
-                kind == &crate::ts_type::TsTypeDefKind::FnOrConstructor
-              }) {
-              let DocNodeDef::Variable { variable_def } = node.def else {
-                unreachable!()
-              };
-              let fn_or_constructor =
-                variable_def.ts_type.unwrap().fn_or_constructor.unwrap();
-
-              let mut new_node = DocNode::function(
-                node.name,
-                false,
-                node.location,
-                node.declaration_kind,
-                node.js_doc,
-                crate::function::FunctionDef {
-                  def_name: None,
-                  params: fn_or_constructor.params,
-                  return_type: Some(fn_or_constructor.ts_type),
-                  has_body: false,
-                  is_async: false,
-                  is_generator: false,
-                  type_params: fn_or_constructor.type_params,
-                  decorators: Box::new([]),
-                },
-              );
-              new_node.is_default = node.is_default;
-              new_node
-            } else {
-              node
-            };
+            let diff_status = diff.as_ref().and_then(|d| {
+              d.get_symbol_diff(&short_path.specifier, &symbol.name)
+                .map(|info| info.status.clone())
+            });
 
             DocNodeWithContext {
               origin: short_path.clone(),
-              ns_qualifiers: Rc::new([]),
-              kind: DocNodeKind::from_node(&node),
-              inner: Arc::new(node),
+              declared_origin: None,
+              ns_qualifiers: Arc::new([]),
+              inner: symbol,
               drilldown_name: None,
+              drilldown_kind: None,
               parent: None,
               namespace_children: None,
+              qualified_name: std::sync::OnceLock::new(),
+              diff_status,
             }
           })
           .map(|mut node| {
             fn handle_node(node: &mut DocNodeWithContext) {
-              let children = if let Some(ns) = node.namespace_def() {
-                let subqualifier: Rc<[String]> = node.sub_qualifier().into();
+              let children = if let Some(ns) = node
+                .declarations
+                .iter()
+                .find_map(|decl| decl.namespace_def())
+              {
+                let subqualifier: Arc<[String]> = node.sub_qualifier().into();
                 Some(
                   ns.elements
                     .iter()
@@ -381,7 +462,7 @@ impl GenerateCtx {
                 None
               };
 
-              node.namespace_children = children;
+              node.namespace_children = children.map(Arc::new);
             }
 
             handle_node(&mut node);
@@ -394,9 +475,74 @@ impl GenerateCtx {
       })
       .collect::<IndexMap<_, _>>();
 
+    doc_nodes.sort_by_key(|a, _| !a.is_main);
+
+    // Inject removed symbols from diff data into doc_nodes for listing
+    if let Some(diff) = &diff {
+      for (short_path, nodes) in &mut doc_nodes {
+        if let Some(removed) = diff
+          .module_diffs
+          .get(&short_path.specifier)
+          .map(|diff| &diff.removed)
+        {
+          for node in removed {
+            nodes.push(DocNodeWithContext {
+              origin: short_path.clone(),
+              declared_origin: None,
+              ns_qualifiers: Arc::new([]),
+              inner: Arc::new(node.clone()),
+              drilldown_name: None,
+              drilldown_kind: None,
+              parent: None,
+              namespace_children: None,
+              qualified_name: std::sync::OnceLock::new(),
+              diff_status: Some(DiffStatus::Removed),
+            });
+          }
+        }
+      }
+
+      for (short_path, symbols) in &mut doc_nodes {
+        for symbol in symbols.iter_mut() {
+          let Some(decl) = symbol
+            .inner
+            .declarations
+            .iter()
+            .find(|decl| decl.namespace_def().is_some())
+          else {
+            continue;
+          };
+
+          // Look up the NamespaceDiff for this node from the DiffIndex
+          let ns_diff = diff
+            .get_declaration_diff(
+              &short_path.specifier,
+              &symbol.name,
+              decl.def.to_kind(),
+            )
+            .and_then(|node_diff| node_diff.def_changes.as_ref())
+            .and_then(|def_diff| {
+              if let crate::diff::DeclarationDefDiff::Namespace(ns_diff) =
+                def_diff
+              {
+                Some(ns_diff)
+              } else {
+                None
+              }
+            });
+
+          if let Some(ns_diff) = ns_diff {
+            apply_namespace_diff_inner(symbol, ns_diff, short_path)
+          }
+        }
+      }
+    }
+
     Ok(Self {
       package_name: options.package_name,
       common_ancestor,
+      module_docs,
+      imports,
       doc_nodes,
       href_resolver: options.href_resolver,
       usage_composer: options.usage_composer,
@@ -410,12 +556,19 @@ impl GenerateCtx {
       markdown_renderer: options.markdown_renderer,
       markdown_stripper: options.markdown_stripper,
       head_inject: options.head_inject,
+      id_prefix: options.id_prefix,
+      diff_only: options.diff_only,
+      symbol_listing_limit: options.symbol_listing_limit,
+      reference_index: std::sync::OnceLock::new(),
+      linkable_symbols: std::sync::OnceLock::new(),
+      diff,
     })
   }
 
   pub fn create_basic(
     mut options: GenerateOptions,
-    doc_nodes_by_url: IndexMap<ModuleSpecifier, Vec<DocNode>>,
+    doc_nodes_by_url: ParseOutput,
+    diff: Option<crate::diff::DocDiff>,
   ) -> Result<Self, anyhow::Error> {
     if doc_nodes_by_url.len() == 1 && options.main_entrypoint.is_none() {
       options.main_entrypoint =
@@ -436,7 +589,13 @@ impl GenerateCtx {
 
     let common_ancestor = find_common_ancestor(doc_nodes_by_url.keys(), true);
 
-    GenerateCtx::new(options, common_ancestor, file_mode, doc_nodes_by_url)
+    GenerateCtx::new(
+      options,
+      common_ancestor,
+      file_mode,
+      doc_nodes_by_url,
+      diff,
+    )
   }
 
   pub fn render<T: serde::Serialize>(
@@ -452,17 +611,76 @@ impl GenerateCtx {
     current: UrlResolveKind,
     target: UrlResolveKind,
   ) -> String {
-    if let Some(symbol_redirect_map) = &self.symbol_redirect_map {
-      if let UrlResolveKind::Symbol { file, symbol } = target {
-        if let Some(path_map) = symbol_redirect_map.get(&file.path) {
-          if let Some(href) = path_map.get(symbol) {
-            return href.clone();
-          }
-        }
-      }
+    if let Some(symbol_redirect_map) = &self.symbol_redirect_map
+      && let UrlResolveKind::Symbol { file, symbol } = target
+      && let Some(path_map) = symbol_redirect_map.get(&file.path)
+      && let Some(href) = path_map.get(symbol)
+    {
+      return href.clone();
     }
 
     self.href_resolver.resolve_path(current, target)
+  }
+
+  /// Whether the given documented file contains a linkable symbol with the
+  /// given namespaced path.
+  pub(crate) fn file_has_linkable_symbol(
+    &self,
+    short_path: &ShortPath,
+    symbol: &[String],
+  ) -> bool {
+    let linkable_symbols = self.linkable_symbols.get_or_init(|| {
+      self
+        .doc_nodes
+        .iter()
+        .map(|(short_path, nodes)| {
+          (
+            short_path.clone(),
+            util::NamespacedSymbols::new(self, nodes),
+          )
+        })
+        .collect()
+    });
+
+    linkable_symbols
+      .get(short_path)
+      .is_some_and(|symbols| symbols.get(symbol).is_some())
+  }
+
+  fn get_reference_index(
+    &self,
+  ) -> &HashMap<crate::Location, Vec<(usize, DocNodeWithContext)>> {
+    self.reference_index.get_or_init(|| {
+      let mut index: HashMap<
+        crate::Location,
+        Vec<(usize, DocNodeWithContext)>,
+      > = HashMap::new();
+      fn index_node(
+        index: &mut HashMap<crate::Location, Vec<(usize, DocNodeWithContext)>>,
+        node: &DocNodeWithContext,
+        depth: usize,
+      ) {
+        for decl in &node.declarations {
+          index
+            .entry(decl.location.clone())
+            .or_default()
+            .push((depth, node.clone()));
+          if matches!(decl.def, DeclarationDef::Namespace(..))
+            && let Some(children) = &node.namespace_children
+          {
+            for child in children.iter() {
+              index_node(index, child, depth + 1);
+            }
+          }
+        }
+      }
+      for nodes in self.doc_nodes.values() {
+        for node in nodes {
+          index_node(&mut index, node, 0);
+        }
+      }
+      index
+    })
   }
 
   // TODO(@crowlKats): don't reference to another node, but redirect to it instead
@@ -471,54 +689,34 @@ impl GenerateCtx {
     new_parent: Option<&'a DocNodeWithContext>,
     reference: &'a crate::Location,
   ) -> impl Iterator<Item = Cow<'a, DocNodeWithContext>> + 'a {
-    fn handle_node<'a>(
-      node: &'a DocNodeWithContext,
-      reference: &'a crate::Location,
-      depth: usize,
-    ) -> Box<dyn Iterator<Item = Cow<'a, DocNodeWithContext>> + 'a> {
-      if &node.location == reference {
-        let node = if depth > 0 {
-          fn strip_qualifiers(node: &mut DocNodeWithContext, depth: usize) {
-            let ns_qualifiers = node.ns_qualifiers.to_vec();
-            node.ns_qualifiers = ns_qualifiers[depth..].to_vec().into();
+    fn strip_qualifiers(node: &mut DocNodeWithContext, depth: usize) {
+      let ns_qualifiers = node.ns_qualifiers.to_vec();
+      node.ns_qualifiers = ns_qualifiers[depth..].to_vec().into();
+      node.qualified_name = std::sync::OnceLock::new();
 
-            if let Some(children) = &mut node.namespace_children {
-              for child in children {
-                strip_qualifiers(child, depth);
-              }
-            }
-          }
+      if let Some(children_rc) = &mut node.namespace_children {
+        for child in Arc::make_mut(children_rc) {
+          strip_qualifiers(child, depth);
+        }
+      }
+    }
 
+    let entries = self
+      .get_reference_index()
+      .get(reference)
+      .map(|v| v.as_slice())
+      .unwrap_or(&[]);
+
+    entries
+      .iter()
+      .map(|(depth, node)| {
+        if *depth > 0 {
           let mut node = node.clone();
-          strip_qualifiers(&mut node, depth);
+          strip_qualifiers(&mut node, *depth);
           Cow::Owned(node)
         } else {
           Cow::Borrowed(node)
-        };
-
-        return Box::new(std::iter::once(node));
-      }
-
-      if matches!(node.def, DocNodeDef::Namespace { .. }) {
-        if let Some(children) = &node.namespace_children {
-          return Box::new(
-            children
-              .iter()
-              .flat_map(move |child| handle_node(child, reference, depth + 1)),
-          );
         }
-      }
-
-      Box::new(std::iter::empty())
-    }
-
-    self
-      .doc_nodes
-      .values()
-      .flat_map(move |nodes| {
-        nodes
-          .iter()
-          .flat_map(move |node| handle_node(node, reference, 0))
       })
       .map(move |node| {
         if let Some(parent) = new_parent {
@@ -531,25 +729,128 @@ impl GenerateCtx {
           fn handle_node(
             node: &mut DocNodeWithContext,
             ns_qualifiers: Vec<String>,
+            origin: &Arc<ShortPath>,
           ) {
-            if let Some(children) = &mut node.namespace_children {
-              for node in children {
-                handle_node(node, ns_qualifiers.clone());
+            if let Some(children_rc) = &mut node.namespace_children {
+              for node in Arc::make_mut(children_rc) {
+                handle_node(node, ns_qualifiers.clone(), origin);
               }
             }
 
             let mut new_ns_qualifiers = ns_qualifiers;
             new_ns_qualifiers.extend(node.ns_qualifiers.iter().cloned());
             node.ns_qualifiers = new_ns_qualifiers.into();
+            node.qualified_name = std::sync::OnceLock::new();
+            // The symbol page for a namespace-qualified re-export is written
+            // under the module that documents the namespace, not the module
+            // the symbol was declared in, so hrefs must resolve against the
+            // former. Diff data stays keyed by the declaring module, which is
+            // preserved as `declared_origin`.
+            if node.declared_origin.is_none() {
+              node.declared_origin = Some(node.origin.clone());
+            }
+            node.origin = origin.clone();
           }
 
-          handle_node(&mut node, ns_qualifiers);
+          handle_node(&mut node, ns_qualifiers, &parent.origin);
 
           Cow::Owned(node)
         } else {
           node
         }
       })
+  }
+}
+
+fn apply_namespace_diff_inner(
+  node: &mut DocNodeWithContext,
+  ns_diff: &crate::diff::NamespaceDiff,
+  short_path: &Arc<ShortPath>,
+) {
+  // Only clone when we need to inject removed elements
+  let removed_ctx = if !ns_diff.removed_elements.is_empty() {
+    let subqualifier: Arc<[String]> = node.sub_qualifier().into();
+    let node_snapshot = Arc::new(node.clone());
+    Some((subqualifier, node_snapshot))
+  } else {
+    None
+  };
+
+  if let Some(children_rc) = &mut node.namespace_children {
+    let children = Arc::make_mut(children_rc);
+
+    // Build lookup sets for added and modified elements
+    let added_names: std::collections::HashSet<String> = ns_diff
+      .added_elements
+      .iter()
+      .map(|n| n.name.to_string())
+      .collect();
+
+    let modified_map: IndexMap<String, &crate::diff::SymbolDiff> = ns_diff
+      .modified_elements
+      .iter()
+      .map(|d| (d.name.to_string(), d))
+      .collect();
+
+    // Set diff_status on existing children
+    for child in children.iter_mut() {
+      let name = child.name.to_string();
+      if added_names.contains(&name) {
+        child.diff_status = Some(DiffStatus::Added);
+      } else if let Some(symbol_diff) = modified_map.get(&name) {
+        child.diff_status = if let Some(name_change) = &symbol_diff.name_change
+        {
+          Some(DiffStatus::Renamed {
+            old_name: name_change.old.to_string(),
+          })
+        } else {
+          Some(DiffStatus::Modified)
+        };
+
+        if child
+          .declarations
+          .iter()
+          .any(|decl| matches!(decl.def, DeclarationDef::Namespace(..)))
+        {
+          let child_ns_diff =
+            symbol_diff.declarations.as_ref().and_then(|decls_diff| {
+              decls_diff.modified.iter().find_map(|decl_diff| {
+                decl_diff.def_changes.as_ref().and_then(|def_diff| {
+                  if let crate::diff::DeclarationDefDiff::Namespace(ns_diff) =
+                    def_diff
+                  {
+                    Some(ns_diff)
+                  } else {
+                    None
+                  }
+                })
+              })
+            });
+
+          if let Some(child_ns_diff) = child_ns_diff {
+            apply_namespace_diff_inner(child, child_ns_diff, short_path);
+          }
+        }
+      }
+    }
+
+    // Inject removed elements
+    if let Some((subqualifier, node_snapshot)) = &removed_ctx {
+      for removed_node in &ns_diff.removed_elements {
+        children.push(DocNodeWithContext {
+          origin: short_path.clone(),
+          declared_origin: None,
+          ns_qualifiers: subqualifier.clone(),
+          inner: removed_node.clone(),
+          drilldown_name: None,
+          drilldown_kind: None,
+          parent: Some(node_snapshot.clone()),
+          namespace_children: None,
+          qualified_name: std::sync::OnceLock::new(),
+          diff_status: Some(DiffStatus::Removed),
+        });
+      }
+    }
   }
 }
 
@@ -594,19 +895,12 @@ impl ShortPath {
       };
     };
 
-    let Some(common_ancestor) = common_ancestor else {
-      return ShortPath {
-        path: url_file_path.to_string_lossy().to_string(),
-        specifier,
-        is_main,
-      };
-    };
-
-    let stripped_path = url_file_path
-      .strip_prefix(common_ancestor)
+    let stripped_path = common_ancestor
+      .and_then(|ancestor| url_file_path.strip_prefix(ancestor).ok())
       .unwrap_or(&url_file_path);
 
     let path = stripped_path.to_string_lossy().to_string();
+    let path = path.strip_prefix('/').unwrap_or(&path).to_string();
 
     ShortPath {
       path: if path.is_empty() {
@@ -632,7 +926,7 @@ impl ShortPath {
     }
   }
 
-  pub fn as_resolve_kind(&self) -> UrlResolveKind {
+  pub fn as_resolve_kind(&self) -> UrlResolveKind<'_> {
     if self.is_main {
       UrlResolveKind::Root
     } else {
@@ -696,70 +990,101 @@ impl From<deno_ast::swc::ast::MethodKind> for MethodKind {
   Ord,
   PartialOrd,
 )]
-pub enum DocNodeKind {
+pub enum DrilldownKind {
   Property,
   Method(MethodKind),
-  Class,
-  Enum,
-  Function,
-  Import,
-  Interface,
-  ModuleDoc,
-  Namespace,
-  Reference,
-  TypeAlias,
-  Variable,
 }
 
-impl DocNodeKind {
-  fn from_node(node: &DocNode) -> Self {
-    match node.def {
-      DocNodeDef::Function { .. } => Self::Function,
-      DocNodeDef::Variable { .. } => Self::Variable,
-      DocNodeDef::Enum { .. } => Self::Enum,
-      DocNodeDef::Class { .. } => Self::Class,
-      DocNodeDef::TypeAlias { .. } => Self::TypeAlias,
-      DocNodeDef::Namespace { .. } => Self::Namespace,
-      DocNodeDef::Interface { .. } => Self::Interface,
-      DocNodeDef::Import { .. } => Self::Import,
-      DocNodeDef::ModuleDoc => Self::ModuleDoc,
-      DocNodeDef::Reference { .. } => Self::Reference,
-    }
-  }
-}
-
-/// A wrapper around [`DocNode`] with additional fields to track information
-/// about the inner [`DocNode`].
-/// This is cheap to clone since all fields are [`Rc`]s.
+/// A wrapper around [`Symbol`] with additional fields to track information
+/// about the inner [`Symbol`].
+/// This is cheap to clone since all fields use [`Arc`] reference counting.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct DocNodeWithContext {
-  pub origin: Rc<ShortPath>,
-  pub ns_qualifiers: Rc<[String]>,
-  pub kind: DocNodeKind,
-  pub inner: Arc<DocNode>,
+  pub origin: Arc<ShortPath>,
+  /// The module the symbol was declared in, when it differs from `origin`.
+  /// `origin` tracks the module whose docs are being generated (which is what
+  /// hrefs must resolve against), but for reference-resolved re-exports diff
+  /// data is keyed by the declaring module; see [`Self::declared_origin`].
+  #[serde(skip, default)]
+  declared_origin: Option<Arc<ShortPath>>,
+  pub ns_qualifiers: Arc<[String]>,
+  pub inner: Arc<Symbol>,
   pub drilldown_name: Option<Box<str>>,
-  pub parent: Option<Box<DocNodeWithContext>>,
-  pub namespace_children: Option<Vec<DocNodeWithContext>>,
+  /// For drilldown symbols (methods/properties), overrides the kind derived
+  /// from declarations. `None` for regular symbols.
+  pub drilldown_kind: Option<DrilldownKind>,
+  #[serde(skip, default)]
+  pub parent: Option<Arc<DocNodeWithContext>>,
+  #[serde(skip, default)]
+  pub namespace_children: Option<Arc<Vec<DocNodeWithContext>>>,
+  #[serde(skip, default)]
+  qualified_name: std::sync::OnceLock<String>,
+  #[serde(skip_serializing_if = "Option::is_none")]
+  pub diff_status: Option<DiffStatus>,
 }
 
 impl DocNodeWithContext {
-  pub fn create_child(&self, doc_node: Arc<DocNode>) -> Self {
+  /// The module the symbol was declared in. This is the same as `origin`
+  /// except for reference-resolved re-exports, and is the module diff data is
+  /// keyed by.
+  pub fn declared_origin(&self) -> &Arc<ShortPath> {
+    self.declared_origin.as_ref().unwrap_or(&self.origin)
+  }
+
+  /// Returns the `DocNodeKindCtx` entries for this symbol. For drilldown
+  /// symbols (methods/properties) uses the `drilldown_kind`; otherwise
+  /// derives from declarations.
+  pub fn get_kind_ctxs(&self) -> IndexSet<DocNodeKindCtx> {
+    if let Some(kind) = self.drilldown_kind {
+      IndexSet::from([kind.into()])
+    } else {
+      self
+        .inner
+        .declarations
+        .iter()
+        .map(|d| DocNodeKindCtx::from(crate::node::DocNodeKind::from(&d.def)))
+        .collect()
+    }
+  }
+
+  pub fn create_child(&self, doc_node: Arc<Symbol>) -> Self {
     DocNodeWithContext {
       origin: self.origin.clone(),
+      declared_origin: self.declared_origin.clone(),
       ns_qualifiers: self.ns_qualifiers.clone(),
-      kind: DocNodeKind::from_node(&doc_node),
       inner: doc_node,
       drilldown_name: None,
-      parent: Some(Box::new(self.clone())),
+      drilldown_kind: None,
+      parent: Some(Arc::new(self.clone())),
       namespace_children: None,
+      qualified_name: std::sync::OnceLock::new(),
+      diff_status: None,
+    }
+  }
+
+  fn create_child_with_parent(
+    parent: Arc<DocNodeWithContext>,
+    doc_node: Arc<Symbol>,
+  ) -> Self {
+    DocNodeWithContext {
+      origin: parent.origin.clone(),
+      declared_origin: parent.declared_origin.clone(),
+      ns_qualifiers: parent.ns_qualifiers.clone(),
+      inner: doc_node,
+      drilldown_name: None,
+      drilldown_kind: None,
+      parent: Some(parent),
+      namespace_children: None,
+      qualified_name: std::sync::OnceLock::new(),
+      diff_status: None,
     }
   }
 
   pub fn create_namespace_child(
     &self,
-    doc_node: Arc<DocNode>,
-    qualifiers: Rc<[String]>,
+    doc_node: Arc<Symbol>,
+    qualifiers: Arc<[String]>,
   ) -> Self {
     let mut child = self.create_child(doc_node);
     child.ns_qualifiers = qualifiers;
@@ -768,7 +1093,7 @@ impl DocNodeWithContext {
 
   pub fn create_child_method(
     &self,
-    mut method_doc_node: DocNode,
+    mut method_doc_node: Symbol,
     is_static: bool,
     method_kind: deno_ast::swc::ast::MethodKind,
   ) -> Self {
@@ -776,17 +1101,45 @@ impl DocNodeWithContext {
     method_doc_node.name =
       qualify_drilldown_name(self.get_name(), &method_doc_node.name, is_static)
         .into_boxed_str();
-    method_doc_node.declaration_kind = self.declaration_kind;
+    for decl in &mut method_doc_node.declarations {
+      decl.declaration_kind = self.inner.declarations[0].declaration_kind;
+    }
 
     let mut new_node = self.create_child(Arc::new(method_doc_node));
     new_node.drilldown_name = Some(original_name);
-    new_node.kind = DocNodeKind::Method(method_kind.into());
+    new_node.drilldown_kind = Some(DrilldownKind::Method(method_kind.into()));
+    new_node.diff_status = self.diff_status.clone();
+    new_node
+  }
+
+  fn create_child_method_with_parent(
+    parent: &Arc<DocNodeWithContext>,
+    mut method_doc_node: Symbol,
+    is_static: bool,
+    method_kind: deno_ast::swc::ast::MethodKind,
+  ) -> Self {
+    let original_name = method_doc_node.name.clone();
+    method_doc_node.name = qualify_drilldown_name(
+      parent.get_name(),
+      &method_doc_node.name,
+      is_static,
+    )
+    .into_boxed_str();
+    for decl in &mut method_doc_node.declarations {
+      decl.declaration_kind = parent.inner.declarations[0].declaration_kind;
+    }
+
+    let mut new_node =
+      Self::create_child_with_parent(parent.clone(), Arc::new(method_doc_node));
+    new_node.drilldown_name = Some(original_name);
+    new_node.drilldown_kind = Some(DrilldownKind::Method(method_kind.into()));
+    new_node.diff_status = parent.diff_status.clone();
     new_node
   }
 
   pub fn create_child_property(
     &self,
-    mut property_doc_node: DocNode,
+    mut property_doc_node: Symbol,
     is_static: bool,
   ) -> Self {
     let original_name = property_doc_node.name.clone();
@@ -796,20 +1149,51 @@ impl DocNodeWithContext {
       is_static,
     )
     .into_boxed_str();
-    property_doc_node.declaration_kind = self.declaration_kind;
+    for decl in &mut property_doc_node.declarations {
+      decl.declaration_kind = self.inner.declarations[0].declaration_kind;
+    }
 
     let mut new_node = self.create_child(Arc::new(property_doc_node));
     new_node.drilldown_name = Some(original_name);
-    new_node.kind = DocNodeKind::Property;
+    new_node.drilldown_kind = Some(DrilldownKind::Property);
+    new_node.diff_status = self.diff_status.clone();
     new_node
   }
 
-  pub fn get_qualified_name(&self) -> String {
-    if self.ns_qualifiers.is_empty() {
-      self.get_name().to_string()
-    } else {
-      format!("{}.{}", self.ns_qualifiers.join("."), self.get_name())
+  fn create_child_property_with_parent(
+    parent: &Arc<DocNodeWithContext>,
+    mut property_doc_node: Symbol,
+    is_static: bool,
+  ) -> Self {
+    let original_name = property_doc_node.name.clone();
+    property_doc_node.name = qualify_drilldown_name(
+      parent.get_name(),
+      &property_doc_node.name,
+      is_static,
+    )
+    .into_boxed_str();
+    for decl in &mut property_doc_node.declarations {
+      decl.declaration_kind = parent.inner.declarations[0].declaration_kind;
     }
+
+    let mut new_node = Self::create_child_with_parent(
+      parent.clone(),
+      Arc::new(property_doc_node),
+    );
+    new_node.drilldown_name = Some(original_name);
+    new_node.drilldown_kind = Some(DrilldownKind::Property);
+    new_node.diff_status = parent.diff_status.clone();
+    new_node
+  }
+
+  pub fn get_qualified_name(&self) -> &str {
+    self.qualified_name.get_or_init(|| {
+      if self.ns_qualifiers.is_empty() {
+        self.get_name().to_string()
+      } else {
+        format!("{}.{}", self.ns_qualifiers.join("."), self.get_name())
+      }
+    })
   }
 
   pub fn sub_qualifier(&self) -> Vec<String> {
@@ -819,12 +1203,17 @@ impl DocNodeWithContext {
   }
 
   pub fn is_internal(&self, ctx: &GenerateCtx) -> bool {
-    (self.inner.declaration_kind == crate::node::DeclarationKind::Private
+    (self
+      .inner
+      .declarations
+      .iter()
+      .any(|d| d.declaration_kind == crate::node::DeclarationKind::Private)
       && !matches!(ctx.file_mode, FileMode::SingleDts | FileMode::Dts))
       || self
-        .js_doc
-        .tags
+        .inner
+        .declarations
         .iter()
+        .flat_map(|d| d.js_doc.tags.iter())
         .any(|tag| tag == &JsDocTag::Internal)
   }
 
@@ -835,112 +1224,135 @@ impl DocNodeWithContext {
     }
   }
 
-  fn get_drilldown_symbols<'a>(
-    &'a self,
-  ) -> Option<Box<dyn Iterator<Item = DocNodeWithContext> + 'a>> {
-    match &self.inner.def {
-      DocNodeDef::Class { class_def } => Some(Box::new(
-        class_def
-          .methods
-          .iter()
-          .map(|method| {
-            self.create_child_method(
-              DocNode::function(
-                method.name.clone(),
-                false,
-                method.location.clone(),
-                self.declaration_kind,
-                method.js_doc.clone(),
-                method.function_def.clone(),
-              ),
-              method.is_static,
-              method.kind,
-            )
-          })
-          .chain(class_def.properties.iter().map(|property| {
-            self.create_child_property(
-              DocNode::from(property.clone()),
-              property.is_static,
-            )
-          })),
-      )),
-      DocNodeDef::Interface { interface_def } => Some(Box::new(
-        interface_def
-          .methods
-          .iter()
-          .map(|method| {
-            self.create_child_method(
-              DocNode::from(method.clone()),
+  fn get_drilldown_symbols(&self) -> Option<Vec<DocNodeWithContext>> {
+    let declaration_kind = self.inner.declarations[0].declaration_kind;
+    let mut symbols = Vec::new();
+    // Create a single Arc for the parent, shared across all drilldown children
+    let parent_rc = Arc::new(self.clone());
+
+    for decl in &self.inner.declarations {
+      match &decl.def {
+        DeclarationDef::Class(class_def) => {
+          // private members are not rendered (see `partition_class_items`),
+          // so they must not get drilldown pages or listing/search entries
+          // either
+          let is_private =
+            |accessibility: &Option<deno_ast::swc::ast::Accessibility>| {
+              matches!(
+                accessibility,
+                Some(deno_ast::swc::ast::Accessibility::Private)
+              )
+            };
+
+          symbols.extend(
+            class_def
+              .methods
+              .iter()
+              .filter(|method| !is_private(&method.accessibility))
+              .map(|method| {
+                Self::create_child_method_with_parent(
+                  &parent_rc,
+                  Symbol::function(
+                    method.name.clone(),
+                    false,
+                    method.location.clone(),
+                    declaration_kind,
+                    method.js_doc.clone(),
+                    method.function_def.clone(),
+                  ),
+                  method.is_static,
+                  method.kind,
+                )
+              }),
+          );
+          symbols.extend(
+            class_def
+              .properties
+              .iter()
+              .filter(|property| !is_private(&property.accessibility))
+              .map(|property| {
+                Self::create_child_property_with_parent(
+                  &parent_rc,
+                  Symbol::from(property.clone()),
+                  property.is_static,
+                )
+              }),
+          );
+        }
+        DeclarationDef::Interface(interface_def) => {
+          symbols.extend(interface_def.methods.iter().map(|method| {
+            Self::create_child_method_with_parent(
+              &parent_rc,
+              Symbol::from(method.clone()),
               true,
               method.kind,
             )
-          })
-          .chain(interface_def.properties.iter().map(|property| {
-            self.create_child_property(DocNode::from(property.clone()), true)
-          })),
-      )),
-      DocNodeDef::TypeAlias { type_alias_def } => {
-        if let Some(ts_type_literal) =
-          type_alias_def.ts_type.type_literal.as_ref()
-        {
-          Some(Box::new(
-            ts_type_literal
-              .methods
-              .iter()
-              .map(|method| {
-                self.create_child_method(
-                  DocNode::from(method.clone()),
-                  true,
-                  method.kind,
-                )
-              })
-              .chain(ts_type_literal.properties.iter().map(|property| {
-                self
-                  .create_child_property(DocNode::from(property.clone()), true)
-              })),
-          ))
-        } else {
-          None
+          }));
+          symbols.extend(interface_def.properties.iter().map(|property| {
+            Self::create_child_property_with_parent(
+              &parent_rc,
+              Symbol::from(property.clone()),
+              true,
+            )
+          }));
         }
-      }
-      DocNodeDef::Variable { variable_def } => {
-        if let Some(ts_type_literal) = variable_def
-          .ts_type
-          .as_ref()
-          .and_then(|ts_type| ts_type.type_literal.as_ref())
-        {
-          Some(Box::new(
-            ts_type_literal
-              .methods
-              .iter()
-              .map(|method| {
-                self.create_child_method(
-                  DocNode::from(method.clone()),
-                  true,
-                  method.kind,
-                )
-              })
-              .chain(ts_type_literal.properties.iter().map(|property| {
-                self
-                  .create_child_property(DocNode::from(property.clone()), true)
-              })),
-          ))
-        } else {
-          None
+        DeclarationDef::TypeAlias(type_alias_def) => {
+          if let crate::ts_type::TsTypeDefKind::TypeLiteral(ts_type_literal) =
+            &type_alias_def.ts_type.kind
+          {
+            symbols.extend(ts_type_literal.methods.iter().map(|method| {
+              Self::create_child_method_with_parent(
+                &parent_rc,
+                Symbol::from(method.clone()),
+                true,
+                method.kind,
+              )
+            }));
+            symbols.extend(ts_type_literal.properties.iter().map(|property| {
+              Self::create_child_property_with_parent(
+                &parent_rc,
+                Symbol::from(property.clone()),
+                true,
+              )
+            }));
+          }
         }
+        DeclarationDef::Variable(variable_def) => {
+          if let Some(crate::ts_type::TsTypeDefKind::TypeLiteral(
+            ts_type_literal,
+          )) = variable_def.ts_type.as_ref().map(|ts_type| &ts_type.kind)
+          {
+            symbols.extend(ts_type_literal.methods.iter().map(|method| {
+              Self::create_child_method_with_parent(
+                &parent_rc,
+                Symbol::from(method.clone()),
+                true,
+                method.kind,
+              )
+            }));
+            symbols.extend(ts_type_literal.properties.iter().map(|property| {
+              Self::create_child_property_with_parent(
+                &parent_rc,
+                Symbol::from(property.clone()),
+                true,
+              )
+            }));
+          }
+        }
+        _ => {}
       }
-      DocNodeDef::Function { .. } => None,
-      DocNodeDef::Enum { .. } => None,
-      DocNodeDef::Namespace { .. } => None,
-      DocNodeDef::Import { .. } => None,
-      DocNodeDef::ModuleDoc => None,
-      DocNodeDef::Reference { .. } => None,
+    }
+
+    if symbols.is_empty() {
+      None
+    } else {
+      Some(symbols)
     }
   }
 }
 
 impl core::ops::Deref for DocNodeWithContext {
-  type Target = DocNode;
+  type Target = Symbol;
 
   fn deref(&self) -> &Self::Target {
     &self.inner
@@ -1001,31 +1413,25 @@ pub fn generate(
     );
   }
 
-  let all_doc_nodes = ctx
-    .doc_nodes
-    .values()
-    .flatten()
-    .cloned()
-    .collect::<Vec<DocNodeWithContext>>();
-
   // All symbols (list of all symbols in all files)
   {
-    let partitions_by_kind = partition::partition_nodes_by_entrypoint(
-      &ctx,
-      all_doc_nodes.iter().map(Cow::Borrowed),
-      true,
-    );
-
-    let all_symbols = pages::AllSymbolsCtx::new(&ctx, partitions_by_kind);
+    let all_symbols = pages::AllSymbolsPageCtx::new(&ctx);
 
     files.insert(
       "./all_symbols.html".to_string(),
-      ctx.render(pages::AllSymbolsCtx::TEMPLATE, &all_symbols),
+      ctx.render(pages::AllSymbolsPageCtx::TEMPLATE, &all_symbols),
     );
   }
 
   // Category pages
   if ctx.file_mode == FileMode::SingleDts {
+    let all_doc_nodes = ctx
+      .doc_nodes
+      .values()
+      .flatten()
+      .cloned()
+      .collect::<Vec<DocNodeWithContext>>();
+
     let categories = partition::partition_nodes_by_category(
       &ctx,
       all_doc_nodes.iter().map(Cow::Borrowed),
@@ -1094,8 +1500,11 @@ pub fn generate(
               Some(short_path),
             );
 
-            let file_name =
-              format!("{}/~/{}.html", short_path.path, symbol_group_ctx.name);
+            let file_name = format!(
+              "{}/~/{}.html",
+              short_path.path,
+              util::sanitize_symbol_path_part(&symbol_group_ctx.name)
+            );
 
             let page_ctx = pages::SymbolPageCtx {
               html_head_ctx,
@@ -1114,12 +1523,16 @@ pub fn generate(
           SymbolPage::Redirect {
             current_symbol,
             href,
+            ..
           } => {
             let redirect =
               serde_json::json!({ "kind": "redirect", "path": href });
 
-            let file_name =
-              format!("{}/~/{}.html", short_path.path, current_symbol);
+            let file_name = format!(
+              "{}/~/{}.html",
+              short_path.path,
+              util::sanitize_symbol_path_part(&current_symbol)
+            );
 
             vec![(file_name, ctx.render("pages/redirect", &redirect))]
           }
@@ -1153,6 +1566,7 @@ pub fn generate(
   files.insert(RESET_STYLESHEET_FILENAME.into(), RESET_STYLESHEET.into());
   files.insert(FUSE_FILENAME.into(), FUSE_JS.into());
   files.insert(SEARCH_FILENAME.into(), SEARCH_JS.into());
+  files.insert(DARKMODE_TOGGLE_FILENAME.into(), DARKMODE_TOGGLE_JS.into());
   #[cfg(feature = "comrak")]
   files.insert(
     comrak::COMRAK_STYLESHEET_FILENAME.into(),
@@ -1162,10 +1576,19 @@ pub fn generate(
   Ok(files)
 }
 
-pub fn generate_json(
+/// Generate JSON output for all pages, streaming each file through the
+/// provided callback. This avoids holding all pages in memory at once.
+pub fn generate_json_with<F>(
   ctx: GenerateCtx,
-) -> Result<HashMap<String, serde_json::Value>, anyhow::Error> {
-  let mut files = HashMap::new();
+  mut emit: F,
+) -> Result<(), anyhow::Error>
+where
+  F: FnMut(String, String),
+{
+  let diff_only = ctx.diff_only;
+  let approx_pages: usize = ctx.doc_nodes.values().map(|v| v.len()).sum();
+  let mut emitted_keys =
+    std::collections::HashSet::with_capacity(approx_pages * 2);
 
   // Index page
   {
@@ -1201,34 +1624,41 @@ pub fn generate_json(
       uses_categories,
     );
 
-    files.insert("./index.json".to_string(), serde_json::to_value(index)?);
+    if !diff_only
+      || index
+        .overview
+        .as_ref()
+        .is_some_and(|o| !o.sections.is_empty())
+      || index
+        .module_doc
+        .as_ref()
+        .is_some_and(|md| !md.sections.sections.is_empty())
+    {
+      emit("./index.json".to_string(), serde_json::to_string(&index)?);
+    }
   }
-
-  let all_doc_nodes = ctx
-    .doc_nodes
-    .values()
-    .flatten()
-    .cloned()
-    .collect::<Vec<DocNodeWithContext>>();
 
   // All symbols (list of all symbols in all files)
   {
-    let partitions_by_kind = partition::partition_nodes_by_entrypoint(
-      &ctx,
-      all_doc_nodes.iter().map(Cow::Borrowed),
-      true,
-    );
+    let all_symbols = pages::AllSymbolsPageCtx::new(&ctx);
 
-    let all_symbols = pages::AllSymbolsCtx::new(&ctx, partitions_by_kind);
-
-    files.insert(
-      "./all_symbols.json".to_string(),
-      serde_json::to_value(all_symbols)?,
-    );
+    if !diff_only || !all_symbols.content.entrypoints.is_empty() {
+      emit(
+        "./all_symbols.json".to_string(),
+        serde_json::to_string(&all_symbols)?,
+      );
+    }
   }
 
   // Category pages
   if ctx.file_mode == FileMode::SingleDts {
+    let all_doc_nodes = ctx
+      .doc_nodes
+      .values()
+      .flatten()
+      .cloned()
+      .collect::<Vec<DocNodeWithContext>>();
+
     let categories = partition::partition_nodes_by_category(
       &ctx,
       all_doc_nodes.iter().map(Cow::Borrowed),
@@ -1249,9 +1679,19 @@ pub fn generate_json(
           partitions,
           &all_doc_nodes,
         );
-        files.insert(
+
+        if diff_only
+          && index
+            .overview
+            .as_ref()
+            .is_none_or(|o| o.sections.is_empty())
+        {
+          continue;
+        }
+
+        emit(
           format!("{}.json", util::slugify(category)),
-          serde_json::to_value(index)?,
+          serde_json::to_string(&index)?,
         );
       }
     }
@@ -1269,7 +1709,7 @@ pub fn generate_json(
       let symbol_pages =
         generate_symbol_pages_for_module(&ctx, short_path, doc_nodes);
 
-      files.extend(symbol_pages.into_iter().flat_map(|symbol_page| {
+      for symbol_page in symbol_pages {
         match symbol_page {
           SymbolPage::Symbol {
             breadcrumbs_ctx,
@@ -1277,6 +1717,24 @@ pub fn generate_json(
             toc_ctx,
             categories_panel,
           } => {
+            if diff_only && symbol_group_ctx.diff_status.is_none() {
+              continue;
+            }
+
+            let file_name = format!(
+              "{}/~/{}.json",
+              short_path.path,
+              util::sanitize_symbol_path_part(&symbol_group_ctx.name)
+            );
+            if !emitted_keys.insert(file_name.clone()) {
+              continue;
+            }
+
+            let mut symbol_group_ctx = symbol_group_ctx;
+            if diff_only {
+              symbol_group_ctx.strip_unchanged_tags();
+            }
+
             let root = ctx.resolve_path(
               UrlResolveKind::Symbol {
                 file: short_path,
@@ -1297,9 +1755,6 @@ pub fn generate_json(
               Some(short_path),
             );
 
-            let file_name =
-              format!("{}/~/{}.json", short_path.path, symbol_group_ctx.name);
-
             let page_ctx = pages::SymbolPageCtx {
               html_head_ctx,
               symbol_group_ctx,
@@ -1309,21 +1764,31 @@ pub fn generate_json(
               categories_panel,
             };
 
-            vec![(file_name, serde_json::to_value(page_ctx).unwrap())]
+            emit(file_name, serde_json::to_string(&page_ctx)?);
           }
           SymbolPage::Redirect {
             current_symbol,
             href,
+            diff_status,
           } => {
+            if diff_only && diff_status.is_none() {
+              continue;
+            }
+
+            let file_name = format!(
+              "{}/~/{}.json",
+              short_path.path,
+              util::sanitize_symbol_path_part(&current_symbol)
+            );
+            if !emitted_keys.insert(file_name.clone()) {
+              continue;
+            }
+
             let redirect = serde_json::json!({ "path": href });
-
-            let file_name =
-              format!("{}/~/{}.json", short_path.path, current_symbol);
-
-            vec![(file_name, redirect)]
+            emit(file_name, serde_json::to_string(&redirect)?);
           }
         }
-      }));
+      }
 
       if !short_path.is_main {
         let index = pages::IndexCtx::new(
@@ -1333,16 +1798,46 @@ pub fn generate_json(
           false,
         );
 
-        files.insert(
+        if diff_only
+          && index
+            .overview
+            .as_ref()
+            .is_none_or(|o| o.sections.is_empty())
+          && index
+            .module_doc
+            .as_ref()
+            .is_none_or(|md| md.sections.sections.is_empty())
+        {
+          continue;
+        }
+
+        emit(
           format!("{}/index.json", short_path.path),
-          serde_json::to_value(index)?,
+          serde_json::to_string(&index)?,
         );
       }
     }
   }
 
-  files.insert("search.json".into(), generate_search_index(&ctx));
+  // Skip search index in diff_only mode
+  if !diff_only {
+    let search_index = generate_search_index(&ctx);
+    emit("search.json".into(), serde_json::to_string(&search_index)?);
+  }
 
+  Ok(())
+}
+
+/// Generate JSON output for all pages, collecting into a HashMap.
+/// For lower memory usage with large packages, use [`generate_json_with`]
+/// which streams pages through a callback.
+pub fn generate_json(
+  ctx: GenerateCtx,
+) -> Result<HashMap<String, String>, anyhow::Error> {
+  let mut files = HashMap::new();
+  generate_json_with(ctx, |name, content| {
+    files.insert(name, content);
+  })?;
   Ok(files)
 }
 

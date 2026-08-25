@@ -1,12 +1,14 @@
 use super::DocNodeWithContext;
 use super::GenerateCtx;
-use super::ShortPath;
+use crate::DeclarationDef;
+use crate::Location;
 use crate::js_doc::JsDocTag;
-use crate::node::DocNodeDef;
 use indexmap::IndexMap;
 use std::borrow::Cow;
+use std::cell::RefCell;
 use std::cmp::Ordering;
-use std::rc::Rc;
+use std::collections::HashMap;
+use std::collections::HashSet;
 
 pub type Partitions<T> = IndexMap<T, Vec<DocNodeWithContext>>;
 
@@ -26,45 +28,68 @@ where
     doc_nodes: Box<dyn Iterator<Item = Cow<'a, DocNodeWithContext>> + 'a>,
     flatten_namespaces: bool,
     process: &F,
+    visited_refs: &mut HashSet<Location>,
   ) where
     F: Fn(&mut IndexMap<T, Vec<DocNodeWithContext>>, &DocNodeWithContext),
   {
     for node in doc_nodes {
-      if matches!(
-        node.def,
-        DocNodeDef::ModuleDoc { .. } | DocNodeDef::Import { .. }
-      ) {
-        continue;
+      let mut has_reference = false;
+
+      for decl in &node.declarations {
+        if flatten_namespaces
+          && matches!(decl.def, DeclarationDef::Namespace(..))
+        {
+          partitioner_inner(
+            ctx,
+            partitions,
+            Some(&node),
+            Box::new(
+              node
+                .namespace_children
+                .as_ref()
+                .unwrap()
+                .iter()
+                .map(Cow::Borrowed),
+            ),
+            true,
+            process,
+            visited_refs,
+          );
+        }
+
+        if let Some(reference) = decl.reference_def() {
+          has_reference = true;
+          if visited_refs.insert(reference.target.clone()) {
+            partitioner_inner(
+              ctx,
+              partitions,
+              parent_node,
+              Box::new(ctx.resolve_reference(parent_node, &reference.target)),
+              flatten_namespaces,
+              process,
+              visited_refs,
+            );
+            visited_refs.remove(&reference.target);
+          }
+        }
       }
 
-      if flatten_namespaces && matches!(node.def, DocNodeDef::Namespace { .. })
-      {
-        partitioner_inner(
-          ctx,
-          partitions,
-          Some(&node),
-          Box::new(
-            node
-              .namespace_children
-              .as_ref()
-              .unwrap()
-              .iter()
-              .map(Cow::Borrowed),
-          ),
-          true,
-          process,
-        );
-      }
-
-      if let Some(reference) = node.reference_def() {
-        partitioner_inner(
-          ctx,
-          partitions,
-          parent_node,
-          Box::new(ctx.resolve_reference(parent_node, &reference.target)),
-          flatten_namespaces,
-          process,
-        )
+      if has_reference {
+        // If the symbol has non-reference declarations alongside
+        // references, emit a node containing only the non-reference
+        // declarations so they are not lost.
+        let non_ref_decls: Vec<_> = node
+          .declarations
+          .iter()
+          .filter(|d| d.reference_def().is_none())
+          .cloned()
+          .collect();
+        if !non_ref_decls.is_empty() {
+          let mut stripped = (*node).clone();
+          std::sync::Arc::make_mut(&mut stripped.inner).declarations =
+            non_ref_decls;
+          process(partitions, &stripped);
+        }
       } else {
         process(partitions, &node);
       }
@@ -80,33 +105,8 @@ where
     Box::new(doc_nodes),
     flatten_namespaces,
     process,
+    &mut HashSet::new(),
   );
-
-  partitions
-}
-
-pub fn partition_nodes_by_name<'a>(
-  ctx: &GenerateCtx,
-  doc_nodes: impl Iterator<Item = Cow<'a, DocNodeWithContext>> + 'a,
-  flatten_namespaces: bool,
-) -> Partitions<String> {
-  let mut partitions = create_partitioner(
-    ctx,
-    doc_nodes,
-    flatten_namespaces,
-    &|partitions, node| {
-      partitions
-        .entry(node.get_qualified_name())
-        .or_default()
-        .push(node.clone());
-    },
-  );
-
-  for val in partitions.values_mut() {
-    val.sort_by_key(|n| n.kind);
-  }
-
-  partitions.sort_keys();
 
   partitions
 }
@@ -116,29 +116,31 @@ pub fn partition_nodes_by_kind<'a>(
   doc_nodes: impl Iterator<Item = Cow<'a, DocNodeWithContext>> + 'a,
   flatten_namespaces: bool,
 ) -> Partitions<String> {
+  let name_to_kind =
+    RefCell::new(HashMap::<String, crate::node::DocNodeKind>::new());
+
   let mut partitions = create_partitioner(
     ctx,
     doc_nodes,
     flatten_namespaces,
     &|partitions, node| {
-      let maybe_nodes = partitions.values_mut().find(|nodes| {
-        nodes
-          .iter()
-          .any(|n| n.get_qualified_name() == node.get_qualified_name())
-      });
+      let qname = node.get_qualified_name();
+      let mut index = name_to_kind.borrow_mut();
 
-      if let Some(nodes) = maybe_nodes {
-        nodes.push(node.clone());
+      if let Some(&existing_kind) = index.get(qname) {
+        partitions
+          .get_mut(&existing_kind)
+          .unwrap()
+          .push(node.clone());
       } else {
-        let entry = partitions.entry(node.kind).or_default();
-        entry.push(node.clone());
+        let kind = node.declarations[0].def.to_kind();
+        index.insert(qname.to_string(), kind);
+        partitions.entry(kind).or_default().push(node.clone());
       }
     },
   );
 
-  for (_kind, nodes) in partitions.iter_mut() {
-    nodes.sort_by(compare_node);
-  }
+  sort_nodes(&mut partitions);
 
   partitions
     .sorted_by(|kind1, _nodes1, kind2, _nodes2| kind1.cmp(kind2))
@@ -162,9 +164,9 @@ pub fn partition_nodes_by_category<'a>(
     flatten_namespaces,
     &|partitions, node| {
       let category = node
-        .js_doc
-        .tags
+        .declarations
         .iter()
+        .flat_map(|decl| decl.js_doc.tags.iter())
         .find_map(|tag| {
           if let JsDocTag::Category { doc } = tag {
             Some(doc.trim().to_owned())
@@ -175,19 +177,11 @@ pub fn partition_nodes_by_category<'a>(
         .unwrap_or(String::from("Uncategorized"));
 
       let entry = partitions.entry(category).or_default();
-
-      if !entry.iter().any(|n| {
-        n.get_qualified_name() == node.get_qualified_name()
-          && n.kind == node.kind
-      }) {
-        entry.push(node.clone());
-      }
+      entry.push(node.clone());
     },
   );
 
-  for (_kind, nodes) in partitions.iter_mut() {
-    nodes.sort_by(compare_node);
-  }
+  sort_nodes(&mut partitions);
 
   partitions
     .sorted_by(|key1, _value1, key2, _value2| {
@@ -204,54 +198,125 @@ pub fn partition_nodes_by_category<'a>(
     .collect()
 }
 
-pub fn partition_nodes_by_entrypoint<'a>(
-  ctx: &GenerateCtx,
-  doc_nodes: impl Iterator<Item = Cow<'a, DocNodeWithContext>> + 'a,
-  flatten_namespaces: bool,
-) -> Partitions<Rc<ShortPath>> {
-  let mut partitions = create_partitioner(
-    ctx,
-    doc_nodes,
-    flatten_namespaces,
-    &|partitions, node| {
-      let entry = partitions.entry(node.origin.clone()).or_default();
+fn sort_nodes<T>(partitions: &mut Partitions<T>) {
+  for (_key, nodes) in partitions.iter_mut() {
+    nodes.sort_by_cached_key(|node| {
+      let mut tags =
+        node.declarations.iter().flat_map(|d| d.js_doc.tags.iter());
 
-      entry.push(node.clone());
-    },
-  );
+      let is_deprecated = tags
+        .clone()
+        .any(|tag| matches!(tag, JsDocTag::Deprecated { .. }));
 
-  for (_file, nodes) in partitions.iter_mut() {
-    nodes.sort_by(compare_node);
+      let priority = tags
+        .find_map(|tag| {
+          if let JsDocTag::Priority { priority } = tag {
+            Some(*priority)
+          } else {
+            None
+          }
+        })
+        .unwrap_or(0);
+
+      let qname_lower = node.get_qualified_name().to_ascii_lowercase();
+      let qname = node.get_qualified_name().to_string();
+      let kind = node.declarations.first().map(|d| d.def.to_kind());
+
+      (
+        is_deprecated,
+        std::cmp::Reverse(priority),
+        qname_lower,
+        qname,
+        kind,
+      )
+    });
   }
-
-  partitions.sort_keys();
-
-  partitions
 }
 
-fn compare_node(
-  node1: &DocNodeWithContext,
-  node2: &DocNodeWithContext,
-) -> Ordering {
-  let node1_is_deprecated = node1
-    .js_doc
-    .tags
-    .iter()
-    .any(|tag| matches!(tag, JsDocTag::Deprecated { .. }));
-  let node2_is_deprecated = node2
-    .js_doc
-    .tags
-    .iter()
-    .any(|tag| matches!(tag, JsDocTag::Deprecated { .. }));
+pub fn flatten_namespace<'a>(
+  ctx: &GenerateCtx,
+  doc_nodes: impl Iterator<Item = Cow<'a, DocNodeWithContext>> + 'a,
+) -> Vec<Cow<'a, DocNodeWithContext>> {
+  fn partitioner_inner<'a>(
+    ctx: &GenerateCtx,
+    out: &mut Vec<Cow<'a, DocNodeWithContext>>,
+    parent_node: Option<&DocNodeWithContext>,
+    doc_nodes: Box<dyn Iterator<Item = Cow<'a, DocNodeWithContext>> + 'a>,
+    visited_refs: &mut HashSet<Location>,
+  ) {
+    let nodes: Vec<_> = doc_nodes.collect();
 
-  (!node2_is_deprecated)
-    .cmp(&!node1_is_deprecated)
-    .then_with(|| {
-      node1
-        .get_qualified_name()
-        .to_ascii_lowercase()
-        .cmp(&node2.get_qualified_name().to_ascii_lowercase())
-    })
-    .then_with(|| node1.get_qualified_name().cmp(&node2.get_qualified_name()))
-    .then_with(|| node1.kind.cmp(&node2.kind))
+    for node in &nodes {
+      let mut has_reference = false;
+
+      for decl in &node.declarations {
+        if matches!(decl.def, DeclarationDef::Namespace(..)) {
+          let children: Vec<_> = node
+            .namespace_children
+            .as_ref()
+            .unwrap()
+            .iter()
+            .cloned()
+            .collect();
+          partitioner_inner(
+            ctx,
+            out,
+            Some(&**node),
+            Box::new(children.into_iter().map(Cow::Owned)),
+            visited_refs,
+          );
+        }
+
+        if let Some(reference) = decl.reference_def() {
+          has_reference = true;
+          if visited_refs.insert(reference.target.clone()) {
+            let resolved: Vec<_> = ctx
+              .resolve_reference(parent_node, &reference.target)
+              .map(|c| c.into_owned())
+              .collect();
+            partitioner_inner(
+              ctx,
+              out,
+              parent_node,
+              Box::new(resolved.into_iter().map(Cow::Owned)),
+              visited_refs,
+            );
+            visited_refs.remove(&reference.target);
+          }
+        }
+      }
+
+      if has_reference {
+        // If the symbol has non-reference declarations alongside
+        // references, emit a node containing only the non-reference
+        // declarations so they are not lost.
+        let non_ref_decls: Vec<_> = node
+          .declarations
+          .iter()
+          .filter(|d| d.reference_def().is_none())
+          .cloned()
+          .collect();
+        if !non_ref_decls.is_empty() {
+          let mut stripped = (**node).clone();
+          std::sync::Arc::make_mut(&mut stripped.inner).declarations =
+            non_ref_decls;
+          out.push(Cow::Owned(stripped));
+        }
+      } else {
+        out.push((*node).clone());
+      }
+    }
+  }
+
+  let mut out = vec![];
+
+  partitioner_inner(
+    ctx,
+    &mut out,
+    None,
+    Box::new(doc_nodes),
+    &mut HashSet::new(),
+  );
+
+  out
 }

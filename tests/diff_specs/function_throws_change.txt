@@ -1,0 +1,101 @@
+# old/mod.ts
+/**
+ * @throws {RangeError} value out of range
+ * @throws {TypeError} wrong type
+ */
+export function foo(x: number): void {}
+
+# new/mod.ts
+/**
+ * @throws {RangeError} updated message
+ * @throws {SyntaxError} bad syntax
+ */
+export function foo(x: number): void {}
+
+# output.json
+{
+  "modifiedModules": {
+    "file:///mod.ts": {
+      "modified": [
+        {
+          "name": "foo",
+          "declarations": {
+            "modified": [
+              {
+                "kind": "function",
+                "jsDocChanges": {
+                  "tagsChange": {
+                    "added": [
+                      {
+                        "kind": "throws",
+                        "tsType": {
+                          "repr": "SyntaxError",
+                          "kind": "typeRef",
+                          "value": {
+                            "typeName": "SyntaxError",
+                            "resolution": {
+                              "kind": "typeParam"
+                            }
+                          }
+                        },
+                        "doc": "bad syntax"
+                      }
+                    ],
+                    "removed": [
+                      {
+                        "kind": "throws",
+                        "tsType": {
+                          "repr": "TypeError",
+                          "kind": "typeRef",
+                          "value": {
+                            "typeName": "TypeError",
+                            "resolution": {
+                              "kind": "typeParam"
+                            }
+                          }
+                        },
+                        "doc": "wrong type"
+                      }
+                    ],
+                    "modified": [
+                      {
+                        "old": {
+                          "kind": "throws",
+                          "tsType": {
+                            "repr": "RangeError",
+                            "kind": "typeRef",
+                            "value": {
+                              "typeName": "RangeError",
+                              "resolution": {
+                                "kind": "typeParam"
+                              }
+                            }
+                          },
+                          "doc": "value out of range"
+                        },
+                        "new": {
+                          "kind": "throws",
+                          "tsType": {
+                            "repr": "RangeError",
+                            "kind": "typeRef",
+                            "value": {
+                              "typeName": "RangeError",
+                              "resolution": {
+                                "kind": "typeParam"
+                              }
+                            }
+                          },
+                          "doc": "updated message"
+                        }
+                      }
+                    ]
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  }
+}

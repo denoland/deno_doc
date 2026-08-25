@@ -1,13 +1,14 @@
 // Copyright 2018-2024 the Deno authors. All rights reserved. MIT license.
 
-use crate::decorators::decorators_to_defs;
+use crate::ParamDef;
 use crate::decorators::DecoratorDef;
+use crate::decorators::decorators_to_defs;
 use crate::params::param_to_param_def;
 use crate::ts_type::TsTypeDef;
-use crate::ts_type_param::maybe_type_param_decl_to_type_param_defs;
 use crate::ts_type_param::TsTypeParamDef;
+use crate::ts_type_param::maybe_type_param_decl_to_type_param_defs;
 use crate::util::swc::is_false;
-use crate::ParamDef;
+use deno_ast::swc::ast::BlockStmtOrExpr;
 use deno_ast::swc::ast::ReturnStmt;
 use deno_ast::swc::ast::Stmt;
 use deno_graph::symbols::EsModuleInfo;
@@ -21,11 +22,15 @@ pub struct FunctionDef {
   /// set when the function is a default export and has a name in its declaration
   pub def_name: Option<String>,
   pub params: Vec<ParamDef>,
+  #[serde(skip_serializing_if = "Option::is_none", default)]
   pub return_type: Option<TsTypeDef>,
   #[serde(skip_serializing_if = "is_false", default)]
   pub has_body: bool,
+  #[serde(skip_serializing_if = "is_false", default)]
   pub is_async: bool,
+  #[serde(skip_serializing_if = "is_false", default)]
   pub is_generator: bool,
+  #[serde(skip_serializing_if = "<[_]>::is_empty", default)]
   pub type_params: Box<[TsTypeParamDef]>,
   #[serde(skip_serializing_if = "<[_]>::is_empty", default)]
   pub decorators: Box<[DecoratorDef]>,
@@ -53,19 +58,7 @@ pub fn function_to_function_def(
         && function.body.is_some()
         && get_return_stmt_with_arg_from_function(function).is_none() =>
     {
-      if function.is_async {
-        Some(TsTypeDef {
-          repr: "Promise".to_string(),
-          kind: Some(crate::ts_type::TsTypeDefKind::TypeRef),
-          type_ref: Some(crate::ts_type::TsTypeRefDef {
-            type_params: Some(Box::new([TsTypeDef::keyword("void")])),
-            type_name: "Promise".to_string(),
-          }),
-          ..Default::default()
-        })
-      } else {
-        Some(TsTypeDef::keyword("void"))
-      }
+      Some(inferred_void_return_type(function.is_async))
     }
     None => None,
   };
@@ -91,13 +84,77 @@ pub fn function_to_function_def(
   }
 }
 
+pub fn arrow_to_function_def(
+  module_info: &EsModuleInfo,
+  arrow: &deno_ast::swc::ast::ArrowExpr,
+) -> FunctionDef {
+  let params = arrow
+    .params
+    .iter()
+    .map(|pat| crate::params::pat_to_param_def(module_info, pat))
+    .collect();
+
+  let maybe_return_type = match arrow
+    .return_type
+    .as_deref()
+    .map(|return_type| TsTypeDef::new(module_info, &return_type.type_ann))
+  {
+    Some(return_type) => Some(return_type),
+    // An arrow with a block body that has no value-returning `return`
+    // statement implicitly returns `void` (or `Promise<void>` when async),
+    // matching the inference done for function expressions. Expression-bodied
+    // arrows always return their expression, so no return type is inferred.
+    None
+      if !arrow.is_generator
+        && matches!(&*arrow.body, BlockStmtOrExpr::BlockStmt(block)
+          if get_return_stmt_with_arg_from_stmts(&block.stmts).is_none()) =>
+    {
+      Some(inferred_void_return_type(arrow.is_async))
+    }
+    None => None,
+  };
+
+  let type_params = maybe_type_param_decl_to_type_param_defs(
+    module_info,
+    arrow.type_params.as_deref(),
+  );
+
+  FunctionDef {
+    def_name: None,
+    params,
+    return_type: maybe_return_type,
+    has_body: true,
+    is_async: arrow.is_async,
+    is_generator: arrow.is_generator,
+    type_params,
+    decorators: Box::new([]),
+  }
+}
+
+/// The return type inferred for a function/arrow whose body cannot return a
+/// value: `Promise<void>` when async, otherwise `void`.
+fn inferred_void_return_type(is_async: bool) -> TsTypeDef {
+  if is_async {
+    TsTypeDef {
+      repr: "Promise".to_string(),
+      kind: crate::ts_type::TsTypeDefKind::TypeRef(
+        crate::ts_type::TsTypeRefDef {
+          type_params: Some(Box::new([TsTypeDef::keyword("void")])),
+          type_name: "Promise".to_string(),
+          resolution: None,
+        },
+      ),
+    }
+  } else {
+    TsTypeDef::keyword("void")
+  }
+}
+
 pub fn get_doc_for_fn_decl(
   module_info: &EsModuleInfo,
   fn_decl: &deno_ast::swc::ast::FnDecl,
-) -> (String, FunctionDef) {
-  let name = fn_decl.ident.sym.to_string();
-  let fn_def = function_to_function_def(module_info, &fn_decl.function, None);
-  (name, fn_def)
+) -> FunctionDef {
+  function_to_function_def(module_info, &fn_decl.function, None)
 }
 
 fn get_return_stmt_with_arg_from_function(
@@ -131,7 +188,11 @@ fn get_return_stmt_with_arg_from_stmt(stmt: &Stmt) -> Option<&ReturnStmt> {
       }
     }
     Stmt::Labeled(n) => get_return_stmt_with_arg_from_stmt(&n.body),
-    Stmt::If(n) => get_return_stmt_with_arg_from_stmt(&n.cons),
+    Stmt::If(n) => get_return_stmt_with_arg_from_stmt(&n.cons).or_else(|| {
+      n.alt
+        .as_deref()
+        .and_then(get_return_stmt_with_arg_from_stmt)
+    }),
     Stmt::Switch(n) => n
       .cases
       .iter()
