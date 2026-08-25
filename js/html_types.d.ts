@@ -379,6 +379,7 @@ export interface NamespaceNodeCtx {
   ty: TypeSummaryCtx | null;
   docs: string | null;
   deprecated: boolean;
+  deprecated_doc?: string | null;
   subitems: NamespaceNodeSubItemCtx[];
   diff_status?: DiffStatus;
 }
