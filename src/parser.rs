@@ -2061,10 +2061,13 @@ impl DocParser<'_> {
           match node {
             SymbolNodeRef::ClassDecl(class_decl) => {
               let (mut class_def, decorator_js_doc) =
+                // no `def_name`: the alias has a name of its own, and
+                // `def_name` would override it everywhere the symbol is
+                // rendered
                 crate::class::class_to_class_def(
                   module_info,
                   &class_decl.class,
-                  Some(class_decl.ident.sym.to_string().into_boxed_str()),
+                  None,
                 );
               self.apply_heritage_member_docs(
                 module_info,
@@ -2089,7 +2092,7 @@ impl DocParser<'_> {
               let function_def = crate::function::function_to_function_def(
                 module_info,
                 &fn_decl.function,
-                Some(fn_decl.ident.sym.to_string()),
+                None,
               );
               let js_doc =
                 js_doc_or_target(module_info, js_doc, fn_decl.range());
@@ -2149,7 +2152,7 @@ impl DocParser<'_> {
             let function_def = crate::function::function_to_function_def(
               module_info,
               &method.function,
-              Some(prop_name.to_string()),
+              None,
             );
             let js_doc = js_doc_or_target(module_info, js_doc, method.range());
             return Some(Declaration::function(

@@ -140,7 +140,6 @@ class Foo
           },
           "kind": "function",
           "def": {
-            "defName": "bar",
             "params": [
               {
                 "kind": "identifier",

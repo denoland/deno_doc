@@ -99,7 +99,6 @@ private class OptionClass<T>
           },
           "kind": "class",
           "def": {
-            "defName": "OptionClass",
             "methods": [
               {
                 "jsDoc": {
@@ -193,9 +192,7 @@ private class OptionClass<T>
           },
           "declarationKind": "export",
           "kind": "class",
-          "def": {
-            "defName": "UndocumentedTarget"
-          }
+          "def": {}
         }
       ]
     },
@@ -215,7 +212,6 @@ private class OptionClass<T>
           },
           "kind": "function",
           "def": {
-            "defName": "greet",
             "params": [
               {
                 "kind": "identifier",
