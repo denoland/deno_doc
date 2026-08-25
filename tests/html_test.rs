@@ -473,6 +473,38 @@ async fn html_doc_destructured_params() {
 }
 
 #[tokio::test]
+async fn html_doc_deprecated_listing() {
+  let ctx = GenerateCtx::create_basic(
+    GenerateOptions {
+      package_name: None,
+      main_entrypoint: None,
+      href_resolver: Arc::new(EmptyResolver),
+      usage_composer: Some(Arc::new(EmptyResolver)),
+      rewrite_map: None,
+      category_docs: None,
+      disable_search: false,
+      symbol_redirect_map: None,
+      default_symbol_map: None,
+      markdown_renderer: comrak::create_renderer(None, None, None),
+      markdown_stripper: Arc::new(comrak::strip),
+      head_inject: None,
+      id_prefix: None,
+      diff_only: false,
+      symbol_listing_limit: None,
+    },
+    get_files("deprecated_listing").await,
+    None,
+  )
+  .unwrap();
+  let files = generate(ctx).unwrap();
+
+  // a symbol whose JSDoc is only a `@deprecated` message shows that message
+  // in symbol listings instead of appearing undocumented (jsr-io/jsr#329)
+  let all_symbols = files.get("./all_symbols.html").unwrap();
+  assert!(all_symbols.contains("instead"), "{all_symbols}");
+}
+
+#[tokio::test]
 async fn html_doc_empty_sections() {
   let ctx = GenerateCtx::create_basic(
     GenerateOptions {
