@@ -105,6 +105,10 @@ pub struct NamespaceNodeCtx {
   pub ty: Option<TypeSummaryCtx>,
   pub docs: Option<String>,
   pub deprecated: bool,
+  /// The rendered `@deprecated` message, so listings can show it when the
+  /// symbol has no other documentation.
+  #[serde(skip_serializing_if = "Option::is_none")]
+  pub deprecated_doc: Option<String>,
   pub subitems: IndexSet<NamespaceNodeSubItemCtx>,
   #[serde(skip_serializing_if = "Option::is_none")]
   pub diff_status: Option<DiffStatus>,
@@ -334,6 +338,30 @@ impl NamespaceNodeCtx {
         .collect();
     }
 
+    let deprecated =
+      all_deprecated(&symbol.declarations.iter().collect::<Vec<_>>());
+    let deprecated_doc = deprecated
+      .then(|| {
+        symbol.declarations.iter().find_map(|decl| {
+          decl.js_doc.tags.iter().find_map(|tag| {
+            if let crate::js_doc::JsDocTag::Deprecated { doc: Some(doc) } = tag
+            {
+              crate::html::jsdoc::markdown_to_html(
+                ctx,
+                doc,
+                crate::html::jsdoc::MarkdownToHTMLOptions {
+                  title_only: true,
+                  no_toc: true,
+                },
+              )
+            } else {
+              None
+            }
+          })
+        })
+      })
+      .flatten();
+
     NamespaceNodeCtx {
       anchor: AnchorCtx::new(id),
       tags: compute_tag_ctx(tags, old_tags),
@@ -342,9 +370,8 @@ impl NamespaceNodeCtx {
       name: name.to_string(),
       ty: summary_for_symbol(ctx, &symbol),
       docs,
-      deprecated: all_deprecated(
-        &symbol.declarations.iter().collect::<Vec<_>>(),
-      ),
+      deprecated,
+      deprecated_doc,
       subitems,
       diff_status,
     }
