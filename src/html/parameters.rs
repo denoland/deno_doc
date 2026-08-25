@@ -65,17 +65,72 @@ pub(crate) fn render_param_doc_entries(
       (&Option<Box<str>>, bool, &Option<Box<str>>),
     >>();
 
+  // `@param` tags in source order, excluding property documentation like
+  // `@param options.field`, for the positional fallback below.
+  let positional_param_docs = js_doc
+    .tags
+    .iter()
+    .filter_map(|tag| {
+      if let JsDocTag::Param {
+        name,
+        doc,
+        optional,
+        default,
+        ..
+      } = tag
+      {
+        if name.contains('.') {
+          return None;
+        }
+        Some((name.deref(), (doc, *optional, default)))
+      } else {
+        None
+      }
+    })
+    .collect::<Vec<(&str, (&Option<Box<str>>, bool, &Option<Box<str>>))>>();
+
+  let bound_names = params
+    .iter()
+    .filter_map(param_doc_name)
+    .collect::<std::collections::HashSet<_>>();
+
   params
     .iter()
     .enumerate()
     .map(|(i, param)| {
-      let (name, str_name) = param_name(param, i);
+      // A destructuring pattern binds no single name, so it falls back to
+      // matching its `@param` tag by position, taking the tag's name as the
+      // display name — mirroring how TSDoc documents destructured
+      // parameters (see issue #574). A tag naming an actual binding never
+      // matches positionally, so a named parameter's documentation can't be
+      // taken by a destructured one.
+      let positional_doc = if matches!(
+        param.pattern,
+        ParamPatternDef::Array { .. } | ParamPatternDef::Object { .. }
+      ) {
+        positional_param_docs
+          .get(i)
+          .filter(|(tag_name, _)| !bound_names.contains(tag_name))
+      } else {
+        None
+      };
+
+      let (name, str_name) = if let Some((tag_name, _)) = positional_doc {
+        (
+          html_escape::encode_text(tag_name).into_owned(),
+          (*tag_name).to_string(),
+        )
+      } else {
+        param_name(param, i)
+      };
+
       // Match the parameter to its `@param` tag by the bare identifier it
       // binds. A rest parameter renders as `...rest` but is documented as
       // `rest`, and a default (`Assign`) wraps the real binding, so unwrap
-      // both. Destructuring patterns bind no single name and so can't be
-      // matched by name (see issue #574).
-      let param_doc = param_doc_name(param).and_then(|n| param_docs.get(n));
+      // both.
+      let param_doc = param_doc_name(param)
+        .and_then(|n| param_docs.get(n))
+        .or_else(|| positional_doc.map(|(_, tag_doc)| tag_doc));
       let id = IdBuilder::new_with_parent(ctx, parent_id)
         .kind(IdKind::Parameter)
         .name(&str_name)

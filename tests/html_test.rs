@@ -423,6 +423,56 @@ async fn html_doc_import_linking_internal_file() {
 }
 
 #[tokio::test]
+async fn html_doc_destructured_params() {
+  let ctx = GenerateCtx::create_basic(
+    GenerateOptions {
+      package_name: None,
+      main_entrypoint: None,
+      href_resolver: Arc::new(EmptyResolver),
+      usage_composer: Some(Arc::new(EmptyResolver)),
+      rewrite_map: None,
+      category_docs: None,
+      disable_search: false,
+      symbol_redirect_map: None,
+      default_symbol_map: None,
+      markdown_renderer: comrak::create_renderer(None, None, None),
+      markdown_stripper: Arc::new(comrak::strip),
+      head_inject: None,
+      id_prefix: None,
+      diff_only: false,
+      symbol_listing_limit: None,
+    },
+    get_files("destructured_params").await,
+    None,
+  )
+  .unwrap();
+  let files = generate(ctx).unwrap();
+
+  // destructured parameters match their `@param` tags positionally and take
+  // the tag's name as the display name (jsr-io/jsr#604)
+  let transform = files.get("./~/transform.html").unwrap();
+  assert!(
+    transform.contains("A transformation matrix."),
+    "{transform}"
+  );
+  assert!(transform.contains("A vector."), "{transform}");
+  assert!(
+    transform.contains("function_transform_0_parameter_r"),
+    "{transform}"
+  );
+  assert!(
+    transform.contains("function_transform_0_parameter_v"),
+    "{transform}"
+  );
+
+  // a positional tag never takes documentation away from a named parameter,
+  // and an undocumented destructured parameter stays `arg_i`
+  let scale_only = files.get("./~/scaleOnly.html").unwrap();
+  assert!(scale_only.contains("The scale factor."), "{scale_only}");
+  assert!(scale_only.contains("arg_1"), "{scale_only}");
+}
+
+#[tokio::test]
 async fn html_doc_deprecated_listing() {
   let ctx = GenerateCtx::create_basic(
     GenerateOptions {
@@ -2250,11 +2300,15 @@ export function f(
     page.contains("the trailing numbers"),
     "expected the rest parameter's @param doc to render"
   );
-  // The destructuring parameter binds no name, so the `@param opts` tag (whose
-  // name matches no parameter) must not be attached to it.
+  // The destructuring parameter binds no name, so its `@param` tag matches
+  // positionally and lends the parameter its display name (jsr-io/jsr#604).
   assert!(
-    !page.contains("the options bag"),
-    "an unrelated @param tag was wrongly attached to a destructuring parameter"
+    page.contains("the options bag"),
+    "expected the destructured parameter's @param doc to render"
+  );
+  assert!(
+    page.contains("function_f_0_parameter_opts"),
+    "expected the destructured parameter to take the tag's name"
   );
 }
 
