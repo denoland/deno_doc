@@ -304,8 +304,9 @@ async fn html_doc_import_linking() {
   .unwrap();
   let files = generate(ctx).unwrap();
 
-  // the non-exported `Internal` type alias must not get its own page
-  assert!(!files.keys().any(|file| file.contains("Internal")));
+  // the non-exported `Internal` type alias is referenced by the public API, so
+  // it gets a page of its own to link to (jsr-io/jsr#165)
+  assert!(files.contains_key("types.ts/~/Internal.html"));
 
   // `import type * as t` references link to the other entrypoint
   let expression = files.get("mod.ts/~/expression.html").unwrap();
@@ -340,11 +341,23 @@ async fn html_doc_import_linking() {
     "nonexistent symbol must not be linked: {missing}"
   );
 
-  // a reference to a non-exported symbol must not be linked
+  // a reference to a non-exported symbol links to that symbol's page
   let alias = files.get("types.ts/~/Scope.Alias.html").unwrap();
   assert!(
-    alias.contains(r#"<span class="td-ref">Internal</span>"#),
-    "internal symbol must not be linked: {alias}"
+    alias.contains(r##"~/Internal.html"##),
+    "non-exported symbol is not linked: {alias}"
+  );
+
+  // it stays out of the listings and search though, since it can't be imported
+  let index = files.get("types.ts/index.html").unwrap();
+  assert!(
+    !index.contains(r##"~/Internal.html"##),
+    "non-exported symbol leaked into the module listing: {index}"
+  );
+  let search = files.get("search_index.js").unwrap();
+  assert!(
+    !search.contains("/~/Internal.html"),
+    "non-exported symbol leaked into the search index"
   );
 }
 
@@ -769,6 +782,10 @@ async fn html_doc_files_multiple() {
     [
       "./all_symbols.html",
       "./index.html",
+      // `A` is not exported, but `Foo.foo` is typed with it, so it gets a page
+      // to link to; the `@internal` `B` next to it still gets none
+      "./~/A.html",
+      "./~/A.prototype.html",
       "./~/AbstractClass.html",
       "./~/AbstractClass.prototype.foo.html",
       "./~/AbstractClass.prototype.getter.html",
@@ -1480,6 +1497,105 @@ export default function (): void {}
   assert!(
     !search.contains("/~/default.html"),
     "@internal default export leaked into the search index"
+  );
+}
+
+// https://github.com/jsr-io/jsr/issues/165: a type that the public API refers
+// to but that is not exported is documented by the parser, yet used to be
+// dropped by the renderer, leaving the signature that mentions it unlinked and
+// undocumented. It should get a page and be linkable, while staying out of the
+// listings and search, since it cannot be imported. `@internal` keeps meaning
+// "hide this entirely".
+#[tokio::test]
+async fn html_non_exported_referenced_types_get_pages() {
+  let source = r#"
+/** An internal-only result type that the public API refers to. */
+interface RawResult<T> {
+  ok: boolean;
+  value: T;
+}
+
+/** @internal */
+interface Hidden {
+  secret: string;
+}
+
+/** Parses a thing. */
+export function parse(input: string): RawResult<string> {
+  return { ok: true, value: input };
+}
+
+/** @internal */
+export function hiddenUser(): Hidden {
+  return { secret: "" };
+}
+"#;
+
+  let ctx = GenerateCtx::create_basic(
+    GenerateOptions {
+      package_name: None,
+      main_entrypoint: Some(ModuleSpecifier::parse("file:///mod.ts").unwrap()),
+      href_resolver: Arc::new(EmptyResolver),
+      usage_composer: Some(Arc::new(EmptyResolver)),
+      rewrite_map: None,
+      category_docs: None,
+      disable_search: false,
+      symbol_redirect_map: None,
+      default_symbol_map: None,
+      markdown_renderer: comrak::create_renderer(None, None, None),
+      markdown_stripper: Arc::new(comrak::strip),
+      head_inject: None,
+      id_prefix: None,
+      diff_only: false,
+      symbol_listing_limit: None,
+    },
+    parse_source(source).await,
+    None,
+  )
+  .unwrap();
+
+  let files = generate(ctx).unwrap();
+
+  // the non-exported type has a page, carrying its documentation
+  let raw_result = files
+    .get("./~/RawResult.html")
+    .expect("non-exported referenced type should get a page");
+  assert!(
+    raw_result.contains("An internal-only result type"),
+    "page is missing the type's docs"
+  );
+
+  // and the signature that mentions it links there
+  let parse_page = files.get("./~/parse.html").unwrap();
+  assert!(
+    parse_page.contains(r##"~/RawResult.html"##),
+    "return type is not linked to the non-exported type's page"
+  );
+
+  // but it is not offered as part of the importable API
+  let index = files.get("./index.html").unwrap();
+  assert!(
+    !index.contains(r##"~/RawResult.html"##),
+    "non-exported type leaked into the module listing"
+  );
+  let search = files.get("search_index.js").unwrap();
+  assert!(
+    !search.contains("/~/RawResult.html"),
+    "non-exported type leaked into the search index"
+  );
+
+  // `@internal` still hides a symbol outright: no page, no link, no search
+  assert!(
+    !files.contains_key("./~/Hidden.html"),
+    "@internal type should not get a page"
+  );
+  assert!(
+    !files.contains_key("./~/hiddenUser.html"),
+    "@internal function should not get a page"
+  );
+  assert!(
+    !search.contains("/~/Hidden.html"),
+    "@internal type leaked into the search index"
   );
 }
 

@@ -226,9 +226,11 @@ pub fn compute_namespaced_symbols<'a>(
   let mut path_buf = Vec::new();
 
   for symbol in symbols {
-    // Internal symbols (non-exported or `@internal`) don't get their own
-    // pages, so linking to them would produce dead links.
-    if symbol.is_internal(ctx) {
+    // `@internal` symbols don't get their own pages, so linking to them would
+    // produce dead links. Non-exported symbols do get pages — documenting the
+    // types the public API refers to is the point — so they stay linkable even
+    // though the listings leave them out.
+    if symbol.is_hidden() {
       continue;
     }
 
@@ -979,9 +981,16 @@ impl ToCCtx {
       };
     }
 
+    // A symbol that isn't exported has no import that would work, so showing
+    // usage instructions for it would hand the reader a snippet that fails.
+    let symbol_is_importable = !usage_symbol
+      .flatten()
+      .is_some_and(|symbol| symbol.is_non_exported(ctx.ctx));
+
     Self {
-      usages: if ctx.get_current_resolve() == UrlResolveKind::Root
-        && ctx.ctx.main_entrypoint.is_none()
+      usages: if (ctx.get_current_resolve() == UrlResolveKind::Root
+        && ctx.ctx.main_entrypoint.is_none())
+        || !symbol_is_importable
       {
         None
       } else {

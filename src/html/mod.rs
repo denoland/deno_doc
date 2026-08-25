@@ -1202,19 +1202,39 @@ impl DocNodeWithContext {
     ns_qualifiers
   }
 
-  pub fn is_internal(&self, ctx: &GenerateCtx) -> bool {
-    (self
+  /// Whether the symbol is not exported from any entrypoint. The parser still
+  /// documents these when the public API refers to them (see
+  /// `SymbolVisibility`), because a signature mentioning such a type is
+  /// useless without one — but they are kept out of the listings, since a
+  /// reader cannot import them.
+  ///
+  /// In `.d.ts` modes everything is treated as exported, so nothing is
+  /// non-exported there.
+  pub fn is_non_exported(&self, ctx: &GenerateCtx) -> bool {
+    self
       .inner
       .declarations
       .iter()
       .any(|d| d.declaration_kind == crate::node::DeclarationKind::Private)
-      && !matches!(ctx.file_mode, FileMode::SingleDts | FileMode::Dts))
-      || self
-        .inner
-        .declarations
-        .iter()
-        .flat_map(|d| d.js_doc.tags.iter())
-        .any(|tag| tag == &JsDocTag::Internal)
+      && !matches!(ctx.file_mode, FileMode::SingleDts | FileMode::Dts)
+  }
+
+  /// Whether the author hid the symbol with `@internal`. Unlike merely
+  /// non-exported symbols, these are dropped everywhere: no listing entry, no
+  /// search entry, no page, and no link.
+  pub fn is_hidden(&self) -> bool {
+    self
+      .inner
+      .declarations
+      .iter()
+      .flat_map(|d| d.js_doc.tags.iter())
+      .any(|tag| tag == &JsDocTag::Internal)
+  }
+
+  /// Whether the symbol is kept out of the symbol listings and search: either
+  /// hidden outright, or not part of the importable API.
+  pub fn is_internal(&self, ctx: &GenerateCtx) -> bool {
+    self.is_non_exported(ctx) || self.is_hidden()
   }
 
   fn get_topmost_ancestor(&self) -> &DocNodeWithContext {

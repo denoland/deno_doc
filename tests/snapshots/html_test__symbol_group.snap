@@ -266,7 +266,7 @@ expression: files
                           "name_prefix": null,
                           "name": "foo",
                           "name_href": "../././~/Foo.prototype.foo.html",
-                          "content": "<span>: <span class=\"td-ref\">A</span></span>",
+                          "content": "<span>: <a href=\"../././~/A.html\" class=\"link td-ref\">A</a></span>",
                           "anchor": {
                             "id": "property_foo"
                           },
@@ -5237,6 +5237,109 @@ expression: files
   {
     "kind": "SymbolPageCtx",
     "html_head_ctx": {
+      "title": "A - documentation",
+      "current_file": ".",
+      "stylesheet_url": "../styles.css",
+      "page_stylesheet_url": "../page.css",
+      "reset_stylesheet_url": "../reset.css",
+      "url_search_index": "../search_index.js",
+      "script_js": "../script.js",
+      "fuse_js": "../fuse.js",
+      "search_js": "../search.js",
+      "darkmode_toggle_js": "../darkmode_toggle.js",
+      "head_inject": null,
+      "disable_search": false
+    },
+    "symbol_group_ctx": {
+      "name": "A",
+      "symbols": [
+        {
+          "kind": {
+            "kind": "Class",
+            "char": "c",
+            "title": "Class",
+            "title_lowercase": "class",
+            "title_plural": "Classes"
+          },
+          "usage": null,
+          "tags": [
+            {
+              "kind": "private"
+            }
+          ],
+          "subtitle": {
+            "kind": "class",
+            "value": {
+              "implements": null,
+              "extends": null
+            }
+          },
+          "content": [
+            {
+              "kind": "other",
+              "value": {
+                "id": "",
+                "docs": null,
+                "sections": []
+              }
+            }
+          ],
+          "deprecated": null,
+          "source_href": null
+        }
+      ]
+    },
+    "breadcrumbs_ctx": {
+      "root": {
+        "name": "index",
+        "href": "../"
+      },
+      "current_entrypoint": {
+        "name": "default",
+        "href": "../"
+      },
+      "entrypoints": [
+        {
+          "name": "all symbols",
+          "href": ".././all_symbols.html"
+        },
+        {
+          "name": "default",
+          "href": "../"
+        },
+        {
+          "name": "d",
+          "href": ".././d/index.html"
+        },
+        {
+          "name": "foo",
+          "href": ".././foo/index.html"
+        },
+        {
+          "name": "c",
+          "href": ".././c/index.html"
+        }
+      ],
+      "symbol": [
+        {
+          "name": "A",
+          "href": "../././~/A.html"
+        }
+      ]
+    },
+    "toc_ctx": {
+      "usages": null,
+      "top_symbols": null,
+      "document_navigation_str": null,
+      "document_navigation": []
+    },
+    "disable_search": false,
+    "categories_panel": null
+  },
+  null,
+  {
+    "kind": "SymbolPageCtx",
+    "html_head_ctx": {
       "title": "Foo.prototype.[Symbol.iterator] - documentation",
       "current_file": ".",
       "stylesheet_url": "../styles.css",
@@ -7389,7 +7492,7 @@ expression: files
                           "name_prefix": null,
                           "name": null,
                           "name_href": null,
-                          "content": "<span class=\"td-ref\">A</span>",
+                          "content": "<a href=\"../././~/A.html\" class=\"link td-ref\">A</a>",
                           "anchor": {
                             "id": "variable_foo_prototype_foo"
                           },

@@ -506,9 +506,10 @@ pub fn generate_symbol_pages_for_module(
     module_doc_nodes.iter().map(Cow::Borrowed),
   );
 
-  // Internal symbols (non-exported or `@internal`) are hidden from listings
-  // and nothing links to them, so don't generate pages for them either.
-  symbols.retain(|symbol| !symbol.is_internal(ctx));
+  // `@internal` symbols are hidden from the docs entirely and nothing links to
+  // them, so they get no page. Non-exported symbols do: signatures in the
+  // public API link to them even though the listings leave them out.
+  symbols.retain(|symbol| !symbol.is_hidden());
 
   let mut drilldown_partitions = vec![];
   for symbol in &symbols {
