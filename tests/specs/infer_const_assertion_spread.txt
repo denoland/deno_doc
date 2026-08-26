@@ -1,0 +1,560 @@
+# mod.ts
+/** Default update types. */
+export const DEFAULT_UPDATE_TYPES = ["message", "edited_message"] as const;
+/** All update types. */
+export const ALL_UPDATE_TYPES = [
+  ...DEFAULT_UPDATE_TYPES,
+  "chat_member",
+  "message_reaction",
+  "message_reaction_count",
+] as const;
+const BASE = ["a", "b"] as const;
+/** Spread of a non-exported const-asserted array. */
+export const EXTENDED = [...BASE, "c"] as const;
+/** Explicitly typed. */
+export const TYPED: string[] = ["x"];
+/** Spread of an explicitly typed array. */
+export const COMBINED = [...TYPED, "y"] as const;
+/** Numbers. */
+export const NUMS = [1, 2, 3];
+/** Spread outside of a const assertion. */
+export const MORE_NUMS = [...NUMS, 4];
+/** Spread that cannot be inferred. */
+export const UNKNOWN = [...globalThis.foo, "a"] as const;
+/** Cyclic self reference. */
+export const CYCLIC = [...CYCLIC, "a"] as const;
+/** Mutually cyclic. */
+export const CYCLE_A = [...CYCLE_B, "a"] as const;
+/** Mutually cyclic. */
+export const CYCLE_B = [...CYCLE_A, "b"] as const;
+
+# output.txt
+Defined in file:///mod.ts:3:14
+
+const ALL_UPDATE_TYPES: ("message" | "edited_message" | "chat_member" | "message_reaction" | "message_reaction_count")[]
+  All update types.
+
+Defined in file:///mod.ts:15:14
+
+const COMBINED: (string | "y")[]
+  Spread of an explicitly typed array.
+
+Defined in file:///mod.ts:25:14
+
+const CYCLE_A: (any | "b" | "a")[]
+  Mutually cyclic.
+
+Defined in file:///mod.ts:27:14
+
+const CYCLE_B: (any | "a" | "b")[]
+  Mutually cyclic.
+
+Defined in file:///mod.ts:23:14
+
+const CYCLIC: (any | "a")[]
+  Cyclic self reference.
+
+Defined in file:///mod.ts:1:14
+
+const DEFAULT_UPDATE_TYPES: ("message" | "edited_message")[]
+  Default update types.
+
+Defined in file:///mod.ts:11:14
+
+const EXTENDED: ("a" | "b" | "c")[]
+  Spread of a non-exported const-asserted array.
+
+Defined in file:///mod.ts:19:14
+
+const MORE_NUMS: number[]
+  Spread outside of a const assertion.
+
+Defined in file:///mod.ts:17:14
+
+const NUMS: number[]
+  Numbers.
+
+Defined in file:///mod.ts:13:14
+
+const TYPED: string[]
+  Explicitly typed.
+
+Defined in file:///mod.ts:21:14
+
+const UNKNOWN: any[]
+  Spread that cannot be inferred.
+
+
+# output.json
+{
+  "symbols": [
+    {
+      "name": "DEFAULT_UPDATE_TYPES",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 1,
+            "col": 13,
+            "byteIndex": 42
+          },
+          "declarationKind": "export",
+          "jsDoc": {
+            "doc": "Default update types."
+          },
+          "kind": "variable",
+          "def": {
+            "tsType": {
+              "kind": "array",
+              "value": {
+                "kind": "union",
+                "value": [
+                  {
+                    "repr": "message",
+                    "kind": "literal",
+                    "value": {
+                      "kind": "string",
+                      "string": "message"
+                    }
+                  },
+                  {
+                    "repr": "edited_message",
+                    "kind": "literal",
+                    "value": {
+                      "kind": "string",
+                      "string": "edited_message"
+                    }
+                  }
+                ]
+              }
+            },
+            "kind": "const"
+          }
+        }
+      ]
+    },
+    {
+      "name": "ALL_UPDATE_TYPES",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 3,
+            "col": 13,
+            "byteIndex": 143
+          },
+          "declarationKind": "export",
+          "jsDoc": {
+            "doc": "All update types."
+          },
+          "kind": "variable",
+          "def": {
+            "tsType": {
+              "kind": "array",
+              "value": {
+                "kind": "union",
+                "value": [
+                  {
+                    "repr": "message",
+                    "kind": "literal",
+                    "value": {
+                      "kind": "string",
+                      "string": "message"
+                    }
+                  },
+                  {
+                    "repr": "edited_message",
+                    "kind": "literal",
+                    "value": {
+                      "kind": "string",
+                      "string": "edited_message"
+                    }
+                  },
+                  {
+                    "repr": "chat_member",
+                    "kind": "literal",
+                    "value": {
+                      "kind": "string",
+                      "string": "chat_member"
+                    }
+                  },
+                  {
+                    "repr": "message_reaction",
+                    "kind": "literal",
+                    "value": {
+                      "kind": "string",
+                      "string": "message_reaction"
+                    }
+                  },
+                  {
+                    "repr": "message_reaction_count",
+                    "kind": "literal",
+                    "value": {
+                      "kind": "string",
+                      "string": "message_reaction_count"
+                    }
+                  }
+                ]
+              }
+            },
+            "kind": "const"
+          }
+        }
+      ]
+    },
+    {
+      "name": "EXTENDED",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 11,
+            "col": 13,
+            "byteIndex": 371
+          },
+          "declarationKind": "export",
+          "jsDoc": {
+            "doc": "Spread of a non-exported const-asserted array."
+          },
+          "kind": "variable",
+          "def": {
+            "tsType": {
+              "kind": "array",
+              "value": {
+                "kind": "union",
+                "value": [
+                  {
+                    "repr": "a",
+                    "kind": "literal",
+                    "value": {
+                      "kind": "string",
+                      "string": "a"
+                    }
+                  },
+                  {
+                    "repr": "b",
+                    "kind": "literal",
+                    "value": {
+                      "kind": "string",
+                      "string": "b"
+                    }
+                  },
+                  {
+                    "repr": "c",
+                    "kind": "literal",
+                    "value": {
+                      "kind": "string",
+                      "string": "c"
+                    }
+                  }
+                ]
+              }
+            },
+            "kind": "const"
+          }
+        }
+      ]
+    },
+    {
+      "name": "TYPED",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 13,
+            "col": 13,
+            "byteIndex": 445
+          },
+          "declarationKind": "export",
+          "jsDoc": {
+            "doc": "Explicitly typed."
+          },
+          "kind": "variable",
+          "def": {
+            "tsType": {
+              "kind": "array",
+              "value": {
+                "repr": "string",
+                "kind": "keyword",
+                "value": "string"
+              }
+            },
+            "kind": "const"
+          }
+        }
+      ]
+    },
+    {
+      "name": "COMBINED",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 15,
+            "col": 13,
+            "byteIndex": 527
+          },
+          "declarationKind": "export",
+          "jsDoc": {
+            "doc": "Spread of an explicitly typed array."
+          },
+          "kind": "variable",
+          "def": {
+            "tsType": {
+              "kind": "array",
+              "value": {
+                "kind": "union",
+                "value": [
+                  {
+                    "repr": "string",
+                    "kind": "keyword",
+                    "value": "string"
+                  },
+                  {
+                    "repr": "y",
+                    "kind": "literal",
+                    "value": {
+                      "kind": "string",
+                      "string": "y"
+                    }
+                  }
+                ]
+              }
+            },
+            "kind": "const"
+          }
+        }
+      ]
+    },
+    {
+      "name": "NUMS",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 17,
+            "col": 13,
+            "byteIndex": 593
+          },
+          "declarationKind": "export",
+          "jsDoc": {
+            "doc": "Numbers."
+          },
+          "kind": "variable",
+          "def": {
+            "tsType": {
+              "kind": "array",
+              "value": {
+                "repr": "number",
+                "kind": "keyword",
+                "value": "number"
+              }
+            },
+            "kind": "const"
+          }
+        }
+      ]
+    },
+    {
+      "name": "MORE_NUMS",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 19,
+            "col": 13,
+            "byteIndex": 668
+          },
+          "declarationKind": "export",
+          "jsDoc": {
+            "doc": "Spread outside of a const assertion."
+          },
+          "kind": "variable",
+          "def": {
+            "tsType": {
+              "kind": "array",
+              "value": {
+                "repr": "number",
+                "kind": "keyword",
+                "value": "number"
+              }
+            },
+            "kind": "const"
+          }
+        }
+      ]
+    },
+    {
+      "name": "UNKNOWN",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 21,
+            "col": 13,
+            "byteIndex": 746
+          },
+          "declarationKind": "export",
+          "jsDoc": {
+            "doc": "Spread that cannot be inferred."
+          },
+          "kind": "variable",
+          "def": {
+            "tsType": {
+              "repr": "any[]",
+              "kind": "array",
+              "value": {
+                "repr": "any",
+                "kind": "keyword",
+                "value": "any"
+              }
+            },
+            "kind": "const"
+          }
+        }
+      ]
+    },
+    {
+      "name": "CYCLIC",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 23,
+            "col": 13,
+            "byteIndex": 834
+          },
+          "declarationKind": "export",
+          "jsDoc": {
+            "doc": "Cyclic self reference."
+          },
+          "kind": "variable",
+          "def": {
+            "tsType": {
+              "kind": "array",
+              "value": {
+                "kind": "union",
+                "value": [
+                  {
+                    "repr": "any",
+                    "kind": "keyword",
+                    "value": "any"
+                  },
+                  {
+                    "repr": "a",
+                    "kind": "literal",
+                    "value": {
+                      "kind": "string",
+                      "string": "a"
+                    }
+                  }
+                ]
+              }
+            },
+            "kind": "const"
+          }
+        }
+      ]
+    },
+    {
+      "name": "CYCLE_A",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 25,
+            "col": 13,
+            "byteIndex": 907
+          },
+          "declarationKind": "export",
+          "jsDoc": {
+            "doc": "Mutually cyclic."
+          },
+          "kind": "variable",
+          "def": {
+            "tsType": {
+              "kind": "array",
+              "value": {
+                "kind": "union",
+                "value": [
+                  {
+                    "repr": "any",
+                    "kind": "keyword",
+                    "value": "any"
+                  },
+                  {
+                    "repr": "b",
+                    "kind": "literal",
+                    "value": {
+                      "kind": "string",
+                      "string": "b"
+                    }
+                  },
+                  {
+                    "repr": "a",
+                    "kind": "literal",
+                    "value": {
+                      "kind": "string",
+                      "string": "a"
+                    }
+                  }
+                ]
+              }
+            },
+            "kind": "const"
+          }
+        }
+      ]
+    },
+    {
+      "name": "CYCLE_B",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 27,
+            "col": 13,
+            "byteIndex": 982
+          },
+          "declarationKind": "export",
+          "jsDoc": {
+            "doc": "Mutually cyclic."
+          },
+          "kind": "variable",
+          "def": {
+            "tsType": {
+              "kind": "array",
+              "value": {
+                "kind": "union",
+                "value": [
+                  {
+                    "repr": "any",
+                    "kind": "keyword",
+                    "value": "any"
+                  },
+                  {
+                    "repr": "a",
+                    "kind": "literal",
+                    "value": {
+                      "kind": "string",
+                      "string": "a"
+                    }
+                  },
+                  {
+                    "repr": "b",
+                    "kind": "literal",
+                    "value": {
+                      "kind": "string",
+                      "string": "b"
+                    }
+                  }
+                ]
+              }
+            },
+            "kind": "const"
+          }
+        }
+      ]
+    }
+  ]
+}

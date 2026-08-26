@@ -26,6 +26,8 @@ use crate::variable::VariableDef;
 use deno_ast::SourceRangedForSpanned;
 use deno_ast::swc::ast::*;
 use deno_graph::symbols::EsModuleInfo;
+use deno_graph::symbols::ExportDeclRef;
+use deno_graph::symbols::SymbolNodeRef;
 use deno_terminal::colors;
 use serde::Deserialize;
 use serde::Serialize;
@@ -1890,11 +1892,23 @@ fn infer_ts_type_from_arr_lit(
         });
       }
     } else {
-      // TODO(@kitsonk) we should recursively unwrap the spread here
-      return Some(TsTypeDef {
-        repr: "any[]".to_string(),
-        kind: TsTypeDefKind::Array(Box::new(TsTypeDef::keyword("any"))),
-      });
+      // e.g.) const foo = [...bar, "baz"] as const;
+      if let Some(element_types) =
+        infer_ts_types_from_spread_expr(module_info, &expr.expr, is_const)
+      {
+        for ts_type in element_types {
+          if !defs.contains(&ts_type) {
+            defs.push(ts_type);
+          }
+        }
+      } else {
+        // the type of the spread element cannot be inferred and so will
+        // infer an any array.
+        return Some(TsTypeDef {
+          repr: "any[]".to_string(),
+          kind: TsTypeDefKind::Array(Box::new(TsTypeDef::keyword("any"))),
+        });
+      }
     }
   }
   match defs.len() {
@@ -1912,6 +1926,87 @@ fn infer_ts_type_from_arr_lit(
         repr: String::new(),
       })
     }
+    _ => None,
+  }
+}
+
+thread_local! {
+  /// Tracks the identifiers currently being resolved by
+  /// [`infer_ts_types_from_spread_expr`] to guard against cyclic references.
+  static SEEN_SPREAD_IDENTS: std::cell::RefCell<Vec<Id>> =
+    const { std::cell::RefCell::new(Vec::new()) };
+}
+
+/// Infers the type of an identifier used as a spread element by resolving it
+/// to a variable declaration in the module and using its type annotation or
+/// inferring from its initializer.
+fn infer_ts_type_from_spread_ident(
+  module_info: &EsModuleInfo,
+  id: &Id,
+) -> Option<TsTypeDef> {
+  let symbol = module_info.symbol_from_swc(id)?;
+  symbol.decls().iter().find_map(|decl| {
+    let (var_decl, var_declarator) = match decl.maybe_node()? {
+      SymbolNodeRef::Var(var_decl, var_declarator, _)
+      | SymbolNodeRef::ExportDecl(
+        _,
+        ExportDeclRef::Var(var_decl, var_declarator, _),
+      ) => (var_decl, var_declarator),
+      _ => return None,
+    };
+    if let Pat::Ident(ident) = &var_declarator.name
+      && let Some(type_ann) = &ident.type_ann
+    {
+      return Some(TsTypeDef::new(module_info, &type_ann.type_ann));
+    }
+    infer_ts_type_from_expr(
+      module_info,
+      var_declarator.init.as_deref()?,
+      var_decl.kind == VarDeclKind::Const,
+    )
+  })
+}
+
+/// Infers the element types contributed by a spread element in an array
+/// literal, e.g. `bar` in `[...bar, "baz"]`, by inferring the type of the
+/// spread expression and unwrapping its array or tuple element types.
+fn infer_ts_types_from_spread_expr(
+  module_info: &EsModuleInfo,
+  expr: &Expr,
+  is_const: bool,
+) -> Option<Vec<TsTypeDef>> {
+  let ts_type = match expr {
+    Expr::Ident(ident) => {
+      // e.g.) const foo = ["a", "b"] as const;
+      //       const bar = [...foo, "c"] as const;
+      let id = ident.to_id();
+      let already_seen = SEEN_SPREAD_IDENTS.with(|seen| {
+        let mut seen = seen.borrow_mut();
+        if seen.contains(&id) {
+          true
+        } else {
+          seen.push(id.clone());
+          false
+        }
+      });
+      if already_seen {
+        // cyclic reference, e.g.) const foo = [...foo] as const;
+        return None;
+      }
+      let maybe_ts_type = infer_ts_type_from_spread_ident(module_info, &id);
+      SEEN_SPREAD_IDENTS.with(|seen| {
+        seen.borrow_mut().pop();
+      });
+      maybe_ts_type?
+    }
+    _ => infer_ts_type_from_expr(module_info, expr, is_const)?,
+  };
+  match ts_type.kind {
+    TsTypeDefKind::Array(elem) => match elem.kind {
+      TsTypeDefKind::Union(types) => Some(types),
+      _ => Some(vec![*elem]),
+    },
+    TsTypeDefKind::Tuple(types) => Some(types),
     _ => None,
   }
 }
