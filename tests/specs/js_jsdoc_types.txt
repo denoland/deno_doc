@@ -1,0 +1,1195 @@
+# mod.ts
+export * from "./mod.js";
+
+/**
+ * JSDoc types are ignored in TypeScript, so the annotation is kept.
+ *
+ * @param {number} value the value
+ * @returns {number} nothing
+ */
+export function annotated(value: string): void {}
+
+# mod.js
+/**
+ * Params, a variadic rest param and the return type come from JSDoc.
+ *
+ * @param {string} name the name
+ * @param {number} [count] an optional count
+ * @param {string|number|string[]} fallback a default replaced by its JSDoc type
+ * @param {...boolean} flags the flags
+ * @returns {Promise<string[]>} the result
+ */
+export async function run(name, count, fallback = "x", ...flags) {}
+
+/**
+ * Destructured params take the `@param` tag at their position.
+ *
+ * @param {{ a: string, b: number }} options the options
+ * @param {string} options.a a property, not a param
+ * @param {Array<number>} rest the rest
+ */
+export function destructured({ a, b }, rest) {}
+
+/**
+ * @param {boolean} flag the flag
+ * @returns {string} the text
+ */
+export const arrow = (flag) => String(flag);
+
+/** @type {Map<string, number>} */
+export const map = new Map();
+
+/** @type {{ host: string, port: number }} */
+export const config = { host: "localhost", port: 80 };
+
+/**
+ * A class documented with JSDoc types.
+ *
+ * @property {"a" | "b"} label the label
+ * @property {number} size the size
+ */
+export class Widget {
+  label;
+  /** The widget's size. */
+  size;
+  /** @type {boolean} whether the widget is visible */
+  visible = true;
+  /** @ignore */
+  secret;
+
+  /**
+   * @param {string} label the label
+   * @param {number} [size] the size
+   */
+  constructor(label, size) {
+    /** @type {string} */
+    this.label = label;
+    /** @type {Date} when the widget was created */
+    this.createdAt = new Date();
+    /** @type {string} assigned to an ignored field */
+    this.secret = "";
+    this.internal = 1;
+  }
+
+  /**
+   * @param {number} factor the factor
+   * @returns {number} the scaled size
+   */
+  scale(factor) {
+    return this.size * factor;
+  }
+}
+
+# diagnostics
+error[missing-jsdoc]: exported symbol is missing JSDoc documentation
+  --> /mod.js:25:14
+   | 
+25 | export const arrow = (flag) => String(flag);
+   |              ^
+
+
+error[missing-jsdoc]: exported symbol is missing JSDoc documentation
+  --> /mod.js:28:14
+   | 
+28 | export const map = new Map();
+   |              ^
+
+
+error[missing-jsdoc]: exported symbol is missing JSDoc documentation
+  --> /mod.js:31:14
+   | 
+31 | export const config = { host: "localhost", port: 80 };
+   |              ^
+
+
+error[missing-jsdoc]: exported symbol is missing JSDoc documentation
+  --> /mod.js:52:3
+   | 
+52 |   constructor(label, size) {
+   |   ^
+
+
+error[missing-jsdoc]: exported symbol is missing JSDoc documentation
+  --> /mod.js:44:3
+   | 
+44 |   visible = true;
+   |   ^
+
+
+error[missing-jsdoc]: exported symbol is missing JSDoc documentation
+  --> /mod.js:56:10
+   | 
+56 |     this.createdAt = new Date();
+   |          ^
+
+
+error[missing-jsdoc]: exported symbol is missing JSDoc documentation
+  --> /mod.js:66:3
+   | 
+66 |   scale(factor) {
+   |   ^
+
+# output.txt
+Defined in file:///mod.ts:8:1
+
+function annotated(value: string): void
+  JSDoc types are ignored in TypeScript, so the annotation is kept.
+
+  @param {number} value
+      the value
+
+  @return {number}
+      nothing
+
+
+Defined in file:///mod.js:24:14
+
+function arrow(flag: boolean): string
+
+  @param {boolean} flag
+      the flag
+
+  @return {string}
+      the text
+
+
+Defined in file:///mod.js:18:1
+
+function destructured({a, b}: { a: string; b: number; }, rest: Array<number>): void
+  Destructured params take the `@param` tag at their position.
+
+  @param {{ a: string, b: number }} options
+      the options
+
+  @param {string} options.a
+      a property, not a param
+
+  @param {Array<number>} rest
+      the rest
+
+
+Defined in file:///mod.js:9:1
+
+async function run(name: string, count?: number, fallback: string | number | string[], ...flags: boolean[]): Promise<string[]>
+  Params, a variadic rest param and the return type come from JSDoc.
+
+  @param {string} name
+      the name
+
+  @param {number} [?] count
+      an optional count
+
+  @param {string|number|string[]} fallback
+      a default replaced by its JSDoc type
+
+  @param {...boolean} flags
+      the flags
+
+  @return {Promise<string[]>}
+      the result
+
+
+Defined in file:///mod.js:30:14
+
+const config: { host: string; port: number; }
+
+  @typeref {{ host: string, port: number }}
+
+Defined in file:///mod.js:27:14
+
+const map: Map<string, number>
+
+  @typeref {Map<string, number>}
+
+Defined in file:///mod.js:38:1
+
+class Widget
+  A class documented with JSDoc types.
+
+  @property {"a" | "b"} label
+      the label
+
+  @property {number} size
+      the size
+
+
+  constructor(label: string, size?: number)
+
+    @param {string} label
+        the label
+
+    @param {number} [?] size
+        the size
+
+  label: string
+    the label
+
+    @typeref {string}
+  size: number
+    The widget's size.
+  visible: boolean
+
+    @typeref {boolean}
+        whether the widget is visible
+
+  createdAt: Date
+
+    @typeref {Date}
+        when the widget was created
+
+  scale(factor: number): number
+
+    @param {number} factor
+        the factor
+
+    @return {number}
+        the scaled size
+
+
+
+# output.json
+{
+  "symbols": [
+    {
+      "name": "annotated",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 8,
+            "col": 0,
+            "byteIndex": 171
+          },
+          "declarationKind": "export",
+          "jsDoc": {
+            "doc": "JSDoc types are ignored in TypeScript, so the annotation is kept.\n",
+            "tags": [
+              {
+                "kind": "param",
+                "name": "value",
+                "tsType": {
+                  "repr": "number",
+                  "kind": "keyword",
+                  "value": "number"
+                },
+                "doc": "the value"
+              },
+              {
+                "kind": "return",
+                "tsType": {
+                  "repr": "number",
+                  "kind": "keyword",
+                  "value": "number"
+                },
+                "doc": "nothing"
+              }
+            ]
+          },
+          "kind": "function",
+          "def": {
+            "params": [
+              {
+                "kind": "identifier",
+                "name": "value",
+                "optional": false,
+                "tsType": {
+                  "repr": "string",
+                  "kind": "keyword",
+                  "value": "string"
+                }
+              }
+            ],
+            "returnType": {
+              "repr": "void",
+              "kind": "keyword",
+              "value": "void"
+            },
+            "hasBody": true
+          }
+        }
+      ]
+    },
+    {
+      "name": "run",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.js",
+            "line": 9,
+            "col": 0,
+            "byteIndex": 322
+          },
+          "declarationKind": "export",
+          "jsDoc": {
+            "doc": "Params, a variadic rest param and the return type come from JSDoc.\n",
+            "tags": [
+              {
+                "kind": "param",
+                "name": "name",
+                "tsType": {
+                  "repr": "string",
+                  "kind": "keyword",
+                  "value": "string"
+                },
+                "doc": "the name"
+              },
+              {
+                "kind": "param",
+                "name": "count",
+                "tsType": {
+                  "repr": "number",
+                  "kind": "keyword",
+                  "value": "number"
+                },
+                "optional": true,
+                "doc": "an optional count"
+              },
+              {
+                "kind": "param",
+                "name": "fallback",
+                "tsType": {
+                  "repr": "string|number|string[]",
+                  "kind": "union",
+                  "value": [
+                    {
+                      "repr": "string",
+                      "kind": "keyword",
+                      "value": "string"
+                    },
+                    {
+                      "repr": "number",
+                      "kind": "keyword",
+                      "value": "number"
+                    },
+                    {
+                      "kind": "array",
+                      "value": {
+                        "repr": "string",
+                        "kind": "keyword",
+                        "value": "string"
+                      }
+                    }
+                  ]
+                },
+                "doc": "a default replaced by its JSDoc type"
+              },
+              {
+                "kind": "param",
+                "name": "flags",
+                "tsType": {
+                  "repr": "...boolean",
+                  "kind": "unsupported"
+                },
+                "doc": "the flags"
+              },
+              {
+                "kind": "return",
+                "tsType": {
+                  "repr": "Promise<string[]>",
+                  "kind": "typeRef",
+                  "value": {
+                    "typeParams": [
+                      {
+                        "kind": "array",
+                        "value": {
+                          "repr": "string",
+                          "kind": "keyword",
+                          "value": "string"
+                        }
+                      }
+                    ],
+                    "typeName": "Promise",
+                    "resolution": {
+                      "kind": "typeParam"
+                    }
+                  }
+                },
+                "doc": "the result"
+              }
+            ]
+          },
+          "kind": "function",
+          "def": {
+            "params": [
+              {
+                "kind": "identifier",
+                "name": "name",
+                "optional": false,
+                "tsType": {
+                  "repr": "string",
+                  "kind": "keyword",
+                  "value": "string"
+                }
+              },
+              {
+                "kind": "identifier",
+                "name": "count",
+                "optional": true,
+                "tsType": {
+                  "repr": "number",
+                  "kind": "keyword",
+                  "value": "number"
+                }
+              },
+              {
+                "kind": "assign",
+                "left": {
+                  "kind": "identifier",
+                  "name": "fallback",
+                  "optional": false,
+                  "tsType": {
+                    "repr": "string|number|string[]",
+                    "kind": "union",
+                    "value": [
+                      {
+                        "repr": "string",
+                        "kind": "keyword",
+                        "value": "string"
+                      },
+                      {
+                        "repr": "number",
+                        "kind": "keyword",
+                        "value": "number"
+                      },
+                      {
+                        "kind": "array",
+                        "value": {
+                          "repr": "string",
+                          "kind": "keyword",
+                          "value": "string"
+                        }
+                      }
+                    ]
+                  }
+                },
+                "right": "x"
+              },
+              {
+                "kind": "rest",
+                "arg": {
+                  "kind": "identifier",
+                  "name": "flags",
+                  "optional": false
+                },
+                "tsType": {
+                  "kind": "array",
+                  "value": {
+                    "repr": "boolean",
+                    "kind": "keyword",
+                    "value": "boolean"
+                  }
+                }
+              }
+            ],
+            "returnType": {
+              "repr": "Promise<string[]>",
+              "kind": "typeRef",
+              "value": {
+                "typeParams": [
+                  {
+                    "kind": "array",
+                    "value": {
+                      "repr": "string",
+                      "kind": "keyword",
+                      "value": "string"
+                    }
+                  }
+                ],
+                "typeName": "Promise",
+                "resolution": {
+                  "kind": "typeParam"
+                }
+              }
+            },
+            "hasBody": true,
+            "isAsync": true
+          }
+        }
+      ]
+    },
+    {
+      "name": "destructured",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.js",
+            "line": 18,
+            "col": 0,
+            "byteIndex": 616
+          },
+          "declarationKind": "export",
+          "jsDoc": {
+            "doc": "Destructured params take the `@param` tag at their position.\n",
+            "tags": [
+              {
+                "kind": "param",
+                "name": "options",
+                "tsType": {
+                  "repr": "{ a: string, b: number }",
+                  "kind": "typeLiteral",
+                  "value": {
+                    "properties": [
+                      {
+                        "name": "a",
+                        "location": {
+                          "filename": "file:///mod.js",
+                          "line": 1,
+                          "col": 11,
+                          "byteIndex": 15
+                        },
+                        "tsType": {
+                          "repr": "string",
+                          "kind": "keyword",
+                          "value": "string"
+                        }
+                      },
+                      {
+                        "name": "b",
+                        "location": {
+                          "filename": "file:///mod.js",
+                          "line": 1,
+                          "col": 22,
+                          "byteIndex": 26
+                        },
+                        "tsType": {
+                          "repr": "number",
+                          "kind": "keyword",
+                          "value": "number"
+                        }
+                      }
+                    ]
+                  }
+                },
+                "doc": "the options"
+              },
+              {
+                "kind": "param",
+                "name": "options.a",
+                "tsType": {
+                  "repr": "string",
+                  "kind": "keyword",
+                  "value": "string"
+                },
+                "doc": "a property, not a param"
+              },
+              {
+                "kind": "param",
+                "name": "rest",
+                "tsType": {
+                  "repr": "Array<number>",
+                  "kind": "typeRef",
+                  "value": {
+                    "typeParams": [
+                      {
+                        "repr": "number",
+                        "kind": "keyword",
+                        "value": "number"
+                      }
+                    ],
+                    "typeName": "Array",
+                    "resolution": {
+                      "kind": "typeParam"
+                    }
+                  }
+                },
+                "doc": "the rest"
+              }
+            ]
+          },
+          "kind": "function",
+          "def": {
+            "params": [
+              {
+                "kind": "object",
+                "props": [
+                  {
+                    "kind": "assign",
+                    "key": "a",
+                    "value": null
+                  },
+                  {
+                    "kind": "assign",
+                    "key": "b",
+                    "value": null
+                  }
+                ],
+                "optional": false,
+                "tsType": {
+                  "repr": "{ a: string, b: number }",
+                  "kind": "typeLiteral",
+                  "value": {
+                    "properties": [
+                      {
+                        "name": "a",
+                        "location": {
+                          "filename": "file:///mod.js",
+                          "line": 1,
+                          "col": 11,
+                          "byteIndex": 15
+                        },
+                        "tsType": {
+                          "repr": "string",
+                          "kind": "keyword",
+                          "value": "string"
+                        }
+                      },
+                      {
+                        "name": "b",
+                        "location": {
+                          "filename": "file:///mod.js",
+                          "line": 1,
+                          "col": 22,
+                          "byteIndex": 26
+                        },
+                        "tsType": {
+                          "repr": "number",
+                          "kind": "keyword",
+                          "value": "number"
+                        }
+                      }
+                    ]
+                  }
+                }
+              },
+              {
+                "kind": "identifier",
+                "name": "rest",
+                "optional": false,
+                "tsType": {
+                  "repr": "Array<number>",
+                  "kind": "typeRef",
+                  "value": {
+                    "typeParams": [
+                      {
+                        "repr": "number",
+                        "kind": "keyword",
+                        "value": "number"
+                      }
+                    ],
+                    "typeName": "Array",
+                    "resolution": {
+                      "kind": "typeParam"
+                    }
+                  }
+                }
+              }
+            ],
+            "returnType": {
+              "repr": "void",
+              "kind": "keyword",
+              "value": "void"
+            },
+            "hasBody": true
+          }
+        }
+      ]
+    },
+    {
+      "name": "arrow",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.js",
+            "line": 24,
+            "col": 13,
+            "byteIndex": 750
+          },
+          "declarationKind": "export",
+          "jsDoc": {
+            "tags": [
+              {
+                "kind": "param",
+                "name": "flag",
+                "tsType": {
+                  "repr": "boolean",
+                  "kind": "keyword",
+                  "value": "boolean"
+                },
+                "doc": "the flag"
+              },
+              {
+                "kind": "return",
+                "tsType": {
+                  "repr": "string",
+                  "kind": "keyword",
+                  "value": "string"
+                },
+                "doc": "the text"
+              }
+            ]
+          },
+          "kind": "function",
+          "def": {
+            "params": [
+              {
+                "kind": "identifier",
+                "name": "flag",
+                "optional": false,
+                "tsType": {
+                  "repr": "boolean",
+                  "kind": "keyword",
+                  "value": "boolean"
+                }
+              }
+            ],
+            "returnType": {
+              "repr": "string",
+              "kind": "keyword",
+              "value": "string"
+            },
+            "hasBody": true
+          }
+        }
+      ]
+    },
+    {
+      "name": "map",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.js",
+            "line": 27,
+            "col": 13,
+            "byteIndex": 831
+          },
+          "declarationKind": "export",
+          "jsDoc": {
+            "tags": [
+              {
+                "kind": "type",
+                "tsType": {
+                  "repr": "Map<string, number>",
+                  "kind": "typeRef",
+                  "value": {
+                    "typeParams": [
+                      {
+                        "repr": "string",
+                        "kind": "keyword",
+                        "value": "string"
+                      },
+                      {
+                        "repr": "number",
+                        "kind": "keyword",
+                        "value": "number"
+                      }
+                    ],
+                    "typeName": "Map",
+                    "resolution": {
+                      "kind": "typeParam"
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "kind": "variable",
+          "def": {
+            "tsType": {
+              "repr": "Map<string, number>",
+              "kind": "typeRef",
+              "value": {
+                "typeParams": [
+                  {
+                    "repr": "string",
+                    "kind": "keyword",
+                    "value": "string"
+                  },
+                  {
+                    "repr": "number",
+                    "kind": "keyword",
+                    "value": "number"
+                  }
+                ],
+                "typeName": "Map",
+                "resolution": {
+                  "kind": "typeParam"
+                }
+              }
+            },
+            "kind": "const"
+          }
+        }
+      ]
+    },
+    {
+      "name": "config",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.js",
+            "line": 30,
+            "col": 13,
+            "byteIndex": 908
+          },
+          "declarationKind": "export",
+          "jsDoc": {
+            "tags": [
+              {
+                "kind": "type",
+                "tsType": {
+                  "repr": "{ host: string, port: number }",
+                  "kind": "typeLiteral",
+                  "value": {
+                    "properties": [
+                      {
+                        "name": "host",
+                        "location": {
+                          "filename": "file:///mod.js",
+                          "line": 1,
+                          "col": 11,
+                          "byteIndex": 15
+                        },
+                        "tsType": {
+                          "repr": "string",
+                          "kind": "keyword",
+                          "value": "string"
+                        }
+                      },
+                      {
+                        "name": "port",
+                        "location": {
+                          "filename": "file:///mod.js",
+                          "line": 1,
+                          "col": 25,
+                          "byteIndex": 29
+                        },
+                        "tsType": {
+                          "repr": "number",
+                          "kind": "keyword",
+                          "value": "number"
+                        }
+                      }
+                    ]
+                  }
+                }
+              }
+            ]
+          },
+          "kind": "variable",
+          "def": {
+            "tsType": {
+              "repr": "{ host: string, port: number }",
+              "kind": "typeLiteral",
+              "value": {
+                "properties": [
+                  {
+                    "name": "host",
+                    "location": {
+                      "filename": "file:///mod.js",
+                      "line": 1,
+                      "col": 11,
+                      "byteIndex": 15
+                    },
+                    "tsType": {
+                      "repr": "string",
+                      "kind": "keyword",
+                      "value": "string"
+                    }
+                  },
+                  {
+                    "name": "port",
+                    "location": {
+                      "filename": "file:///mod.js",
+                      "line": 1,
+                      "col": 25,
+                      "byteIndex": 29
+                    },
+                    "tsType": {
+                      "repr": "number",
+                      "kind": "keyword",
+                      "value": "number"
+                    }
+                  }
+                ]
+              }
+            },
+            "kind": "const"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Widget",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.js",
+            "line": 38,
+            "col": 0,
+            "byteIndex": 1079
+          },
+          "declarationKind": "export",
+          "jsDoc": {
+            "doc": "A class documented with JSDoc types.\n",
+            "tags": [
+              {
+                "kind": "property",
+                "name": "label",
+                "tsType": {
+                  "repr": "\"a\" | \"b\"",
+                  "kind": "union",
+                  "value": [
+                    {
+                      "repr": "a",
+                      "kind": "literal",
+                      "value": {
+                        "kind": "string",
+                        "string": "a"
+                      }
+                    },
+                    {
+                      "repr": "b",
+                      "kind": "literal",
+                      "value": {
+                        "kind": "string",
+                        "string": "b"
+                      }
+                    }
+                  ]
+                },
+                "doc": "the label"
+              },
+              {
+                "kind": "property",
+                "name": "size",
+                "tsType": {
+                  "repr": "number",
+                  "kind": "keyword",
+                  "value": "number"
+                },
+                "doc": "the size"
+              }
+            ]
+          },
+          "kind": "class",
+          "def": {
+            "constructors": [
+              {
+                "jsDoc": {
+                  "tags": [
+                    {
+                      "kind": "param",
+                      "name": "label",
+                      "tsType": {
+                        "repr": "string",
+                        "kind": "keyword",
+                        "value": "string"
+                      },
+                      "doc": "the label"
+                    },
+                    {
+                      "kind": "param",
+                      "name": "size",
+                      "tsType": {
+                        "repr": "number",
+                        "kind": "keyword",
+                        "value": "number"
+                      },
+                      "optional": true,
+                      "doc": "the size"
+                    }
+                  ]
+                },
+                "hasBody": true,
+                "name": "constructor",
+                "params": [
+                  {
+                    "kind": "identifier",
+                    "name": "label",
+                    "optional": false,
+                    "tsType": {
+                      "repr": "string",
+                      "kind": "keyword",
+                      "value": "string"
+                    }
+                  },
+                  {
+                    "kind": "identifier",
+                    "name": "size",
+                    "optional": true,
+                    "tsType": {
+                      "repr": "number",
+                      "kind": "keyword",
+                      "value": "number"
+                    }
+                  }
+                ],
+                "location": {
+                  "filename": "file:///mod.js",
+                  "line": 51,
+                  "col": 2,
+                  "byteIndex": 1335
+                }
+              }
+            ],
+            "properties": [
+              {
+                "jsDoc": {
+                  "doc": "the label",
+                  "tags": [
+                    {
+                      "kind": "type",
+                      "tsType": {
+                        "repr": "string",
+                        "kind": "keyword",
+                        "value": "string"
+                      }
+                    }
+                  ]
+                },
+                "tsType": {
+                  "repr": "string",
+                  "kind": "keyword",
+                  "value": "string"
+                },
+                "name": "label",
+                "location": {
+                  "filename": "file:///mod.js",
+                  "line": 39,
+                  "col": 2,
+                  "byteIndex": 1103
+                }
+              },
+              {
+                "jsDoc": {
+                  "doc": "The widget's size."
+                },
+                "tsType": {
+                  "repr": "number",
+                  "kind": "keyword",
+                  "value": "number"
+                },
+                "name": "size",
+                "location": {
+                  "filename": "file:///mod.js",
+                  "line": 41,
+                  "col": 2,
+                  "byteIndex": 1140
+                }
+              },
+              {
+                "jsDoc": {
+                  "tags": [
+                    {
+                      "kind": "type",
+                      "tsType": {
+                        "repr": "boolean",
+                        "kind": "keyword",
+                        "value": "boolean"
+                      },
+                      "doc": "whether the widget is visible"
+                    }
+                  ]
+                },
+                "tsType": {
+                  "repr": "boolean",
+                  "kind": "keyword",
+                  "value": "boolean"
+                },
+                "name": "visible",
+                "location": {
+                  "filename": "file:///mod.js",
+                  "line": 43,
+                  "col": 2,
+                  "byteIndex": 1203
+                }
+              },
+              {
+                "jsDoc": {
+                  "tags": [
+                    {
+                      "kind": "type",
+                      "tsType": {
+                        "repr": "Date",
+                        "kind": "typeRef",
+                        "value": {
+                          "typeName": "Date",
+                          "resolution": {
+                            "kind": "typeParam"
+                          }
+                        }
+                      },
+                      "doc": "when the widget was created"
+                    }
+                  ]
+                },
+                "tsType": {
+                  "repr": "Date",
+                  "kind": "typeRef",
+                  "value": {
+                    "typeName": "Date",
+                    "resolution": {
+                      "kind": "typeParam"
+                    }
+                  }
+                },
+                "name": "createdAt",
+                "location": {
+                  "filename": "file:///mod.js",
+                  "line": 55,
+                  "col": 4,
+                  "byteIndex": 1468
+                }
+              }
+            ],
+            "methods": [
+              {
+                "jsDoc": {
+                  "tags": [
+                    {
+                      "kind": "param",
+                      "name": "factor",
+                      "tsType": {
+                        "repr": "number",
+                        "kind": "keyword",
+                        "value": "number"
+                      },
+                      "doc": "the factor"
+                    },
+                    {
+                      "kind": "return",
+                      "tsType": {
+                        "repr": "number",
+                        "kind": "keyword",
+                        "value": "number"
+                      },
+                      "doc": "the scaled size"
+                    }
+                  ]
+                },
+                "name": "scale",
+                "kind": "method",
+                "functionDef": {
+                  "params": [
+                    {
+                      "kind": "identifier",
+                      "name": "factor",
+                      "optional": false,
+                      "tsType": {
+                        "repr": "number",
+                        "kind": "keyword",
+                        "value": "number"
+                      }
+                    }
+                  ],
+                  "returnType": {
+                    "repr": "number",
+                    "kind": "keyword",
+                    "value": "number"
+                  },
+                  "hasBody": true
+                },
+                "location": {
+                  "filename": "file:///mod.js",
+                  "line": 65,
+                  "col": 2,
+                  "byteIndex": 1694
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}
