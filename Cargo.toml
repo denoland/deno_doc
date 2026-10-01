@@ -60,7 +60,7 @@ insta = { version = "1.39.0", features = ["json"] }
 html5ever = "0.27.0"
 markup5ever_rcdom = "0.3.0"
 
-[target.'cfg(target_arch = "wasm32")'.dependencies]
+[target.'cfg(all(target_arch = "wasm32", not(target_os = "emscripten")))'.dependencies]
 url = "2.4.1"
 percent-encoding = "2.3.1"
 wasm-bindgen = "0.2.92"
