@@ -219,12 +219,50 @@ impl<'a> DocParser<'a> {
       )?;
     }
 
+    for document in symbols_by_url.values_mut() {
+      self.apply_js_doc_types(&mut document.symbols);
+    }
+
     for (_, document) in &symbols_by_url {
       // TODO: jsdoc
       self.collect_diagnostics_for_symbols(&document.symbols);
     }
 
     Ok(symbols_by_url)
+  }
+
+  /// Applies the types declared in JSDoc to the declarations from JavaScript
+  /// modules, recursing into namespaces (such as a function's expando
+  /// properties).
+  fn apply_js_doc_types(&self, symbols: &mut [Arc<Symbol>]) {
+    for symbol in symbols {
+      let has_js_declaration = symbol
+        .declarations
+        .iter()
+        .any(|decl| self.js_module_info(&decl.location).is_some());
+      if !has_js_declaration {
+        continue;
+      }
+
+      for decl in &mut Arc::make_mut(symbol).declarations {
+        if let DeclarationDef::Namespace(namespace_def) = &mut decl.def {
+          self.apply_js_doc_types(&mut namespace_def.elements);
+        } else if let Some(module_info) = self.js_module_info(&decl.location) {
+          crate::js_doc_types::apply_js_doc_types(module_info, decl);
+        }
+      }
+    }
+  }
+
+  /// The module a declaration at `location` belongs to, if that module is
+  /// JavaScript and so declares its types in JSDoc.
+  fn js_module_info(&self, location: &Location) -> Option<&EsModuleInfo> {
+    let specifier = ModuleSpecifier::parse(&location.filename).ok()?;
+    let module_info = self.get_module_info(&specifier).ok()?.esm()?;
+    crate::js_doc_types::declares_types_in_js_doc(
+      module_info.source().media_type(),
+    )
+    .then_some(module_info)
   }
 
   fn resolve_references_for_nodes(
