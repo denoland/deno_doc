@@ -366,15 +366,23 @@ impl DocPrinter<'_> {
       JsDocTag::Private => {
         writeln!(w, "{}@{}", Indent(indent), colors::magenta("private"))
       }
-      JsDocTag::Property { name, ts_type, doc } => {
-        writeln!(
+      JsDocTag::Property {
+        name,
+        ts_type,
+        optional,
+        doc,
+      } => {
+        write!(
           w,
-          "{}@{} {{{}}} {}",
+          "{}@{} {{{}}}",
           Indent(indent),
           colors::magenta("property"),
           italic_cyan(&ts_type.repr),
-          colors::bold(name)
         )?;
+        if *optional {
+          write!(w, " [?]")?;
+        }
+        writeln!(w, " {}", colors::bold(name))?;
         self.format_jsdoc_tag_maybe_doc(w, doc, indent)
       }
       JsDocTag::Protected => {

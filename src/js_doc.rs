@@ -23,7 +23,14 @@ lazy_static! {
   /// @tag name maybe_value
   static ref JS_DOC_TAG_NAMED_WITH_MAYBE_VALUE_RE: Regex = Regex::new(r"(?s)^\s*@(callback|template|typeparam|typeParam|event|fires|emits|listens)\s+([a-zA-Z_$]\S*)(?:\s+(?:-\s+)?(.+))?").unwrap();
   /// @tag {type} name maybe_value
-  static ref JS_DOC_TAG_NAMED_TYPED_RE: Regex = Regex::new(r"(?s)^\s*@(prop(?:erty)?|typedef)\s+\{([^}]+)\}\s+([a-zA-Z_$]\S*)(?:\s+(?:-\s+)?(.+))?").unwrap();
+  ///
+  /// The `{type}` is extracted separately (see [`split_jsdoc_type_and_doc`])
+  /// so that nested braces are handled correctly.
+  static ref JS_DOC_TAG_NAMED_TYPED_RE: Regex = Regex::new(r"(?s)^\s*@(prop(?:erty)?|typedef)\b(.*)$").unwrap();
+  /// name maybe_value
+  /// [name] maybe_value
+  /// [name=default] maybe_value
+  static ref JS_DOC_NAME_AND_MAYBE_VALUE_RE: Regex = Regex::new(r"(?s)^(?:\[\s*(?P<optionalName>[a-zA-Z_$][^\s=\]]*)(?:\s*=\s*[^\]]*)?\]|(?P<name>[a-zA-Z_$]\S*))(?:\s+(?:-\s+)?(?P<doc>.+))?").unwrap();
   /// @tag {type} name maybe_value
   /// @tag {type} [name] maybe_value
   /// @tag {type} [name=default] maybe_value
@@ -357,6 +364,8 @@ pub enum JsDocTag {
   Property {
     name: Box<str>,
     ts_type: TsTypeDef,
+    #[serde(skip_serializing_if = "core::ops::Not::not", default)]
+    optional: bool,
     #[serde(skip_serializing_if = "Option::is_none", default)]
     doc: Option<Box<str>>,
   },
@@ -494,22 +503,39 @@ impl JsDocTag {
         },
         _ => unreachable!("kind unexpected: {}", kind),
       }
-    } else if let Some(caps) = JS_DOC_TAG_NAMED_TYPED_RE.captures(&value) {
-      let kind = caps.get(1).unwrap().as_str();
-      let type_str = caps.get(2).unwrap().as_str();
-      let name = caps.get(3).unwrap().as_str().into();
-      let doc = caps.get(4).map(|m| m.as_str().into());
+    } else if let Some((kind, type_str, name_caps)) =
+      JS_DOC_TAG_NAMED_TYPED_RE.captures(&value).and_then(|caps| {
+        let kind = caps.get(1).unwrap().as_str();
+        let (type_str, rest) =
+          split_jsdoc_type_and_doc(caps.get(2).unwrap().as_str());
+        let name_caps = JS_DOC_NAME_AND_MAYBE_VALUE_RE.captures(rest?)?;
+        // only `@typedef` may omit the type, in which case it is an object
+        // type described by `@property` tags
+        if type_str.is_none() && kind != "typedef" {
+          return None;
+        }
+        Some((kind, type_str, name_caps))
+      })
+    {
+      let optional_name = name_caps.name("optionalName");
+      let name = name_caps
+        .name("name")
+        .or(optional_name)
+        .unwrap()
+        .as_str()
+        .into();
+      let doc = name_caps.name("doc").map(|m| m.as_str().into());
+      let ts_type = type_str
+        .map(|type_str| make_ts_type(type_str, module_info))
+        .unwrap_or_else(|| TsTypeDef::keyword("object"));
       match kind {
         "prop" | "property" => Self::Property {
           name,
-          ts_type: make_ts_type(type_str, module_info),
+          ts_type,
+          optional: optional_name.is_some(),
           doc,
         },
-        "typedef" => Self::TypeDef {
-          name,
-          ts_type: make_ts_type(type_str, module_info),
-          doc,
-        },
+        "typedef" => Self::TypeDef { name, ts_type, doc },
         _ => unreachable!("kind unexpected: {}", kind),
       }
     } else if let Some(caps) = JS_DOC_TAG_WITH_MAYBE_VALUE_RE.captures(&value) {
@@ -1684,6 +1710,7 @@ multi-line
           repr: "string".to_string(),
           kind: TsTypeDefKind::Unsupported
         },
+        optional: false,
         doc: None,
       })
       .unwrap(),
