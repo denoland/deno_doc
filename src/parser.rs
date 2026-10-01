@@ -1,5 +1,6 @@
 // Copyright 2018-2024 the Deno authors. All rights reserved. MIT license.
 
+use deno_ast::MediaType;
 use deno_ast::ModuleItemRef;
 use deno_ast::SourceRange;
 use deno_ast::SourceRanged;
@@ -65,6 +66,7 @@ use crate::util::swc::get_text_info_location;
 use crate::util::swc::js_doc_for_range;
 use crate::util::swc::module_export_name_value;
 use crate::util::swc::module_js_doc_for_source;
+use crate::util::swc::type_declaring_js_docs_for_source;
 use crate::util::symbol::get_module_info;
 use crate::variable::VariableDef;
 use crate::visibility::SymbolVisibility;
@@ -1547,6 +1549,16 @@ impl<'a> DocParser<'a> {
 
     let is_ambient =
       exports.resolved.is_empty() && !module_has_import(module_info);
+
+    // In JavaScript files, types are declared via JSDoc `@typedef` and
+    // `@callback` tags, which TypeScript treats as exported type aliases.
+    if matches!(
+      module_info.source().media_type(),
+      MediaType::JavaScript | MediaType::Jsx | MediaType::Mjs | MediaType::Cjs
+    ) {
+      self.add_js_doc_type_aliases(module_info, is_ambient, &mut symbols);
+    }
+
     for child_id in module_info.module_symbol().child_ids() {
       let unique_id = UniqueSymbolId::new(module_info.module_id(), child_id);
       if !handled_symbols.insert(unique_id) {
@@ -1571,6 +1583,52 @@ impl<'a> DocParser<'a> {
       imports: vec![],
       symbols,
     })
+  }
+
+  fn add_js_doc_type_aliases(
+    &self,
+    module_info: &EsModuleInfo,
+    is_ambient: bool,
+    symbols: &mut Vec<Arc<Symbol>>,
+  ) {
+    let declaration_kind = if is_ambient {
+      DeclarationKind::Declare
+    } else {
+      DeclarationKind::Export
+    };
+    for (js_doc, pos) in type_declaring_js_docs_for_source(module_info) {
+      let location = get_location(module_info, pos);
+      for type_alias in
+        super::type_alias::type_aliases_from_js_doc(&js_doc, &location)
+      {
+        let declaration = Declaration::type_alias(
+          location.clone(),
+          declaration_kind,
+          type_alias.js_doc,
+          type_alias.def,
+        );
+        // a type can share its name with a value, but not with another type
+        if let Some(symbol) = symbols
+          .iter_mut()
+          .find(|symbol| *symbol.name == *type_alias.name)
+        {
+          if symbol.declarations.iter().all(|decl| {
+            matches!(
+              decl.def,
+              DeclarationDef::Function(_) | DeclarationDef::Variable(_)
+            )
+          }) {
+            Arc::make_mut(symbol).declarations.push(declaration);
+          }
+        } else {
+          symbols.push(Arc::new(Symbol {
+            name: type_alias.name,
+            is_default: false,
+            declarations: vec![declaration],
+          }));
+        }
+      }
+    }
   }
 
   #[allow(clippy::too_many_arguments)]

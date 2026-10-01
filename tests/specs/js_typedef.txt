@@ -1,0 +1,620 @@
+# mod.ts
+HEADERS: {"content-type":"application/javascript"}
+/**
+ * @template T
+ * @typedef {Object} Identity
+ * @property {<U>(f: (value: T) => U) => Identity<U>} map maps the value
+ */
+
+/**
+ * A point in 2D space.
+ *
+ * @typedef {object} Point
+ * @property {number} x - the x coordinate
+ * @property {number} [y] the y coordinate
+ * @property {{ z: number }} [extra=undefined]
+ */
+
+/**
+ * @typedef Options
+ * @property {string} name
+ */
+
+/**
+ * @typedef {string | number} Id the id of an item
+ * @deprecated use something else
+ */
+
+/**
+ * A predicate.
+ *
+ * @callback Predicate
+ * @param {string} value the value to test
+ * @param {number} [index]
+ * @returns {boolean} whether it matches
+ */
+
+/**
+ * @ignore
+ * @typedef {string} Hidden
+ */
+
+/**
+ * @typedef {string} of
+ */
+
+/**
+ * @template T
+ * @param {T} value
+ * @return {Identity<T>}
+ */
+export function of(value) {
+  return {
+    map(f) {
+      return of(f(value));
+    },
+  };
+}
+
+# diagnostics
+error[missing-jsdoc]: exported symbol is missing JSDoc documentation
+  --> /mod.ts:49:17
+   | 
+49 | export function of(value) {
+   |                 ^
+
+
+error[missing-return-type]: exported function is missing an explicit return type annotation
+  --> /mod.ts:49:17
+   | 
+49 | export function of(value) {
+   |                 ^
+
+
+error[missing-jsdoc]: exported symbol is missing JSDoc documentation
+  --> /mod.ts:49:17
+   | 
+49 | export function of(value) {
+   |                 ^
+
+
+error[missing-jsdoc]: exported symbol is missing JSDoc documentation
+ --> /mod.ts:1:1
+  | 
+1 | /**
+  | ^
+
+
+error[missing-jsdoc]: exported symbol is missing JSDoc documentation
+  --> /mod.ts:16:1
+   | 
+16 | /**
+   | ^
+
+# output.txt
+Defined in file:///mod.ts:48:1
+
+function of(value)
+
+  @template T
+  @param {T} value
+  @return {Identity<T>}
+
+Defined in file:///mod.ts:39:1
+
+type of = string
+
+Defined in file:///mod.ts:20:1
+
+type Id = string | number
+  the id of an item
+
+  @deprecated
+      use something else
+
+
+Defined in file:///mod.ts:0:1
+
+type Identity<T>
+
+  map: (f: (value: T) => U) => Identity<U>
+    maps the value
+
+Defined in file:///mod.ts:15:1
+
+type Options
+
+  name: string
+
+Defined in file:///mod.ts:6:1
+
+type Point
+  A point in 2D space.
+
+  x: number
+    the x coordinate
+  y?: number
+    the y coordinate
+  extra?: { z: number; }
+
+Defined in file:///mod.ts:25:1
+
+type Predicate = (value: string, index?: number) => boolean
+  A predicate.
+
+  @param {string} value
+      the value to test
+
+  @param {number} [?] index
+  @return {boolean}
+      whether it matches
+
+
+
+# output.json
+{
+  "symbols": [
+    {
+      "name": "of",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 48,
+            "col": 0,
+            "byteIndex": 784
+          },
+          "declarationKind": "export",
+          "jsDoc": {
+            "tags": [
+              {
+                "kind": "template",
+                "name": "T"
+              },
+              {
+                "kind": "param",
+                "name": "value",
+                "tsType": {
+                  "repr": "T",
+                  "kind": "typeRef",
+                  "value": {
+                    "typeName": "T",
+                    "resolution": {
+                      "kind": "typeParam"
+                    }
+                  }
+                }
+              },
+              {
+                "kind": "return",
+                "tsType": {
+                  "repr": "Identity<T>",
+                  "kind": "typeRef",
+                  "value": {
+                    "typeParams": [
+                      {
+                        "repr": "T",
+                        "kind": "typeRef",
+                        "value": {
+                          "typeName": "T",
+                          "resolution": {
+                            "kind": "typeParam"
+                          }
+                        }
+                      }
+                    ],
+                    "typeName": "Identity",
+                    "resolution": {
+                      "kind": "typeParam"
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "kind": "function",
+          "def": {
+            "params": [
+              {
+                "kind": "identifier",
+                "name": "value",
+                "optional": false
+              }
+            ],
+            "hasBody": true
+          }
+        },
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 39,
+            "col": 0,
+            "byteIndex": 683
+          },
+          "declarationKind": "export",
+          "kind": "typeAlias",
+          "def": {
+            "tsType": {
+              "repr": "string",
+              "kind": "keyword",
+              "value": "string"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Identity",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 0,
+            "col": 0,
+            "byteIndex": 0
+          },
+          "declarationKind": "export",
+          "kind": "typeAlias",
+          "def": {
+            "tsType": {
+              "kind": "typeLiteral",
+              "value": {
+                "properties": [
+                  {
+                    "name": "map",
+                    "jsDoc": {
+                      "doc": "maps the value"
+                    },
+                    "location": {
+                      "filename": "file:///mod.ts",
+                      "line": 0,
+                      "col": 0,
+                      "byteIndex": 0
+                    },
+                    "tsType": {
+                      "repr": "<U>(f: (value: T) => U) => Identity<U>",
+                      "kind": "fnOrConstructor",
+                      "value": {
+                        "constructor": false,
+                        "tsType": {
+                          "repr": "Identity",
+                          "kind": "typeRef",
+                          "value": {
+                            "typeParams": [
+                              {
+                                "repr": "U",
+                                "kind": "typeRef",
+                                "value": {
+                                  "typeName": "U",
+                                  "resolution": {
+                                    "kind": "typeParam"
+                                  }
+                                }
+                              }
+                            ],
+                            "typeName": "Identity",
+                            "resolution": {
+                              "kind": "typeParam"
+                            }
+                          }
+                        },
+                        "params": [
+                          {
+                            "kind": "identifier",
+                            "name": "f",
+                            "optional": false,
+                            "tsType": {
+                              "kind": "fnOrConstructor",
+                              "value": {
+                                "constructor": false,
+                                "tsType": {
+                                  "repr": "U",
+                                  "kind": "typeRef",
+                                  "value": {
+                                    "typeName": "U",
+                                    "resolution": {
+                                      "kind": "typeParam"
+                                    }
+                                  }
+                                },
+                                "params": [
+                                  {
+                                    "kind": "identifier",
+                                    "name": "value",
+                                    "optional": false,
+                                    "tsType": {
+                                      "repr": "T",
+                                      "kind": "typeRef",
+                                      "value": {
+                                        "typeName": "T",
+                                        "resolution": {
+                                          "kind": "typeParam"
+                                        }
+                                      }
+                                    }
+                                  }
+                                ]
+                              }
+                            }
+                          }
+                        ],
+                        "typeParams": [
+                          {
+                            "name": "U"
+                          }
+                        ]
+                      }
+                    }
+                  }
+                ]
+              }
+            },
+            "typeParams": [
+              {
+                "name": "T"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Point",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 6,
+            "col": 0,
+            "byteIndex": 127
+          },
+          "declarationKind": "export",
+          "jsDoc": {
+            "doc": "A point in 2D space.\n"
+          },
+          "kind": "typeAlias",
+          "def": {
+            "tsType": {
+              "kind": "typeLiteral",
+              "value": {
+                "properties": [
+                  {
+                    "name": "x",
+                    "jsDoc": {
+                      "doc": "the x coordinate"
+                    },
+                    "location": {
+                      "filename": "file:///mod.ts",
+                      "line": 6,
+                      "col": 0,
+                      "byteIndex": 127
+                    },
+                    "tsType": {
+                      "repr": "number",
+                      "kind": "keyword",
+                      "value": "number"
+                    }
+                  },
+                  {
+                    "name": "y",
+                    "jsDoc": {
+                      "doc": "the y coordinate"
+                    },
+                    "location": {
+                      "filename": "file:///mod.ts",
+                      "line": 6,
+                      "col": 0,
+                      "byteIndex": 127
+                    },
+                    "optional": true,
+                    "tsType": {
+                      "repr": "number",
+                      "kind": "keyword",
+                      "value": "number"
+                    }
+                  },
+                  {
+                    "name": "extra",
+                    "location": {
+                      "filename": "file:///mod.ts",
+                      "line": 6,
+                      "col": 0,
+                      "byteIndex": 127
+                    },
+                    "optional": true,
+                    "tsType": {
+                      "repr": "{ z: number }",
+                      "kind": "typeLiteral",
+                      "value": {
+                        "properties": [
+                          {
+                            "name": "z",
+                            "location": {
+                              "filename": "file:///mod.ts",
+                              "line": 1,
+                              "col": 11,
+                              "byteIndex": 15
+                            },
+                            "tsType": {
+                              "repr": "number",
+                              "kind": "keyword",
+                              "value": "number"
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Options",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 15,
+            "col": 0,
+            "byteIndex": 323
+          },
+          "declarationKind": "export",
+          "kind": "typeAlias",
+          "def": {
+            "tsType": {
+              "kind": "typeLiteral",
+              "value": {
+                "properties": [
+                  {
+                    "name": "name",
+                    "location": {
+                      "filename": "file:///mod.ts",
+                      "line": 15,
+                      "col": 0,
+                      "byteIndex": 323
+                    },
+                    "tsType": {
+                      "repr": "string",
+                      "kind": "keyword",
+                      "value": "string"
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Id",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 20,
+            "col": 0,
+            "byteIndex": 379
+          },
+          "declarationKind": "export",
+          "jsDoc": {
+            "doc": "the id of an item",
+            "tags": [
+              {
+                "kind": "deprecated",
+                "doc": "use something else"
+              }
+            ]
+          },
+          "kind": "typeAlias",
+          "def": {
+            "tsType": {
+              "repr": "string | number",
+              "kind": "union",
+              "value": [
+                {
+                  "repr": "string",
+                  "kind": "keyword",
+                  "value": "string"
+                },
+                {
+                  "repr": "number",
+                  "kind": "keyword",
+                  "value": "number"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Predicate",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 25,
+            "col": 0,
+            "byteIndex": 473
+          },
+          "declarationKind": "export",
+          "jsDoc": {
+            "doc": "A predicate.\n",
+            "tags": [
+              {
+                "kind": "param",
+                "name": "value",
+                "tsType": {
+                  "repr": "string",
+                  "kind": "keyword",
+                  "value": "string"
+                },
+                "doc": "the value to test"
+              },
+              {
+                "kind": "param",
+                "name": "index",
+                "tsType": {
+                  "repr": "number",
+                  "kind": "keyword",
+                  "value": "number"
+                },
+                "optional": true
+              },
+              {
+                "kind": "return",
+                "tsType": {
+                  "repr": "boolean",
+                  "kind": "keyword",
+                  "value": "boolean"
+                },
+                "doc": "whether it matches"
+              }
+            ]
+          },
+          "kind": "typeAlias",
+          "def": {
+            "tsType": {
+              "kind": "fnOrConstructor",
+              "value": {
+                "constructor": false,
+                "tsType": {
+                  "repr": "boolean",
+                  "kind": "keyword",
+                  "value": "boolean"
+                },
+                "params": [
+                  {
+                    "kind": "identifier",
+                    "name": "value",
+                    "optional": false,
+                    "tsType": {
+                      "repr": "string",
+                      "kind": "keyword",
+                      "value": "string"
+                    }
+                  },
+                  {
+                    "kind": "identifier",
+                    "name": "index",
+                    "optional": true,
+                    "tsType": {
+                      "repr": "number",
+                      "kind": "keyword",
+                      "value": "number"
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

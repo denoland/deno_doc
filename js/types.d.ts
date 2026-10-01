@@ -330,6 +330,8 @@ export interface JsDocTagNamedTyped extends JsDocTagBase {
   kind: "property" | "typedef";
   name: string;
   tsType: TsTypeDef;
+  /** Only set for `property` tags using the `[name]` syntax. */
+  optional?: true;
   doc?: string;
 }
 
