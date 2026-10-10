@@ -1203,7 +1203,7 @@ fn render_markdown(
           }
         }
         NodeValue::TaskItem(checked) => {
-          let checkbox = if checked.is_some() {
+          let checkbox = if checked.symbol.is_some() {
             colors::green("[x] ").to_string()
           } else {
             "[ ] ".to_string()
@@ -1236,6 +1236,19 @@ fn render_markdown(
           self.push_inline(s);
         }
         // container nodes whose children provide the text
+        // Inserted programmatically, never parsed, so only reachable through a
+        // node hook; print it verbatim like the HTML passthroughs above.
+        NodeValue::Raw(s) => {
+          self.push_inline(s);
+        }
+        // The rest need extensions this printer does not enable, so they never
+        // turn up here; they are listed only to keep the match exhaustive.
+        NodeValue::Highlight
+        | NodeValue::Insert
+        | NodeValue::Subscript
+        | NodeValue::Subtext
+        | NodeValue::Alert(_)
+        | NodeValue::BlockDirective(_) => {}
         NodeValue::Escaped
         | NodeValue::Table(_)
         | NodeValue::TableRow(_)
@@ -1367,7 +1380,16 @@ fn render_markdown(
         | NodeValue::TaskItem(_)
         | NodeValue::Math(_)
         | NodeValue::FootnoteReference(_)
-        | NodeValue::EscapedTag(_) => {}
+        | NodeValue::EscapedTag(_)
+        // Nothing to close: `Raw` is written whole in `handle_start`, and the
+        // rest need extensions this printer does not enable.
+        | NodeValue::Raw(_)
+        | NodeValue::Highlight
+        | NodeValue::Insert
+        | NodeValue::Subscript
+        | NodeValue::Subtext
+        | NodeValue::Alert(_)
+        | NodeValue::BlockDirective(_) => {}
         // container nodes with no special end handling
         NodeValue::Escaped
         | NodeValue::Table(_)
