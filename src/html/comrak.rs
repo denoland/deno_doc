@@ -3,9 +3,9 @@ use comrak::Arena;
 use comrak::adapters::SyntaxHighlighterAdapter;
 use comrak::nodes::AstNode;
 use comrak::nodes::NodeValue;
+use std::borrow::Cow;
 use std::collections::HashMap;
-use std::io::BufWriter;
-use std::io::Write;
+use std::fmt::Write;
 use std::sync::Arc;
 
 pub const COMRAK_STYLESHEET: &str = include_str!("./templates/comrak.gen.css");
@@ -13,20 +13,20 @@ pub const COMRAK_STYLESHEET_FILENAME: &str = "comrak.css";
 
 pub type NodeHook = Box<
   dyn for<'a> Fn(
-      &'a Arena<AstNode<'a>>,
+      &'a Arena<'a>,
       &'a AstNode<'a>,
       &comrak::Options,
-      &comrak::Plugins,
+      &comrak::options::Plugins,
     ) + Send
     + Sync,
 >;
 
 fn walk_node<'a>(
   node_hook: &NodeHook,
-  arena: &'a Arena<AstNode<'a>>,
+  arena: &'a Arena<'a>,
   node: &'a AstNode<'a>,
   options: &comrak::Options,
-  plugins: &comrak::Plugins,
+  plugins: &comrak::options::Plugins,
 ) {
   for child in node.children() {
     node_hook(arena, child, options, plugins);
@@ -66,11 +66,11 @@ fn walk_node_title<'a>(node: &'a AstNode<'a>) {
 pub fn render_node<'a>(
   node: &'a AstNode<'a>,
   options: &comrak::Options,
-  plugins: &comrak::Plugins,
+  plugins: &comrak::options::Plugins,
 ) -> String {
-  let mut bw = BufWriter::new(Vec::new());
-  comrak::format_html_with_plugins(node, options, &mut bw, plugins).unwrap();
-  String::from_utf8(bw.into_inner().unwrap()).unwrap()
+  let mut html = String::new();
+  comrak::format_html_with_plugins(node, options, &mut html, plugins).unwrap();
+  html
 }
 
 /// Returns comrak options with standard extensions enabled.
@@ -83,7 +83,6 @@ pub fn default_options() -> comrak::Options<'static> {
   options.extension.strikethrough = true;
   options.extension.superscript = true;
   options.extension.table = true;
-  options.extension.tagfilter = true;
   options.extension.tasklist = true;
   options
 }
@@ -95,15 +94,13 @@ pub fn strip(md: &str) -> String {
   let arena = Arena::new();
   let root = comrak::parse_document(&arena, md, &options);
 
-  fn collect_text<'a>(node: &'a AstNode<'a>, output: &mut BufWriter<Vec<u8>>) {
+  fn collect_text<'a>(node: &'a AstNode<'a>, output: &mut String) {
     match node.data.borrow().value {
-      NodeValue::Text(ref literal)
-      | NodeValue::Code(comrak::nodes::NodeCode { ref literal, .. }) => {
-        output.write_all(literal.as_bytes()).unwrap();
+      NodeValue::Text(ref literal) => output.push_str(literal),
+      NodeValue::Code(comrak::nodes::NodeCode { ref literal, .. }) => {
+        output.push_str(literal);
       }
-      NodeValue::LineBreak | NodeValue::SoftBreak => {
-        output.write_all(b" ").unwrap()
-      }
+      NodeValue::LineBreak | NodeValue::SoftBreak => output.push(' '),
       _ => {
         for n in node.children() {
           collect_text(n, output);
@@ -112,9 +109,9 @@ pub fn strip(md: &str) -> String {
     }
   }
 
-  let mut bw = BufWriter::new(Vec::new());
-  collect_text(root, &mut bw);
-  String::from_utf8(bw.into_inner().unwrap()).unwrap()
+  let mut text = String::new();
+  collect_text(root, &mut text);
+  text
 }
 
 pub type HtmlClean = Box<dyn Fn(String) -> String + Send + Sync>;
@@ -133,9 +130,9 @@ pub fn create_renderer(
         -> Option<String> {
     let mut options = default_options();
     options.render.escape = !has_clean;
-    options.render.unsafe_ = has_clean; // its fine because we run the cleaner afterwards
+    options.render.r#unsafe = has_clean; // its fine because we run the cleaner afterwards
 
-    let mut plugins = comrak::Plugins::default();
+    let mut plugins = comrak::options::Plugins::default();
     let heading_adapter = ComrakHeadingAdapter(anchorizer);
     let highlight_adapter =
       ComrakHighlightWrapperAdapter(syntax_highlighter.clone());
@@ -186,7 +183,7 @@ impl comrak::adapters::HeadingAdapter for ComrakHeadingAdapter {
     output: &mut dyn Write,
     heading: &comrak::adapters::HeadingMeta,
     _sourcepos: Option<comrak::nodes::Sourcepos>,
-  ) -> std::io::Result<()> {
+  ) -> std::fmt::Result {
     let anchor = self.0(heading.content.clone(), heading.level);
     // The anchorizer's character class keeps `"`, `<` and `&` (its ` -_` is a
     // range over U+0020..=U+005F, not three literals), so a heading anchor has
@@ -207,9 +204,8 @@ impl comrak::adapters::HeadingAdapter for ComrakHeadingAdapter {
     &self,
     output: &mut dyn Write,
     heading: &comrak::adapters::HeadingMeta,
-  ) -> std::io::Result<()> {
-    writeln!(output, "</h{}>", heading.level)?;
-    Ok(())
+  ) -> std::fmt::Result {
+    writeln!(output, "</h{}>", heading.level)
   }
 }
 
@@ -223,7 +219,7 @@ impl SyntaxHighlighterAdapter for ComrakHighlightWrapperAdapter {
     output: &mut dyn Write,
     lang: Option<&str>,
     code: &str,
-  ) -> std::io::Result<()> {
+  ) -> std::fmt::Result {
     // The markdown parser hands us the info string up to the first whitespace,
     // so a comma-separated directive such as `ts, no-eval` arrives as `ts,`.
     // Normalize it to the bare language token so both hidden-line processing and
@@ -242,7 +238,7 @@ impl SyntaxHighlighterAdapter for ComrakHighlightWrapperAdapter {
     if let Some(adapter) = &self.0 {
       adapter.write_highlighted(output, lang, displayed)?;
     } else {
-      comrak::html::escape(output, displayed.as_bytes())?;
+      comrak::html::escape(output, displayed)?;
     }
 
     write!(output, "</code>")?;
@@ -259,9 +255,9 @@ impl SyntaxHighlighterAdapter for ComrakHighlightWrapperAdapter {
   fn write_pre_tag(
     &self,
     output: &mut dyn Write,
-    mut attributes: HashMap<String, String>,
-  ) -> std::io::Result<()> {
-    attributes.insert("class".to_string(), "highlight".to_string());
+    mut attributes: HashMap<&'static str, Cow<'_, str>>,
+  ) -> std::fmt::Result {
+    attributes.insert("class", Cow::Borrowed("highlight"));
     if let Some(adapter) = &self.0 {
       adapter.write_pre_tag(output, attributes)
     } else {
@@ -272,8 +268,8 @@ impl SyntaxHighlighterAdapter for ComrakHighlightWrapperAdapter {
   fn write_code_tag(
     &self,
     output: &mut dyn Write,
-    attributes: HashMap<String, String>,
-  ) -> std::io::Result<()> {
+    attributes: HashMap<&'static str, Cow<'_, str>>,
+  ) -> std::fmt::Result {
     if let Some(adapter) = &self.0 {
       adapter.write_code_tag(output, attributes)
     } else {
