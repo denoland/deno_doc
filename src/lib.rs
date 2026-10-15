@@ -24,6 +24,7 @@ pub mod function;
 pub mod html;
 pub mod interface;
 pub mod js_doc;
+mod js_doc_types;
 pub mod node;
 mod params;
 mod parser;

@@ -27,8 +27,16 @@ lazy_static! {
   /// @tag {type} name maybe_value
   /// @tag {type} [name] maybe_value
   /// @tag {type} [name=default] maybe_value
-  static ref JS_DOC_TAG_PARAM_RE: Regex = Regex::new(
-    r"(?s)^\s*@(?:param|arg(?:ument)?)(?:\s+\{(?P<type>[^}]+)\})?\s+(?:(?:\[(?P<nameWithDefault>[a-zA-Z_$]\S*?)(?:\s*=\s*(?P<default>[^]]+))?\])|(?P<name>[a-zA-Z_$]\S*))(?:\s+(?:-\s+)?(?P<doc>.+))?"
+  ///
+  /// The `{type}` is extracted separately (see [`split_jsdoc_type_and_doc`])
+  /// so that nested braces are handled correctly, and the rest is matched by
+  /// [`JS_DOC_PARAM_NAME_AND_MAYBE_VALUE_RE`].
+  static ref JS_DOC_TAG_PARAM_RE: Regex = Regex::new(r"(?s)^\s*@(?:param|arg(?:ument)?)\b(.*)$").unwrap();
+  /// name maybe_value
+  /// [name] maybe_value
+  /// [name=default] maybe_value
+  static ref JS_DOC_PARAM_NAME_AND_MAYBE_VALUE_RE: Regex = Regex::new(
+    r"(?s)^(?:(?:\[(?P<nameWithDefault>[a-zA-Z_$]\S*?)(?:\s*=\s*(?P<default>[^]]+))?\])|(?P<name>[a-zA-Z_$]\S*))(?:\s+(?:-\s+)?(?P<doc>.+))?"
   )
   .unwrap();
   /// @tag {maybe_type} maybe_value
@@ -37,8 +45,11 @@ lazy_static! {
   /// that nested braces are handled correctly; a `([^}]+)` capture would stop at
   /// the first `}` and truncate a type like `{DOMException & { name: "x" }}`.
   static ref JS_DOC_TAG_WITH_MAYBE_TYPE_AND_MAYBE_VALUE_RE: Regex = Regex::new(r"(?s)^\s*@(returns?|throws|exception)\b(.*)$").unwrap();
-  /// @tag {maybe_type} value
-  static ref JS_DOC_TAG_WITH_TYPE_AND_MAYBE_VALUE_RE: Regex = Regex::new(r"(?s)^\s*@(enum|extends|augments|this|type|default)\s+\{([^}]+)\}(?:\s+(.+))?").unwrap();
+  /// @tag {type} maybe_value
+  ///
+  /// The `{type}` is extracted separately (see [`split_jsdoc_type_and_doc`])
+  /// so that nested braces are handled correctly.
+  static ref JS_DOC_TAG_WITH_TYPE_AND_MAYBE_VALUE_RE: Regex = Regex::new(r"(?s)^\s*@(enum|extends|augments|this|type|default)\b(.*)$").unwrap();
 }
 
 /// Splits the remainder of a JSDoc tag (everything after the tag name) into an
@@ -465,12 +476,17 @@ impl JsDocTag {
         "listens" => Self::Listens { name, doc },
         _ => unreachable!("kind unexpected: {}", kind),
       }
-    } else if let Some(caps) =
-      JS_DOC_TAG_WITH_TYPE_AND_MAYBE_VALUE_RE.captures(&value)
+    } else if let Some((kind, type_str, doc)) =
+      JS_DOC_TAG_WITH_TYPE_AND_MAYBE_VALUE_RE
+        .captures(&value)
+        .and_then(|caps| {
+          let kind = caps.get(1).unwrap().as_str();
+          let (type_str, doc) =
+            split_jsdoc_type_and_doc(caps.get(2).unwrap().as_str());
+          Some((kind, type_str?, doc))
+        })
     {
-      let kind = caps.get(1).unwrap().as_str();
-      let type_str = caps.get(2).unwrap().as_str();
-      let doc = caps.get(3).map(|m| m.as_str().into());
+      let doc = doc.map(|d| d.into());
       match kind {
         "enum" => Self::Enum {
           ts_type: make_ts_type(type_str, module_info),
@@ -543,7 +559,16 @@ impl JsDocTag {
         "description" => unreachable!("@description is handled earlier"),
         _ => unreachable!("kind unexpected: {}", kind),
       }
-    } else if let Some(caps) = JS_DOC_TAG_PARAM_RE.captures(&value) {
+    } else if let Some((type_str, caps)) =
+      JS_DOC_TAG_PARAM_RE.captures(&value).and_then(|caps| {
+        let (type_str, rest) =
+          split_jsdoc_type_and_doc(caps.get(1).unwrap().as_str());
+        Some((
+          type_str,
+          JS_DOC_PARAM_NAME_AND_MAYBE_VALUE_RE.captures(rest?)?,
+        ))
+      })
+    {
       let name_with_maybe_default = caps.name("nameWithDefault");
       let name = caps
         .name("name")
@@ -551,9 +576,7 @@ impl JsDocTag {
         .unwrap()
         .as_str()
         .into();
-      let ts_type = caps
-        .name("type")
-        .map(|m| make_ts_type(m.as_str(), module_info));
+      let ts_type = type_str.map(|t| make_ts_type(t, module_info));
       let default = caps.name("default").map(|m| m.as_str().into());
       let doc = caps.name("doc").map(|m| m.as_str().into());
       Self::Param {
