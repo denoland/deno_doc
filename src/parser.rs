@@ -234,6 +234,7 @@ impl<'a> DocParser<'a> {
     name_path: &[String],
     all_locations: &mut HashSet<Location>,
   ) -> Result<(), DocError> {
+    let mut attempted_targets = HashSet::new();
     let mut i = 0;
     'outer: while i < symbols.len() {
       let name = symbols[i].name.to_string();
@@ -258,6 +259,7 @@ impl<'a> DocParser<'a> {
             new_name_path.push(name.clone());
 
             if !all_locations.contains(&reference_def.target)
+              && attempted_targets.insert(reference_def.target.clone())
               && let Some(new_symbol) = self.resolve_dangling_reference(
                 specifier,
                 reference_def,
