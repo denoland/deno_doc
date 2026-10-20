@@ -234,6 +234,7 @@ impl<'a> DocParser<'a> {
     name_path: &[String],
     all_locations: &mut HashSet<Location>,
   ) -> Result<(), DocError> {
+    let mut attempted_targets = HashSet::new();
     let mut i = 0;
     'outer: while i < symbols.len() {
       let name = symbols[i].name.to_string();
@@ -258,11 +259,13 @@ impl<'a> DocParser<'a> {
             new_name_path.push(name.clone());
 
             if !all_locations.contains(&reference_def.target)
+              && attempted_targets.insert(reference_def.target.clone())
               && let Some(new_symbol) = self.resolve_dangling_reference(
                 specifier,
                 reference_def,
                 new_name_path,
                 false,
+                &mut HashSet::new(),
               )?
             {
               if let Some(new_symbol) = new_symbol {
@@ -292,7 +295,12 @@ impl<'a> DocParser<'a> {
     reference_def: &ReferenceDef,
     mut name_path: Vec<String>,
     star: bool,
+    visited: &mut HashSet<(ModuleSpecifier, Vec<String>, bool)>,
   ) -> Result<Option<Option<Symbol>>, DocError> {
+    if !visited.insert((specifier.clone(), name_path.clone(), star)) {
+      return Ok(None);
+    }
+
     let module = resolve_deno_graph_module(self.graph, specifier)?;
 
     match module {
@@ -333,6 +341,7 @@ impl<'a> DocParser<'a> {
                 reference_def,
                 name_path,
                 true,
+                visited,
               );
             }
             DefinitionKind::Definition => {
@@ -359,6 +368,7 @@ impl<'a> DocParser<'a> {
                       out
                     },
                     false,
+                    visited,
                   );
                 };
 

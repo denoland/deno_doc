@@ -1,0 +1,72 @@
+# mod.ts
+export { Foo } from "./b.ts";
+
+# b.ts
+import type { Foo } from "./c.ts";
+
+/** A function named like the imported type. */
+export function Foo(): void {}
+
+# c.ts
+/** A type. */
+export type Foo = string;
+
+# output.txt
+Defined in file:///c.ts:1:1
+
+type Foo = string
+  A type.
+
+Defined in file:///mod.ts:0:10
+
+reference Foo: file:///b.ts:3:1
+
+
+# output.json
+{
+  "symbols": [
+    {
+      "name": "Foo",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///c.ts",
+            "line": 1,
+            "col": 0,
+            "byteIndex": 15
+          },
+          "declarationKind": "export",
+          "jsDoc": {
+            "doc": "A type."
+          },
+          "kind": "typeAlias",
+          "def": {
+            "tsType": {
+              "repr": "string",
+              "kind": "keyword",
+              "value": "string"
+            }
+          }
+        },
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 0,
+            "col": 9,
+            "byteIndex": 9
+          },
+          "declarationKind": "export",
+          "kind": "reference",
+          "def": {
+            "target": {
+              "filename": "file:///b.ts",
+              "line": 3,
+              "col": 0,
+              "byteIndex": 84
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
