@@ -53,6 +53,21 @@ pub struct ParamDef {
   pub ts_type: Option<TsTypeDef>,
 }
 
+impl ParamDef {
+  /// The bare identifier a parameter binds, used to match it against its
+  /// `@param` JSDoc tag. Unwraps rest (`...rest` → `rest`) and default
+  /// (`x = 1` → `x`) parameters. Returns `None` for array/object destructuring
+  /// patterns, which bind no single name and so can't be matched by name.
+  pub(crate) fn binding_name(&self) -> Option<&str> {
+    match &self.pattern {
+      ParamPatternDef::Identifier { name, .. } => Some(name),
+      ParamPatternDef::Rest { arg } => arg.binding_name(),
+      ParamPatternDef::Assign { left, .. } => left.binding_name(),
+      ParamPatternDef::Array { .. } | ParamPatternDef::Object { .. } => None,
+    }
+  }
+}
+
 impl Display for ParamDef {
   fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
     for decorator in self.decorators.iter() {

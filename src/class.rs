@@ -442,6 +442,12 @@ pub fn class_to_class_def(
     }
   }
 
+  if crate::js_doc_types::declares_types_in_js_doc(
+    module_info.source().media_type(),
+  ) {
+    apply_constructor_assignment_docs(module_info, class, &mut properties);
+  }
+
   let type_params = maybe_type_param_decl_to_type_param_defs(
     module_info,
     class.type_params.as_deref(),
@@ -478,6 +484,102 @@ pub fn class_to_class_def(
     },
     js_doc,
   )
+}
+
+/// JavaScript has no syntax to type a class field, so it is commonly
+/// documented where the constructor assigns it instead, as in
+/// `/** @type {string} */ this.name = name;`. This carries that JSDoc onto the
+/// field being assigned when the field has none of its own, or declares the
+/// property when the class doesn't, as TypeScript does for JavaScript. Only
+/// documented assignments count, so undocumented internal state stays out of
+/// the docs.
+fn apply_constructor_assignment_docs(
+  module_info: &EsModuleInfo,
+  class: &deno_ast::swc::ast::Class,
+  properties: &mut Vec<ClassPropertyDef>,
+) {
+  use deno_ast::swc::ast::AssignOp;
+  use deno_ast::swc::ast::AssignTarget;
+  use deno_ast::swc::ast::ClassMember;
+  use deno_ast::swc::ast::Expr;
+  use deno_ast::swc::ast::MemberProp;
+  use deno_ast::swc::ast::SimpleAssignTarget;
+  use deno_ast::swc::ast::Stmt;
+
+  let Some(constructor_body) =
+    class.body.iter().find_map(|member| match member {
+      ClassMember::Constructor(constructor) => constructor.body.as_ref(),
+      _ => None,
+    })
+  else {
+    return;
+  };
+
+  // Every instance member the class declares, including ones `@ignore` kept
+  // out of `properties`, so that an assignment to one never redeclares it.
+  let mut declared_names = class
+    .body
+    .iter()
+    .filter_map(|member| match member {
+      ClassMember::ClassProp(prop) if !prop.is_static => {
+        Some(prop_name_to_string(module_info, &prop.key))
+      }
+      ClassMember::Method(method) if !method.is_static => {
+        Some(prop_name_to_string(module_info, &method.key))
+      }
+      _ => None,
+    })
+    .collect::<std::collections::HashSet<_>>();
+
+  for stmt in &constructor_body.stmts {
+    let Stmt::Expr(expr_stmt) = stmt else {
+      continue;
+    };
+    let Expr::Assign(assign) = &*expr_stmt.expr else {
+      continue;
+    };
+    if assign.op != AssignOp::Assign {
+      continue;
+    }
+    let AssignTarget::Simple(SimpleAssignTarget::Member(member)) = &assign.left
+    else {
+      continue;
+    };
+    let (Expr::This(_), MemberProp::Ident(name)) = (&*member.obj, &member.prop)
+    else {
+      continue;
+    };
+    let Some(js_doc) = js_doc_for_range(module_info, &stmt.range()) else {
+      continue;
+    };
+    if js_doc.is_empty() {
+      continue;
+    }
+
+    let name = name.sym.as_str();
+    if let Some(property) = properties
+      .iter_mut()
+      .find(|property| !property.is_static && &*property.name == name)
+    {
+      if property.js_doc.is_empty() {
+        property.js_doc = js_doc;
+      }
+    } else if declared_names.insert(name.to_string()) {
+      properties.push(ClassPropertyDef {
+        js_doc,
+        ts_type: infer_ts_type_from_expr(module_info, &assign.right, false),
+        readonly: false,
+        accessibility: None,
+        decorators: Box::new([]),
+        optional: false,
+        is_abstract: false,
+        is_static: false,
+        is_override: false,
+        name: name.into(),
+        location: get_location(module_info, stmt.start()),
+      });
+    }
+  }
 }
 
 pub fn get_doc_for_class_decl(
