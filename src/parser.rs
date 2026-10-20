@@ -263,6 +263,7 @@ impl<'a> DocParser<'a> {
                 reference_def,
                 new_name_path,
                 false,
+                &mut HashSet::new(),
               )?
             {
               if let Some(new_symbol) = new_symbol {
@@ -292,7 +293,12 @@ impl<'a> DocParser<'a> {
     reference_def: &ReferenceDef,
     mut name_path: Vec<String>,
     star: bool,
+    visited: &mut HashSet<(ModuleSpecifier, Vec<String>, bool)>,
   ) -> Result<Option<Option<Symbol>>, DocError> {
+    if !visited.insert((specifier.clone(), name_path.clone(), star)) {
+      return Ok(None);
+    }
+
     let module = resolve_deno_graph_module(self.graph, specifier)?;
 
     match module {
@@ -333,6 +339,7 @@ impl<'a> DocParser<'a> {
                 reference_def,
                 name_path,
                 true,
+                visited,
               );
             }
             DefinitionKind::Definition => {
@@ -359,6 +366,7 @@ impl<'a> DocParser<'a> {
                       out
                     },
                     false,
+                    visited,
                   );
                 };
 
