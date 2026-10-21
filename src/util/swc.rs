@@ -98,6 +98,33 @@ pub(crate) fn module_js_doc_for_source(
     })
 }
 
+/// Returns all the non-ignored JSDoc comments in the source that declare a
+/// type via a `@typedef` or `@callback` tag, along with their start position.
+pub(crate) fn type_declaring_js_docs_for_source(
+  module_info: &EsModuleInfo,
+) -> Vec<(JsDoc, SourcePos)> {
+  module_info
+    .source()
+    .comments()
+    .get_vec()
+    .into_iter()
+    .filter(|comment| {
+      comment.kind == CommentKind::Block
+        && comment.text.starts_with('*')
+        && (comment.text.contains("@typedef")
+          || comment.text.contains("@callback"))
+    })
+    .filter_map(|comment| {
+      let js_doc = parse_js_doc(&comment, module_info);
+      if js_doc.tags.contains(&JsDocTag::Ignore) {
+        None
+      } else {
+        Some((js_doc, comment.range().start))
+      }
+    })
+    .collect()
+}
+
 pub fn get_location(module_info: &EsModuleInfo, pos: SourcePos) -> Location {
   get_text_info_location(
     module_info.specifier().as_str(),
