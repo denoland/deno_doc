@@ -53,30 +53,32 @@ pub(crate) fn display_readonly(is_readonly: bool) -> impl Display {
 }
 
 pub(crate) fn display_method(
-  method: deno_ast::swc::ast::MethodKind,
+  method: crate::util::types::MethodKind,
 ) -> impl Display {
   colors::magenta(match method {
-    deno_ast::swc::ast::MethodKind::Getter => "get ",
-    deno_ast::swc::ast::MethodKind::Setter => "set ",
-    _ => "",
+    crate::util::types::MethodKind::Getter => "get ",
+    crate::util::types::MethodKind::Setter => "set ",
+    crate::util::types::MethodKind::Method => "",
   })
 }
 
 cfg_if! {
   if #[cfg(feature = "rust")] {
+    use crate::util::types::Accessibility;
+
     pub(crate) fn display_abstract(is_abstract: bool) -> impl Display {
       colors::magenta(if is_abstract { "abstract " } else { "" })
     }
 
     pub(crate) fn display_accessibility(
-      accessibility: Option<deno_ast::swc::ast::Accessibility>, show_public: bool
+      accessibility: Option<Accessibility>, show_public: bool
     ) -> impl Display {
       colors::magenta(
         match accessibility {
           None => "",
-          Some(deno_ast::swc::ast::Accessibility::Public) => if show_public { "public " } else { "" },
-          Some(deno_ast::swc::ast::Accessibility::Protected) => "protected ",
-          Some(deno_ast::swc::ast::Accessibility::Private) => "private ",
+          Some(Accessibility::Public) => if show_public { "public " } else { "" },
+          Some(Accessibility::Protected) => "protected ",
+          Some(Accessibility::Private) => "private ",
         },
       )
     }

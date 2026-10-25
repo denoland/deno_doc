@@ -5,3 +5,4 @@ pub mod graph;
 pub mod ignore_directives;
 pub mod swc;
 pub mod symbol;
+pub mod types;

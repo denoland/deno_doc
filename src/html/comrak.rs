@@ -149,10 +149,9 @@ pub fn create_renderer(
       if title_only {
         walk_node_title(root);
 
-        if let Some(child) = root.first_child() {
+        {
+          let child = root.first_child()?;
           render_node(child, &options, &plugins)
-        } else {
-          return None;
         }
       } else {
         if let Some(node_hook) = &node_hook {

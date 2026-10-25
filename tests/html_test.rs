@@ -145,9 +145,11 @@ async fn get_files(subpath: &str) -> ParseOutput {
     )
     .await;
 
+  let allocator = deno_ast::oxc::allocator::Allocator::default();
   DocParser::new(
     &graph,
     &analyzer,
+    &allocator,
     &source_files,
     DocParserOptions {
       diagnostics: false,
@@ -386,9 +388,11 @@ async fn html_doc_import_linking_internal_file() {
     )
     .await;
 
+  let allocator = deno_ast::oxc::allocator::Allocator::default();
   let parse_output = DocParser::new(
     &graph,
     &analyzer,
+    &allocator,
     &source_files,
     DocParserOptions {
       diagnostics: false,
@@ -1250,9 +1254,11 @@ async fn parse_source(source: &str) -> ParseOutput {
     )
     .await;
 
+  let allocator = deno_ast::oxc::allocator::Allocator::default();
   DocParser::new(
     &graph,
     &analyzer,
+    &allocator,
     &[specifier],
     DocParserOptions {
       private: false,
@@ -1299,9 +1305,11 @@ async fn parse_sources_multi(sources: &[(&str, &str)]) -> ParseOutput {
     )
     .await;
 
+  let allocator = deno_ast::oxc::allocator::Allocator::default();
   DocParser::new(
     &graph,
     &analyzer,
+    &allocator,
     &roots,
     DocParserOptions {
       private: false,

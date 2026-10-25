@@ -712,7 +712,7 @@ pub(crate) fn render_accessor_type(
 pub(crate) fn compute_old_tags(
   current_tags: &indexmap::IndexSet<Tag>,
   accessibility_change: Option<
-    &crate::diff::Change<Option<deno_ast::swc::ast::Accessibility>>,
+    &crate::diff::Change<Option<crate::util::types::Accessibility>>,
   >,
   readonly_change: Option<&crate::diff::Change<bool>>,
   abstract_change: Option<&crate::diff::Change<bool>>,

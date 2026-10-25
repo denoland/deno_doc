@@ -431,7 +431,7 @@ impl InterfaceMethodsDiff {
 #[serde(rename_all = "camelCase")]
 pub struct InterfaceMethodDiff {
   pub name: String,
-  pub kind: deno_ast::swc::ast::MethodKind,
+  pub kind: crate::util::types::MethodKind,
   #[serde(skip_serializing_if = "Option::is_none")]
   pub name_change: Option<Change<String>>,
   #[serde(skip_serializing_if = "Option::is_none")]

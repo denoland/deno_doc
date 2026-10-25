@@ -3,10 +3,8 @@
 use std::collections::HashMap;
 use std::collections::HashSet;
 
-use deno_ast::SourceRange;
-use deno_ast::SourceRangedForSpanned;
 use deno_ast::SourceTextInfo;
-use deno_ast::swc::common::comments::CommentKind;
+use deno_ast::oxc::span::Span;
 use deno_graph::symbols::EsModuleInfo;
 
 /// Ignores the diagnostics on the next line of code.
@@ -97,27 +95,29 @@ impl IgnoreDirectives {
 }
 
 pub fn parse_ignore_directives(module_info: &EsModuleInfo) -> IgnoreDirectives {
-  let text_info = module_info.source().text_info_lazy();
-  let comments = module_info.source().comments().get_vec();
+  let text_info = module_info.source_text_info();
+  let source_text = module_info.source_text();
+  let comments = module_info.comments();
 
   let mut directives = IgnoreDirectives::default();
-  for comment in &comments {
-    for line_index in comment_only_lines(text_info, comment.range()) {
+  for comment in comments {
+    for line_index in comment_only_lines(text_info, comment.span) {
       directives.comment_lines.insert(line_index);
     }
   }
 
-  for comment in &comments {
-    if comment.kind != CommentKind::Line {
+  for comment in comments {
+    if !comment.is_line() {
       continue;
     }
-    let line_index = text_info.line_index(comment.start());
+    let line_index = text_info.line_index(comment.span.start as usize);
     if !directives.comment_lines.contains(&line_index) {
       continue; // trailing comment on a line of code
     }
 
+    let comment_text = comment.content_span().source_text(source_text);
     if let Some(codes) =
-      parse_directive_codes(&comment.text, IGNORE_FILE_DIRECTIVE)
+      parse_directive_codes(comment_text, IGNORE_FILE_DIRECTIVE)
     {
       // only recognize a file directive at the top of the file
       if (0..line_index).all(|line_index| {
@@ -127,7 +127,7 @@ pub fn parse_ignore_directives(module_info: &EsModuleInfo) -> IgnoreDirectives {
         directives.file = Some(codes);
       }
     } else if let Some(codes) =
-      parse_directive_codes(&comment.text, IGNORE_DIRECTIVE)
+      parse_directive_codes(comment_text, IGNORE_DIRECTIVE)
     {
       directives.lines.insert(line_index, codes);
     }
@@ -139,19 +139,18 @@ pub fn parse_ignore_directives(module_info: &EsModuleInfo) -> IgnoreDirectives {
 /// The 0-indexed lines of a comment that contain no code.
 fn comment_only_lines(
   text_info: &SourceTextInfo,
-  range: SourceRange,
+  span: Span,
 ) -> std::ops::RangeInclusive<usize> {
-  let start_line = text_info.line_index(range.start);
-  let end_line = text_info.line_index(range.end);
+  let start = span.start as usize;
+  let end = span.end as usize;
+  let start_line = text_info.line_index(start);
+  let end_line = text_info.line_index(end);
   let has_code_before = !text_info
-    .range_text(&SourceRange::new(
-      text_info.line_start(start_line),
-      range.start,
-    ))
+    .range_text(text_info.line_start(start_line), start)
     .trim()
     .is_empty();
   let has_code_after = !text_info
-    .range_text(&SourceRange::new(range.end, text_info.line_end(end_line)))
+    .range_text(end, text_info.line_end(end_line))
     .trim()
     .is_empty();
 

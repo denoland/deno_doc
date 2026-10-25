@@ -269,9 +269,11 @@ async fn inner_doc(
       },
     )
     .await;
+  let allocator = deno_doc::OxcAllocator::default();
   let entries = DocParser::new(
     &graph,
     &analyzer,
+    &allocator,
     &root_specifiers,
     deno_doc::DocParserOptions {
       diagnostics: false,

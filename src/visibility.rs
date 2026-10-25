@@ -5,8 +5,8 @@ use crate::util::graph::resolve_deno_graph_module;
 use crate::util::symbol::get_module_info;
 use crate::util::symbol::symbol_has_ignorable_js_doc_tag;
 
-use deno_ast::SourceRange;
-use deno_ast::swc::ast::TsType;
+use deno_ast::oxc::ast::ast::TSType;
+use deno_ast::oxc::span::Span;
 use deno_graph::ModuleGraph;
 use deno_graph::symbols::DefinitionPathNode;
 use deno_graph::symbols::DefinitionPathNodeResolved;
@@ -25,7 +25,7 @@ use std::collections::HashSet;
 #[derive(Debug)]
 pub struct SymbolDeclDeps {
   pub symbol_id: UniqueSymbolId,
-  pub decl_range: SourceRange,
+  pub decl_range: Span,
   pub deps: IndexSet<UniqueSymbolId>,
   /// If the path to this declaration had an ignorable js doc tag.
   pub had_ignorable_tag: bool,
@@ -37,7 +37,7 @@ pub struct SymbolDeclDeps {
 }
 
 #[derive(Default, Debug)]
-pub struct SymbolDeps(IndexMap<SourceRange, Vec<SymbolDeclDeps>>);
+pub struct SymbolDeps(IndexMap<Span, Vec<SymbolDeclDeps>>);
 
 impl SymbolDeps {
   pub fn is_empty(&self) -> bool {
@@ -100,7 +100,7 @@ impl SymbolVisibility {
         .filter(|d| !d.has_overloads())
         .flat_map(|decl| {
           decl
-            .deps(ResolveDepsMode::TypesOnly)
+            .deps(ResolveDepsMode::TypesOnly, None)
             .into_iter()
             .map(move |dep| (decl, dep))
         })
@@ -118,7 +118,7 @@ impl SymbolVisibility {
                 .filter(|m| !m.has_overloads())
                 .flat_map(move |decl| {
                   decl
-                    .deps(ResolveDepsMode::TypesOnly)
+                    .deps(ResolveDepsMode::TypesOnly, None)
                     .into_iter()
                     .map(move |dep| (symbol, decl, dep))
                 })
@@ -222,7 +222,7 @@ fn decl_is_pure_type_alias(decl: &SymbolDecl) -> bool {
     _ => None,
   };
   type_alias.is_some_and(
-    |n| matches!(&*n.type_ann, TsType::TsTypeRef(r) if r.type_params.is_none()),
+    |n| matches!(&n.type_annotation, TSType::TSTypeReference(r) if r.type_arguments.is_none()),
   )
 }
 

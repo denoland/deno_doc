@@ -42,10 +42,17 @@ async fn parse() -> ParseOutput {
       },
     )
     .await;
-  DocParser::new(&graph, &analyzer, &[root], DocParserOptions::default())
-    .unwrap()
-    .parse()
-    .unwrap()
+  let allocator = deno_ast::oxc::allocator::Allocator::default();
+  DocParser::new(
+    &graph,
+    &analyzer,
+    &allocator,
+    &[root],
+    DocParserOptions::default(),
+  )
+  .unwrap()
+  .parse()
+  .unwrap()
 }
 
 fn doc_parser(c: &mut Criterion) {
