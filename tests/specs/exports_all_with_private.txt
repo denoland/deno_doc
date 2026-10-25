@@ -11,31 +11,31 @@ namespace H {}
 
 # diagnostics
 error[missing-jsdoc]: exported symbol is missing JSDoc documentation
- --> /mod.ts:1:1
+ --> /mod.ts:1:17
   | 
 1 | export function a() {}
-  | ^
+  |                 ^
 
 
 error[missing-jsdoc]: exported symbol is missing JSDoc documentation
- --> /mod.ts:3:1
+ --> /mod.ts:3:14
   | 
 3 | export class C {}
-  | ^
+  |              ^
 
 
 error[missing-jsdoc]: exported symbol is missing JSDoc documentation
- --> /mod.ts:5:1
+ --> /mod.ts:5:18
   | 
 5 | export interface E {}
-  | ^
+  |                  ^
 
 
 error[missing-jsdoc]: exported symbol is missing JSDoc documentation
- --> /mod.ts:7:1
+ --> /mod.ts:7:18
   | 
 7 | export namespace G {}
-  | ^
+  |                  ^
 
 # output.txt
 Defined in file:///mod.ts:0:1

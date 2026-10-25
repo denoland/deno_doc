@@ -697,6 +697,7 @@ fn generate_html_inner(
       head_inject,
       id_prefix,
       diff_only: false,
+      symbol_listing_limit: None,
     },
     doc_nodes_by_url,
     None,

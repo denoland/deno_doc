@@ -52,6 +52,16 @@ pub(crate) fn display_readonly(is_readonly: bool) -> impl Display {
   colors::magenta(if is_readonly { "readonly " } else { "" })
 }
 
+pub(crate) fn display_method(
+  method: deno_ast::swc::ast::MethodKind,
+) -> impl Display {
+  colors::magenta(match method {
+    deno_ast::swc::ast::MethodKind::Getter => "get ",
+    deno_ast::swc::ast::MethodKind::Setter => "set ",
+    _ => "",
+  })
+}
+
 cfg_if! {
   if #[cfg(feature = "rust")] {
     pub(crate) fn display_abstract(is_abstract: bool) -> impl Display {
@@ -77,16 +87,6 @@ cfg_if! {
 
     pub(crate) fn display_generator(is_generator: bool) -> impl Display {
       colors::magenta(if is_generator { "*" } else { "" })
-    }
-
-    pub(crate) fn display_method(
-      method: deno_ast::swc::ast::MethodKind,
-    ) -> impl Display {
-      colors::magenta(match method {
-        deno_ast::swc::ast::MethodKind::Getter => "get ",
-        deno_ast::swc::ast::MethodKind::Setter => "set ",
-        _ => "",
-      })
     }
 
     pub(crate) fn display_override(is_override: bool) -> impl Display {

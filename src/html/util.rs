@@ -177,9 +177,14 @@ impl AsRef<str> for Id {
   }
 }
 
+/// Anchors are stored unescaped; every site that writes one into markup
+/// escapes it there (handlebars does it for templates, and the two hand-written
+/// emitters -- the table of contents and the markdown heading adapter -- do it
+/// explicitly). Escaping here too would double-escape the `id` attributes that
+/// go through handlebars, leaving them unable to match the `href`s pointing at
+/// them.
 fn sanitize_id_part(part: &str) -> String {
-  html_escape::encode_quoted_attribute(&TARGET_RE.replace_all(part, "_"))
-    .into_owned()
+  TARGET_RE.replace_all(part, "_").into_owned()
 }
 
 /// A container to hold a list of symbols with their namespaces:
@@ -221,6 +226,14 @@ pub fn compute_namespaced_symbols<'a>(
   let mut path_buf = Vec::new();
 
   for symbol in symbols {
+    // `@internal` symbols don't get their own pages, so linking to them would
+    // produce dead links. Non-exported symbols do get pages — documenting the
+    // types the public API refers to is the point — so they stay linkable even
+    // though the listings leave them out.
+    if symbol.is_hidden() {
+      continue;
+    }
+
     let name_path: Arc<[String]> = symbol.sub_qualifier().into();
     // Precompute prefix (ns_qualifiers) once per symbol
     let ns_prefix = &*symbol.ns_qualifiers;
@@ -377,17 +390,25 @@ pub fn href_path_resolve(
   current: UrlResolveKind,
   target: UrlResolveKind,
 ) -> String {
-  let backs = match current {
-    UrlResolveKind::File { file } => "../".repeat(if file.is_main {
-      1
+  // The number of directories a file's page is nested under, measured from
+  // the output root. A page lives at `{file.path}/index.html` (or, for a symbol,
+  // `{file.path}/~/{symbol}.html`), so the depth is the number of segments in
+  // `file.path`. The main entrypoint is rewritten to `.`, which adds no
+  // directory, so it counts as zero segments. Previously the main entrypoint
+  // was hard-coded to a depth of 1; that is only correct when its path is `.`
+  // and produced broken `../` links whenever the main module had a deeper path
+  // (e.g. when multiple entrypoints share a common ancestor).
+  fn path_depth(file: &ShortPath) -> usize {
+    if file.path == "." {
+      0
     } else {
       file.path.split('/').count()
-    }),
-    UrlResolveKind::Symbol { file, .. } => "../".repeat(if file.is_main {
-      1
-    } else {
-      file.path.split('/').count() + 1
-    }),
+    }
+  }
+
+  let backs = match current {
+    UrlResolveKind::File { file } => "../".repeat(path_depth(file)),
+    UrlResolveKind::Symbol { file, .. } => "../".repeat(path_depth(file) + 1),
     UrlResolveKind::Root => String::new(),
     UrlResolveKind::AllSymbols => String::from("./"),
     UrlResolveKind::Category { .. } => String::from("./"),
@@ -674,12 +695,27 @@ impl Tag {
     }
   }
 
+  /// Builds the chip shown for a `@since <version>` tag, eg. `Since 1.2.0`.
+  ///
+  /// Only the first line of the tag's doc is used: `@since` takes a version,
+  /// and any prose following it on subsequent lines would not fit in a chip.
+  /// A `@since` without a version renders no chip.
+  pub fn from_since(doc: &str) -> Option<Self> {
+    let version = doc.lines().next()?.trim();
+    if version.is_empty() {
+      None
+    } else {
+      Some(Tag::Other(format!("Since {version}").into_boxed_str()))
+    }
+  }
+
   pub fn from_js_doc(js_doc: &JsDoc) -> IndexSet<Tag> {
     js_doc
       .tags
       .iter()
       .filter_map(|tag| match tag {
         JsDocTag::Deprecated { .. } => Some(Tag::Deprecated),
+        JsDocTag::Since { doc } => Tag::from_since(doc),
         _ => None,
       })
       .collect()
@@ -746,6 +782,17 @@ pub struct DocEntryCtx {
   pub tags: Vec<TagCtx>,
   js_doc: Option<String>,
   source_href: Option<String>,
+  #[serde(skip_serializing_if = "Vec::is_empty", default)]
+  pub examples: Vec<crate::html::jsdoc::ExampleCtx>,
+  /// Documentation for the entry's own parameters. Only populated for entries
+  /// that have no symbol page of their own to carry a Parameters section —
+  /// class constructors, construct signatures and call signatures — where the
+  /// `@param` docs would otherwise have nowhere to be shown.
+  #[serde(skip_serializing_if = "Vec::is_empty", default)]
+  pub params: Vec<DocEntryCtx>,
+  /// Rendered `@returns` documentation, for the same entries as `params`.
+  #[serde(skip_serializing_if = "Option::is_none")]
+  pub return_doc: Option<String>,
   #[serde(skip_serializing_if = "Option::is_none")]
   pub diff_status: Option<DiffStatus>,
   #[serde(skip_serializing_if = "Option::is_none")]
@@ -790,6 +837,9 @@ impl DocEntryCtx {
       tags: compute_tag_ctx(tags, old_tags),
       js_doc: maybe_jsdoc,
       source_href,
+      examples: Vec::new(),
+      params: vec![],
+      return_doc: None,
       diff_status,
       old_content,
     }
@@ -885,10 +935,12 @@ impl TopSymbolsCtx {
           ctx.get_current_resolve(),
           UrlResolveKind::Symbol {
             file: &node.origin,
-            symbol: &node.name,
+            // the page for a namespace member lives under its qualified
+            // name; the bare name would produce a dead link
+            symbol: node.get_qualified_name(),
           },
         ),
-        name: node.name.to_string(),
+        name: node.get_qualified_name().to_string(),
       })
       .collect();
 
@@ -929,9 +981,16 @@ impl ToCCtx {
       };
     }
 
+    // A symbol that isn't exported has no import that would work, so showing
+    // usage instructions for it would hand the reader a snippet that fails.
+    let symbol_is_importable = !usage_symbol
+      .flatten()
+      .is_some_and(|symbol| symbol.is_non_exported(ctx.ctx));
+
     Self {
-      usages: if ctx.get_current_resolve() == UrlResolveKind::Root
-        && ctx.ctx.main_entrypoint.is_none()
+      usages: if (ctx.get_current_resolve() == UrlResolveKind::Root
+        && ctx.ctx.main_entrypoint.is_none())
+        || !symbol_is_importable
       {
         None
       } else {
@@ -1012,4 +1071,88 @@ pub(crate) fn sanitize_symbol_path_part(name: &str) -> Cow<'_, str> {
     }
   }
   Cow::Owned(out)
+}
+
+#[cfg(test)]
+mod tests {
+  use super::*;
+  use deno_ast::ModuleSpecifier;
+
+  fn short_path(path: &str, is_main: bool) -> ShortPath {
+    ShortPath {
+      path: path.to_string(),
+      specifier: ModuleSpecifier::parse("file:///mod.ts").unwrap(),
+      is_main,
+    }
+  }
+
+  #[test]
+  fn href_path_resolve_main_entrypoint_depth() {
+    // The main entrypoint rewritten to `.` has no directory of its own, so its
+    // symbol pages live at `./~/Foo.html` (one level deep) and link back to the
+    // root with a single `../`.
+    let main_root = short_path(".", true);
+    assert_eq!(
+      href_path_resolve(
+        UrlResolveKind::Symbol {
+          file: &main_root,
+          symbol: "Foo",
+        },
+        UrlResolveKind::Root,
+      ),
+      "../",
+    );
+
+    // When the main entrypoint has a deeper path (e.g. several entrypoints share
+    // a common ancestor, so the main module is `index.ts`), its symbol page
+    // lives at `index.ts/~/Foo.html` — two levels deep — and must reach the root
+    // with `../../`. Regression test for incorrect `../` links on default-module
+    // subpages.
+    let main_nested = short_path("index.ts", true);
+    assert_eq!(
+      href_path_resolve(
+        UrlResolveKind::Symbol {
+          file: &main_nested,
+          symbol: "Foo",
+        },
+        UrlResolveKind::Root,
+      ),
+      "../../",
+    );
+    // Linking to the all-symbols page from such a subpage must also climb out.
+    assert_eq!(
+      href_path_resolve(
+        UrlResolveKind::Symbol {
+          file: &main_nested,
+          symbol: "Foo",
+        },
+        UrlResolveKind::AllSymbols,
+      ),
+      "../.././all_symbols.html",
+    );
+  }
+
+  #[test]
+  fn href_path_resolve_non_main_unchanged() {
+    let file = short_path("foo", false);
+    // index page: `foo/index.html` -> one level deep.
+    assert_eq!(
+      href_path_resolve(
+        UrlResolveKind::File { file: &file },
+        UrlResolveKind::Root,
+      ),
+      "../",
+    );
+    // symbol page: `foo/~/Bar.html` -> two levels deep.
+    assert_eq!(
+      href_path_resolve(
+        UrlResolveKind::Symbol {
+          file: &file,
+          symbol: "Bar",
+        },
+        UrlResolveKind::Root,
+      ),
+      "../../",
+    );
+  }
 }
