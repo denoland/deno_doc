@@ -567,7 +567,7 @@ checksum = "be1e0bca6c3637f992fc1cc7cbc52a78c1ef6db076dbf1059c4323d6a2048376"
 [[package]]
 name = "deno_ast"
 version = "0.53.3"
-source = "git+https://github.com/nathanwhit/deno_ast?branch=oxc-port#5bd7552216e0aab0fdca6bd625d39df3d4a5c6a1"
+source = "git+https://github.com/nathanwhit/deno_ast?branch=oxc-port#a12e82c25d4851b6bd34270bd17e4c992ca7e082"
 dependencies = [
  "base64 0.22.1",
  "capacity_builder",
@@ -667,7 +667,7 @@ dependencies = [
 [[package]]
 name = "deno_graph"
 version = "0.111.1"
-source = "git+https://github.com/nathanwhit/deno_graph?branch=oxc-port#69a5591094eaac632c4e958f8c096f2b688334df"
+source = "git+https://github.com/nathanwhit/deno_graph?branch=oxc-port#962071922301d16dff79e3ee485482025dd3a0dc"
 dependencies = [
  "async-trait",
  "boxed_error",
