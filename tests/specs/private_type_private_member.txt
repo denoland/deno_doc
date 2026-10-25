@@ -28,17 +28,17 @@ error[private-type-ref]: public type 'MyClass.prototype.secondMethod' references
 
 
 error[missing-jsdoc]: exported symbol is missing JSDoc documentation
- --> /mod.ts:3:3
+ --> /mod.ts:3:13
   | 
 3 |   protected secondMethod(): YesDiagnostic {
-  |   ^
+  |             ^
 
 
 error[missing-jsdoc]: exported symbol is missing JSDoc documentation
- --> /mod.ts:6:3
+ --> /mod.ts:6:11
   | 
 6 |   private myMethod(): NoDiagnostic {
-  |   ^
+  |           ^
 
 # output.txt
 Defined in file:///mod.ts:1:1

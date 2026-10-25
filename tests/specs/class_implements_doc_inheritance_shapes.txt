@@ -1,0 +1,764 @@
+# default_iface.ts
+/** Default interface. */
+export default interface Named {
+  /** The name. */
+  name(): string;
+}
+
+# mod.ts
+import Named from "./default_iface.ts";
+
+/** Base interface. */
+export interface Base {
+  /** Base run. */
+  run(): void;
+}
+
+/** Derived interface. */
+export interface A extends Base {
+  /** A member. */
+  a?: string;
+}
+
+/** Competing interface. */
+export interface B {
+  /** B run. */
+  run(): void;
+}
+
+/** Shape interface. */
+export interface Shapes {
+  /** A readonly property. */
+  readonly width: number;
+
+  /** A method. */
+  compute(): number;
+
+  /** Called on click. */
+  onClick: (e: string) => void;
+
+  /** Sets the label. */
+  set label(value: string);
+
+  /**
+   * An optional-param method.
+   *
+   * @param [flag=true] Whether to flag.
+   */
+  toggle(flag?: boolean): void;
+}
+
+/** The class. */
+export class Impl implements A, B, Named, Shapes {
+  a?: string;
+
+  static run(): void {}
+
+  run(): void {}
+
+  name(): string {
+    return "";
+  }
+
+  get width(): number {
+    return 0;
+  }
+
+  compute = (): number => 1;
+
+  onClick(_e: string): void {}
+
+  label = "";
+
+  toggle(_flag?: boolean): void {}
+}
+
+# diagnostics
+error[private-type-ref]: public type 'Impl' references private type 'Named'
+  --> /mod.ts:44:1
+   | 
+44 | export class Impl implements A, B, Named, Shapes {
+   | ^
+   = hint: make the referenced type public or remove the reference
+   | 
+ 2 | export default interface Named {
+   | - this is the referenced type
+   | 
+
+  info: to ensure documentation is complete all types that are exposed in the public API must be public
+
+
+error[missing-return-type]: exported function is missing an explicit return type annotation
+  --> /mod.ts:33:7
+   | 
+33 |   set label(value: string);
+   |       ^
+
+
+error[missing-jsdoc]: exported symbol is missing JSDoc documentation
+  --> /mod.ts:47:10
+   | 
+47 |   static run(): void {}
+   |          ^
+
+# output.txt
+Defined in file:///mod.ts:43:1
+
+class Impl implements A, B, Named, Shapes
+  The class.
+
+  a?: string
+    A member.
+  compute: () => number
+    A method.
+  label: string
+    Sets the label.
+  name(): string
+    The name.
+  get width(): number
+    A readonly property.
+  onClick(_e: string): void
+    Called on click.
+  toggle(_flag?: boolean): void
+    An optional-param method.
+
+    @param flag
+        Whether to flag.
+
+
+Defined in file:///mod.ts:9:1
+
+interface A extends Base
+  Derived interface.
+
+  a?: string
+    A member.
+
+Defined in file:///mod.ts:15:1
+
+interface B
+  Competing interface.
+
+  run(): void
+    B run.
+
+Defined in file:///mod.ts:3:1
+
+interface Base
+  Base interface.
+
+  run(): void
+    Base run.
+
+Defined in file:///mod.ts:21:1
+
+interface Shapes
+  Shape interface.
+
+  readonly width: number
+    A readonly property.
+  onClick: (e: string) => void
+    Called on click.
+  compute(): number
+    A method.
+  set label(value: string)
+    Sets the label.
+  toggle(flag?: boolean): void
+    An optional-param method.
+
+    @param [true] flag
+        Whether to flag.
+
+
+
+# output.json
+{
+  "imports": [
+    {
+      "importedName": "Named",
+      "originalName": "default",
+      "src": "file:///default_iface.ts"
+    }
+  ],
+  "symbols": [
+    {
+      "name": "Base",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 3,
+            "col": 0,
+            "byteIndex": 64
+          },
+          "declarationKind": "export",
+          "jsDoc": {
+            "doc": "Base interface."
+          },
+          "kind": "interface",
+          "def": {
+            "methods": [
+              {
+                "name": "run",
+                "jsDoc": {
+                  "doc": "Base run."
+                },
+                "kind": "method",
+                "location": {
+                  "filename": "file:///mod.ts",
+                  "line": 5,
+                  "col": 2,
+                  "byteIndex": 109
+                },
+                "params": [],
+                "returnType": {
+                  "repr": "void",
+                  "kind": "keyword",
+                  "value": "void"
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "A",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 9,
+            "col": 0,
+            "byteIndex": 151
+          },
+          "declarationKind": "export",
+          "jsDoc": {
+            "doc": "Derived interface."
+          },
+          "kind": "interface",
+          "def": {
+            "extends": [
+              {
+                "repr": "Base",
+                "kind": "typeRef",
+                "value": {
+                  "typeName": "Base",
+                  "resolution": {
+                    "kind": "local"
+                  }
+                }
+              }
+            ],
+            "properties": [
+              {
+                "name": "a",
+                "jsDoc": {
+                  "doc": "A member."
+                },
+                "location": {
+                  "filename": "file:///mod.ts",
+                  "line": 11,
+                  "col": 2,
+                  "byteIndex": 206
+                },
+                "optional": true,
+                "tsType": {
+                  "repr": "string",
+                  "kind": "keyword",
+                  "value": "string"
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "B",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 15,
+            "col": 0,
+            "byteIndex": 249
+          },
+          "declarationKind": "export",
+          "jsDoc": {
+            "doc": "Competing interface."
+          },
+          "kind": "interface",
+          "def": {
+            "methods": [
+              {
+                "name": "run",
+                "jsDoc": {
+                  "doc": "B run."
+                },
+                "kind": "method",
+                "location": {
+                  "filename": "file:///mod.ts",
+                  "line": 17,
+                  "col": 2,
+                  "byteIndex": 288
+                },
+                "params": [],
+                "returnType": {
+                  "repr": "void",
+                  "kind": "keyword",
+                  "value": "void"
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Shapes",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 21,
+            "col": 0,
+            "byteIndex": 328
+          },
+          "declarationKind": "export",
+          "jsDoc": {
+            "doc": "Shape interface."
+          },
+          "kind": "interface",
+          "def": {
+            "methods": [
+              {
+                "name": "compute",
+                "jsDoc": {
+                  "doc": "A method."
+                },
+                "kind": "method",
+                "location": {
+                  "filename": "file:///mod.ts",
+                  "line": 26,
+                  "col": 2,
+                  "byteIndex": 432
+                },
+                "params": [],
+                "returnType": {
+                  "repr": "number",
+                  "kind": "keyword",
+                  "value": "number"
+                }
+              },
+              {
+                "name": "label",
+                "jsDoc": {
+                  "doc": "Sets the label."
+                },
+                "kind": "setter",
+                "location": {
+                  "filename": "file:///mod.ts",
+                  "line": 32,
+                  "col": 2,
+                  "byteIndex": 538
+                },
+                "params": [
+                  {
+                    "kind": "identifier",
+                    "name": "value",
+                    "optional": false,
+                    "tsType": {
+                      "repr": "string",
+                      "kind": "keyword",
+                      "value": "string"
+                    }
+                  }
+                ]
+              },
+              {
+                "name": "toggle",
+                "jsDoc": {
+                  "doc": "An optional-param method.\n",
+                  "tags": [
+                    {
+                      "kind": "param",
+                      "name": "flag",
+                      "default": "true",
+                      "doc": "Whether to flag."
+                    }
+                  ]
+                },
+                "kind": "method",
+                "location": {
+                  "filename": "file:///mod.ts",
+                  "line": 39,
+                  "col": 2,
+                  "byteIndex": 656
+                },
+                "params": [
+                  {
+                    "kind": "identifier",
+                    "name": "flag",
+                    "optional": true,
+                    "tsType": {
+                      "repr": "boolean",
+                      "kind": "keyword",
+                      "value": "boolean"
+                    }
+                  }
+                ],
+                "returnType": {
+                  "repr": "void",
+                  "kind": "keyword",
+                  "value": "void"
+                }
+              }
+            ],
+            "properties": [
+              {
+                "name": "width",
+                "jsDoc": {
+                  "doc": "A readonly property."
+                },
+                "location": {
+                  "filename": "file:///mod.ts",
+                  "line": 23,
+                  "col": 2,
+                  "byteIndex": 386
+                },
+                "readonly": true,
+                "tsType": {
+                  "repr": "number",
+                  "kind": "keyword",
+                  "value": "number"
+                }
+              },
+              {
+                "name": "onClick",
+                "jsDoc": {
+                  "doc": "Called on click."
+                },
+                "location": {
+                  "filename": "file:///mod.ts",
+                  "line": 29,
+                  "col": 2,
+                  "byteIndex": 480
+                },
+                "tsType": {
+                  "kind": "fnOrConstructor",
+                  "value": {
+                    "constructor": false,
+                    "tsType": {
+                      "repr": "void",
+                      "kind": "keyword",
+                      "value": "void"
+                    },
+                    "params": [
+                      {
+                        "kind": "identifier",
+                        "name": "e",
+                        "optional": false,
+                        "tsType": {
+                          "repr": "string",
+                          "kind": "keyword",
+                          "value": "string"
+                        }
+                      }
+                    ]
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Impl",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 43,
+            "col": 0,
+            "byteIndex": 707
+          },
+          "declarationKind": "export",
+          "jsDoc": {
+            "doc": "The class."
+          },
+          "kind": "class",
+          "def": {
+            "properties": [
+              {
+                "jsDoc": {
+                  "doc": "A member."
+                },
+                "tsType": {
+                  "repr": "string",
+                  "kind": "keyword",
+                  "value": "string"
+                },
+                "optional": true,
+                "name": "a",
+                "location": {
+                  "filename": "file:///mod.ts",
+                  "line": 44,
+                  "col": 2,
+                  "byteIndex": 760
+                }
+              },
+              {
+                "jsDoc": {
+                  "doc": "A method."
+                },
+                "tsType": {
+                  "kind": "fnOrConstructor",
+                  "value": {
+                    "constructor": false,
+                    "tsType": {
+                      "repr": "number",
+                      "kind": "keyword",
+                      "value": "number"
+                    },
+                    "params": []
+                  }
+                },
+                "name": "compute",
+                "location": {
+                  "filename": "file:///mod.ts",
+                  "line": 58,
+                  "col": 2,
+                  "byteIndex": 900
+                }
+              },
+              {
+                "jsDoc": {
+                  "doc": "Sets the label."
+                },
+                "tsType": {
+                  "repr": "string",
+                  "kind": "keyword",
+                  "value": "string"
+                },
+                "name": "label",
+                "location": {
+                  "filename": "file:///mod.ts",
+                  "line": 62,
+                  "col": 2,
+                  "byteIndex": 962
+                }
+              }
+            ],
+            "methods": [
+              {
+                "isStatic": true,
+                "name": "run",
+                "kind": "method",
+                "functionDef": {
+                  "params": [],
+                  "returnType": {
+                    "repr": "void",
+                    "kind": "keyword",
+                    "value": "void"
+                  },
+                  "hasBody": true
+                },
+                "location": {
+                  "filename": "file:///mod.ts",
+                  "line": 46,
+                  "col": 2,
+                  "byteIndex": 775
+                }
+              },
+              {
+                "jsDoc": {
+                  "doc": "Base run."
+                },
+                "name": "run",
+                "kind": "method",
+                "functionDef": {
+                  "params": [],
+                  "returnType": {
+                    "repr": "void",
+                    "kind": "keyword",
+                    "value": "void"
+                  },
+                  "hasBody": true
+                },
+                "location": {
+                  "filename": "file:///mod.ts",
+                  "line": 48,
+                  "col": 2,
+                  "byteIndex": 800
+                }
+              },
+              {
+                "jsDoc": {
+                  "doc": "The name."
+                },
+                "name": "name",
+                "kind": "method",
+                "functionDef": {
+                  "params": [],
+                  "returnType": {
+                    "repr": "string",
+                    "kind": "keyword",
+                    "value": "string"
+                  },
+                  "hasBody": true
+                },
+                "location": {
+                  "filename": "file:///mod.ts",
+                  "line": 50,
+                  "col": 2,
+                  "byteIndex": 818
+                }
+              },
+              {
+                "jsDoc": {
+                  "doc": "A readonly property."
+                },
+                "name": "width",
+                "kind": "getter",
+                "functionDef": {
+                  "params": [],
+                  "returnType": {
+                    "repr": "number",
+                    "kind": "keyword",
+                    "value": "number"
+                  },
+                  "hasBody": true
+                },
+                "location": {
+                  "filename": "file:///mod.ts",
+                  "line": 54,
+                  "col": 2,
+                  "byteIndex": 857
+                }
+              },
+              {
+                "jsDoc": {
+                  "doc": "Called on click."
+                },
+                "name": "onClick",
+                "kind": "method",
+                "functionDef": {
+                  "params": [
+                    {
+                      "kind": "identifier",
+                      "name": "_e",
+                      "optional": false,
+                      "tsType": {
+                        "repr": "string",
+                        "kind": "keyword",
+                        "value": "string"
+                      }
+                    }
+                  ],
+                  "returnType": {
+                    "repr": "void",
+                    "kind": "keyword",
+                    "value": "void"
+                  },
+                  "hasBody": true
+                },
+                "location": {
+                  "filename": "file:///mod.ts",
+                  "line": 60,
+                  "col": 2,
+                  "byteIndex": 930
+                }
+              },
+              {
+                "jsDoc": {
+                  "doc": "An optional-param method.\n",
+                  "tags": [
+                    {
+                      "kind": "param",
+                      "name": "flag",
+                      "doc": "Whether to flag."
+                    }
+                  ]
+                },
+                "name": "toggle",
+                "kind": "method",
+                "functionDef": {
+                  "params": [
+                    {
+                      "kind": "identifier",
+                      "name": "_flag",
+                      "optional": true,
+                      "tsType": {
+                        "repr": "boolean",
+                        "kind": "keyword",
+                        "value": "boolean"
+                      }
+                    }
+                  ],
+                  "returnType": {
+                    "repr": "void",
+                    "kind": "keyword",
+                    "value": "void"
+                  },
+                  "hasBody": true
+                },
+                "location": {
+                  "filename": "file:///mod.ts",
+                  "line": 64,
+                  "col": 2,
+                  "byteIndex": 977
+                }
+              }
+            ],
+            "implements": [
+              {
+                "repr": "A",
+                "kind": "typeRef",
+                "value": {
+                  "typeName": "A",
+                  "resolution": {
+                    "kind": "local"
+                  }
+                }
+              },
+              {
+                "repr": "B",
+                "kind": "typeRef",
+                "value": {
+                  "typeName": "B",
+                  "resolution": {
+                    "kind": "local"
+                  }
+                }
+              },
+              {
+                "repr": "Named",
+                "kind": "typeRef",
+                "value": {
+                  "typeName": "Named",
+                  "resolution": {
+                    "kind": "import",
+                    "specifier": "./default_iface.ts",
+                    "name": "default"
+                  }
+                }
+              },
+              {
+                "repr": "Shapes",
+                "kind": "typeRef",
+                "value": {
+                  "typeName": "Shapes",
+                  "resolution": {
+                    "kind": "local"
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

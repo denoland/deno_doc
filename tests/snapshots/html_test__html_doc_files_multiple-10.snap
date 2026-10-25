@@ -5,7 +5,7 @@ expression: files.get(file_name).unwrap()
 <!DOCTYPE html>
 <html>
 <head>
-  <title>B - default - documentation</title>
+  <title>Bar - default - documentation</title>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="doc-current-file" content=".">
@@ -52,7 +52,7 @@ expression: files.get(file_name).unwrap()
 </svg>
 </span>
 
-    <ul><li>B</li></ul></ul>
+    <ul><li>Bar</li></ul></ul>
 </div>
 
     <div class="flex items-center gap-2">
@@ -116,19 +116,26 @@ expression: files.get(file_name).unwrap()
     </div>
   </div>
 </nav>
-<div id="searchResults"></div><div id="content"><main class="symbolGroup" id="symbol_B"><article>
+<div id="searchResults"></div><div id="content"><main class="symbolGroup" id="symbol_Bar"><article>
       <div class="symbolTitle">
         <div>
           <div class="text-2xl leading-none break-all">
-            <span class="text-Class">class</span>&nbsp;<span class="font-bold">B</span>
-          </div><div class="symbolSubtitle"></div><div class="space-x-2 !mt-2"><div class="text-private border border-private/50 bg-private/5 inline-flex items-center gap-0.5 *:flex-none rounded-md leading-none font-bold py-2 px-3">Private</div>
-</div></div></div><div><div class="space-y-7" id=""></div>
+            <span class="text-Class">class</span>&nbsp;<span class="font-bold">Bar</span>
+          </div><div class="symbolSubtitle"><div>
+    <span class="type"> extends </span><a class="link" href="..&#x2F;.&#x2F;.&#x2F;~&#x2F;Foo.html">Foo</a><span>&lt;<span class="td-kw">string</span>&gt; </span>
+  </div></div></div></div><div><div class="space-y-7" id=""><div class="markdown"><blockquote>
+<p>Some quote in bar docs
+This quote part is ignored
+when getting the title of this doc</p>
+</blockquote>
+<p>Bar docs</p>
+</div></div>
 </div>
     </article></main>
 <div class="toc">
     <div><div class="usageContent">
-    <h3>Usage</h3><div class="markdown"><pre class="highlight"><code class="language-typescript">import { B } from &quot;.&quot;;
-</code><button class="copyButton" data-copy="import { B } from &quot;.&quot;;
+    <h3>Usage</h3><div class="markdown"><pre class="highlight"><code class="language-typescript">import { Bar } from &quot;.&quot;;
+</code><button class="copyButton" data-copy="import { Bar } from &quot;.&quot;;
 "><svg
   class="copy"
   width="15"

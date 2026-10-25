@@ -12,10 +12,10 @@ export function bar() {}
 
 # diagnostics
 error[missing-jsdoc]: exported symbol is missing JSDoc documentation
- --> /mod.ts:7:1
+ --> /mod.ts:7:17
   | 
 7 | export function foo() {}
-  | ^
+  |                 ^
 
 # output.txt
 The module docs.

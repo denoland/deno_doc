@@ -2,6 +2,13 @@
   <div class="space-y-2 flex-1">
     {{~> deprecated deprecated ~}}
 
+    {{#if symbols_trimmed}}
+    <div class="italic text-sm">
+      Some deeply nested symbols were omitted from this overview; they are
+      listed on the page of their containing namespace.
+    </div>
+    {{/if}}
+
     {{~> symbol_content sections ~}}
   </div>
 </section>
