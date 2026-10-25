@@ -91,24 +91,12 @@ namespace default
     {
       "importedName": "map",
       "originalName": "map",
-      "src": "file:///map.ts",
-      "location": {
-        "filename": "file:///map.ts",
-        "line": 6,
-        "col": 0,
-        "byteIndex": 95
-      }
+      "src": "file:///map.ts"
     },
     {
       "importedName": "filterImpl",
       "originalName": "filter",
-      "src": "file:///filter.ts",
-      "location": {
-        "filename": "file:///filter.ts",
-        "line": 1,
-        "col": 0,
-        "byteIndex": 32
-      }
+      "src": "file:///filter.ts"
     }
   ],
   "symbols": [

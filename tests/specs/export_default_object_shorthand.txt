@@ -43,13 +43,7 @@ namespace default
     {
       "importedName": "map",
       "originalName": "map",
-      "src": "file:///map.ts",
-      "location": {
-        "filename": "file:///map.ts",
-        "line": 6,
-        "col": 0,
-        "byteIndex": 95
-      }
+      "src": "file:///map.ts"
     }
   ],
   "symbols": [
