@@ -25,7 +25,13 @@ namespace NS
     {
       "importedName": "extend",
       "originalName": "extend",
-      "src": "file:///a.ts"
+      "src": "file:///a.ts",
+      "location": {
+        "filename": "file:///a.ts",
+        "line": 1,
+        "col": 0,
+        "byteIndex": 26
+      }
     }
   ],
   "symbols": [

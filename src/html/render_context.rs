@@ -19,6 +19,7 @@ pub(crate) struct CurrentImport {
   /// The name of the symbol in the source module (`default` for default
   /// imports); `None` for namespace imports (`import * as foo`).
   original_name: Option<String>,
+  location: Option<crate::Location>,
 }
 
 #[derive(Clone)]
@@ -206,6 +207,13 @@ impl<'ctx> RenderContext<'ctx> {
           };
         }
 
+        if let Some(location) = &import.location
+          && let Some(href) = self
+            .lookup_reexported_symbol_href(location, &target_symbol_parts[1..])
+        {
+          return Some(href);
+        }
+
         return self
           .ctx
           .href_resolver
@@ -217,6 +225,37 @@ impl<'ctx> RenderContext<'ctx> {
       .ctx
       .href_resolver
       .resolve_global_symbol(&target_symbol_parts)
+  }
+
+  fn lookup_reexported_symbol_href(
+    &self,
+    location: &crate::Location,
+    member_parts: &[String],
+  ) -> Option<String> {
+    let mut candidates = self
+      .ctx
+      .resolve_reference(None, location)
+      .filter(|node| !node.is_hidden())
+      .collect::<Vec<_>>();
+    candidates.sort_by_key(|node| node.ns_qualifiers.len());
+
+    candidates.into_iter().find_map(|node| {
+      let mut parts = node.sub_qualifier();
+      parts.extend_from_slice(member_parts);
+
+      self
+        .ctx
+        .file_has_linkable_symbol(&node.origin, &parts)
+        .then(|| {
+          self.ctx.resolve_path(
+            self.get_current_resolve(),
+            UrlResolveKind::Symbol {
+              file: &node.origin,
+              symbol: &parts.join("."),
+            },
+          )
+        })
+    })
   }
 
   pub fn get_breadcrumbs(&self) -> BreadcrumbsCtx {
@@ -512,6 +551,7 @@ fn get_current_imports(
       CurrentImport {
         src: import.src.clone(),
         original_name: import.original_name.clone(),
+        location: import.location.clone(),
       },
     );
   }
@@ -608,24 +648,28 @@ mod test {
             js_doc: Default::default(),
             src: "b".to_string(),
             original_name: Some("foo".to_string()),
+            location: None,
           },
           Import {
             imported_name: "Stmt".into(),
             js_doc: Default::default(),
             src: "b".to_string(),
             original_name: Some("Statement".to_string()),
+            location: None,
           },
           Import {
             imported_name: "def".into(),
             js_doc: Default::default(),
             src: "b".to_string(),
             original_name: Some("default".to_string()),
+            location: None,
           },
           Import {
             imported_name: "ns".into(),
             js_doc: Default::default(),
             src: "b".to_string(),
             original_name: None,
+            location: None,
           },
         ],
         symbols: vec![],

@@ -34,7 +34,13 @@ type UrlMessageEntity = MessageEntity.TextLinkMessageEntity
     {
       "importedName": "MessageEntity",
       "originalName": "MessageEntity",
-      "src": "file:///a.ts"
+      "src": "file:///a.ts",
+      "location": {
+        "filename": "file:///c.ts",
+        "line": 0,
+        "col": 0,
+        "byteIndex": 0
+      }
     }
   ],
   "symbols": [

@@ -11,6 +11,9 @@ export interface Import {
   originalName?: string;
   jsDoc?: JsDoc;
   src: string;
+  /** Where the imported symbol is declared, following re-exports. Absent for
+   * namespace imports and when the declaration could not be resolved. */
+  location?: Location;
 }
 
 export interface Symbol {

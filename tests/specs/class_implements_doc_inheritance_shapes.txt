@@ -177,7 +177,13 @@ interface Shapes
     {
       "importedName": "Named",
       "originalName": "default",
-      "src": "file:///default_iface.ts"
+      "src": "file:///default_iface.ts",
+      "location": {
+        "filename": "file:///default_iface.ts",
+        "line": 1,
+        "col": 0,
+        "byteIndex": 26
+      }
     }
   ],
   "symbols": [

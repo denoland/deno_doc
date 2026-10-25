@@ -189,6 +189,7 @@ pub fn docnodes_v1_to_v2(value: serde_json::Value) -> Document {
         original_name,
         src,
         js_doc,
+        location: None,
       });
       continue;
     }

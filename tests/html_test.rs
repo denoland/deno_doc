@@ -2568,3 +2568,173 @@ export class A {
     );
   }
 }
+
+async fn parse_sources_with_roots(
+  sources: &[(&str, &str)],
+  roots: &[&str],
+) -> ParseOutput {
+  let mut loader = MemoryLoader::default();
+  for (specifier, source) in sources {
+    let specifier = ModuleSpecifier::parse(specifier).unwrap();
+    loader.add_source(
+      specifier.clone(),
+      Source::Module {
+        specifier: specifier.to_string(),
+        maybe_headers: None,
+        content: source.to_string(),
+      },
+    );
+  }
+  let roots = roots
+    .iter()
+    .map(|root| ModuleSpecifier::parse(root).unwrap())
+    .collect::<Vec<_>>();
+
+  let analyzer = CapturingModuleAnalyzer::default();
+  let mut graph = ModuleGraph::new(GraphKind::TypesOnly);
+  graph
+    .build(
+      roots.clone(),
+      Vec::new(),
+      &loader,
+      BuildOptions {
+        module_analyzer: &analyzer,
+        ..Default::default()
+      },
+    )
+    .await;
+
+  DocParser::new(
+    &graph,
+    &analyzer,
+    &roots,
+    DocParserOptions {
+      private: false,
+      diagnostics: false,
+    },
+  )
+  .unwrap()
+  .parse()
+  .unwrap()
+}
+
+// https://github.com/denoland/deno_doc/issues/426
+// https://github.com/denoland/deno_doc/issues/427
+#[tokio::test]
+async fn html_doc_import_alias_linking() {
+  async fn generate_files(
+    sources: &[(&str, &str)],
+    roots: &[&str],
+  ) -> std::collections::HashMap<String, String> {
+    let ctx = GenerateCtx::create_basic(
+      GenerateOptions {
+        package_name: None,
+        main_entrypoint: None,
+        href_resolver: Arc::new(EmptyResolver),
+        usage_composer: Some(Arc::new(EmptyResolver)),
+        rewrite_map: None,
+        category_docs: None,
+        disable_search: false,
+        symbol_redirect_map: None,
+        default_symbol_map: None,
+        markdown_renderer: comrak::create_renderer(None, None, None),
+        markdown_stripper: Arc::new(comrak::strip),
+        head_inject: None,
+        id_prefix: None,
+        diff_only: false,
+        symbol_listing_limit: None,
+      },
+      parse_sources_with_roots(sources, roots).await,
+      None,
+    )
+    .unwrap();
+    generate(ctx).unwrap()
+  }
+
+  let files = generate_files(
+    &[
+      (
+        "file:///a.ts",
+        r#"import { Foo } from "./b.ts";
+export function f(): Foo.Data { return null!; }
+"#,
+      ),
+      (
+        "file:///b.ts",
+        "export namespace Foo {\n  export interface Data {}\n}\n",
+      ),
+    ],
+    &["file:///a.ts", "file:///b.ts"],
+  )
+  .await;
+  let f = files.get("a.ts/~/f.html").unwrap();
+  assert!(
+    f.contains(
+      r##"<a href="../.././b.ts/~/Foo.Data.html" class="link td-ref">Foo.Data</a>"##
+    ),
+    "namespace member through import is not linked: {f}"
+  );
+
+  let files = generate_files(
+    &[
+      (
+        "file:///a.ts",
+        r#"import { Data as Foo } from "./b.ts";
+export interface Data {}
+export function f(): Foo { return null!; }
+"#,
+      ),
+      ("file:///b.ts", "export interface Data {}\n"),
+    ],
+    &["file:///a.ts", "file:///b.ts"],
+  )
+  .await;
+  let f = files.get("a.ts/~/f.html").unwrap();
+  assert!(
+    f.contains(
+      r##"<a href="../.././b.ts/~/Data.html" class="link td-ref">Foo</a>"##
+    ),
+    "aliased import is not linked to the original symbol: {f}"
+  );
+
+  let files = generate_files(
+    &[
+      (
+        "file:///a.ts",
+        r#"import { Data, Util } from "./_util.ts";
+export function f(): Data { return null!; }
+export function g(): Util.Options { return null!; }
+"#,
+      ),
+      (
+        "file:///b.ts",
+        r#"export { type Data as Foo, Util as Helpers } from "./_util.ts";
+"#,
+      ),
+      (
+        "file:///_util.ts",
+        r#"export interface Data {}
+export namespace Util {
+  export interface Options {}
+}
+"#,
+      ),
+    ],
+    &["file:///a.ts", "file:///b.ts"],
+  )
+  .await;
+  let f = files.get("a.ts/~/f.html").unwrap();
+  assert!(
+    f.contains(
+      r##"<a href="../.././b.ts/~/Foo.html" class="link td-ref">Data</a>"##
+    ),
+    "import of an internal file is not linked to the aliased re-export: {f}"
+  );
+  let g = files.get("a.ts/~/g.html").unwrap();
+  assert!(
+    g.contains(
+      r##"<a href="../.././b.ts/~/Helpers.Options.html" class="link td-ref">Util.Options</a>"##
+    ),
+    "namespace member of an internal file is not linked to the aliased re-export: {g}"
+  );
+}
