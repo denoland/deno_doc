@@ -5,23 +5,23 @@ expression: files.get(file_name).unwrap()
 <!DOCTYPE html>
 <html>
 <head>
-  <title>x - c - documentation</title>
+  <title>x - default - documentation</title>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="doc-current-file" content="c">
-  <link rel="stylesheet" href="..&#x2F;..&#x2F;styles.css">
-  <link rel="stylesheet" href="..&#x2F;..&#x2F;page.css">
-  <link id="ddocResetStylesheet" rel="stylesheet" href="..&#x2F;..&#x2F;reset.css"><script src="..&#x2F;..&#x2F;script.js" defer></script>
-  <script src="..&#x2F;..&#x2F;darkmode_toggle.js"></script><script src="..&#x2F;..&#x2F;search_index.js" defer></script>
-    <script src="..&#x2F;..&#x2F;fuse.js" defer></script>
-    <script src="..&#x2F;..&#x2F;search.js" defer></script></head>
+  <meta name="doc-current-file" content=".">
+  <link rel="stylesheet" href="..&#x2F;styles.css">
+  <link rel="stylesheet" href="..&#x2F;page.css">
+  <link id="ddocResetStylesheet" rel="stylesheet" href="..&#x2F;reset.css"><script src="..&#x2F;script.js" defer></script>
+  <script src="..&#x2F;darkmode_toggle.js"></script><script src="..&#x2F;search_index.js" defer></script>
+    <script src="..&#x2F;fuse.js" defer></script>
+    <script src="..&#x2F;search.js" defer></script></head>
 <body>
 <div class="ddoc">
 <div><nav id="topnav">
   <div class="h-full">
     <div class="flex items-center"><ul class="breadcrumbs">
   <li>
-    <a href="..&#x2F;..&#x2F;" class="contextLink">index</a>
+    <a href="..&#x2F;" class="contextLink">index</a>
   </li><span class="text-black dark:text-white"><svg
   width="16"
   height="16"
@@ -36,7 +36,7 @@ expression: files.get(file_name).unwrap()
     fill="currentColor"
   />
 </svg>
-</span><a href="..&#x2F;..&#x2F;.&#x2F;c&#x2F;index.html" class="contextLink">c</a><span class="text-black dark:text-white"><svg
+</span><a href="..&#x2F;" class="contextLink">default</a><span class="text-black dark:text-white"><svg
   width="16"
   height="16"
   viewBox="0 0 16 16"
@@ -234,8 +234,8 @@ Return Type</h2></div><div class="space-y-8"><div class=" docEntry" id="function
     </article></main>
 <div class="toc">
     <div><div class="usageContent">
-    <h3>Usage</h3><div class="markdown"><pre class="highlight"><code class="language-typescript">import { x } from &quot;c&quot;;
-</code><button class="copyButton" data-copy="import { x } from &quot;c&quot;;
+    <h3>Usage</h3><div class="markdown"><pre class="highlight"><code class="language-typescript">import { x } from &quot;.&quot;;
+</code><button class="copyButton" data-copy="import { x } from &quot;.&quot;;
 "><svg
   class="copy"
   width="15"

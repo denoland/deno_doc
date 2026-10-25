@@ -26,24 +26,24 @@ error[missing-jsdoc]: exported symbol is missing JSDoc documentation
 
 
 error[missing-jsdoc]: exported symbol is missing JSDoc documentation
- --> /mod.ts:7:7
+ --> /mod.ts:7:19
   | 
 7 |       export enum Foo {
-  |       ^
+  |                   ^
 
 
 error[missing-jsdoc]: exported symbol is missing JSDoc documentation
-  --> /mod.ts:15:8
+  --> /mod.ts:15:25
    | 
 15 | export namespace RootNs.OtherNs {
-   |        ^
+   |                         ^
 
 
 error[missing-jsdoc]: exported symbol is missing JSDoc documentation
-  --> /mod.ts:16:3
+  --> /mod.ts:16:16
    | 
 16 |   export class Other {}
-   |   ^
+   |                ^
 
 # output.txt
 Defined in file:///mod.ts:1:1

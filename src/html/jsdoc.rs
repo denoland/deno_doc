@@ -202,14 +202,14 @@ fn render_markdown_inner(
     anchor
   };
 
-  #[cfg(not(target_arch = "wasm32"))]
+  #[cfg(any(not(target_arch = "wasm32"), target_os = "emscripten"))]
   let anchorizer = std::sync::Arc::new(anchorizer);
 
-  #[cfg(target_arch = "wasm32")]
+  #[cfg(all(target_arch = "wasm32", not(target_os = "emscripten")))]
   let anchorizer = wasm_bindgen::prelude::Closure::wrap(
     Box::new(anchorizer) as Box<dyn Fn(String, u8) -> String>
   );
-  #[cfg(target_arch = "wasm32")]
+  #[cfg(all(target_arch = "wasm32", not(target_os = "emscripten")))]
   let anchorizer = wasm_bindgen::JsCast::unchecked_ref::<js_sys::Function>(
     anchorizer.as_ref(),
   );
@@ -721,13 +721,13 @@ pub(crate) fn render_docs_with_diff(
   Some(format!(r#"<div class="markdown">{inner_html}</div>"#))
 }
 
-pub(crate) fn jsdoc_examples(
+pub(crate) fn jsdoc_example_ctxs(
   ctx: &RenderContext,
   js_doc: &JsDoc,
-) -> Option<SectionCtx> {
+) -> Vec<ExampleCtx> {
   let mut i = 0;
 
-  let examples = js_doc
+  js_doc
     .tags
     .iter()
     .filter_map(|tag| {
@@ -739,7 +739,14 @@ pub(crate) fn jsdoc_examples(
         None
       }
     })
-    .collect::<Vec<ExampleCtx>>();
+    .collect::<Vec<ExampleCtx>>()
+}
+
+pub(crate) fn jsdoc_examples(
+  ctx: &RenderContext,
+  js_doc: &JsDoc,
+) -> Option<SectionCtx> {
+  let examples = jsdoc_example_ctxs(ctx, js_doc);
 
   if !examples.is_empty() {
     Some(SectionCtx::new(
@@ -792,6 +799,12 @@ impl ExampleCtx {
 #[derive(Debug, Serialize, Deserialize, Clone, Default)]
 pub struct ModuleDocCtx {
   pub deprecated: Option<String>,
+  /// Whether deeply nested symbols were dropped from the symbol listing
+  /// because it exceeded [`GenerateOptions::symbol_listing_limit`].
+  ///
+  /// [`GenerateOptions::symbol_listing_limit`]: crate::html::GenerateOptions::symbol_listing_limit
+  #[serde(default, skip_serializing_if = "std::ops::Not::not")]
+  pub symbols_trimmed: bool,
   pub sections: super::SymbolContentCtx,
 }
 
@@ -833,12 +846,54 @@ impl ModuleDocCtx {
         (None, None)
       };
 
+    let mut symbols_trimmed = false;
+
     if render_symbols {
-      let partitions_by_kind = super::partition::partition_nodes_by_kind(
+      // Filter out internal symbols before partitioning, so that a kind
+      // whose symbols are all internal (e.g. private symbols of an ambient
+      // module) never produces a section header, and the listing limit below
+      // counts only symbols that would actually render.
+      let mut partitions_by_kind = super::partition::partition_nodes_by_kind(
         render_ctx.ctx,
-        module_doc_nodes.iter().map(Cow::Borrowed),
+        module_doc_nodes
+          .iter()
+          .filter(|node| !node.is_internal(render_ctx.ctx))
+          .map(Cow::Borrowed),
         true,
       );
+
+      // Very namespace-heavy modules (e.g. a package re-exporting its whole
+      // API under several namespaces) can produce listings with tens of
+      // thousands of rows. While over the limit, drop the deepest level of
+      // namespace nesting whole — the result can undershoot the limit, but
+      // a namespace is either fully listed or deferred to its own page,
+      // never partially listed. Top-level symbols are always rendered.
+      if let Some(limit) = render_ctx.ctx.symbol_listing_limit {
+        let mut total: usize =
+          partitions_by_kind.values().map(|nodes| nodes.len()).sum();
+        let mut max_depth = partitions_by_kind
+          .values()
+          .flatten()
+          .map(|node| node.ns_qualifiers.len())
+          .max()
+          .unwrap_or(0);
+
+        while total > limit && max_depth > 0 {
+          for nodes in partitions_by_kind.values_mut() {
+            nodes.retain(|node| {
+              if node.ns_qualifiers.len() >= max_depth {
+                total -= 1;
+                symbols_trimmed = true;
+                false
+              } else {
+                true
+              }
+            });
+          }
+          max_depth -= 1;
+        }
+        partitions_by_kind.retain(|_, nodes| !nodes.is_empty());
+      }
 
       sections.extend(super::namespace::render_namespace(
         partitions_by_kind.into_iter().map(|(title, nodes)| {
@@ -846,8 +901,6 @@ impl ModuleDocCtx {
             .name(short_path.display_name())
             .name(&title)
             .build();
-
-          render_ctx.toc.add_entry(1, &title, &id);
 
           (
             render_ctx.clone(),
@@ -869,6 +922,7 @@ impl ModuleDocCtx {
 
     Self {
       deprecated,
+      symbols_trimmed,
       sections: super::SymbolContentCtx {
         id: render_ctx.toc.anchorize("module_doc"),
         docs: html,
@@ -981,6 +1035,7 @@ mod test {
         head_inject: None,
         id_prefix: None,
         diff_only: false,
+        symbol_listing_limit: None,
       },
       Default::default(),
       Default::default(),

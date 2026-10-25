@@ -25,6 +25,7 @@ export class Foo {
                     "modified": [
                       {
                         "name": "bar",
+                        "kind": "method",
                         "accessibilityChange": {
                           "old": "public",
                           "new": "protected"

@@ -189,13 +189,61 @@ pub(crate) fn render_type_def(
                   |(_, rest)| rest.to_string(),
                 )
               };
-              ctx.ctx.href_resolver.resolve_import_href(
-                &symbol_name
-                  .split('.')
-                  .map(|s| s.to_string())
-                  .collect::<Vec<_>>(),
-                specifier,
-              )
+              let symbol_parts = symbol_name
+                .split('.')
+                .map(|s| s.to_string())
+                .collect::<Vec<_>>();
+
+              // The specifier is the raw import string; if it points to
+              // another documented file, link there directly.
+              let resolved_specifier =
+                deno_graph::ModuleSpecifier::parse(specifier).ok().or_else(
+                  || {
+                    ctx
+                      .get_current_resolve()
+                      .get_file()
+                      .and_then(|file| file.specifier.join(specifier).ok())
+                  },
+                );
+              if let Some(resolved_specifier) = resolved_specifier
+                && let Some(short_path) =
+                  ctx.ctx.doc_nodes.keys().find(|short_path| {
+                    short_path.specifier == resolved_specifier
+                  })
+              {
+                // Only link if the symbol actually exists there to avoid
+                // dead links.
+                return if ctx
+                  .ctx
+                  .file_has_linkable_symbol(short_path, &symbol_parts)
+                {
+                  Some(ctx.ctx.resolve_path(
+                    ctx.get_current_resolve(),
+                    crate::html::UrlResolveKind::Symbol {
+                      file: short_path,
+                      symbol: &symbol_parts.join("."),
+                    },
+                  ))
+                } else {
+                  None
+                };
+              }
+
+              ctx
+                .ctx
+                .href_resolver
+                .resolve_import_href(&symbol_parts, specifier)
+                .or_else(|| {
+                  // As a last resort, try the symbol's name in the source
+                  // module against the current scope: packages commonly
+                  // re-export the symbols they reference (e.g. `API.Audio`
+                  // on a class whose merged namespace re-exports `Audio`).
+                  if symbol_name != type_ref.type_name {
+                    ctx.lookup_symbol_href(&symbol_name)
+                  } else {
+                    None
+                  }
+                })
             })
           }
           crate::ts_type::TypeRefResolution::Local => {
@@ -766,7 +814,7 @@ pub(crate) fn render_type_params(
       .unwrap_or_default();
 
     let (diff_status, old_content) =
-      get_type_param_diff_info(type_params_diff, &type_param.name);
+      get_type_param_diff_info(ctx, type_params_diff, &type_param.name);
 
     let content = DocEntryCtx::new(
       ctx,
@@ -837,6 +885,7 @@ pub(crate) fn render_type_params(
 }
 
 fn get_type_param_diff_info(
+  ctx: &RenderContext,
   type_params_diff: Option<&crate::diff::TypeParamsDiff>,
   name: &str,
 ) -> (Option<crate::html::DiffStatus>, Option<String>) {
@@ -851,15 +900,20 @@ fn get_type_param_diff_info(
 
   if let Some(tp_diff) = diff.modified.iter().find(|tp| tp.name == name) {
     let mut old_parts = Vec::new();
+    // `.repr` is package-controlled and must not be interpolated raw. Route it
+    // through `render_type_def`, which escapes it (like every other producer of
+    // `old_content`); otherwise a string-literal type default renders as
+    // attacker HTML in the diff view.
     if let Some(constraint_change) = &tp_diff.constraint_change
       && let Some(old_constraint) = &constraint_change.old
     {
-      old_parts.push(format!(" extends {}", &old_constraint.repr));
+      old_parts
+        .push(format!(" extends {}", render_type_def(ctx, old_constraint)));
     }
     if let Some(default_change) = &tp_diff.default_change
       && let Some(old_default) = &default_change.old
     {
-      old_parts.push(format!(" = {}", &old_default.repr));
+      old_parts.push(format!(" = {}", render_type_def(ctx, old_default)));
     }
     let old_content = if old_parts.is_empty() {
       None

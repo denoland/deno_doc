@@ -1,0 +1,328 @@
+# mod.ts
+/** function docs */
+export function objectExpression(x: number): number {
+  return x + 1;
+}
+export { objectExpression as ObjectExpression };
+/** interface docs */
+export interface ObjectExpression {
+  value: number;
+}
+
+/** function docs */
+export function BooleanExpression(x: number): number {
+  return x + 1;
+}
+export { BooleanExpression as booleanExpression };
+/** interface docs */
+export interface BooleanExpression {
+  value: number;
+}
+
+# diagnostics
+error[missing-jsdoc]: exported symbol is missing JSDoc documentation
+ --> /mod.ts:8:3
+  | 
+8 |   value: number;
+  |   ^
+
+
+error[missing-jsdoc]: exported symbol is missing JSDoc documentation
+  --> /mod.ts:18:3
+   | 
+18 |   value: number;
+   |   ^
+
+# output.txt
+Defined in file:///mod.ts:11:1
+
+function BooleanExpression(x: number): number
+  function docs
+
+Defined in file:///mod.ts:16:1
+
+interface BooleanExpression
+  interface docs
+
+  value: number
+
+Defined in file:///mod.ts:6:1
+
+interface ObjectExpression
+  interface docs
+
+  value: number
+
+Defined in file:///mod.ts:1:1
+
+function ObjectExpression(x: number): number
+  function docs
+
+Defined in file:///mod.ts:11:1
+
+function booleanExpression(x: number): number
+  function docs
+
+Defined in file:///mod.ts:16:1
+
+interface booleanExpression
+  interface docs
+
+  value: number
+
+Defined in file:///mod.ts:1:1
+
+function objectExpression(x: number): number
+  function docs
+
+
+# output.json
+{
+  "symbols": [
+    {
+      "name": "objectExpression",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 1,
+            "col": 0,
+            "byteIndex": 21
+          },
+          "declarationKind": "export",
+          "jsDoc": {
+            "doc": "function docs"
+          },
+          "kind": "function",
+          "def": {
+            "params": [
+              {
+                "kind": "identifier",
+                "name": "x",
+                "optional": false,
+                "tsType": {
+                  "repr": "number",
+                  "kind": "keyword",
+                  "value": "number"
+                }
+              }
+            ],
+            "returnType": {
+              "repr": "number",
+              "kind": "keyword",
+              "value": "number"
+            },
+            "hasBody": true
+          }
+        }
+      ]
+    },
+    {
+      "name": "ObjectExpression",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 6,
+            "col": 0,
+            "byteIndex": 164
+          },
+          "declarationKind": "export",
+          "jsDoc": {
+            "doc": "interface docs"
+          },
+          "kind": "interface",
+          "def": {
+            "properties": [
+              {
+                "name": "value",
+                "location": {
+                  "filename": "file:///mod.ts",
+                  "line": 7,
+                  "col": 2,
+                  "byteIndex": 202
+                },
+                "tsType": {
+                  "repr": "number",
+                  "kind": "keyword",
+                  "value": "number"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 1,
+            "col": 0,
+            "byteIndex": 21
+          },
+          "declarationKind": "export",
+          "jsDoc": {
+            "doc": "function docs"
+          },
+          "kind": "function",
+          "def": {
+            "params": [
+              {
+                "kind": "identifier",
+                "name": "x",
+                "optional": false,
+                "tsType": {
+                  "repr": "number",
+                  "kind": "keyword",
+                  "value": "number"
+                }
+              }
+            ],
+            "returnType": {
+              "repr": "number",
+              "kind": "keyword",
+              "value": "number"
+            },
+            "hasBody": true
+          }
+        }
+      ]
+    },
+    {
+      "name": "BooleanExpression",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 11,
+            "col": 0,
+            "byteIndex": 241
+          },
+          "declarationKind": "export",
+          "jsDoc": {
+            "doc": "function docs"
+          },
+          "kind": "function",
+          "def": {
+            "params": [
+              {
+                "kind": "identifier",
+                "name": "x",
+                "optional": false,
+                "tsType": {
+                  "repr": "number",
+                  "kind": "keyword",
+                  "value": "number"
+                }
+              }
+            ],
+            "returnType": {
+              "repr": "number",
+              "kind": "keyword",
+              "value": "number"
+            },
+            "hasBody": true
+          }
+        },
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 16,
+            "col": 0,
+            "byteIndex": 387
+          },
+          "declarationKind": "export",
+          "jsDoc": {
+            "doc": "interface docs"
+          },
+          "kind": "interface",
+          "def": {
+            "properties": [
+              {
+                "name": "value",
+                "location": {
+                  "filename": "file:///mod.ts",
+                  "line": 17,
+                  "col": 2,
+                  "byteIndex": 426
+                },
+                "tsType": {
+                  "repr": "number",
+                  "kind": "keyword",
+                  "value": "number"
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "booleanExpression",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 11,
+            "col": 0,
+            "byteIndex": 241
+          },
+          "declarationKind": "export",
+          "jsDoc": {
+            "doc": "function docs"
+          },
+          "kind": "function",
+          "def": {
+            "params": [
+              {
+                "kind": "identifier",
+                "name": "x",
+                "optional": false,
+                "tsType": {
+                  "repr": "number",
+                  "kind": "keyword",
+                  "value": "number"
+                }
+              }
+            ],
+            "returnType": {
+              "repr": "number",
+              "kind": "keyword",
+              "value": "number"
+            },
+            "hasBody": true
+          }
+        },
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 16,
+            "col": 0,
+            "byteIndex": 387
+          },
+          "declarationKind": "export",
+          "jsDoc": {
+            "doc": "interface docs"
+          },
+          "kind": "interface",
+          "def": {
+            "properties": [
+              {
+                "name": "value",
+                "location": {
+                  "filename": "file:///mod.ts",
+                  "line": 17,
+                  "col": 2,
+                  "byteIndex": 426
+                },
+                "tsType": {
+                  "repr": "number",
+                  "kind": "keyword",
+                  "value": "number"
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

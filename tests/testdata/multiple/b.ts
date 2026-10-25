@@ -1,5 +1,5 @@
 /**
- * @module bar
+ * @module bar123
  */
 
 export function x(_n = 0) {}

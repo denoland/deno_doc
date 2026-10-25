@@ -170,7 +170,9 @@ pub(crate) fn is_decl_added(
   }
   diff
     .as_ref()
-    .and_then(|d| d.get_symbol_diff(&symbol.origin.specifier, &symbol.name))
+    .and_then(|d| {
+      d.get_symbol_diff(&symbol.declared_origin().specifier, &symbol.name)
+    })
     .and_then(|info| info.diff.as_ref())
     .and_then(|sd| sd.declarations.as_ref())
     .is_some_and(|dd| dd.added.iter().any(|a| a.def.to_kind() == kind))
@@ -189,7 +191,9 @@ pub(crate) fn is_decl_removed(
   }
   diff
     .as_ref()
-    .and_then(|d| d.get_symbol_diff(&symbol.origin.specifier, &symbol.name))
+    .and_then(|d| {
+      d.get_symbol_diff(&symbol.declared_origin().specifier, &symbol.name)
+    })
     .and_then(|info| info.diff.as_ref())
     .and_then(|sd| sd.declarations.as_ref())
     .is_some_and(|dd| dd.removed.iter().any(|a| a.def.to_kind() == kind))

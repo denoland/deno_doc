@@ -14,20 +14,20 @@ path = "lib.rs"
 crate-type = ["cdylib"]
 
 [dependencies]
-anyhow = "1.0.86"
+anyhow = "1.0.103"
 deno_graph = { workspace = true }
 deno_doc = { path = "../", default-features = false }
 import_map.workspace = true
 serde.workspace = true
 serde_json.workspace = true
-indexmap = "2.6.0"
-deno_error = { version = "0.7.0", features = ["url"] }
+indexmap = "2.14.0"
+deno_error = { version = "0.7.3", features = ["url"] }
 
 console_error_panic_hook = "0.1.7"
-js-sys = "=0.3.69"
-serde-wasm-bindgen = "=0.5.0"
-wasm-bindgen = "=0.2.92"
-wasm-bindgen-futures = "=0.4.42"
+js-sys = "=0.3.85"
+serde-wasm-bindgen = "=0.6.5"
+wasm-bindgen = "=0.2.108"
+wasm-bindgen-futures = "=0.4.58"
 
 [dev-dependencies]
 pretty_assertions = "1.4.0"

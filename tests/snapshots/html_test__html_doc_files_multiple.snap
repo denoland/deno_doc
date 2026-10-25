@@ -157,18 +157,18 @@ Classes</h2></div><div class="namespaceSection"><div id="namespace_foobar" class
 		    <a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;Foo.html" title="Foo">
 			    <span>Foo</span><span><span>&lt;<span><span class="td-tp">T</span></span>&gt;</span>(<span><span>value<span>: <span class="td-ref">T</span></span></span></span>)</span></a><div class="namespaceItemContentDoc"><div class="markdown_summary"><p>some Foo docs <code>Bar</code></p>
 </div></div><ul class="namespaceItemContentSubItems"><li>
-                <a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;Foo.html#property_&amp;quot;&amp;gt;&amp;lt;img-src=x-onerror=alert(1)&amp;gt;">
+                <a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;Foo.html#property_&quot;&gt;&lt;img-src=x-onerror=alert(1)&gt;">
                   <span>&quot;&gt;&lt;img src=x onerror=alert(1)&gt;</span><span>: <span class="td-kw">number</span></span></a></li><li>
                 <a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;Foo.html#property_bar">
                   <span>bar</span><span>: <span class="td-str">"string"</span></span></a></li><li>
+                <a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;Foo.html#accessor_divergentaccessor">
+                  <span>divergentAccessor</span><span>()<span>: <span><span class="td-kw">string</span><span class="td-op"> | </span><span class="td-kw">null</span></span></span></span></a></li><li>
                 <a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;Foo.html#property_foo">
                   <span>foo</span><span>: <span class="td-ref">A</span></span></a></li><li>
                 <a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;Foo.html#accessor_getter">
                   <span>getter</span><span>()</span></a></li><li>
                 <a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;Foo.html#accessor_getterandsetter">
                   <span>getterAndSetter</span><span>()</span></a></li><li>
-                <a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;Foo.html#method_methodwithoverloads_0">
-                  <span>methodWithOverloads</span><span>(<span><span>s<span>: <span class="td-kw">number</span></span></span></span>)<span>: <span class="td-kw">void</span></span></span></a></li><li>
                 <a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;Foo.html#property_protectedproperty">
                   <span>protectedProperty</span><span>: <span class="td-kw">boolean</span></span></a></li><li>
                 <a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;Foo.html#property_readonlyproperty">
@@ -255,10 +255,10 @@ Functions</h2></div><div class="namespaceSection"><div id="namespace_c" class="n
     </div><div id="namespace_functionwithoptionalparameters" class="namespaceItem" ><div class="docNodeKindIcon"><div class="text-Function bg-Function/15 dark:text-FunctionDark dark:bg-FunctionDark/15" title="Function">f</div></div>
 <div class="namespaceItemContent">
 		    <a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;functionWithOptionalParameters.html" title="functionWithOptionalParameters">
-			    <span>functionWithOptionalParameters</span><span>(<div class="ml-4"><div><span>foo<span class="td-op">?</span><span>: <span class="td-kw">number</span></span></span>,</div><div><span>bar<span class="td-op">?</span><span>: <span class="td-kw">number</span></span></span>,</div><div><span>baz<span class="td-op">?</span><span>: <span>[<span class="td-kw">number</span>]</span></span></span>,</div><div><span><span class="italic">unnamed 3</span><span class="td-op">?</span><span>: <span class="td-kw">string</span>[]</span></span>,</div><div><span><span class="italic">unnamed 4</span><span class="td-op">?</span><span>: { qux<span>: <span class="td-kw">number</span></span>;  }</span></span></div></div>)<span>: <span class="td-kw">void</span></span></span></a></div>
+			    <span>functionWithOptionalParameters</span><span>(<div class="ml-4"><div><span>foo<span class="td-op">?</span><span>: <span class="td-kw">number</span></span></span>,</div><div><span>bar<span class="td-op">?</span><span>: <span class="td-kw">number</span></span></span>,</div><div><span>baz<span class="td-op">?</span><span>: <span>[<span class="td-kw">number</span>]</span></span></span>,</div><div><span><span class="italic">arg_3</span><span class="td-op">?</span><span>: <span class="td-kw">string</span>[]</span></span>,</div><div><span><span class="italic">arg_4</span><span class="td-op">?</span><span>: { qux<span>: <span class="td-kw">number</span></span>;  }</span></span></div></div>)<span>: <span class="td-kw">void</span></span></span></a></div>
     </div><div id="namespace_testing_externalfunction" class="namespaceItem" ><div class="docNodeKindIcon"><div class="text-Function bg-Function/15 dark:text-FunctionDark dark:bg-FunctionDark/15" title="Function">f</div></div>
 <div class="namespaceItemContent">
-		    <a href=".&#x2F;.&#x2F;d&#x2F;~&#x2F;Testing.externalFunction.html" title="Testing.externalFunction">
+		    <a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;Testing.externalFunction.html" title="Testing.externalFunction">
 			    <span>Testing.externalFunction</span><span>(<span><span>_n<span class="td-op">?</span><span>: <span class="td-kw">number</span></span></span></span>)<span>: <span class="td-kw">void</span></span></span></a></div>
     </div><div id="namespace_testing_t" class="namespaceItem" ><div class="docNodeKindIcon"><div class="text-Function bg-Function/15 dark:text-FunctionDark dark:bg-FunctionDark/15" title="Function">f</div></div>
 <div class="namespaceItemContent">
@@ -266,7 +266,7 @@ Functions</h2></div><div class="namespaceSection"><div id="namespace_c" class="n
 			    <span>Testing.t</span><span>()<span>: <span class="td-kw">string</span></span></span></a></div>
     </div><div id="namespace_testing_x" class="namespaceItem" ><div class="docNodeKindIcon"><div class="text-Function bg-Function/15 dark:text-FunctionDark dark:bg-FunctionDark/15" title="Function">f</div></div>
 <div class="namespaceItemContent">
-		    <a href=".&#x2F;.&#x2F;c&#x2F;~&#x2F;Testing.x.html" title="Testing.x">
+		    <a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;Testing.x.html" title="Testing.x">
 			    <span>Testing.x</span><span>(<span><span>_n<span class="td-op">?</span><span>: <span class="td-kw">number</span></span></span></span>)<span>: <span class="td-kw">void</span></span></span></a></div>
     </div><div id="namespace_x" class="namespaceItem" ><div class="docNodeKindIcon"><div class="text-Function bg-Function/15 dark:text-FunctionDark dark:bg-FunctionDark/15" title="Function">f</div></div>
 <div class="namespaceItemContent">
@@ -308,15 +308,24 @@ Interfaces</h2></div><div class="namespaceSection"><div id="namespace_hello" cla
 			    <span>Hello</span></a><ul class="namespaceItemContentSubItems"><li>
                 <a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;Hello.html#property_ab">
                   <span>ab</span><span>: <span class="td-kw">string</span></span></a></li><li>
+                <a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;Hello.html#accessor_accessor">
+                  <span>accessor</span><span>()<span>: <span class="td-kw">string</span></span></span></a><div class="namespaceItemContentDoc"><div class="markdown_summary"><p>a getter/setter pair</p>
+</div></div></li><li>
                 <a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;Hello.html#method_computedmethod_0">
                   <span>computedMethod</span><span>(<span><span>a<span>: <span class="td-ref">T</span> <span class="td-kw">extends</span> () =&gt; <span class="td-kw">infer </span><span><span class="td-tp">R</span></span> <span class="td-op">?</span> <span class="td-ref">R</span> <span class="td-op">:</span> <span class="td-kw">any</span></span></span></span>)<span>: <span class="td-kw">void</span></span></span></a></li><li>
+                <a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;Hello.html#accessor_divergentaccessor">
+                  <span>divergentAccessor</span><span>()<span>: <span><span class="td-kw">number</span><span class="td-op"> | </span><span class="td-kw">null</span></span></span></span></a></li><li>
                 <a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;Hello.html#method_optionalmethod_0">
                   <span>optionalMethod</span><span>()<span>: <span>[<span class="td-kw">string</span>?]</span></span></span></a></li><li>
+                <a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;Hello.html#accessor_readonlyaccessor">
+                  <span>readonlyAccessor</span><span>()<span>: <span class="td-kw">number</span></span></span></a></li><li>
                 <a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;Hello.html#property_test">
                   <span>test</span><span>: <span class="td-str">"test"</span></span></a><div class="namespaceItemContentDoc"><div class="markdown_summary"><p>Some docs</p>
 </div></div></li><li>
                 <a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;Hello.html#property_world">
                   <span>world</span><span>: <span class="td-kw">string</span></span></a></li><li>
+                <a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;Hello.html#accessor_writeonlyaccessor">
+                  <span>writeonlyAccessor</span><span>(<span><span>value<span>: <span class="td-kw">number</span></span></span></span>)</span></a></li><li>
                 <a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;Hello.html#property_x">
                   <span>x</span><span>: { [<span><span>foo<span>: <span class="td-kw">string</span></span></span></span>]<span>: <span class="td-kw">number</span></span>;  }</span></a></li></ul></div>
     </div><div id="namespace_compoundtype" class="namespaceItem" ><div class="docNodeKindIcon"><div class="text-Interface bg-Interface/15 dark:text-InterfaceDark dark:bg-InterfaceDark/15" title="Interface">I</div><div class="text-Variable bg-Variable/15 dark:text-VariableDark dark:bg-VariableDark/15" title="Variable">v</div></div>
@@ -361,7 +370,7 @@ Interfaces</h2></div><div class="namespaceSection"><div id="namespace_hello" cla
 Type Aliases</h2></div><div class="namespaceSection"><div id="namespace_baz" class="namespaceItem" ><div class="docNodeKindIcon"><div class="text-TypeAlias bg-TypeAlias/15 dark:text-TypeAliasDark dark:bg-TypeAliasDark/15" title="Type Alias">T</div></div>
 <div class="namespaceItemContent">
 		    <a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;Baz.html" title="Baz">
-			    <span>Baz</span><span><span>&lt;<span><span class="td-tp">T</span></span>&gt;</span> = { foo<span>: <span class="td-ref">Record</span>&lt;<span class="td-kw">string</span><span>, </span><span class="td-ref">T</span> <span class="td-kw">extends</span> <span class="td-kw">string</span> <span class="td-op">?</span> <span class="td-lit">0</span> <span class="td-op">:</span> <span class="td-lit">1</span>&gt;</span>; bar()<span>: <span class="td-ref">InterfaceWithIndexSignature</span>[<span class="td-str">"test"</span>]</span>;  }</span></a><ul class="namespaceItemContentSubItems"><li>
+			    <span>Baz</span><span><span>&lt;<span><span class="td-tp">T</span></span>&gt;</span> = { (<span><span>key<span>: <span class="td-kw">string</span></span></span></span>)<span>: <span class="td-kw">number</span></span>; foo<span>: <span class="td-ref">Record</span>&lt;<span class="td-kw">string</span><span>, </span><span class="td-ref">T</span> <span class="td-kw">extends</span> <span class="td-kw">string</span> <span class="td-op">?</span> <span class="td-lit">0</span> <span class="td-op">:</span> <span class="td-lit">1</span>&gt;</span>; bar()<span>: <span class="td-ref">InterfaceWithIndexSignature</span>[<span class="td-str">"test"</span>]</span>;  }</span></a><ul class="namespaceItemContentSubItems"><li>
                 <a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;Baz.html#method_bar_0">
                   <span>bar</span><span>()<span>: <span class="td-ref">InterfaceWithIndexSignature</span>[<span class="td-str">"test"</span>]</span></span></a></li><li>
                 <a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;Baz.html#property_foo">

@@ -138,6 +138,15 @@ export interface Serializable<T> {
   optional?: boolean;
   /** The serialization version. */
   version: number;
+  /** The display label. */
+  get label(): number;
+  set label(value: number);
+  get addedAccessor(): string;
+  get asymmetricChange(): string | null;
+  set asymmetricChange(value: string | number);
+  get gainedSetter(): boolean;
+  set gainedSetter(value: boolean);
+  get lostSetter(): string;
 }
 
 /** Extended serializable. */

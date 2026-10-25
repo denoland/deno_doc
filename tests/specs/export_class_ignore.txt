@@ -37,10 +37,10 @@ export class Foobar extends Fizz implements Buzz, Aldrin {
 
 # diagnostics
 error[missing-jsdoc]: exported symbol is missing JSDoc documentation
- --> /mod.ts:5:5
+ --> /mod.ts:5:15
   | 
 5 |     protected protected1: number;
-  |     ^
+  |               ^
 
 
 error[missing-jsdoc]: exported symbol is missing JSDoc documentation
