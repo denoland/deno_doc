@@ -330,6 +330,12 @@ export function fooFn(a: number) {
       "importedName": "buzz",
       "originalName": "fizz",
       "src": "file:///reexport.ts",
+      "location": {
+        "filename": "file:///reexport.ts",
+        "line": 8,
+        "col": 13,
+        "byteIndex": 113
+      },
     }
   ]);
   let actual = serde_json::to_value(&document.imports).unwrap();
@@ -734,6 +740,12 @@ async fn exports_imported_earlier() {
       "importedName": "foo",
       "originalName": "foo",
       "src": "file:///foo.ts",
+      "location": {
+        "filename": "file:///foo.ts",
+        "line": 0,
+        "col": 13,
+        "byteIndex": 13
+      },
     },
   ]);
   let actual = serde_json::to_value(&document.imports).unwrap();
@@ -801,6 +813,12 @@ async fn exports_imported_earlier_renamed() {
       "importedName": "f",
       "originalName": "foo",
       "src": "file:///foo.ts",
+      "location": {
+        "filename": "file:///foo.ts",
+        "line": 0,
+        "col": 13,
+        "byteIndex": 13
+      },
     }
   ]);
   let actual = serde_json::to_value(&document.imports).unwrap();
@@ -869,6 +887,12 @@ async fn exports_imported_earlier_default() {
       "importedName": "foo",
       "originalName": "default",
       "src": "file:///foo.ts",
+      "location": {
+        "filename": "file:///foo.ts",
+        "line": 0,
+        "col": 6,
+        "byteIndex": 6
+      },
     }
   ]);
   let actual = serde_json::to_value(&document.imports).unwrap();
@@ -939,6 +963,12 @@ async fn exports_imported_earlier_private() {
       "importedName": "foo",
       "originalName": "foo",
       "src": "file:///foo.ts",
+      "location": {
+        "filename": "file:///foo.ts",
+        "line": 0,
+        "col": 13,
+        "byteIndex": 13
+      },
     },
   ]);
   let actual = serde_json::to_value(&document.imports).unwrap();

@@ -74,7 +74,13 @@ namespace default
     {
       "importedName": "Chat",
       "originalName": "Chat",
-      "src": "file:///chat.ts"
+      "src": "file:///chat.ts",
+      "location": {
+        "filename": "file:///chat.ts",
+        "line": 3,
+        "col": 0,
+        "byteIndex": 65
+      }
     }
   ],
   "symbols": [

@@ -21,6 +21,9 @@ pub struct Import {
   #[serde(skip_serializing_if = "Option::is_none", default)]
   pub original_name: Option<String>,
   pub src: String,
+  /// Where the imported symbol is declared, following re-exports.
+  #[serde(skip_serializing_if = "Option::is_none", default)]
+  pub location: Option<Location>,
   #[serde(skip_serializing_if = "JsDoc::is_empty", default)]
   pub js_doc: JsDoc,
 }

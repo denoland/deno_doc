@@ -70,7 +70,13 @@ class ClassB
     {
       "importedName": "PrivateInterface",
       "originalName": "PrivateInterface",
-      "src": "file:///private.ts"
+      "src": "file:///private.ts",
+      "location": {
+        "filename": "file:///private.ts",
+        "line": 0,
+        "col": 0,
+        "byteIndex": 0
+      }
     }
   ],
   "symbols": [

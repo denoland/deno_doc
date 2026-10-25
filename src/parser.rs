@@ -796,36 +796,50 @@ impl<'a> DocParser<'a> {
         for specifier in &import_decl.specifiers {
           use deno_ast::swc::ast::ImportSpecifier::*;
 
-          let (imported_name, original_name, src) = match specifier {
+          let (local, original_name) = match specifier {
             Named(named_specifier) => (
-              named_specifier.local.sym.to_string(),
+              &named_specifier.local,
               named_specifier
                 .imported
                 .as_ref()
                 .map(module_export_name_value)
                 .or_else(|| Some(named_specifier.local.sym.to_string())),
-              &import_decl.src.value,
             ),
-            Default(default_specifier) => (
-              default_specifier.local.sym.to_string(),
-              Some("default".to_string()),
-              &import_decl.src.value,
-            ),
-            Namespace(namespace_specifier) => (
-              namespace_specifier.local.sym.to_string(),
-              None,
-              &import_decl.src.value,
-            ),
+            Default(default_specifier) => {
+              (&default_specifier.local, Some("default".to_string()))
+            }
+            Namespace(namespace_specifier) => {
+              (&namespace_specifier.local, None)
+            }
           };
 
-          let resolved_specifier =
-            self.resolve_dependency(&src.to_string_lossy(), referrer)?;
+          let resolved_specifier = self.resolve_dependency(
+            &import_decl.src.value.to_string_lossy(),
+            referrer,
+          )?;
+
+          let location = original_name
+            .as_ref()
+            .and_then(|_| module_info.symbol_from_swc(&local.to_id()))
+            .and_then(|symbol| {
+              self
+                .root_symbol
+                .go_to_definitions(ModuleInfoRef::Esm(module_info), symbol)
+                .find(|definition| {
+                  matches!(
+                    definition.kind,
+                    deno_graph::symbols::DefinitionKind::Definition
+                  )
+                })
+                .map(|definition| definition_location(&definition))
+            });
 
           imports.push(Import {
-            imported_name: imported_name.into_boxed_str(),
+            imported_name: local.sym.to_string().into_boxed_str(),
             js_doc: js_doc.clone(),
             src: resolved_specifier.to_string(),
             original_name,
+            location,
           });
         }
       }

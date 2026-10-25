@@ -11,6 +11,7 @@ export interface Import {
   originalName?: string;
   jsDoc?: JsDoc;
   src: string;
+  location?: Location;
 }
 
 export interface Symbol {
