@@ -356,9 +356,6 @@ impl<'a> DocParser<'a> {
                   .iter()
                   .find(|(name, _)| &name_path_item == name)
                 else {
-                  // `export default { foo }` has no exports of its own in
-                  // the symbol graph, so look the member up in the object
-                  // literal instead.
                   if let Some(esm) = export.module.esm()
                     && let Some(member_symbol) = default_export_obj_member(
                       esm,
@@ -1309,7 +1306,6 @@ impl<'a> DocParser<'a> {
       && let Some(namespace_def) =
         self.get_namespace_def_for_default_export_obj(module_info, obj)
     {
-      // e.g.) export default { foo, bar };
       Some(Declaration::namespace(
         location,
         DeclarationKind::Export,
@@ -1342,15 +1338,6 @@ impl<'a> DocParser<'a> {
     }
   }
 
-  /// Documents `export default { foo, bar: baz, qux: 1 }` as a namespace
-  /// whose members are the symbols the object literal refers to, so that
-  /// symbols re-exported through a default-exported object keep their
-  /// documentation instead of collapsing into an untyped object literal.
-  ///
-  /// Returns `None` when no member refers to a module-level symbol, or when
-  /// the literal uses a property kind that doesn't map onto a namespace
-  /// member (getters, setters, spreads, computed keys); the caller then
-  /// documents the literal as a variable with an inferred object type.
   fn get_namespace_def_for_default_export_obj(
     &self,
     module_info: &EsModuleInfo,
@@ -1361,7 +1348,7 @@ impl<'a> DocParser<'a> {
     let mut has_ident_member = false;
     for (name, prop, member) in members {
       let Some(js_doc) = js_doc_for_range(module_info, &prop.range()) else {
-        continue; // @ignore
+        continue;
       };
       let location = get_location(module_info, prop.start());
       let declarations = match member {
@@ -1375,8 +1362,6 @@ impl<'a> DocParser<'a> {
             &prop.range(),
           );
           if declarations.is_empty() {
-            // e.g.) an import from an external module that can't be
-            // followed to a definition: still list the member.
             vec![Declaration::variable(
               location,
               DeclarationKind::Export,
@@ -1424,10 +1409,6 @@ impl<'a> DocParser<'a> {
     Some(NamespaceDef { elements })
   }
 
-  /// Resolves an identifier member of a default-exported object literal to
-  /// the declarations of the symbol it refers to: a copy of the declarations
-  /// for a symbol declared in the same module, and a reference to be
-  /// resolved later for one coming from another module.
   fn decls_for_default_export_obj_member(
     &self,
     module_info: &EsModuleInfo,
@@ -2466,21 +2447,12 @@ fn parse_json_module_type(value: &serde_json::Value) -> TsTypeDef {
   }
 }
 
-/// A member of an object literal that can be documented as a namespace
-/// member, see [`object_lit_members`].
 enum ObjectLitMember<'a> {
-  /// `{ foo }` or `{ foo: bar }`: refers to another symbol.
   Ident(&'a Ident),
-  /// `{ foo() {} }`
   Method(&'a deno_ast::swc::ast::Function),
-  /// `{ foo: <expr> }` for any other expression.
   Expr(&'a Expr),
 }
 
-/// Collects the members of an object literal along with their names and the
-/// property they come from. Returns `None` if the literal contains a property
-/// that can't be documented as a namespace member (getters, setters, spreads,
-/// numeric or computed keys).
 fn object_lit_members(
   obj: &ObjectLit,
 ) -> Option<Vec<(String, &Prop, ObjectLitMember<'_>)>> {
@@ -2521,9 +2493,6 @@ fn object_lit_members(
     .collect()
 }
 
-/// Resolves `name` in a default-exported object literal to the module-level
-/// symbol its identifier refers to, e.g. `foo` in `export default { foo }` or
-/// `baz` in `export default { bar: baz }`.
 fn default_export_obj_member<'a>(
   module_info: &'a EsModuleInfo,
   symbol: &GraphSymbol,
