@@ -19,19 +19,6 @@ use std::ops::Deref;
 ///
 /// `diff_info` supplies the diff status for a parameter; callers that render
 /// signatures the differ does not descend into pass `|_, _| (None, None)`.
-/// The bare identifier a parameter binds, used to match it against its
-/// `@param` JSDoc tag. Unwraps rest (`...rest` → `rest`) and default
-/// (`x = 1` → `x`) parameters. Returns `None` for array/object destructuring
-/// patterns, which bind no single name and so can't be matched by name.
-fn param_doc_name(param: &ParamDef) -> Option<&str> {
-  match &param.pattern {
-    ParamPatternDef::Identifier { name, .. } => Some(name),
-    ParamPatternDef::Rest { arg } => param_doc_name(arg),
-    ParamPatternDef::Assign { left, .. } => param_doc_name(left),
-    ParamPatternDef::Array { .. } | ParamPatternDef::Object { .. } => None,
-  }
-}
-
 pub(crate) fn render_param_doc_entries(
   ctx: &RenderContext,
   params: &[ParamDef],
@@ -91,7 +78,7 @@ pub(crate) fn render_param_doc_entries(
 
   let bound_names = params
     .iter()
-    .filter_map(param_doc_name)
+    .filter_map(ParamDef::binding_name)
     .collect::<std::collections::HashSet<_>>();
 
   params
@@ -128,7 +115,8 @@ pub(crate) fn render_param_doc_entries(
       // binds. A rest parameter renders as `...rest` but is documented as
       // `rest`, and a default (`Assign`) wraps the real binding, so unwrap
       // both.
-      let param_doc = param_doc_name(param)
+      let param_doc = param
+        .binding_name()
         .and_then(|n| param_docs.get(n))
         .or_else(|| positional_doc.map(|(_, tag_doc)| tag_doc));
       let id = IdBuilder::new_with_parent(ctx, parent_id)
