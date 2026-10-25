@@ -316,7 +316,7 @@ Interfaces</h2></div><div class="namespaceSection"><div id="namespace_hello" cla
                 <a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;Hello.html#accessor_divergentaccessor">
                   <span>divergentAccessor</span><span>()<span>: <span><span class="td-kw">number</span><span class="td-op"> | </span><span class="td-kw">null</span></span></span></span></a></li><li>
                 <a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;Hello.html#method_optionalmethod_0">
-                  <span>optionalMethod</span><span>()<span>: <span>[<span class="td-kw">string</span>]</span></span></span></a></li><li>
+                  <span>optionalMethod</span><span>()<span>: <span>[<span class="td-kw">string</span>?]</span></span></span></a></li><li>
                 <a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;Hello.html#accessor_readonlyaccessor">
                   <span>readonlyAccessor</span><span>()<span>: <span class="td-kw">number</span></span></span></a></li><li>
                 <a href=".&#x2F;.&#x2F;.&#x2F;~&#x2F;Hello.html#property_test">
