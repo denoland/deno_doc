@@ -1,0 +1,103 @@
+# types.ts
+/** An interface. */
+export interface Foo {
+  /** A member. */
+  a: string;
+}
+
+# mod.ts
+import type * as types from "./types.ts";
+
+/** A class. */
+export class Bar implements types.Foo {
+  /** A member. */
+  a = "";
+}
+
+# diagnostics
+error[private-type-ref]: public type 'Bar' references private type 'Foo'
+ --> /mod.ts:4:1
+  | 
+4 | export class Bar implements types.Foo {
+  | ^
+  = hint: make the referenced type public or remove the reference
+  | 
+2 | export interface Foo {
+  | - this is the referenced type
+  | 
+
+  info: to ensure documentation is complete all types that are exposed in the public API must be public
+
+# output.txt
+Defined in file:///mod.ts:3:1
+
+class Bar implements types.Foo
+  A class.
+
+  a: string
+    A member.
+
+
+# output.json
+{
+  "imports": [
+    {
+      "importedName": "types",
+      "src": "file:///types.ts"
+    }
+  ],
+  "symbols": [
+    {
+      "name": "Bar",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 3,
+            "col": 0,
+            "byteIndex": 59
+          },
+          "declarationKind": "export",
+          "jsDoc": {
+            "doc": "A class."
+          },
+          "kind": "class",
+          "def": {
+            "properties": [
+              {
+                "jsDoc": {
+                  "doc": "A member."
+                },
+                "tsType": {
+                  "repr": "string",
+                  "kind": "keyword",
+                  "value": "string"
+                },
+                "name": "a",
+                "location": {
+                  "filename": "file:///mod.ts",
+                  "line": 5,
+                  "col": 2,
+                  "byteIndex": 120
+                }
+              }
+            ],
+            "implements": [
+              {
+                "repr": "types.Foo",
+                "kind": "typeRef",
+                "value": {
+                  "typeName": "types.Foo",
+                  "resolution": {
+                    "kind": "import",
+                    "specifier": "./types.ts"
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

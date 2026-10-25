@@ -21,7 +21,6 @@ use deno_graph::ast::CapturingModuleAnalyzer;
 use deno_graph::source::LoadFuture;
 use deno_graph::source::LoadResponse;
 use deno_graph::source::Loader;
-use futures::executor::block_on;
 use futures::future;
 use indexmap::IndexMap;
 use std::env::current_dir;
@@ -311,7 +310,11 @@ fn main() {
     }
   };
 
-  block_on(future);
+  tokio::runtime::Builder::new_current_thread()
+    .enable_all()
+    .build()
+    .unwrap()
+    .block_on(future);
 }
 
 struct EmptyResolver;
@@ -411,6 +414,7 @@ fn generate_docs_directory(
     })),
     id_prefix: None,
     diff_only: false,
+    symbol_listing_limit: None,
   };
   let ctx = GenerateCtx::create_basic(options, doc_nodes_by_url, None)?;
   let html = deno_doc::html::generate(ctx)?;

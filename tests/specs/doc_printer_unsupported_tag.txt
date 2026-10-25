@@ -8,10 +8,10 @@ export function noop() {
 
 # diagnostics
 error[missing-jsdoc]: exported symbol is missing JSDoc documentation
- --> /mod.ts:5:1
+ --> /mod.ts:5:17
   | 
 5 | export function noop() {
-  | ^
+  |                 ^
 
 # output.txt
 Defined in file:///mod.ts:4:1

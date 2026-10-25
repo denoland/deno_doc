@@ -1,6 +1,16 @@
 // Copyright 2018-2024 the Deno authors. All rights reserved. MIT license.
 
+use deno_ast::oxc::ast::ast::BindingIdentifier;
 use deno_ast::oxc::ast::ast::BindingIdentifier as Ident;
+use deno_ast::oxc::ast::ast::BindingPattern;
+use deno_ast::oxc::ast::ast::ClassElement;
+use deno_ast::oxc::ast::ast::IdentifierReference;
+use deno_ast::oxc::ast::ast::MethodDefinitionKind;
+use deno_ast::oxc::ast::ast::ModuleExportName;
+use deno_ast::oxc::ast::ast::PropertyKey;
+use deno_ast::oxc::ast::ast::TSInterfaceDeclaration;
+use deno_ast::oxc::ast::ast::TSSignature;
+use deno_ast::oxc::ast::ast::TSTypeName;
 use deno_ast::oxc::ast::ast::Class;
 use deno_ast::oxc::ast::ast::Declaration as OxcDeclaration;
 use deno_ast::oxc::ast::ast::ExportDefaultDeclaration;
@@ -33,6 +43,7 @@ use deno_graph::symbols::SymbolNodeRef;
 use deno_graph::symbols::UniqueSymbolId;
 use indexmap::IndexMap;
 use std::cell::RefCell;
+use std::collections::HashMap;
 use std::collections::HashSet;
 use std::error::Error;
 use std::fmt;
@@ -42,6 +53,8 @@ use std::sync::Arc;
 use crate::Location;
 use crate::diagnostics::DiagnosticsCollector;
 use crate::diagnostics::DocDiagnostic;
+use crate::interface::expr_to_name;
+use crate::interface::property_key_name;
 use crate::js_doc::JsDoc;
 use crate::node::DeclarationDef;
 use crate::node::DeclarationKind;
@@ -53,6 +66,9 @@ use crate::ts_type::PropertyDef;
 use crate::ts_type::TsTypeDef;
 use crate::ts_type::TsTypeDefKind;
 use crate::ts_type::TsTypeLiteralDef;
+use crate::ts_type::Id;
+use crate::ts_type::binding_identifier_to_id;
+use crate::ts_type::identifier_reference_to_id;
 use crate::ts_type::infer_simple_ts_type_from_init;
 use crate::util::graph::resolve_deno_graph_module;
 use crate::util::swc::get_location;
@@ -61,6 +77,7 @@ use crate::util::swc::js_doc_for_range;
 use crate::util::swc::module_export_name_value;
 use crate::util::swc::module_js_doc_for_source;
 use crate::util::symbol::get_module_info;
+use crate::util::types::MethodKind;
 use crate::util::types::VarDeclKind;
 use crate::variable::VariableDef;
 use crate::visibility::SymbolVisibility;
@@ -259,6 +276,7 @@ impl<'a> DocParser<'a> {
     name_path: &[String],
     all_locations: &mut HashSet<Location>,
   ) -> Result<(), DocError> {
+    let mut attempted_targets = HashSet::new();
     let mut i = 0;
     'outer: while i < symbols.len() {
       let name = symbols[i].name.to_string();
@@ -283,11 +301,13 @@ impl<'a> DocParser<'a> {
             new_name_path.push(name.clone());
 
             if !all_locations.contains(&reference_def.target)
+              && attempted_targets.insert(reference_def.target.clone())
               && let Some(new_symbol) = self.resolve_dangling_reference(
                 specifier,
                 reference_def,
                 new_name_path,
                 false,
+                &mut HashSet::new(),
               )?
             {
               if let Some(new_symbol) = new_symbol {
@@ -317,7 +337,12 @@ impl<'a> DocParser<'a> {
     reference_def: &ReferenceDef,
     mut name_path: Vec<String>,
     star: bool,
+    visited: &mut HashSet<(ModuleSpecifier, Vec<String>, bool)>,
   ) -> Result<Option<Option<Symbol>>, DocError> {
+    if !visited.insert((specifier.clone(), name_path.clone(), star)) {
+      return Ok(None);
+    }
+
     let module = resolve_deno_graph_module(self.graph, specifier)?;
 
     match module {
@@ -358,6 +383,7 @@ impl<'a> DocParser<'a> {
                 reference_def,
                 name_path,
                 true,
+                visited,
               );
             }
             DefinitionKind::Definition => {
@@ -384,6 +410,7 @@ impl<'a> DocParser<'a> {
                       out
                     },
                     false,
+                    visited,
                   );
                 };
 
@@ -523,10 +550,18 @@ impl<'a> DocParser<'a> {
                     .map(|mut node| {
                       let sym = Arc::make_mut(&mut node);
                       let decl = &mut sym.declarations[0];
-                      let target = decl.location.clone();
-                      decl.def =
-                        DeclarationDef::Reference(ReferenceDef { target });
-                      decl.location = def_location.clone();
+                      // A nested `export * as` produces a synthetic namespace
+                      // with no concrete symbol to point at. Turning it into a
+                      // reference makes it dangle (there is nothing to resolve
+                      // to) and it gets dropped, so keep it as a nested
+                      // namespace; its own elements are references to concrete
+                      // symbols and resolve normally.
+                      if !matches!(decl.def, DeclarationDef::Namespace(_)) {
+                        let target = decl.location.clone();
+                        decl.def =
+                          DeclarationDef::Reference(ReferenceDef { target });
+                        decl.location = def_location.clone();
+                      }
 
                       node
                     })
@@ -551,6 +586,220 @@ impl<'a> DocParser<'a> {
       }
       Module::Npm(_) | Module::Node(_) | Module::External(_) => {
         Ok(Default::default())
+      }
+    }
+  }
+
+  /// Resolves a heritage clause type name (`implements Foo`,
+  /// `implements ns.Foo`) to the interface declarations it refers to,
+  /// following imports and re-exports.
+  fn resolve_heritage_interfaces<'b>(
+    &'b self,
+    module_info: &'b EsModuleInfo,
+    type_name: &TSTypeName,
+  ) -> Vec<(ModuleInfoRef<'b>, &'b TSInterfaceDeclaration<'b>)> {
+    // splits `a.b.c` into the root identifier and the member path
+    fn split_type_name<'e>(
+      type_name: &'e TSTypeName<'e>,
+      parts: &mut Vec<String>,
+    ) -> Option<&'e IdentifierReference<'e>> {
+      match type_name {
+        TSTypeName::IdentifierReference(ident) => Some(ident),
+        TSTypeName::QualifiedName(qualified_name) => {
+          let root = split_type_name(&qualified_name.left, parts)?;
+          parts.push(qualified_name.right.name.to_string());
+          Some(root)
+        }
+        TSTypeName::ThisExpression(_) => None,
+      }
+    }
+
+    let mut parts = Vec::new();
+    let Some(root_ident) = split_type_name(type_name, &mut parts) else {
+      return Vec::new();
+    };
+    let root_id = identifier_reference_to_id(module_info, root_ident);
+    let Some(symbol) = module_info.symbol_from_swc(&root_id) else {
+      return Vec::new();
+    };
+
+    let definitions: Vec<_> = if parts.is_empty() {
+      self
+        .root_symbol
+        .go_to_definitions(ModuleInfoRef::Esm(module_info), symbol)
+        .collect()
+    } else {
+      self
+        .root_symbol
+        .resolve_symbol_dep(
+          ModuleInfoRef::Esm(module_info),
+          &deno_graph::symbols::SymbolNodeDep::QualifiedId(root_id, parts),
+        )
+        .into_iter()
+        .filter_map(|entry| match entry {
+          deno_graph::symbols::ResolvedSymbolDepEntry::Path(path) => {
+            Some(path.into_definitions())
+          }
+          deno_graph::symbols::ResolvedSymbolDepEntry::ImportType(_) => None,
+        })
+        .flatten()
+        .collect()
+    };
+
+    definitions
+      .into_iter()
+      .filter_map(|definition| {
+        let interface_decl = match definition.symbol_decl.maybe_node()? {
+          SymbolNodeRef::TsInterface(n) => n,
+          SymbolNodeRef::ExportDecl(_, ExportDeclRef::TsInterface(n)) => n,
+          SymbolNodeRef::ExportDefaultDecl(n) => match &n.declaration {
+            ExportDefaultDeclarationKind::TSInterfaceDeclaration(n) => &**n,
+            _ => return None,
+          },
+          _ => return None,
+        };
+        Some((definition.module, interface_decl))
+      })
+      .collect()
+  }
+
+  /// Fills in missing JSDocs of instance members of a class from the members
+  /// of the interfaces the class implements (following `extends` between the
+  /// interfaces), mirroring how TypeScript surfaces those docs.
+  fn apply_heritage_member_docs(
+    &self,
+    module_info: &EsModuleInfo,
+    class: &Class,
+    class_def: &mut crate::class::ClassDef,
+  ) {
+    if class.implements.is_empty() {
+      return;
+    }
+
+    // `implements` only constrains the instance side of a class, so static
+    // members never inherit from it.
+    let needs_docs = class_def
+      .methods
+      .iter()
+      .any(|method| !method.is_static && method.js_doc.is_empty())
+      || class_def
+        .properties
+        .iter()
+        .any(|property| !property.is_static && property.js_doc.is_empty());
+    if !needs_docs {
+      return;
+    }
+
+    /// Copies a JSDoc for inheritance onto a class member. `optional` and
+    /// `default` on `@param` tags describe the interface's signature, which
+    /// the class's own signature may not share, so they are not carried
+    /// over — the class parameters provide their own.
+    fn inherited_js_doc(js_doc: &JsDoc) -> JsDoc {
+      let mut js_doc = js_doc.clone();
+      for tag in js_doc.tags.iter_mut() {
+        if let crate::js_doc::JsDocTag::Param {
+          optional, default, ..
+        } = tag
+        {
+          *optional = false;
+          *default = None;
+        }
+      }
+      js_doc
+    }
+
+    let mut method_docs = HashMap::<(String, MethodKind), JsDoc>::new();
+    let mut property_docs = HashMap::<String, JsDoc>::new();
+    let mut visited = HashSet::new();
+
+    // Walk each `implements` clause depth-first through its `extends` chain
+    // before moving on to the next clause, so that the first interface in
+    // declaration order wins and a derived interface's member beats its
+    // base's.
+    for type_ref in class.implements.iter() {
+      let mut stack =
+        self.resolve_heritage_interfaces(module_info, &type_ref.expression);
+      stack.reverse();
+
+      while let Some((interface_module, interface_decl)) = stack.pop() {
+        if !visited.insert((interface_module.module_id(), interface_decl.span))
+        {
+          continue;
+        }
+        let Some(interface_module_info) = interface_module.esm() else {
+          continue;
+        };
+
+        for member in &interface_decl.body.body {
+          let (key, kind) = match member {
+            TSSignature::TSMethodSignature(sig) => {
+              (&sig.key, Some(MethodKind::from(sig.kind)))
+            }
+            TSSignature::TSPropertySignature(sig) => (&sig.key, None),
+            TSSignature::TSCallSignatureDeclaration(_)
+            | TSSignature::TSConstructSignatureDeclaration(_)
+            | TSSignature::TSIndexSignature(_) => continue,
+          };
+          let Some(js_doc) =
+            js_doc_for_range(interface_module_info, member.span())
+          else {
+            continue;
+          };
+          if js_doc.is_empty() {
+            continue;
+          }
+          let name = property_key_name(key);
+          match kind {
+            Some(kind) => {
+              method_docs.entry((name, kind)).or_insert(js_doc);
+            }
+            None => {
+              property_docs.entry(name).or_insert(js_doc);
+            }
+          }
+        }
+
+        let mut parents = interface_decl
+          .extends
+          .iter()
+          .flat_map(|heritage| {
+            self.resolve_heritage_interfaces(
+              interface_module_info,
+              &heritage.type_name,
+            )
+          })
+          .collect::<Vec<_>>();
+        parents.reverse();
+        stack.extend(parents);
+      }
+    }
+
+    for method in class_def.methods.iter_mut() {
+      if method.is_static || !method.js_doc.is_empty() {
+        continue;
+      }
+      // an accessor or a method can also implement an interface property
+      // signature (e.g. a property of function type)
+      let inherited = method_docs
+        .get(&(method.name.to_string(), method.kind))
+        .or_else(|| property_docs.get(&*method.name));
+      if let Some(js_doc) = inherited {
+        method.js_doc = inherited_js_doc(js_doc);
+      }
+    }
+    for property in class_def.properties.iter_mut() {
+      if property.is_static || !property.js_doc.is_empty() {
+        continue;
+      }
+      // a field can also implement an interface method signature (e.g. an
+      // arrow-function member) or an accessor signature
+      let inherited = property_docs.get(&*property.name).or_else(|| {
+        [MethodKind::Method, MethodKind::Getter, MethodKind::Setter]
+          .iter()
+          .find_map(|kind| method_docs.get(&(property.name.to_string(), *kind)))
+      });
+      if let Some(js_doc) = inherited {
+        property.js_doc = inherited_js_doc(js_doc);
       }
     }
   }
@@ -616,7 +865,7 @@ impl<'a> DocParser<'a> {
     let js_doc = js_doc_for_range(module_info, expando_property.inner().span)?;
     let init = expando_property.assignment();
 
-    Some(decl_from_expr(module_info, init, location, js_doc))
+    Some(decl_from_expr(self, module_info, init, location, js_doc))
   }
 
   fn get_doc_for_var_declarator_ident(
@@ -643,7 +892,14 @@ impl<'a> DocParser<'a> {
       )
     {
       let location = get_location(module_info, ident.span.start);
-      return Some(decl_from_expr(module_info, init, location, js_doc));
+      return Some(decl_from_expr(self, module_info, init, location, js_doc));
+    }
+
+    if let Some(init) = &var_declarator.init
+      && let Some(decl) =
+        self.decl_from_init_alias(module_info, init, ident, &js_doc)
+    {
+      return Some(decl);
     }
 
     // todo(dsherret): it's not ideal to call this function over
@@ -676,8 +932,13 @@ impl<'a> DocParser<'a> {
     };
     let js_doc = js_doc_for_range(module_info, jsdoc_range)?;
     // declared classes cannot have decorators, so we ignore that return
-    let (class_def, _) =
+    let (mut class_def, _) =
       super::class::get_doc_for_class_decl(module_info, class_decl);
+    self.apply_heritage_member_docs(
+      module_info,
+      &class_decl.class,
+      &mut class_def,
+    );
     let location = get_location(module_info, full_range.start);
     Some(Declaration::class(
       location,
@@ -990,8 +1251,9 @@ impl<'a> DocParser<'a> {
           .id
           .as_ref()
           .map(|ident| ident.name.to_string().into_boxed_str());
-        let (class_def, decorator_js_doc) =
+        let (mut class_def, decorator_js_doc) =
           crate::class::class_to_class_def(module_info, class, default_name);
+        self.apply_heritage_member_docs(module_info, class, &mut class_def);
         let js_doc = if js_doc.is_empty() {
           decorator_js_doc
         } else {
@@ -1141,8 +1403,39 @@ impl<'a> DocParser<'a> {
 
     let mut handled_symbols = HashSet::new();
     let exports = module_info.exports(&self.root_symbol);
-    for (export_name, export) in &exports.resolved {
-      let export = export.as_resolved_export();
+
+    // deno_graph's export map only holds a single symbol per exported name,
+    // so a name exported multiple times (e.g. `export { foo as Bar }` next to
+    // `export interface Bar`, which merge in TypeScript) loses all but one of
+    // its meanings. Collect the shadowed local targets per name so their
+    // declarations can be merged back in.
+    let shadowed_export_targets = collect_shadowed_export_targets(module_info);
+
+    // Similarly, a name exported by multiple `export *` modules only resolves
+    // to the first module (e.g. a builder function coming from one star
+    // export and a same-named interface from an `export type *`). Collect the
+    // exports of every star module so the other modules' declarations can be
+    // merged back in.
+    let re_export_all_exports = ModuleInfoRef::Esm(module_info)
+      .re_export_all_nodes()
+      .map(|nodes| {
+        nodes
+          .filter_map(|node| {
+            let specifier = self
+              .resolve_dependency(
+                &node.src.value.to_string_lossy(),
+                module_info.specifier(),
+              )
+              .ok()?;
+            let module = self.get_module_info(specifier).ok()?;
+            Some(module.exports(&self.root_symbol))
+          })
+          .collect::<Vec<_>>()
+      })
+      .unwrap_or_default();
+
+    for (export_name, resolved_export) in &exports.resolved {
+      let export = resolved_export.as_resolved_export();
       handled_symbols.insert(UniqueSymbolId::new(
         export.module.module_id(),
         export.symbol_id,
@@ -1153,7 +1446,8 @@ impl<'a> DocParser<'a> {
         .go_to_definitions(export.module, export_symbol);
       let original_range = &export_symbol.decls().first().unwrap().range;
 
-      let mut declarations = vec![];
+      let mut declarations: Vec<Declaration> = vec![];
+      let mut seen_declarations = HashSet::new();
 
       for definition in definitions {
         handled_symbols.insert(definition.symbol.unique_id());
@@ -1169,7 +1463,113 @@ impl<'a> DocParser<'a> {
         );
         for mut decl in maybe_docs {
           decl.declaration_kind = DeclarationKind::Export;
-          declarations.push(decl);
+          if seen_declarations
+            .insert((decl.location.clone(), decl.def.to_kind()))
+          {
+            declarations.push(decl);
+          }
+        }
+      }
+
+      // Merge in the declarations of shadowed same-module exports of this
+      // name.
+      if let Some(targets) = shadowed_export_targets.get(export_name.as_str()) {
+        for target in targets {
+          let symbol = match target {
+            ShadowedExportTarget::SwcId(id) => module_info.symbol_from_swc(id),
+            ShadowedExportTarget::Range(range) => module_info
+              .module_symbol()
+              .child_ids()
+              .filter_map(|id| module_info.symbol(id))
+              .find(|symbol| {
+                symbol.decls().iter().any(|decl| decl.range == *range)
+              }),
+          };
+          let Some(symbol) = symbol else {
+            continue;
+          };
+          let Some(target_original_range) =
+            symbol.decls().first().map(|decl| &decl.range)
+          else {
+            continue;
+          };
+          for definition in self
+            .root_symbol
+            .go_to_definitions(ModuleInfoRef::Esm(module_info), symbol)
+          {
+            handled_symbols.insert(definition.symbol.unique_id());
+            let maybe_docs = self.decls_for_maybe_node(
+              export_name,
+              definition.module,
+              definition.symbol,
+              definition.symbol_decl.maybe_node(),
+              Some(module_info),
+              module_info.specifier(),
+              Some(definition.symbol_decl),
+              Some(target_original_range),
+            );
+            for mut decl in maybe_docs {
+              decl.declaration_kind = DeclarationKind::Export;
+              if seen_declarations
+                .insert((decl.location.clone(), decl.def.to_kind()))
+              {
+                declarations.push(decl);
+              }
+            }
+          }
+        }
+      }
+
+      // Merge in the declarations of this name from the other `export *`
+      // modules.
+      if matches!(
+        resolved_export,
+        deno_graph::symbols::ResolvedExportOrReExportAllPath::ReExportAllPath(
+          _
+        )
+      ) {
+        for star_exports in &re_export_all_exports {
+          let Some(star_export) = star_exports.resolved.get(export_name) else {
+            continue;
+          };
+          let star_export = star_export.as_resolved_export();
+          if !handled_symbols.insert(UniqueSymbolId::new(
+            star_export.module.module_id(),
+            star_export.symbol_id,
+          )) {
+            continue;
+          }
+          let star_export_symbol =
+            star_export.module.symbol(star_export.symbol_id).unwrap();
+          let Some(star_original_range) =
+            star_export_symbol.decls().first().map(|decl| &decl.range)
+          else {
+            continue;
+          };
+          for definition in self
+            .root_symbol
+            .go_to_definitions(star_export.module, star_export_symbol)
+          {
+            handled_symbols.insert(definition.symbol.unique_id());
+            let maybe_docs = self.decls_for_maybe_node(
+              export_name,
+              definition.module,
+              definition.symbol,
+              definition.symbol_decl.maybe_node(),
+              star_export.module.esm(),
+              star_export.module.specifier(),
+              Some(definition.symbol_decl),
+              Some(star_original_range),
+            );
+            for mut decl in maybe_docs {
+              decl.declaration_kind = DeclarationKind::Export;
+              if seen_declarations
+                .insert((decl.location.clone(), decl.def.to_kind()))
+              {
+                declarations.push(decl);
+              }
+            }
+          }
         }
       }
 
@@ -1368,6 +1768,12 @@ impl<'a> DocParser<'a> {
     for decl_with_deps in deps_by_member.iter() {
       if decl_with_deps.had_ignorable_tag {
         continue; // ignore
+      }
+
+      if decl_with_deps.is_alias_reexport {
+        // a type alias like `export type A = B` is just another name for the
+        // referenced type, which is effectively re-exported through the alias
+        continue;
       }
 
       let decl_symbol = doc_module_info
@@ -1596,7 +2002,255 @@ impl<'a> DocParser<'a> {
   }
 }
 
+enum ShadowedExportTarget {
+  /// A local declaration or an aliased export targeting a local symbol.
+  SwcId(Id),
+  /// An aliased re-export (`export { foo as Bar } from "..."`), identified
+  /// by the range of its export specifier.
+  Range(SourceRange),
+}
+
+/// Collects, per exported name, the local targets of all module-level exports
+/// of that name.
+///
+/// deno_graph's export map only keeps a single symbol per name, so when a
+/// name is exported more than once (e.g. an aliased export next to a
+/// declaration with the exported name, which merge in TypeScript), all but
+/// one of the meanings are lost. The returned targets allow recovering them.
+/// Only names with more than one export are returned.
+fn collect_shadowed_export_targets(
+  module_info: &EsModuleInfo,
+) -> IndexMap<String, Vec<ShadowedExportTarget>> {
+  let mut targets: IndexMap<String, Vec<ShadowedExportTarget>> =
+    IndexMap::new();
+
+  for stmt in &module_info.program().body {
+    match stmt {
+      Statement::ExportDeclaration(export_decl) => {
+        let mut add_ident = |ident: &BindingIdentifier| {
+          targets
+            .entry(ident.name.to_string())
+            .or_default()
+            .push(ShadowedExportTarget::SwcId(binding_identifier_to_id(ident)));
+        };
+        match &export_decl.declaration {
+          OxcDeclaration::ClassDeclaration(class_decl) => {
+            if let Some(ident) = &class_decl.id {
+              add_ident(ident);
+            }
+          }
+          OxcDeclaration::FunctionDeclaration(fn_decl) => {
+            if let Some(ident) = &fn_decl.id {
+              add_ident(ident);
+            }
+          }
+          OxcDeclaration::TSInterfaceDeclaration(interface_decl) => {
+            add_ident(&interface_decl.id)
+          }
+          OxcDeclaration::TSTypeAliasDeclaration(type_alias) => {
+            add_ident(&type_alias.id)
+          }
+          OxcDeclaration::TSEnumDeclaration(enum_decl) => {
+            add_ident(&enum_decl.id)
+          }
+          OxcDeclaration::TSNamespaceDeclaration(ts_module_decl) => {
+            add_ident(&ts_module_decl.id)
+          }
+          OxcDeclaration::VariableDeclaration(var_decl) => {
+            for declarator in &var_decl.declarations {
+              if let BindingPattern::BindingIdentifier(ident) = &declarator.id {
+                add_ident(ident);
+              }
+            }
+          }
+          OxcDeclaration::TSExternalModuleDeclaration(_)
+          | OxcDeclaration::TSGlobalDeclaration(_)
+          | OxcDeclaration::TSImportEqualsDeclaration(_) => {}
+        }
+      }
+      Statement::ExportNamedDeclaration(named_export) => {
+        for specifier in &named_export.specifiers {
+          let export_name = module_export_name_value(&specifier.exported);
+          let ModuleExportName::IdentifierReference(orig) = &specifier.local
+          else {
+            continue;
+          };
+          targets
+            .entry(export_name)
+            .or_default()
+            .push(ShadowedExportTarget::SwcId(identifier_reference_to_id(
+              module_info,
+              orig,
+            )));
+        }
+      }
+      Statement::ExportFromDeclaration(named_export) => {
+        for specifier in &named_export.specifiers {
+          let export_name = module_export_name_value(&specifier.exported);
+          targets
+            .entry(export_name)
+            .or_default()
+            .push(ShadowedExportTarget::Range(specifier.span));
+        }
+      }
+      _ => {}
+    }
+  }
+
+  // A name with a single export can't have been shadowed.
+  targets.retain(|_, targets| targets.len() > 1);
+
+  targets
+}
+
+impl DocParser<'_> {
+  /// Resolves a variable initializer that aliases another declaration in the
+  /// same module — `const Foo = FooClass` or `const baz = Foo.bar` — to a
+  /// declaration of the aliased kind, so the alias documents as the class or
+  /// function it refers to instead of as an opaque variable.
+  fn decl_from_init_alias(
+    &self,
+    module_info: &EsModuleInfo,
+    init: &Expression,
+    ident: &BindingIdentifier,
+    js_doc: &JsDoc,
+  ) -> Option<Declaration> {
+    /// The alias's own JSDoc wins; an undocumented alias inherits the
+    /// documentation of the declaration it points at.
+    fn js_doc_or_target(
+      module_info: &EsModuleInfo,
+      js_doc: &JsDoc,
+      target_range: SourceRange,
+    ) -> JsDoc {
+      if js_doc.is_empty() {
+        js_doc_for_range(module_info, target_range).unwrap_or_default()
+      } else {
+        js_doc.clone()
+      }
+    }
+
+    let location = get_location(module_info, ident.span.start);
+
+    match init {
+      Expression::Identifier(init_ident) => {
+        let symbol = module_info
+          .symbol_from_swc(&identifier_reference_to_id(module_info, init_ident))?;
+        for decl in symbol.decls() {
+          let Some(node) = decl.maybe_node() else {
+            continue;
+          };
+          let node = match node {
+            SymbolNodeRef::ExportDecl(_, export_decl) => match export_decl {
+              ExportDeclRef::Class(class_decl) => {
+                SymbolNodeRef::ClassDecl(class_decl)
+              }
+              ExportDeclRef::Fn(fn_decl) => SymbolNodeRef::FnDecl(fn_decl),
+              _ => continue,
+            },
+            node => node,
+          };
+          match node {
+            SymbolNodeRef::ClassDecl(class_decl) => {
+              let (mut class_def, decorator_js_doc) =
+                // no `def_name`: the alias has a name of its own, and
+                // `def_name` would override it everywhere the symbol is
+                // rendered
+                crate::class::class_to_class_def(module_info, class_decl, None);
+              self.apply_heritage_member_docs(
+                module_info,
+                class_decl,
+                &mut class_def,
+              );
+              let js_doc = if js_doc.is_empty() && decorator_js_doc.is_empty() {
+                js_doc_or_target(module_info, js_doc, class_decl.span)
+              } else if js_doc.is_empty() {
+                decorator_js_doc
+              } else {
+                js_doc.clone()
+              };
+              return Some(Declaration::class(
+                location,
+                DeclarationKind::Declare,
+                js_doc,
+                class_def,
+              ));
+            }
+            SymbolNodeRef::FnDecl(fn_decl) => {
+              let function_def = crate::function::function_to_function_def(
+                module_info,
+                fn_decl,
+                None,
+              );
+              let js_doc = js_doc_or_target(module_info, js_doc, fn_decl.span);
+              return Some(Declaration::function(
+                location,
+                DeclarationKind::Declare,
+                js_doc,
+                function_def,
+              ));
+            }
+            _ => continue,
+          }
+        }
+        None
+      }
+      Expression::StaticMemberExpression(member) => {
+        // `const baz = Foo.bar` where `bar` is a static method of a class
+        let Expression::Identifier(obj_ident) = &member.object else {
+          return None;
+        };
+        let prop_name = member.property.name.as_str();
+        let symbol = module_info
+          .symbol_from_swc(&identifier_reference_to_id(module_info, obj_ident))?;
+        for decl in symbol.decls() {
+          let Some(node) = decl.maybe_node() else {
+            continue;
+          };
+          let class = match node {
+            SymbolNodeRef::ClassDecl(class_decl) => class_decl,
+            SymbolNodeRef::ExportDecl(_, ExportDeclRef::Class(class_decl)) => {
+              class_decl
+            }
+            _ => continue,
+          };
+          for class_member in &class.body.body {
+            let ClassElement::MethodDefinition(method) = class_member else {
+              continue;
+            };
+            if !method.r#static || method.kind != MethodDefinitionKind::Method {
+              continue;
+            }
+            let name_matches = match &method.key {
+              PropertyKey::StaticIdentifier(key) => key.name == prop_name,
+              PropertyKey::StringLiteral(key) => key.value == prop_name,
+              _ => false,
+            };
+            if !name_matches {
+              continue;
+            }
+            let function_def = crate::function::function_to_function_def(
+              module_info,
+              &method.value,
+              None,
+            );
+            let js_doc = js_doc_or_target(module_info, js_doc, method.span);
+            return Some(Declaration::function(
+              location,
+              DeclarationKind::Declare,
+              js_doc,
+              function_def,
+            ));
+          }
+        }
+        None
+      }
+      _ => None,
+    }
+  }
+}
+
 fn decl_from_expr(
+  parser: &DocParser,
   module_info: &EsModuleInfo,
   expr: &Expression,
   location: Location,
@@ -1608,8 +2262,9 @@ fn decl_from_expr(
         .id
         .as_ref()
         .map(|id| id.name.to_string().into_boxed_str());
-      let (class_def, decorator_js_doc) =
+      let (mut class_def, decorator_js_doc) =
         crate::class::class_to_class_def(module_info, class_expr, def_name);
+      parser.apply_heritage_member_docs(module_info, class_expr, &mut class_def);
       let js_doc = if js_doc.is_empty() {
         decorator_js_doc
       } else {

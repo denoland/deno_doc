@@ -19,10 +19,10 @@ export { Test, test1 } from "./c.ts";
 
 # diagnostics
 error[missing-jsdoc]: exported symbol is missing JSDoc documentation
- --> /b.ts:1:1
+ --> /b.ts:1:14
   | 
 1 | export class Test {}
-  | ^
+  |              ^
 
 
 error[missing-jsdoc]: exported symbol is missing JSDoc documentation

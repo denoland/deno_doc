@@ -4,6 +4,7 @@ use crate::Location;
 use crate::ParamDef;
 use crate::display::SliceDisplayer;
 use crate::display::display_computed;
+use crate::display::display_method;
 use crate::display::display_optional;
 use crate::display::display_readonly;
 use crate::interface::expr_to_name;
@@ -27,6 +28,8 @@ use deno_ast::oxc::ast::ast::*;
 use deno_ast::oxc::span::GetSpan;
 use deno_ast::oxc::syntax::operator::BinaryOperator;
 use deno_graph::symbols::EsModuleInfo;
+use deno_graph::symbols::ExportDeclRef;
+use deno_graph::symbols::SymbolNodeRef;
 use deno_terminal::colors;
 use serde::Deserialize;
 use serde::Serialize;
@@ -803,9 +806,18 @@ impl TsTypeDef {
   }
 }
 
-type Id = (String, usize);
+pub(crate) type Id = (String, usize);
 
-fn identifier_reference_to_id(
+pub(crate) fn binding_identifier_to_id(ident: &BindingIdentifier) -> Id {
+  let ctxt = ident
+    .symbol_id
+    .get()
+    .map(|symbol_id| symbol_id.index() + 1)
+    .unwrap_or(0);
+  (ident.name.to_string(), ctxt)
+}
+
+pub(crate) fn identifier_reference_to_id(
   module_info: &EsModuleInfo,
   ident: &IdentifierReference,
 ) -> Id {
@@ -1477,7 +1489,8 @@ impl Display for MethodDef {
   fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
     write!(
       f,
-      "{}{}({})",
+      "{}{}{}({})",
+      display_method(self.kind),
       display_computed(self.computed, &self.name),
       display_optional(self.optional),
       SliceDisplayer::new(&self.params, ", ", false),
@@ -2284,11 +2297,26 @@ fn infer_ts_type_from_arr_lit(
   let mut defs = Vec::new();
   for elem in &arr_lit.elements {
     match elem {
-      ArrayExpressionElement::SpreadElement(_) => {
-        return Some(TsTypeDef {
-          repr: "any[]".to_string(),
-          kind: TsTypeDefKind::Array(Box::new(TsTypeDef::keyword("any"))),
-        });
+      ArrayExpressionElement::SpreadElement(spread) => {
+        // e.g.) const foo = [...bar, "baz"] as const;
+        if let Some(element_types) = infer_ts_types_from_spread_expr(
+          module_info,
+          &spread.argument,
+          is_const,
+        ) {
+          for ts_type in element_types {
+            if !defs.contains(&ts_type) {
+              defs.push(ts_type);
+            }
+          }
+        } else {
+          // the type of the spread element cannot be inferred and so will
+          // infer an any array.
+          return Some(TsTypeDef {
+            repr: "any[]".to_string(),
+            kind: TsTypeDefKind::Array(Box::new(TsTypeDef::keyword("any"))),
+          });
+        }
       }
       ArrayExpressionElement::Elision(_) => continue,
       _ => {
@@ -2325,6 +2353,85 @@ fn infer_ts_type_from_arr_lit(
         repr: String::new(),
       })
     }
+    _ => None,
+  }
+}
+
+thread_local! {
+  /// Tracks the identifiers currently being resolved by
+  /// [`infer_ts_types_from_spread_expr`] to guard against cyclic references.
+  static SEEN_SPREAD_IDENTS: std::cell::RefCell<Vec<Id>> =
+    const { std::cell::RefCell::new(Vec::new()) };
+}
+
+/// Infers the type of an identifier used as a spread element by resolving it
+/// to a variable declaration in the module and using its type annotation or
+/// inferring from its initializer.
+fn infer_ts_type_from_spread_ident(
+  module_info: &EsModuleInfo,
+  id: &Id,
+) -> Option<TsTypeDef> {
+  let symbol = module_info.symbol_from_swc(id)?;
+  symbol.decls().iter().find_map(|decl| {
+    let (var_decl, var_declarator) = match decl.maybe_node()? {
+      SymbolNodeRef::Var(var_decl, var_declarator, _)
+      | SymbolNodeRef::ExportDecl(
+        _,
+        ExportDeclRef::Var(var_decl, var_declarator, _),
+      ) => (var_decl, var_declarator),
+      _ => return None,
+    };
+    if let Some(type_ann) = &var_declarator.type_annotation {
+      return Some(TsTypeDef::new(module_info, &type_ann.type_annotation));
+    }
+    infer_ts_type_from_expr(
+      module_info,
+      var_declarator.init.as_ref()?,
+      var_decl.kind == VariableDeclarationKind::Const,
+    )
+  })
+}
+
+/// Infers the element types contributed by a spread element in an array
+/// literal, e.g. `bar` in `[...bar, "baz"]`, by inferring the type of the
+/// spread expression and unwrapping its array or tuple element types.
+fn infer_ts_types_from_spread_expr(
+  module_info: &EsModuleInfo,
+  expr: &Expression,
+  is_const: bool,
+) -> Option<Vec<TsTypeDef>> {
+  let ts_type = match expr {
+    Expression::Identifier(ident) => {
+      // e.g.) const foo = ["a", "b"] as const;
+      //       const bar = [...foo, "c"] as const;
+      let id = identifier_reference_to_id(module_info, ident);
+      let already_seen = SEEN_SPREAD_IDENTS.with(|seen| {
+        let mut seen = seen.borrow_mut();
+        if seen.contains(&id) {
+          true
+        } else {
+          seen.push(id.clone());
+          false
+        }
+      });
+      if already_seen {
+        // cyclic reference, e.g.) const foo = [...foo] as const;
+        return None;
+      }
+      let maybe_ts_type = infer_ts_type_from_spread_ident(module_info, &id);
+      SEEN_SPREAD_IDENTS.with(|seen| {
+        seen.borrow_mut().pop();
+      });
+      maybe_ts_type?
+    }
+    _ => infer_ts_type_from_expr(module_info, expr, is_const)?,
+  };
+  match ts_type.kind {
+    TsTypeDefKind::Array(elem) => match elem.kind {
+      TsTypeDefKind::Union(types) => Some(types),
+      _ => Some(vec![*elem]),
+    },
+    TsTypeDefKind::Tuple(types) => Some(types),
     _ => None,
   }
 }

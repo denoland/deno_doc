@@ -52,6 +52,16 @@ pub(crate) fn display_readonly(is_readonly: bool) -> impl Display {
   colors::magenta(if is_readonly { "readonly " } else { "" })
 }
 
+pub(crate) fn display_method(
+  method: crate::util::types::MethodKind,
+) -> impl Display {
+  colors::magenta(match method {
+    crate::util::types::MethodKind::Getter => "get ",
+    crate::util::types::MethodKind::Setter => "set ",
+    crate::util::types::MethodKind::Method => "",
+  })
+}
+
 cfg_if! {
   if #[cfg(feature = "rust")] {
     use crate::util::types::Accessibility;
@@ -80,16 +90,6 @@ cfg_if! {
 
     pub(crate) fn display_generator(is_generator: bool) -> impl Display {
       colors::magenta(if is_generator { "*" } else { "" })
-    }
-
-    pub(crate) fn display_method(
-      method: MethodKind,
-    ) -> impl Display {
-      colors::magenta(match method {
-        MethodKind::Getter => "get ",
-        MethodKind::Setter => "set ",
-        _ => "",
-      })
     }
 
     pub(crate) fn display_override(is_override: bool) -> impl Display {

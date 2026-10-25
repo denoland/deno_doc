@@ -171,6 +171,12 @@ export interface TopSymbolCtx {
 
 export interface ModuleDocCtx {
   deprecated: string | null;
+  /**
+   * Whether deeply nested symbols were dropped from the symbol listing
+   * because it exceeded the configured symbol listing limit. Absent when
+   * nothing was dropped.
+   */
+  symbols_trimmed?: boolean;
   sections: SymbolContentCtx;
 }
 
@@ -332,6 +338,15 @@ export interface DocEntryCtx {
   tags: TagCtx[];
   js_doc: string | null;
   source_href: string | null;
+  examples?: ExampleCtx[];
+  /**
+   * Documentation for the entry's own parameters. Only populated for entries
+   * that have no symbol page of their own to carry a Parameters section —
+   * class constructors, construct signatures and call signatures.
+   */
+  params?: DocEntryCtx[];
+  /** Rendered `@returns` documentation, for the same entries as `params`. */
+  return_doc?: string;
   diff_status?: DiffStatus;
   old_content?: string;
 }
@@ -364,6 +379,7 @@ export interface NamespaceNodeCtx {
   ty: TypeSummaryCtx | null;
   docs: string | null;
   deprecated: boolean;
+  deprecated_doc?: string | null;
   subitems: NamespaceNodeSubItemCtx[];
   diff_status?: DiffStatus;
 }

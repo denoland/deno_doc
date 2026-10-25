@@ -7,6 +7,7 @@ use crate::ts_type::TsTypeDef;
 use crate::ts_type_param::TsTypeParamDef;
 use crate::ts_type_param::maybe_type_param_decl_to_type_param_defs;
 use crate::util::swc::is_false;
+use deno_ast::oxc::ast::ast::ArrowFunctionBody;
 use deno_ast::oxc::ast::ast::Function;
 use deno_ast::oxc::ast::ast::ReturnStatement;
 use deno_ast::oxc::ast::ast::Statement;
@@ -64,20 +65,7 @@ pub fn function_to_function_def(
           && function.body.is_some()
           && get_return_stmt_with_arg_from_function(function).is_none() =>
       {
-        if function.r#async {
-          Some(TsTypeDef {
-            repr: "Promise".to_string(),
-            kind: crate::ts_type::TsTypeDefKind::TypeRef(
-              crate::ts_type::TsTypeRefDef {
-                type_params: Some(Box::new([TsTypeDef::keyword("void")])),
-                type_name: "Promise".to_string(),
-                resolution: None,
-              },
-            ),
-          })
-        } else {
-          Some(TsTypeDef::keyword("void"))
-        }
+        Some(inferred_void_return_type(function.r#async))
       }
       None => None,
     };
@@ -121,9 +109,22 @@ pub fn arrow_to_function_def(
     ));
   }
 
-  let maybe_return_type = arrow.return_type.as_ref().map(|return_type| {
+  let maybe_return_type = match arrow.return_type.as_ref().map(|return_type| {
     TsTypeDef::new(module_info, &return_type.type_annotation)
-  });
+  }) {
+    Some(return_type) => Some(return_type),
+    // An arrow with a block body that has no value-returning `return`
+    // statement implicitly returns `void` (or `Promise<void>` when async),
+    // matching the inference done for function expressions. Expression-bodied
+    // arrows always return their expression, so no return type is inferred.
+    None
+      if matches!(&arrow.body, ArrowFunctionBody::FunctionBody(block)
+        if get_return_stmt_with_arg_from_stmts(&block.statements).is_none()) =>
+    {
+      Some(inferred_void_return_type(arrow.r#async))
+    }
+    None => None,
+  };
 
   let type_params = maybe_type_param_decl_to_type_param_defs(
     module_info,
@@ -139,6 +140,25 @@ pub fn arrow_to_function_def(
     is_generator: false,
     type_params,
     decorators: Box::new([]),
+  }
+}
+
+/// The return type inferred for a function/arrow whose body cannot return a
+/// value: `Promise<void>` when async, otherwise `void`.
+fn inferred_void_return_type(is_async: bool) -> TsTypeDef {
+  if is_async {
+    TsTypeDef {
+      repr: "Promise".to_string(),
+      kind: crate::ts_type::TsTypeDefKind::TypeRef(
+        crate::ts_type::TsTypeRefDef {
+          type_params: Some(Box::new([TsTypeDef::keyword("void")])),
+          type_name: "Promise".to_string(),
+          resolution: None,
+        },
+      ),
+    }
+  } else {
+    TsTypeDef::keyword("void")
   }
 }
 
@@ -189,7 +209,11 @@ fn get_return_stmt_with_arg_from_stmt<'a>(
       get_return_stmt_with_arg_from_stmt(&n.body)
     }
     Statement::IfStatement(n) => {
-      get_return_stmt_with_arg_from_stmt(&n.consequent)
+      get_return_stmt_with_arg_from_stmt(&n.consequent).or_else(|| {
+        n.alternate
+          .as_ref()
+          .and_then(get_return_stmt_with_arg_from_stmt)
+      })
     }
     Statement::SwitchStatement(n) => n
       .cases

@@ -22,6 +22,12 @@
           <div class="namespaceItemContentDoc">
 			      {{{~this.docs~}}} {{! markdown rendering }}
           </div>
+        {{~else~}}
+          {{~#if this.deprecated_doc~}}
+            <div class="namespaceItemContentDoc">
+              {{{~this.deprecated_doc~}}} {{! markdown rendering }}
+            </div>
+          {{~/if~}}
         {{~/if~}}
 
         {{~#if this.subitems~}}

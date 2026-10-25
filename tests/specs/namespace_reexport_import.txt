@@ -1,0 +1,78 @@
+# mod.ts
+/** Namespace re-exporting an import. */
+declare namespace NS {
+  export { extend };
+}
+export { NS };
+import { extend } from "./a.ts";
+
+# a.ts
+/** Extends something. */
+export function extend(): void {}
+
+# output.txt
+Defined in file:///mod.ts:1:1
+
+namespace NS
+  Namespace re-exporting an import.
+
+  reference extend: file:///a.ts:1:1
+
+
+# output.json
+{
+  "imports": [
+    {
+      "importedName": "extend",
+      "originalName": "extend",
+      "src": "file:///a.ts"
+    }
+  ],
+  "symbols": [
+    {
+      "name": "NS",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 1,
+            "col": 0,
+            "byteIndex": 41
+          },
+          "declarationKind": "export",
+          "jsDoc": {
+            "doc": "Namespace re-exporting an import."
+          },
+          "kind": "namespace",
+          "def": {
+            "elements": [
+              {
+                "name": "extend",
+                "declarations": [
+                  {
+                    "location": {
+                      "filename": "file:///mod.ts",
+                      "line": 2,
+                      "col": 11,
+                      "byteIndex": 75
+                    },
+                    "declarationKind": "export",
+                    "kind": "reference",
+                    "def": {
+                      "target": {
+                        "filename": "file:///a.ts",
+                        "line": 1,
+                        "col": 0,
+                        "byteIndex": 26
+                      }
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

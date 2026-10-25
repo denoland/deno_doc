@@ -25,7 +25,7 @@ pub fn render_namespace<'a>(
   >,
 ) -> Vec<SectionCtx> {
   partitions
-    .map(|(ctx, header, doc_nodes)| {
+    .filter_map(|(ctx, header, doc_nodes)| {
       get_namespace_section_render_ctx(&ctx, header, doc_nodes)
     })
     .collect()
@@ -35,7 +35,7 @@ fn get_namespace_section_render_ctx(
   ctx: &RenderContext,
   header: Option<SectionHeaderCtx>,
   symbols: Vec<DocNodeWithContext>,
-) -> SectionCtx {
+) -> Option<SectionCtx> {
   let nodes = symbols
     .into_iter()
     .filter_map(|symbol| {
@@ -47,16 +47,23 @@ fn get_namespace_section_render_ctx(
     })
     .collect::<Vec<_>>();
 
-  let mut section = SectionCtx::new(
-    ctx,
-    header
-      .as_ref()
-      .map(|header| header.title.as_str())
-      .unwrap_or_default(),
-    SectionContentCtx::NamespaceSection(nodes),
-  );
+  // a section whose symbols were all filtered out (e.g. private symbols in
+  // an ambient module) renders nothing, so don't emit a header-only section
+  // or its ToC entry
+  if nodes.is_empty() {
+    return None;
+  }
+
+  // the header id was already anchorized by the caller, so register the ToC
+  // entry with it instead of letting `SectionCtx::new` anchorize the title a
+  // second time, which would point the ToC at an id the section doesn't have
+  if let Some(header) = &header {
+    ctx.toc.add_entry(1, &header.title, &header.anchor.id);
+  }
+  let mut section =
+    SectionCtx::new(ctx, "", SectionContentCtx::NamespaceSection(nodes));
   section.header = header;
-  section
+  Some(section)
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -105,6 +112,10 @@ pub struct NamespaceNodeCtx {
   pub ty: Option<TypeSummaryCtx>,
   pub docs: Option<String>,
   pub deprecated: bool,
+  /// The rendered `@deprecated` message, so listings can show it when the
+  /// symbol has no other documentation.
+  #[serde(skip_serializing_if = "Option::is_none")]
+  pub deprecated_doc: Option<String>,
   pub subitems: IndexSet<NamespaceNodeSubItemCtx>,
   #[serde(skip_serializing_if = "Option::is_none")]
   pub diff_status: Option<DiffStatus>,
@@ -146,7 +157,7 @@ impl NamespaceNodeCtx {
           .iter()
           .filter_map(|decl| {
             diff_index.get_def_diff(
-              &symbol.origin.specifier,
+              &symbol.declared_origin().specifier,
               symbol.get_name(),
               decl.def.to_kind(),
             )
@@ -232,7 +243,10 @@ impl NamespaceNodeCtx {
           .diff
           .as_ref()
           .and_then(|d| {
-            d.get_symbol_diff(&symbol.origin.specifier, symbol.get_name())
+            d.get_symbol_diff(
+              &symbol.declared_origin().specifier,
+              symbol.get_name(),
+            )
           })
           .and_then(|info| info.diff.as_ref())
           .and_then(|sd| sd.declarations.as_ref())
@@ -246,7 +260,7 @@ impl NamespaceNodeCtx {
               .as_ref()
               .and_then(|diff_index| {
                 let decl_diff = diff_index.get_declaration_diff(
-                  &symbol.origin.specifier,
+                  &symbol.declared_origin().specifier,
                   symbol.get_name(),
                   decl.def.to_kind(),
                 )?;
@@ -295,7 +309,7 @@ impl NamespaceNodeCtx {
         symbol.declarations.iter().find_map(|decl| {
           diff_index
             .get_declaration_diff(
-              &symbol.origin.specifier,
+              &symbol.declared_origin().specifier,
               symbol.get_name(),
               decl.def.to_kind(),
             )?
@@ -331,6 +345,30 @@ impl NamespaceNodeCtx {
         .collect();
     }
 
+    let deprecated =
+      all_deprecated(&symbol.declarations.iter().collect::<Vec<_>>());
+    let deprecated_doc = deprecated
+      .then(|| {
+        symbol.declarations.iter().find_map(|decl| {
+          decl.js_doc.tags.iter().find_map(|tag| {
+            if let crate::js_doc::JsDocTag::Deprecated { doc: Some(doc) } = tag
+            {
+              crate::html::jsdoc::markdown_to_html(
+                ctx,
+                doc,
+                crate::html::jsdoc::MarkdownToHTMLOptions {
+                  title_only: true,
+                  no_toc: true,
+                },
+              )
+            } else {
+              None
+            }
+          })
+        })
+      })
+      .flatten();
+
     NamespaceNodeCtx {
       anchor: AnchorCtx::new(id),
       tags: compute_tag_ctx(tags, old_tags),
@@ -339,9 +377,8 @@ impl NamespaceNodeCtx {
       name: name.to_string(),
       ty: summary_for_symbol(ctx, &symbol),
       docs,
-      deprecated: all_deprecated(
-        &symbol.declarations.iter().collect::<Vec<_>>(),
-      ),
+      deprecated,
+      deprecated_doc,
       subitems,
       diff_status,
     }
@@ -457,15 +494,20 @@ fn get_subitem_diff_status(
 ) -> Option<DiffStatus> {
   match def_diff {
     DeclarationDefDiff::Class(class_diff) => match kind {
-      DrilldownKind::Method(_) => {
+      DrilldownKind::Method(method_kind) => {
         let mc = class_diff.method_changes.as_ref()?;
-        if mc.added.iter().any(|m| &*m.name == name) {
+        let matches = |m_name: &str, m_kind: deno_ast::swc::ast::MethodKind| {
+          m_name == name
+            && crate::html::MethodKind::from(m_kind) == *method_kind
+        };
+        if mc.added.iter().any(|m| matches(&m.name, m.kind)) {
           return Some(DiffStatus::Added);
         }
-        if mc.removed.iter().any(|m| &*m.name == name) {
+        if mc.removed.iter().any(|m| matches(&m.name, m.kind)) {
           return Some(DiffStatus::Removed);
         }
-        if let Some(md) = mc.modified.iter().find(|m| &*m.name == name) {
+        if let Some(md) = mc.modified.iter().find(|m| matches(&m.name, m.kind))
+        {
           if let Some(nc) = &md.name_change {
             return Some(DiffStatus::Renamed {
               old_name: nc.old.to_string(),
@@ -495,15 +537,20 @@ fn get_subitem_diff_status(
       }
     },
     DeclarationDefDiff::Interface(iface_diff) => match kind {
-      DrilldownKind::Method(_) => {
+      DrilldownKind::Method(method_kind) => {
         let mc = iface_diff.method_changes.as_ref()?;
-        if mc.added.iter().any(|m| m.name == name) {
+        let matches = |m_name: &str, m_kind: deno_ast::swc::ast::MethodKind| {
+          m_name == name
+            && crate::html::MethodKind::from(m_kind) == *method_kind
+        };
+        if mc.added.iter().any(|m| matches(&m.name, m.kind)) {
           return Some(DiffStatus::Added);
         }
-        if mc.removed.iter().any(|m| m.name == name) {
+        if mc.removed.iter().any(|m| matches(&m.name, m.kind)) {
           return Some(DiffStatus::Removed);
         }
-        if let Some(md) = mc.modified.iter().find(|m| m.name == name) {
+        if let Some(md) = mc.modified.iter().find(|m| matches(&m.name, m.kind))
+        {
           if let Some(nc) = &md.name_change {
             return Some(DiffStatus::Renamed {
               old_name: nc.old.clone(),
