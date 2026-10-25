@@ -1822,7 +1822,21 @@ impl<'a> DocParser<'a> {
         self.get_decl_for_interface_decl(module_info, n, n.range())
       }
       SymbolNodeRef::TsNamespace(n) => {
-        self.get_decl_for_ts_namespace(module_info, symbol, n, n.range())
+        // a nested namespace (`namespace A.B {}`) node starts at its own
+        // identifier, but its declaration is located at the outer `namespace`
+        // keyword, so prefer the symbol declaration's range
+        let full_range = symbol
+          .decls()
+          .iter()
+          .find(|decl| {
+            matches!(
+              decl.maybe_node(),
+              Some(SymbolNodeRef::TsNamespace(decl_node)) if std::ptr::eq(decl_node, n)
+            )
+          })
+          .map(|decl| decl.range)
+          .unwrap_or(n.range());
+        self.get_decl_for_ts_namespace(module_info, symbol, n, full_range)
       }
       SymbolNodeRef::TsTypeAlias(n) => {
         self.get_decl_for_type_alias(module_info, n, n.range())
@@ -1869,7 +1883,6 @@ impl<'a> DocParser<'a> {
             ident,
             export_decl.range(),
           ),
-        ExportDeclRef::TsImportEquals(_) => None,
       },
       SymbolNodeRef::Module(_)
       | SymbolNodeRef::AutoAccessor(_)

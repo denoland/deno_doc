@@ -125,7 +125,7 @@ pub fn get_text_info_location(
   let text = text_info.text();
   let lookup_byte_index = byte_index.min(text.len());
   let line_and_column_index =
-    text_info.line_and_column_display(lookup_byte_index);
+    text_info.line_and_column_display_with_indent_width(lookup_byte_index, 2);
 
   Location {
     filename: specifier.into(),
