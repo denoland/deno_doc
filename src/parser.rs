@@ -191,11 +191,11 @@ impl<'a> DocParser<'a> {
             .iter()
             .flat_map(|symbol| {
               symbol.declarations.iter().flat_map(|decl| {
+                let mut locations = vec![decl.location.clone()];
                 if let Some(namespace) = decl.namespace_def() {
-                  walk_arc_symbols(&namespace.elements)
-                } else {
-                  vec![decl.location.clone()]
+                  locations.extend(walk_arc_symbols(&namespace.elements));
                 }
+                locations
               })
             })
             .collect()
@@ -205,11 +205,11 @@ impl<'a> DocParser<'a> {
           .declarations
           .iter()
           .flat_map(|decl| {
+            let mut locations = vec![decl.location.clone()];
             if let Some(namespace) = decl.namespace_def() {
-              walk_arc_symbols(&namespace.elements)
-            } else {
-              vec![decl.location.clone()]
+              locations.extend(walk_arc_symbols(&namespace.elements));
             }
+            locations
           })
           .collect::<Vec<_>>()
       })
@@ -408,11 +408,9 @@ impl<'a> DocParser<'a> {
           match first_def.kind {
             DefinitionKind::ExportStar(_) => {}
             DefinitionKind::Definition => {
-              if (star
-                || first_def.module.specifier() != module_info.specifier())
-                && definitions
-                  .iter()
-                  .any(|def| definition_location(def) == reference_def.target)
+              if definitions
+                .iter()
+                .any(|def| definition_location(def) == reference_def.target)
               {
                 let mut declarations = vec![];
                 for definition in &definitions {
@@ -1158,6 +1156,14 @@ impl<'a> DocParser<'a> {
         .get_root_exported_deps(&child_symbol.unique_id())
         .is_none()
     );
+    self.get_non_exported_symbol_for_ast_symbol(module_info, child_symbol)
+  }
+
+  fn get_non_exported_symbol_for_ast_symbol(
+    &self,
+    module_info: ModuleInfoRef,
+    child_symbol: &GraphSymbol,
+  ) -> Option<Symbol> {
     let mut declarations = Vec::with_capacity(child_symbol.decls().len());
     let mut name: Option<Box<str>> = None;
     for decl in child_symbol.decls() {
@@ -1503,6 +1509,7 @@ impl<'a> DocParser<'a> {
       };
 
     let mut handled_symbols = HashSet::new();
+    let mut default_reference_targets = HashSet::new();
     let exports = module_info.exports(&self.root_symbol);
 
     // deno_graph's export map only holds a single symbol per exported name,
@@ -1550,23 +1557,49 @@ impl<'a> DocParser<'a> {
       let mut declarations: Vec<Declaration> = vec![];
       let mut seen_declarations = HashSet::new();
 
+      let default_export_stmt = if export_name == "default" {
+        export
+          .module
+          .esm()
+          .and_then(|esm| find_default_export_ident_stmt(esm, original_range))
+      } else {
+        None
+      };
+
       for definition in definitions {
-        handled_symbols.insert(definition.symbol.unique_id());
-        let maybe_docs = self.decls_for_maybe_node(
-          export_name,
-          definition.module,
-          definition.symbol,
-          definition.symbol_decl.maybe_node(),
-          export.module.esm(),
-          export.module.specifier(),
-          Some(definition.symbol_decl),
-          Some(original_range),
-        );
+        let maybe_docs = if let Some(stmt) = default_export_stmt
+          && definition.module.specifier() == export.module.specifier()
+        {
+          let esm = export.module.esm().unwrap();
+          default_reference_targets.insert(definition.symbol.unique_id());
+          js_doc_for_range(esm, &stmt.range())
+            .map(|js_doc| {
+              Declaration::reference(
+                get_location(esm, stmt.start()),
+                js_doc,
+                ReferenceDef {
+                  target: definition_location(&definition),
+                },
+              )
+            })
+            .into_iter()
+            .collect()
+        } else {
+          handled_symbols.insert(definition.symbol.unique_id());
+          self.decls_for_maybe_node(
+            export_name,
+            definition.module,
+            definition.symbol,
+            definition.symbol_decl.maybe_node(),
+            export.module.esm(),
+            export.module.specifier(),
+            Some(definition.symbol_decl),
+            Some(original_range),
+          )
+        };
         for mut decl in maybe_docs {
           decl.declaration_kind = DeclarationKind::Export;
-          if seen_declarations
-            .insert((decl.location.clone(), decl.def.to_kind()))
-          {
+          if seen_declarations.insert(declaration_dedupe_key(&decl)) {
             declarations.push(decl);
           }
         }
@@ -1611,9 +1644,7 @@ impl<'a> DocParser<'a> {
             );
             for mut decl in maybe_docs {
               decl.declaration_kind = DeclarationKind::Export;
-              if seen_declarations
-                .insert((decl.location.clone(), decl.def.to_kind()))
-              {
+              if seen_declarations.insert(declaration_dedupe_key(&decl)) {
                 declarations.push(decl);
               }
             }
@@ -1664,9 +1695,7 @@ impl<'a> DocParser<'a> {
             );
             for mut decl in maybe_docs {
               decl.declaration_kind = DeclarationKind::Export;
-              if seen_declarations
-                .insert((decl.location.clone(), decl.def.to_kind()))
-              {
+              if seen_declarations.insert(declaration_dedupe_key(&decl)) {
                 declarations.push(decl);
               }
             }
@@ -1690,17 +1719,25 @@ impl<'a> DocParser<'a> {
       if !handled_symbols.insert(unique_id) {
         continue; // already handled
       }
-      if is_ambient
+      let child_symbol = module_info.symbol(child_id).unwrap();
+      let symbol = if default_reference_targets.contains(&unique_id) {
+        self.get_non_exported_symbol_for_ast_symbol(
+          ModuleInfoRef::Esm(module_info),
+          child_symbol,
+        )
+      } else if is_ambient
         || self.private
         || self.visibility.has_non_exported_public(&unique_id)
       {
-        let child_symbol = module_info.symbol(child_id).unwrap();
-        if let Some(symbol) = self.get_private_symbol_for_ast_symbol(
+        self.get_private_symbol_for_ast_symbol(
           ModuleInfoRef::Esm(module_info),
           child_symbol,
-        ) {
-          symbols.push(Arc::new(symbol));
-        }
+        )
+      } else {
+        None
+      };
+      if let Some(symbol) = symbol {
+        symbols.push(Arc::new(symbol));
       }
     }
 
@@ -2515,6 +2552,34 @@ fn default_export_obj_member<'a>(
         _ => None,
       })
   })
+}
+
+fn find_default_export_ident_stmt<'a>(
+  module_info: &'a EsModuleInfo,
+  ident_range: &SourceRange,
+) -> Option<&'a ExportDefaultExpr> {
+  module_info
+    .source()
+    .program_ref()
+    .body()
+    .find_map(|item| match item {
+      ModuleItemRef::ModuleDecl(ModuleDecl::ExportDefaultExpr(n))
+        if matches!(&*n.expr, Expr::Ident(ident) if ident.range() == *ident_range) =>
+      {
+        Some(n)
+      }
+      _ => None,
+    })
+}
+
+fn declaration_dedupe_key(
+  decl: &Declaration,
+) -> (Location, crate::node::DocNodeKind) {
+  let location = decl
+    .reference_def()
+    .map(|reference_def| reference_def.target.clone())
+    .unwrap_or_else(|| decl.location.clone());
+  (location, decl.def.to_kind())
 }
 
 fn module_has_import(module_info: &EsModuleInfo) -> bool {
