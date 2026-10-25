@@ -667,7 +667,7 @@ dependencies = [
 [[package]]
 name = "deno_graph"
 version = "0.111.1"
-source = "git+https://github.com/nathanwhit/deno_graph?branch=oxc-port#80decec0d232f0afb30255f1f81a3909768a61c0"
+source = "git+https://github.com/nathanwhit/deno_graph?branch=oxc-port#69a5591094eaac632c4e958f8c096f2b688334df"
 dependencies = [
  "async-trait",
  "boxed_error",
