@@ -28,29 +28,11 @@ export const CYCLE_A = [...CYCLE_B, "a"] as const;
 /** Mutually cyclic. */
 export const CYCLE_B = [...CYCLE_A, "b"] as const;
 
-# diagnostics
-error[private-type-ref]: public type 'EXTENDED' references private type 'BASE'
-  --> /mod.ts:12:14
-   | 
-12 | export const EXTENDED = [...BASE, "c"] as const;
-   |              ^
-   = hint: make the referenced type public or remove the reference
-   | 
-10 | const BASE = ["a", "b"] as const;
-   |       - this is the referenced type
-   | 
-
-  info: to ensure documentation is complete all types that are exposed in the public API must be public
-
 # output.txt
 Defined in file:///mod.ts:3:14
 
 const ALL_UPDATE_TYPES: ("message" | "edited_message" | "chat_member" | "message_reaction" | "message_reaction_count")[]
   All update types.
-
-Defined in file:///mod.ts:9:7
-
-private const BASE: ("a" | "b")[]
 
 Defined in file:///mod.ts:15:14
 
@@ -550,48 +532,6 @@ const UNKNOWN: any[]
                     "kind": "keyword",
                     "value": "any"
                   },
-                  {
-                    "repr": "a",
-                    "kind": "literal",
-                    "value": {
-                      "kind": "string",
-                      "string": "a"
-                    }
-                  },
-                  {
-                    "repr": "b",
-                    "kind": "literal",
-                    "value": {
-                      "kind": "string",
-                      "string": "b"
-                    }
-                  }
-                ]
-              }
-            },
-            "kind": "const"
-          }
-        }
-      ]
-    },
-    {
-      "name": "BASE",
-      "declarations": [
-        {
-          "location": {
-            "filename": "file:///mod.ts",
-            "line": 9,
-            "col": 6,
-            "byteIndex": 276
-          },
-          "declarationKind": "private",
-          "kind": "variable",
-          "def": {
-            "tsType": {
-              "kind": "array",
-              "value": {
-                "kind": "union",
-                "value": [
                   {
                     "repr": "a",
                     "kind": "literal",

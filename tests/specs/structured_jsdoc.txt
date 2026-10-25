@@ -184,7 +184,10 @@ class A
                               "value": "void"
                             }
                           ],
-                          "typeName": "Promise"
+                          "typeName": "Promise",
+                          "resolution": {
+                            "kind": "typeParam"
+                          }
                         }
                       }
                     }

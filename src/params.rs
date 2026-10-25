@@ -417,15 +417,13 @@ pub fn prop_name_to_string(
     PropertyKey::PrivateIdentifier(ident) => {
       format!("#{}", ident.name)
     }
-    PropertyKey::StaticMemberExpression(member) => {
-      let left: String = crate::interface::expr_to_name(&member.object);
-      let right = member.property.name.to_string();
-      format!("[{}.{}]", left, right)
-    }
+    // computed keys: the source text of the key including its brackets
+    // (swc's `ComputedPropName` span covered the brackets)
     _ => {
       let span = prop_key.span();
-      module_info.source_text()[span.start as usize..span.end as usize]
-        .to_string()
+      let text =
+        &module_info.source_text()[span.start as usize..span.end as usize];
+      format!("[{}]", text)
     }
   }
 }

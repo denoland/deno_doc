@@ -202,8 +202,8 @@ namespace RootNs
                     "location": {
                       "filename": "file:///mod.ts",
                       "line": 14,
-                      "col": 24,
-                      "byteIndex": 252
+                      "col": 7,
+                      "byteIndex": 235
                     },
                     "declarationKind": "export",
                     "kind": "namespace",

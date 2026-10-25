@@ -44,31 +44,26 @@ pub fn get_docs_for_var_declarator(
   let explicit_ts_type = maybe_ts_type_ann
     .map(|def| TsTypeDef::new(module_info, &def.type_annotation));
 
-  // Full inferred type (used only for simple identifier patterns, not
-  // destructured bindings).
+  // Full inferred type: the explicit annotation, the type of a referenced
+  // variable or the type inferred from the initializer.
   let maybe_ts_type = explicit_ts_type
     .clone()
     .or_else(|| {
       if let Some(ref_ident) = ref_ident {
-        let swc_id = (ref_ident.name.to_string(), 0usize);
+        let swc_id =
+          crate::ts_type::identifier_reference_to_id(module_info, ref_ident);
         module_info.symbol_from_swc(&swc_id).and_then(|symbol| {
           for decl in symbol.decls() {
             if let Some(SymbolNodeRef::Var(_, ref_var_declarator, _)) =
               decl.maybe_node()
             {
+              // only the explicit type annotation of the referenced variable
+              // is used; its initializer is not inferred from
               if let Some(type_ann) = &ref_var_declarator.type_annotation {
                 return Some(TsTypeDef::new(
                   module_info,
                   &type_ann.type_annotation,
                 ));
-              }
-              let maybe_type_ann = infer_simple_ts_type_from_init(
-                module_info,
-                ref_var_declarator.init.as_ref(),
-                kind == VarDeclKind::Const,
-              );
-              if let Some(type_ann) = maybe_type_ann {
-                return Some(type_ann);
               }
             }
           }
@@ -98,14 +93,14 @@ pub fn get_docs_for_var_declarator(
     BindingPattern::ObjectPattern(obj) => get_vars_from_obj_destructuring(
       obj,
       kind,
-      explicit_ts_type.as_ref(),
+      maybe_ts_type.as_ref(),
       &mut items,
       module_info,
     ),
     BindingPattern::ArrayPattern(arr) => get_vars_from_array_destructuring(
       arr,
       kind,
-      explicit_ts_type.as_ref(),
+      maybe_ts_type.as_ref(),
       &mut items,
       module_info,
     ),

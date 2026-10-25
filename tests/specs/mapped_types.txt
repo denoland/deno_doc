@@ -84,7 +84,10 @@ type MappedTypeWithNewProperties<Type> = readonly [Properties in keyof Type as N
                       "repr": "Properties",
                       "kind": "typeRef",
                       "value": {
-                        "typeName": "Properties"
+                        "typeName": "Properties",
+                        "resolution": {
+                          "kind": "typeParam"
+                        }
                       }
                     }
                   }

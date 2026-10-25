@@ -899,37 +899,61 @@ fn resolve_type_ref(
   module_info: &EsModuleInfo,
   ident: &IdentifierReference,
 ) -> Option<TypeRefResolution> {
-  let reference_symbol_id = ident
-    .reference_id
-    .get()
-    .zip(module_info.scoping())
-    .and_then(|(reference_id, scoping)| {
-      scoping.get_reference(reference_id).symbol_id()
-    });
   let id = identifier_reference_to_id(module_info, ident);
   if let Some(symbol) = module_info.symbol_from_swc(&id) {
-    if let Some(file_dep) = symbol.file_dep() {
+    return if let Some(file_dep) = symbol.file_dep() {
       Some(TypeRefResolution::Import {
         specifier: file_dep.specifier.clone(),
         name: file_dep.name.maybe_name().map(|s| s.to_string()),
       })
     } else {
       Some(TypeRefResolution::Local)
-    }
-  } else if let Some((declaring_name, declaring_kind)) = reference_symbol_id
-    .and_then(|symbol_id| {
-      module_info.scoping().and_then(|scoping| {
-        type_param_declaring_info(module_info, scoping.symbol_span(symbol_id))
-      })
-    })
-  {
-    Some(TypeRefResolution::TypeParam {
-      declaring_name,
-      declaring_kind,
-    })
-  } else {
-    None
+    };
   }
+  // A reference that semantic analysis resolved to nothing is an unresolved
+  // identifier: a global type (Promise, Array, etc.) or truly unresolvable.
+  let reference_symbol_id =
+    match (ident.reference_id.get(), module_info.scoping()) {
+      (Some(reference_id), Some(scoping)) => {
+        match scoping.get_reference(reference_id).symbol_id() {
+          // swc's resolver did not bind `infer X` type parameters, so a
+          // reference to one was unresolved
+          Some(symbol_id)
+            if is_infer_type_param(module_info, scoping, symbol_id) =>
+          {
+            return None;
+          }
+          Some(symbol_id) => Some(symbol_id),
+          None => return None,
+        }
+      }
+      // not semantically analyzed (e.g. a type parsed from a JSDoc tag)
+      _ => None,
+    };
+  // The identifier resolved to a binding that is not a module-level symbol:
+  // it's a type parameter or other locally-scoped binding.
+  let origin = reference_symbol_id.and_then(|symbol_id| {
+    module_info.scoping().and_then(|scoping| {
+      type_param_declaring_info(module_info, scoping.symbol_span(symbol_id))
+    })
+  });
+  Some(TypeRefResolution::TypeParam {
+    declaring_name: origin.as_ref().and_then(|o| o.0.clone()),
+    declaring_kind: origin.as_ref().and_then(|o| o.1.clone()),
+  })
+}
+
+/// Whether the symbol is a type parameter introduced by an `infer X` type.
+fn is_infer_type_param(
+  module_info: &EsModuleInfo,
+  scoping: &deno_ast::oxc::semantic::Scoping,
+  symbol_id: deno_ast::oxc::semantic::SymbolId,
+) -> bool {
+  let span = scoping.symbol_span(symbol_id);
+  module_info
+    .source_text()
+    .get(..span.start as usize)
+    .is_some_and(|text| text.trim_end().ends_with("infer"))
 }
 
 fn type_param_declaring_info(
@@ -1719,179 +1743,6 @@ impl Display for TsTypePredicateDef {
 }
 
 impl TsTypeDef {
-  pub(crate) fn clear_resolutions(&mut self) {
-    fn clear_type_param(type_param: &mut TsTypeParamDef) {
-      if let Some(constraint) = &mut type_param.constraint {
-        constraint.clear_resolutions();
-      }
-      if let Some(default) = &mut type_param.default {
-        default.clear_resolutions();
-      }
-    }
-
-    fn clear_param(param: &mut ParamDef) {
-      match &mut param.pattern {
-        ParamPatternDef::Array { elements, .. } => {
-          for element in elements.iter_mut().flatten() {
-            clear_param(element);
-          }
-        }
-        ParamPatternDef::Assign { left, .. } => clear_param(left),
-        ParamPatternDef::Object { props, .. } => {
-          for prop in props {
-            match prop {
-              crate::params::ObjectPatPropDef::KeyValue { value, .. } => {
-                clear_param(value);
-              }
-              crate::params::ObjectPatPropDef::Rest { arg } => {
-                clear_param(arg);
-              }
-              crate::params::ObjectPatPropDef::Assign { .. } => {}
-            }
-          }
-        }
-        ParamPatternDef::Rest { arg } => clear_param(arg),
-        ParamPatternDef::Identifier { .. } => {}
-      }
-      if let Some(ts_type) = &mut param.ts_type {
-        ts_type.clear_resolutions();
-      }
-    }
-
-    match &mut self.kind {
-      TsTypeDefKind::TypeRef(type_ref) => {
-        type_ref.resolution = None;
-        if let Some(type_params) = &mut type_ref.type_params {
-          for type_param in type_params.iter_mut() {
-            type_param.clear_resolutions();
-          }
-        }
-      }
-      TsTypeDefKind::Literal(literal) => {
-        if let Some(ts_types) = &mut literal.ts_types {
-          for ts_type in ts_types {
-            ts_type.clear_resolutions();
-          }
-        }
-      }
-      TsTypeDefKind::Union(types)
-      | TsTypeDefKind::Intersection(types)
-      | TsTypeDefKind::Tuple(types) => {
-        for ts_type in types {
-          ts_type.clear_resolutions();
-        }
-      }
-      TsTypeDefKind::Array(ts_type)
-      | TsTypeDefKind::Parenthesized(ts_type)
-      | TsTypeDefKind::Rest(ts_type)
-      | TsTypeDefKind::Optional(ts_type) => ts_type.clear_resolutions(),
-      TsTypeDefKind::TypeOperator(type_operator) => {
-        type_operator.ts_type.clear_resolutions();
-      }
-      TsTypeDefKind::FnOrConstructor(fn_or_constructor) => {
-        fn_or_constructor.ts_type.clear_resolutions();
-        for param in &mut fn_or_constructor.params {
-          clear_param(param);
-        }
-        for type_param in &mut fn_or_constructor.type_params {
-          clear_type_param(type_param);
-        }
-      }
-      TsTypeDefKind::Conditional(conditional) => {
-        conditional.check_type.clear_resolutions();
-        conditional.extends_type.clear_resolutions();
-        conditional.true_type.clear_resolutions();
-        conditional.false_type.clear_resolutions();
-      }
-      TsTypeDefKind::Infer(infer) => {
-        clear_type_param(&mut infer.type_param);
-      }
-      TsTypeDefKind::IndexedAccess(indexed_access) => {
-        indexed_access.obj_type.clear_resolutions();
-        indexed_access.index_type.clear_resolutions();
-      }
-      TsTypeDefKind::Mapped(mapped) => {
-        clear_type_param(&mut mapped.type_param);
-        if let Some(name_type) = &mut mapped.name_type {
-          name_type.clear_resolutions();
-        }
-        if let Some(ts_type) = &mut mapped.ts_type {
-          ts_type.clear_resolutions();
-        }
-      }
-      TsTypeDefKind::TypeLiteral(type_literal) => {
-        for ctor in &mut type_literal.constructors {
-          for param in &mut ctor.params {
-            clear_param(param);
-          }
-          if let Some(return_type) = &mut ctor.return_type {
-            return_type.clear_resolutions();
-          }
-          for type_param in &mut ctor.type_params {
-            clear_type_param(type_param);
-          }
-        }
-        for method in &mut type_literal.methods {
-          for param in &mut method.params {
-            clear_param(param);
-          }
-          if let Some(return_type) = &mut method.return_type {
-            return_type.clear_resolutions();
-          }
-          for type_param in &mut method.type_params {
-            clear_type_param(type_param);
-          }
-        }
-        for property in &mut type_literal.properties {
-          for param in &mut property.params {
-            clear_param(param);
-          }
-          if let Some(ts_type) = &mut property.ts_type {
-            ts_type.clear_resolutions();
-          }
-          for type_param in &mut property.type_params {
-            clear_type_param(type_param);
-          }
-        }
-        for call_signature in &mut type_literal.call_signatures {
-          for param in &mut call_signature.params {
-            clear_param(param);
-          }
-          if let Some(ts_type) = &mut call_signature.ts_type {
-            ts_type.clear_resolutions();
-          }
-          for type_param in &mut call_signature.type_params {
-            clear_type_param(type_param);
-          }
-        }
-        for index_signature in &mut type_literal.index_signatures {
-          for param in &mut index_signature.params {
-            clear_param(param);
-          }
-          if let Some(ts_type) = &mut index_signature.ts_type {
-            ts_type.clear_resolutions();
-          }
-        }
-      }
-      TsTypeDefKind::TypePredicate(type_predicate) => {
-        if let Some(ts_type) = &mut type_predicate.r#type {
-          ts_type.clear_resolutions();
-        }
-      }
-      TsTypeDefKind::ImportType(import_type) => {
-        if let Some(type_params) = &mut import_type.type_params {
-          for type_param in type_params {
-            type_param.clear_resolutions();
-          }
-        }
-      }
-      TsTypeDefKind::Keyword(_)
-      | TsTypeDefKind::TypeQuery(_)
-      | TsTypeDefKind::This
-      | TsTypeDefKind::Unsupported => {}
-    }
-  }
-
   pub fn number_literal(num: &NumericLiteral) -> Self {
     Self::number_value(num.value)
   }

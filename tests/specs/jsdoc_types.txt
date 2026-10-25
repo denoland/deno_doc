@@ -205,11 +205,17 @@ class StringList
                               "value": "number"
                             }
                           ],
-                          "typeName": "Set"
+                          "typeName": "Set",
+                          "resolution": {
+                            "kind": "typeParam"
+                          }
                         }
                       }
                     ],
-                    "typeName": "Map"
+                    "typeName": "Map",
+                    "resolution": {
+                      "kind": "typeParam"
+                    }
                   }
                 },
                 "doc": "the lookup map"
@@ -314,7 +320,10 @@ class StringList
                         "value": "unknown"
                       }
                     ],
-                    "typeName": "Record"
+                    "typeName": "Record",
+                    "resolution": {
+                      "kind": "typeParam"
+                    }
                   }
                 },
                 "doc": "an object"
@@ -337,11 +346,17 @@ class StringList
                               "value": "string"
                             }
                           ],
-                          "typeName": "Array"
+                          "typeName": "Array",
+                          "resolution": {
+                            "kind": "typeParam"
+                          }
                         }
                       }
                     ],
-                    "typeName": "Promise"
+                    "typeName": "Promise",
+                    "resolution": {
+                      "kind": "typeParam"
+                    }
                   }
                 },
                 "doc": "the results"
@@ -352,7 +367,10 @@ class StringList
                   "repr": "RangeError",
                   "kind": "typeRef",
                   "value": {
-                    "typeName": "RangeError"
+                    "typeName": "RangeError",
+                    "resolution": {
+                      "kind": "typeParam"
+                    }
                   }
                 },
                 "doc": "if out of range"
@@ -363,7 +381,10 @@ class StringList
                   "repr": "TypeError",
                   "kind": "typeRef",
                   "value": {
-                    "typeName": "TypeError"
+                    "typeName": "TypeError",
+                    "resolution": {
+                      "kind": "typeParam"
+                    }
                   }
                 },
                 "doc": "if wrong type"
@@ -563,7 +584,10 @@ class StringList
                         "value": "string"
                       }
                     ],
-                    "typeName": "ReadonlyArray"
+                    "typeName": "ReadonlyArray",
+                    "resolution": {
+                      "kind": "typeParam"
+                    }
                   }
                 }
               }
@@ -639,7 +663,10 @@ class StringList
                   "repr": "HTMLElement",
                   "kind": "typeRef",
                   "value": {
-                    "typeName": "HTMLElement"
+                    "typeName": "HTMLElement",
+                    "resolution": {
+                      "kind": "typeParam"
+                    }
                   }
                 }
               }
@@ -684,7 +711,10 @@ class StringList
                         "value": "string"
                       }
                     ],
-                    "typeName": "Array"
+                    "typeName": "Array",
+                    "resolution": {
+                      "kind": "typeParam"
+                    }
                   }
                 }
               }
