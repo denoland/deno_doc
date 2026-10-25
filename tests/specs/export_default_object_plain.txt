@@ -1,0 +1,84 @@
+# mod.ts
+/** Plain data, documented as an object type. */
+export default {
+  /** A name. */
+  name: "foo",
+  /** A count. */
+  count: 1,
+};
+
+# output.txt
+Defined in file:///mod.ts:1:1
+
+var default: { name: string; count: number; }
+  Plain data, documented as an object type.
+
+
+# output.json
+{
+  "symbols": [
+    {
+      "name": "default",
+      "isDefault": true,
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 1,
+            "col": 0,
+            "byteIndex": 49
+          },
+          "declarationKind": "export",
+          "jsDoc": {
+            "doc": "Plain data, documented as an object type."
+          },
+          "kind": "variable",
+          "def": {
+            "tsType": {
+              "kind": "typeLiteral",
+              "value": {
+                "properties": [
+                  {
+                    "name": "name",
+                    "jsDoc": {
+                      "doc": "A name."
+                    },
+                    "location": {
+                      "filename": "file:///mod.ts",
+                      "line": 3,
+                      "col": 2,
+                      "byteIndex": 85
+                    },
+                    "tsType": {
+                      "repr": "string",
+                      "kind": "keyword",
+                      "value": "string"
+                    }
+                  },
+                  {
+                    "name": "count",
+                    "jsDoc": {
+                      "doc": "A count."
+                    },
+                    "location": {
+                      "filename": "file:///mod.ts",
+                      "line": 5,
+                      "col": 2,
+                      "byteIndex": 118
+                    },
+                    "tsType": {
+                      "repr": "number",
+                      "kind": "keyword",
+                      "value": "number"
+                    }
+                  }
+                ]
+              }
+            },
+            "kind": "var"
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -10,9 +10,14 @@ use deno_ast::swc::ast::DefaultDecl;
 use deno_ast::swc::ast::ExportDecl;
 use deno_ast::swc::ast::ExportDefaultDecl;
 use deno_ast::swc::ast::ExportDefaultExpr;
+use deno_ast::swc::ast::Expr;
 use deno_ast::swc::ast::FnDecl;
 use deno_ast::swc::ast::Ident;
 use deno_ast::swc::ast::ModuleDecl;
+use deno_ast::swc::ast::ObjectLit;
+use deno_ast::swc::ast::Prop;
+use deno_ast::swc::ast::PropName;
+use deno_ast::swc::ast::PropOrSpread;
 use deno_ast::swc::ast::TsEnumDecl;
 use deno_ast::swc::ast::TsInterfaceDecl;
 use deno_ast::swc::ast::TsModuleDecl;
@@ -351,6 +356,21 @@ impl<'a> DocParser<'a> {
                   .iter()
                   .find(|(name, _)| &name_path_item == name)
                 else {
+                  // `export default { foo }` has no exports of its own in
+                  // the symbol graph, so look the member up in the object
+                  // literal instead.
+                  if let Some(esm) = export.module.esm()
+                    && let Some(member_symbol) = default_export_obj_member(
+                      esm,
+                      export_symbol,
+                      name_path_item,
+                    )
+                  {
+                    export_name = name_path_item;
+                    export_symbol = member_symbol;
+                    continue;
+                  }
+
                   let definitions = self
                     .root_symbol
                     .go_to_definitions(export.module, export_symbol)
@@ -1285,7 +1305,18 @@ impl<'a> DocParser<'a> {
   ) -> Option<Declaration> {
     let js_doc = js_doc_for_range(module_info, &export_expr.range())?;
     let location = get_location(module_info, export_expr.start());
-    if let deno_ast::swc::ast::Expr::Arrow(arrow_expr) = &*export_expr.expr {
+    if let Expr::Object(obj) = &*export_expr.expr
+      && let Some(namespace_def) =
+        self.get_namespace_def_for_default_export_obj(module_info, obj)
+    {
+      // e.g.) export default { foo, bar };
+      Some(Declaration::namespace(
+        location,
+        DeclarationKind::Export,
+        js_doc,
+        namespace_def,
+      ))
+    } else if let Expr::Arrow(arrow_expr) = &*export_expr.expr {
       let function_def =
         crate::function::arrow_to_function_def(module_info, arrow_expr);
       Some(Declaration::function(
@@ -1309,6 +1340,122 @@ impl<'a> DocParser<'a> {
         },
       ))
     }
+  }
+
+  /// Documents `export default { foo, bar: baz, qux: 1 }` as a namespace
+  /// whose members are the symbols the object literal refers to, so that
+  /// symbols re-exported through a default-exported object keep their
+  /// documentation instead of collapsing into an untyped object literal.
+  ///
+  /// Returns `None` when no member refers to a module-level symbol, or when
+  /// the literal uses a property kind that doesn't map onto a namespace
+  /// member (getters, setters, spreads, computed keys); the caller then
+  /// documents the literal as a variable with an inferred object type.
+  fn get_namespace_def_for_default_export_obj(
+    &self,
+    module_info: &EsModuleInfo,
+    obj: &ObjectLit,
+  ) -> Option<NamespaceDef> {
+    let members = object_lit_members(obj)?;
+    let mut elements = Vec::with_capacity(members.len());
+    let mut has_ident_member = false;
+    for (name, prop, member) in members {
+      let Some(js_doc) = js_doc_for_range(module_info, &prop.range()) else {
+        continue; // @ignore
+      };
+      let location = get_location(module_info, prop.start());
+      let declarations = match member {
+        ObjectLitMember::Ident(ident) => {
+          let symbol = module_info.symbol_from_swc(&ident.to_id())?;
+          has_ident_member = true;
+          let declarations = self.decls_for_default_export_obj_member(
+            module_info,
+            symbol,
+            &name,
+            &prop.range(),
+          );
+          if declarations.is_empty() {
+            // e.g.) an import from an external module that can't be
+            // followed to a definition: still list the member.
+            vec![Declaration::variable(
+              location,
+              DeclarationKind::Export,
+              js_doc,
+              VariableDef {
+                ts_type: None,
+                kind: VarDeclKind::Const,
+              },
+            )]
+          } else {
+            declarations
+          }
+        }
+        ObjectLitMember::Method(function) => {
+          let function_def = crate::function::function_to_function_def(
+            module_info,
+            function,
+            None,
+          );
+          vec![Declaration::function(
+            location,
+            DeclarationKind::Export,
+            js_doc,
+            function_def,
+          )]
+        }
+        ObjectLitMember::Expr(expr) => {
+          let mut decl =
+            decl_from_expr(self, module_info, expr, location, js_doc);
+          decl.declaration_kind = DeclarationKind::Export;
+          vec![decl]
+        }
+      };
+      if !declarations.is_empty() {
+        elements.push(Arc::new(Symbol {
+          name: name.into_boxed_str(),
+          is_default: false,
+          declarations,
+        }));
+      }
+    }
+    if !has_ident_member {
+      return None;
+    }
+    Some(NamespaceDef { elements })
+  }
+
+  /// Resolves an identifier member of a default-exported object literal to
+  /// the declarations of the symbol it refers to: a copy of the declarations
+  /// for a symbol declared in the same module, and a reference to be
+  /// resolved later for one coming from another module.
+  fn decls_for_default_export_obj_member(
+    &self,
+    module_info: &EsModuleInfo,
+    symbol: &GraphSymbol,
+    name: &str,
+    member_range: &SourceRange,
+  ) -> Vec<Declaration> {
+    let mut declarations = vec![];
+    for definition in self
+      .root_symbol
+      .go_to_definitions(ModuleInfoRef::Esm(module_info), symbol)
+    {
+      let mut decls = self.decls_for_maybe_node(
+        name,
+        definition.module,
+        definition.symbol,
+        definition.symbol_decl.maybe_node(),
+        Some(module_info),
+        module_info.specifier(),
+        Some(definition.symbol_decl),
+        Some(member_range),
+      );
+      for decl in &mut decls {
+        decl.declaration_kind = DeclarationKind::Export;
+      }
+      declarations.extend(decls);
+    }
+    declarations
   }
 
   fn get_decl_for_reference(
@@ -2317,6 +2464,88 @@ fn parse_json_module_type(value: &serde_json::Value) -> TsTypeDef {
       }),
     },
   }
+}
+
+/// A member of an object literal that can be documented as a namespace
+/// member, see [`object_lit_members`].
+enum ObjectLitMember<'a> {
+  /// `{ foo }` or `{ foo: bar }`: refers to another symbol.
+  Ident(&'a Ident),
+  /// `{ foo() {} }`
+  Method(&'a deno_ast::swc::ast::Function),
+  /// `{ foo: <expr> }` for any other expression.
+  Expr(&'a Expr),
+}
+
+/// Collects the members of an object literal along with their names and the
+/// property they come from. Returns `None` if the literal contains a property
+/// that can't be documented as a namespace member (getters, setters, spreads,
+/// numeric or computed keys).
+fn object_lit_members(
+  obj: &ObjectLit,
+) -> Option<Vec<(String, &Prop, ObjectLitMember<'_>)>> {
+  fn prop_name(key: &PropName) -> Option<String> {
+    match key {
+      PropName::Ident(ident) => Some(ident.sym.to_string()),
+      PropName::Str(str_) => Some(str_.value.to_string_lossy().into_owned()),
+      PropName::Num(_) | PropName::BigInt(_) | PropName::Computed(_) => None,
+    }
+  }
+
+  obj
+    .props
+    .iter()
+    .map(|obj_prop| {
+      let PropOrSpread::Prop(prop) = obj_prop else {
+        return None;
+      };
+      let (name, member) = match &**prop {
+        Prop::Shorthand(ident) => {
+          (ident.sym.to_string(), ObjectLitMember::Ident(ident))
+        }
+        Prop::KeyValue(kv) => {
+          let member = match &*kv.value {
+            Expr::Ident(ident) => ObjectLitMember::Ident(ident),
+            expr => ObjectLitMember::Expr(expr),
+          };
+          (prop_name(&kv.key)?, member)
+        }
+        Prop::Method(method) => (
+          prop_name(&method.key)?,
+          ObjectLitMember::Method(&method.function),
+        ),
+        Prop::Getter(_) | Prop::Setter(_) | Prop::Assign(_) => return None,
+      };
+      Some((name, &**prop, member))
+    })
+    .collect()
+}
+
+/// Resolves `name` in a default-exported object literal to the module-level
+/// symbol its identifier refers to, e.g. `foo` in `export default { foo }` or
+/// `baz` in `export default { bar: baz }`.
+fn default_export_obj_member<'a>(
+  module_info: &'a EsModuleInfo,
+  symbol: &GraphSymbol,
+  name: &str,
+) -> Option<&'a GraphSymbol> {
+  symbol.decls().iter().find_map(|decl| {
+    let SymbolNodeRef::ExportDefaultExpr(export_expr) = decl.maybe_node()?
+    else {
+      return None;
+    };
+    let Expr::Object(obj) = &*export_expr.expr else {
+      return None;
+    };
+    object_lit_members(obj)?
+      .into_iter()
+      .find_map(|(member_name, _, member)| match member {
+        ObjectLitMember::Ident(ident) if member_name == name => {
+          module_info.symbol_from_swc(&ident.to_id())
+        }
+        _ => None,
+      })
+  })
 }
 
 fn module_has_import(module_info: &EsModuleInfo) -> bool {
