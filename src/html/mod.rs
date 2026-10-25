@@ -707,16 +707,30 @@ impl GenerateCtx {
       .map(|v| v.as_slice())
       .unwrap_or(&[]);
 
+    fn mark_exported(node: &mut DocNodeWithContext) {
+      for decl in &mut Arc::make_mut(&mut node.inner).declarations {
+        if decl.declaration_kind == crate::node::DeclarationKind::Private {
+          decl.declaration_kind = crate::node::DeclarationKind::Export;
+        }
+      }
+      if let Some(children_rc) = &mut node.namespace_children {
+        for child in Arc::make_mut(children_rc) {
+          mark_exported(child);
+        }
+      }
+    }
+
     entries
       .iter()
       .map(|(depth, node)| {
+        let mut node = Cow::Borrowed(node);
         if *depth > 0 {
-          let mut node = node.clone();
-          strip_qualifiers(&mut node, *depth);
-          Cow::Owned(node)
-        } else {
-          Cow::Borrowed(node)
+          strip_qualifiers(node.to_mut(), *depth);
         }
+        if node.is_non_exported(self) {
+          mark_exported(node.to_mut());
+        }
+        node
       })
       .map(move |node| {
         if let Some(parent) = new_parent {

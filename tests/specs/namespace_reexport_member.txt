@@ -51,21 +51,13 @@ namespace MyApi
   namespace Chat
     Doc
 
-Defined in file:///mod.ts:3:1
+Defined in file:///mod.ts:15:1
 
-class default
-  Doc
+reference default: file:///mod.ts:3:1
 
-  completions: Chat
-    Doc
+Defined in file:///mod.ts:15:1
 
-Defined in file:///mod.ts:11:1
-
-namespace default
-  Doc
-
-  reference Chat: file:///chat.ts:3:1
-  reference Chat: file:///chat.ts:7:1
+reference default: file:///mod.ts:11:1
 
 
 # output.json
@@ -183,100 +175,37 @@ namespace default
         {
           "location": {
             "filename": "file:///mod.ts",
-            "line": 3,
+            "line": 15,
             "col": 0,
-            "byteIndex": 46
+            "byteIndex": 195
           },
           "declarationKind": "export",
-          "jsDoc": {
-            "doc": "Doc"
-          },
-          "kind": "class",
+          "kind": "reference",
           "def": {
-            "properties": [
-              {
-                "jsDoc": {
-                  "doc": "Doc"
-                },
-                "tsType": {
-                  "repr": "Chat",
-                  "kind": "typeRef",
-                  "value": {
-                    "typeName": "Chat",
-                    "resolution": {
-                      "kind": "import",
-                      "specifier": "./chat.ts",
-                      "name": "Chat"
-                    }
-                  }
-                },
-                "name": "completions",
-                "location": {
-                  "filename": "file:///mod.ts",
-                  "line": 5,
-                  "col": 2,
-                  "byteIndex": 82
-                }
-              }
-            ]
+            "target": {
+              "filename": "file:///mod.ts",
+              "line": 3,
+              "col": 0,
+              "byteIndex": 46
+            }
           }
         },
         {
           "location": {
             "filename": "file:///mod.ts",
-            "line": 11,
+            "line": 15,
             "col": 0,
-            "byteIndex": 140
+            "byteIndex": 195
           },
           "declarationKind": "export",
-          "jsDoc": {
-            "doc": "Doc"
-          },
-          "kind": "namespace",
+          "kind": "reference",
           "def": {
-            "elements": [
-              {
-                "name": "Chat",
-                "declarations": [
-                  {
-                    "location": {
-                      "filename": "file:///mod.ts",
-                      "line": 12,
-                      "col": 11,
-                      "byteIndex": 184
-                    },
-                    "declarationKind": "export",
-                    "kind": "reference",
-                    "def": {
-                      "target": {
-                        "filename": "file:///chat.ts",
-                        "line": 3,
-                        "col": 0,
-                        "byteIndex": 65
-                      }
-                    }
-                  },
-                  {
-                    "location": {
-                      "filename": "file:///mod.ts",
-                      "line": 12,
-                      "col": 11,
-                      "byteIndex": 184
-                    },
-                    "declarationKind": "export",
-                    "kind": "reference",
-                    "def": {
-                      "target": {
-                        "filename": "file:///chat.ts",
-                        "line": 7,
-                        "col": 0,
-                        "byteIndex": 130
-                      }
-                    }
-                  }
-                ]
-              }
-            ]
+            "target": {
+              "filename": "file:///mod.ts",
+              "line": 11,
+              "col": 0,
+              "byteIndex": 140
+            }
           }
         }
       ]

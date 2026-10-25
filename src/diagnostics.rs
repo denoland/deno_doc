@@ -503,8 +503,9 @@ impl<'a> DiagnosticsCollector<'a> {
   }
 
   pub fn analyze_doc_nodes(&mut self, doc_nodes: &[Arc<Symbol>]) {
-    DiagnosticDocNodeVisitor { diagnostics: self }
-      .visit_doc_nodes(doc_nodes.iter().map(|s| &**s))
+    let mut visitor = DiagnosticDocNodeVisitor { diagnostics: self };
+    visitor.visit_doc_nodes(doc_nodes.iter().map(|s| &**s));
+    visitor.visit_reference_targets(doc_nodes);
   }
 
   fn check_missing_js_doc(
@@ -623,6 +624,19 @@ impl<'a> DiagnosticsCollector<'a> {
   }
 }
 
+fn is_js_docable_kind(def: &DeclarationDef) -> bool {
+  match def {
+    DeclarationDef::Class(..)
+    | DeclarationDef::Enum(..)
+    | DeclarationDef::Function(..)
+    | DeclarationDef::Interface(..)
+    | DeclarationDef::Namespace(..)
+    | DeclarationDef::TypeAlias(..)
+    | DeclarationDef::Variable(..) => true,
+    DeclarationDef::Reference(..) => false,
+  }
+}
+
 struct DiagnosticDocNodeVisitor<'a, 'b> {
   diagnostics: &'a mut DiagnosticsCollector<'b>,
 }
@@ -659,20 +673,39 @@ impl DiagnosticDocNodeVisitor<'_, '_> {
     }
   }
 
-  fn visit_decl(&mut self, name: &str, decl: &crate::node::Declaration) {
-    fn is_js_docable_kind(def: &DeclarationDef) -> bool {
-      match def {
-        DeclarationDef::Class(..)
-        | DeclarationDef::Enum(..)
-        | DeclarationDef::Function(..)
-        | DeclarationDef::Interface(..)
-        | DeclarationDef::Namespace(..)
-        | DeclarationDef::TypeAlias(..)
-        | DeclarationDef::Variable(..) => true,
-        DeclarationDef::Reference(..) => false,
+  fn visit_reference_targets(&mut self, doc_nodes: &[Arc<Symbol>]) {
+    for doc_node in doc_nodes {
+      for decl in &doc_node.declarations {
+        let Some(reference_def) = decl.reference_def() else {
+          continue;
+        };
+        if decl.declaration_kind == DeclarationKind::Private
+          || !decl.location.filename.starts_with("file:")
+          || decl.js_doc.doc.is_some()
+          || has_documenting_tag(&decl.js_doc)
+          || has_ignorable_js_doc_tag(&decl.js_doc)
+        {
+          continue;
+        }
+        for target in doc_nodes {
+          for target_decl in &target.declarations {
+            if target_decl.location == reference_def.target
+              && is_js_docable_kind(&target_decl.def)
+              && !has_ignorable_js_doc_tag(&target_decl.js_doc)
+            {
+              self.diagnostics.check_missing_js_doc(
+                &target_decl.js_doc,
+                &target_decl.location,
+                &target.name,
+              );
+            }
+          }
+        }
       }
     }
+  }
 
+  fn visit_decl(&mut self, name: &str, decl: &crate::node::Declaration) {
     if decl.declaration_kind == DeclarationKind::Private {
       return; // skip, we don't do these diagnostics above private nodes
     }

@@ -1,0 +1,190 @@
+# mod.ts
+import { map } from "./map.ts";
+
+export default { map };
+
+# map.ts
+/**
+ * Maps over the given array.
+ *
+ * @param arr the input
+ * @returns the mapped output
+ */
+export function map<T, U>(arr: T[], fn: (item: T) => U): U[] {
+  return arr.map(fn);
+}
+
+# diagnostics
+error[missing-jsdoc]: exported symbol is missing JSDoc documentation
+ --> /mod.ts:3:1
+  | 
+3 | export default { map };
+  | ^
+
+# output.txt
+Defined in file:///mod.ts:2:1
+
+namespace default
+
+  function map<T, U>(arr: T[], fn: (item: T) => U): U[]
+    Maps over the given array.
+
+    @param arr
+        the input
+
+    @return
+        the mapped output
+
+
+
+# output.json
+{
+  "imports": [
+    {
+      "importedName": "map",
+      "originalName": "map",
+      "src": "file:///map.ts"
+    }
+  ],
+  "symbols": [
+    {
+      "name": "default",
+      "isDefault": true,
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 2,
+            "col": 0,
+            "byteIndex": 33
+          },
+          "declarationKind": "export",
+          "kind": "namespace",
+          "def": {
+            "elements": [
+              {
+                "name": "map",
+                "declarations": [
+                  {
+                    "location": {
+                      "filename": "file:///map.ts",
+                      "line": 6,
+                      "col": 0,
+                      "byteIndex": 95
+                    },
+                    "declarationKind": "export",
+                    "jsDoc": {
+                      "doc": "Maps over the given array.\n",
+                      "tags": [
+                        {
+                          "kind": "param",
+                          "name": "arr",
+                          "doc": "the input"
+                        },
+                        {
+                          "kind": "return",
+                          "doc": "the mapped output"
+                        }
+                      ]
+                    },
+                    "kind": "function",
+                    "def": {
+                      "params": [
+                        {
+                          "kind": "identifier",
+                          "name": "arr",
+                          "optional": false,
+                          "tsType": {
+                            "kind": "array",
+                            "value": {
+                              "repr": "T",
+                              "kind": "typeRef",
+                              "value": {
+                                "typeName": "T",
+                                "resolution": {
+                                  "kind": "typeParam",
+                                  "declaringName": "map",
+                                  "declaringKind": "function"
+                                }
+                              }
+                            }
+                          }
+                        },
+                        {
+                          "kind": "identifier",
+                          "name": "fn",
+                          "optional": false,
+                          "tsType": {
+                            "kind": "fnOrConstructor",
+                            "value": {
+                              "constructor": false,
+                              "tsType": {
+                                "repr": "U",
+                                "kind": "typeRef",
+                                "value": {
+                                  "typeName": "U",
+                                  "resolution": {
+                                    "kind": "typeParam",
+                                    "declaringName": "map",
+                                    "declaringKind": "function"
+                                  }
+                                }
+                              },
+                              "params": [
+                                {
+                                  "kind": "identifier",
+                                  "name": "item",
+                                  "optional": false,
+                                  "tsType": {
+                                    "repr": "T",
+                                    "kind": "typeRef",
+                                    "value": {
+                                      "typeName": "T",
+                                      "resolution": {
+                                        "kind": "typeParam",
+                                        "declaringName": "map",
+                                        "declaringKind": "function"
+                                      }
+                                    }
+                                  }
+                                }
+                              ]
+                            }
+                          }
+                        }
+                      ],
+                      "returnType": {
+                        "kind": "array",
+                        "value": {
+                          "repr": "U",
+                          "kind": "typeRef",
+                          "value": {
+                            "typeName": "U",
+                            "resolution": {
+                              "kind": "typeParam",
+                              "declaringName": "map",
+                              "declaringKind": "function"
+                            }
+                          }
+                        }
+                      },
+                      "hasBody": true,
+                      "typeParams": [
+                        {
+                          "name": "T"
+                        },
+                        {
+                          "name": "U"
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

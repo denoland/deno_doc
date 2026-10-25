@@ -1,0 +1,583 @@
+# mod.ts
+import { map } from "./map.ts";
+import { filter as filterImpl } from "./filter.ts";
+
+/** Local helper. */
+function local(a: number): number {
+  return a;
+}
+
+/** Already exported. */
+export const VERSION = "1.0.0";
+
+/**
+ * The library's default export.
+ */
+export default {
+  map,
+  /** Filter with a nicer name. */
+  filter: filterImpl,
+  local,
+  VERSION,
+  /** A literal value. */
+  flag: true,
+  /** An inline function. */
+  run(x: string): void {},
+  /** An inline arrow. */
+  arrow: (y: number): number => y,
+  /** @ignore */
+  hidden: 1,
+};
+
+# map.ts
+/**
+ * Maps over the given array.
+ *
+ * @param arr the input
+ * @returns the mapped output
+ */
+export function map<T, U>(arr: T[], fn: (item: T) => U): U[] {
+  return arr.map(fn);
+}
+
+# filter.ts
+/** Filters the given array. */
+export function filter<T>(arr: T[], fn: (item: T) => boolean): T[] {
+  return arr.filter(fn);
+}
+
+# output.txt
+Defined in file:///mod.ts:4:1
+
+private function local(a: number): number
+  Local helper.
+
+Defined in file:///mod.ts:9:14
+
+const VERSION: "1.0.0"
+  Already exported.
+
+Defined in file:///mod.ts:14:1
+
+namespace default
+  The library's default export.
+
+  function map<T, U>(arr: T[], fn: (item: T) => U): U[]
+    Maps over the given array.
+
+    @param arr
+        the input
+
+    @return
+        the mapped output
+
+  function filter<T>(arr: T[], fn: (item: T) => boolean): T[]
+    Filters the given array.
+  function local(a: number): number
+    Local helper.
+  const VERSION: "1.0.0"
+    Already exported.
+  const flag: true
+    A literal value.
+  function run(x: string): void
+    An inline function.
+  function arrow(y: number): number
+    An inline arrow.
+
+
+# output.json
+{
+  "imports": [
+    {
+      "importedName": "map",
+      "originalName": "map",
+      "src": "file:///map.ts"
+    },
+    {
+      "importedName": "filterImpl",
+      "originalName": "filter",
+      "src": "file:///filter.ts"
+    }
+  ],
+  "symbols": [
+    {
+      "name": "VERSION",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 9,
+            "col": 13,
+            "byteIndex": 195
+          },
+          "declarationKind": "export",
+          "jsDoc": {
+            "doc": "Already exported."
+          },
+          "kind": "variable",
+          "def": {
+            "tsType": {
+              "repr": "1.0.0",
+              "kind": "literal",
+              "value": {
+                "kind": "string",
+                "string": "1.0.0"
+              }
+            },
+            "kind": "const"
+          }
+        }
+      ]
+    },
+    {
+      "name": "default",
+      "isDefault": true,
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 14,
+            "col": 0,
+            "byteIndex": 256
+          },
+          "declarationKind": "export",
+          "jsDoc": {
+            "doc": "The library's default export."
+          },
+          "kind": "namespace",
+          "def": {
+            "elements": [
+              {
+                "name": "map",
+                "declarations": [
+                  {
+                    "location": {
+                      "filename": "file:///map.ts",
+                      "line": 6,
+                      "col": 0,
+                      "byteIndex": 95
+                    },
+                    "declarationKind": "export",
+                    "jsDoc": {
+                      "doc": "Maps over the given array.\n",
+                      "tags": [
+                        {
+                          "kind": "param",
+                          "name": "arr",
+                          "doc": "the input"
+                        },
+                        {
+                          "kind": "return",
+                          "doc": "the mapped output"
+                        }
+                      ]
+                    },
+                    "kind": "function",
+                    "def": {
+                      "params": [
+                        {
+                          "kind": "identifier",
+                          "name": "arr",
+                          "optional": false,
+                          "tsType": {
+                            "kind": "array",
+                            "value": {
+                              "repr": "T",
+                              "kind": "typeRef",
+                              "value": {
+                                "typeName": "T",
+                                "resolution": {
+                                  "kind": "typeParam",
+                                  "declaringName": "map",
+                                  "declaringKind": "function"
+                                }
+                              }
+                            }
+                          }
+                        },
+                        {
+                          "kind": "identifier",
+                          "name": "fn",
+                          "optional": false,
+                          "tsType": {
+                            "kind": "fnOrConstructor",
+                            "value": {
+                              "constructor": false,
+                              "tsType": {
+                                "repr": "U",
+                                "kind": "typeRef",
+                                "value": {
+                                  "typeName": "U",
+                                  "resolution": {
+                                    "kind": "typeParam",
+                                    "declaringName": "map",
+                                    "declaringKind": "function"
+                                  }
+                                }
+                              },
+                              "params": [
+                                {
+                                  "kind": "identifier",
+                                  "name": "item",
+                                  "optional": false,
+                                  "tsType": {
+                                    "repr": "T",
+                                    "kind": "typeRef",
+                                    "value": {
+                                      "typeName": "T",
+                                      "resolution": {
+                                        "kind": "typeParam",
+                                        "declaringName": "map",
+                                        "declaringKind": "function"
+                                      }
+                                    }
+                                  }
+                                }
+                              ]
+                            }
+                          }
+                        }
+                      ],
+                      "returnType": {
+                        "kind": "array",
+                        "value": {
+                          "repr": "U",
+                          "kind": "typeRef",
+                          "value": {
+                            "typeName": "U",
+                            "resolution": {
+                              "kind": "typeParam",
+                              "declaringName": "map",
+                              "declaringKind": "function"
+                            }
+                          }
+                        }
+                      },
+                      "hasBody": true,
+                      "typeParams": [
+                        {
+                          "name": "T"
+                        },
+                        {
+                          "name": "U"
+                        }
+                      ]
+                    }
+                  }
+                ]
+              },
+              {
+                "name": "filter",
+                "declarations": [
+                  {
+                    "location": {
+                      "filename": "file:///filter.ts",
+                      "line": 1,
+                      "col": 0,
+                      "byteIndex": 32
+                    },
+                    "declarationKind": "export",
+                    "jsDoc": {
+                      "doc": "Filters the given array."
+                    },
+                    "kind": "function",
+                    "def": {
+                      "params": [
+                        {
+                          "kind": "identifier",
+                          "name": "arr",
+                          "optional": false,
+                          "tsType": {
+                            "kind": "array",
+                            "value": {
+                              "repr": "T",
+                              "kind": "typeRef",
+                              "value": {
+                                "typeName": "T",
+                                "resolution": {
+                                  "kind": "typeParam",
+                                  "declaringName": "filter",
+                                  "declaringKind": "function"
+                                }
+                              }
+                            }
+                          }
+                        },
+                        {
+                          "kind": "identifier",
+                          "name": "fn",
+                          "optional": false,
+                          "tsType": {
+                            "kind": "fnOrConstructor",
+                            "value": {
+                              "constructor": false,
+                              "tsType": {
+                                "repr": "boolean",
+                                "kind": "keyword",
+                                "value": "boolean"
+                              },
+                              "params": [
+                                {
+                                  "kind": "identifier",
+                                  "name": "item",
+                                  "optional": false,
+                                  "tsType": {
+                                    "repr": "T",
+                                    "kind": "typeRef",
+                                    "value": {
+                                      "typeName": "T",
+                                      "resolution": {
+                                        "kind": "typeParam",
+                                        "declaringName": "filter",
+                                        "declaringKind": "function"
+                                      }
+                                    }
+                                  }
+                                }
+                              ]
+                            }
+                          }
+                        }
+                      ],
+                      "returnType": {
+                        "kind": "array",
+                        "value": {
+                          "repr": "T",
+                          "kind": "typeRef",
+                          "value": {
+                            "typeName": "T",
+                            "resolution": {
+                              "kind": "typeParam",
+                              "declaringName": "filter",
+                              "declaringKind": "function"
+                            }
+                          }
+                        }
+                      },
+                      "hasBody": true,
+                      "typeParams": [
+                        {
+                          "name": "T"
+                        }
+                      ]
+                    }
+                  }
+                ]
+              },
+              {
+                "name": "local",
+                "declarations": [
+                  {
+                    "location": {
+                      "filename": "file:///mod.ts",
+                      "line": 4,
+                      "col": 0,
+                      "byteIndex": 106
+                    },
+                    "declarationKind": "export",
+                    "jsDoc": {
+                      "doc": "Local helper."
+                    },
+                    "kind": "function",
+                    "def": {
+                      "params": [
+                        {
+                          "kind": "identifier",
+                          "name": "a",
+                          "optional": false,
+                          "tsType": {
+                            "repr": "number",
+                            "kind": "keyword",
+                            "value": "number"
+                          }
+                        }
+                      ],
+                      "returnType": {
+                        "repr": "number",
+                        "kind": "keyword",
+                        "value": "number"
+                      },
+                      "hasBody": true
+                    }
+                  }
+                ]
+              },
+              {
+                "name": "VERSION",
+                "declarations": [
+                  {
+                    "location": {
+                      "filename": "file:///mod.ts",
+                      "line": 9,
+                      "col": 13,
+                      "byteIndex": 195
+                    },
+                    "declarationKind": "export",
+                    "jsDoc": {
+                      "doc": "Already exported."
+                    },
+                    "kind": "variable",
+                    "def": {
+                      "tsType": {
+                        "repr": "1.0.0",
+                        "kind": "literal",
+                        "value": {
+                          "kind": "string",
+                          "string": "1.0.0"
+                        }
+                      },
+                      "kind": "const"
+                    }
+                  }
+                ]
+              },
+              {
+                "name": "flag",
+                "declarations": [
+                  {
+                    "location": {
+                      "filename": "file:///mod.ts",
+                      "line": 21,
+                      "col": 2,
+                      "byteIndex": 385
+                    },
+                    "declarationKind": "export",
+                    "jsDoc": {
+                      "doc": "A literal value."
+                    },
+                    "kind": "variable",
+                    "def": {
+                      "tsType": {
+                        "repr": "true",
+                        "kind": "literal",
+                        "value": {
+                          "kind": "boolean",
+                          "boolean": true
+                        }
+                      },
+                      "kind": "const"
+                    }
+                  }
+                ]
+              },
+              {
+                "name": "run",
+                "declarations": [
+                  {
+                    "location": {
+                      "filename": "file:///mod.ts",
+                      "line": 23,
+                      "col": 2,
+                      "byteIndex": 428
+                    },
+                    "declarationKind": "export",
+                    "jsDoc": {
+                      "doc": "An inline function."
+                    },
+                    "kind": "function",
+                    "def": {
+                      "params": [
+                        {
+                          "kind": "identifier",
+                          "name": "x",
+                          "optional": false,
+                          "tsType": {
+                            "repr": "string",
+                            "kind": "keyword",
+                            "value": "string"
+                          }
+                        }
+                      ],
+                      "returnType": {
+                        "repr": "void",
+                        "kind": "keyword",
+                        "value": "void"
+                      },
+                      "hasBody": true
+                    }
+                  }
+                ]
+              },
+              {
+                "name": "arrow",
+                "declarations": [
+                  {
+                    "location": {
+                      "filename": "file:///mod.ts",
+                      "line": 25,
+                      "col": 2,
+                      "byteIndex": 481
+                    },
+                    "declarationKind": "export",
+                    "jsDoc": {
+                      "doc": "An inline arrow."
+                    },
+                    "kind": "function",
+                    "def": {
+                      "params": [
+                        {
+                          "kind": "identifier",
+                          "name": "y",
+                          "optional": false,
+                          "tsType": {
+                            "repr": "number",
+                            "kind": "keyword",
+                            "value": "number"
+                          }
+                        }
+                      ],
+                      "returnType": {
+                        "repr": "number",
+                        "kind": "keyword",
+                        "value": "number"
+                      },
+                      "hasBody": true
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "local",
+      "declarations": [
+        {
+          "location": {
+            "filename": "file:///mod.ts",
+            "line": 4,
+            "col": 0,
+            "byteIndex": 106
+          },
+          "declarationKind": "private",
+          "jsDoc": {
+            "doc": "Local helper."
+          },
+          "kind": "function",
+          "def": {
+            "params": [
+              {
+                "kind": "identifier",
+                "name": "a",
+                "optional": false,
+                "tsType": {
+                  "repr": "number",
+                  "kind": "keyword",
+                  "value": "number"
+                }
+              }
+            ],
+            "returnType": {
+              "repr": "number",
+              "kind": "keyword",
+              "value": "number"
+            },
+            "hasBody": true
+          }
+        }
+      ]
+    }
+  ]
+}
