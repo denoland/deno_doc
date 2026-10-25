@@ -5,6 +5,7 @@ use crate::decorators::decorators_to_defs;
 use crate::display::SliceDisplayer;
 use crate::display::display_optional;
 use crate::ts_type::TsTypeDef;
+use deno_ast::JSStrExt;
 
 use deno_ast::oxc::ast::ast::ArrayPattern;
 use deno_ast::oxc::ast::ast::AssignmentPattern;
@@ -404,7 +405,7 @@ pub fn prop_name_to_string(
 ) -> String {
   match prop_key {
     PropertyKey::StaticIdentifier(ident) => ident.name.to_string(),
-    PropertyKey::StringLiteral(str_) => str_.value.to_string(),
+    PropertyKey::StringLiteral(str_) => str_.value.to_string_lossy(),
     PropertyKey::NumericLiteral(num) => num.value.to_string(),
     PropertyKey::BigIntLiteral(num) => num
       .raw

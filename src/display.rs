@@ -65,7 +65,6 @@ pub(crate) fn display_method(
 cfg_if! {
   if #[cfg(feature = "rust")] {
     use crate::util::types::Accessibility;
-    use crate::util::types::MethodKind;
 
     pub(crate) fn display_abstract(is_abstract: bool) -> impl Display {
       colors::magenta(if is_abstract { "abstract " } else { "" })

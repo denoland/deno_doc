@@ -496,7 +496,7 @@ fn get_subitem_diff_status(
     DeclarationDefDiff::Class(class_diff) => match kind {
       DrilldownKind::Method(method_kind) => {
         let mc = class_diff.method_changes.as_ref()?;
-        let matches = |m_name: &str, m_kind: deno_ast::swc::ast::MethodKind| {
+        let matches = |m_name: &str, m_kind: crate::util::types::MethodKind| {
           m_name == name
             && crate::html::MethodKind::from(m_kind) == *method_kind
         };
@@ -539,7 +539,7 @@ fn get_subitem_diff_status(
     DeclarationDefDiff::Interface(iface_diff) => match kind {
       DrilldownKind::Method(method_kind) => {
         let mc = iface_diff.method_changes.as_ref()?;
-        let matches = |m_name: &str, m_kind: deno_ast::swc::ast::MethodKind| {
+        let matches = |m_name: &str, m_kind: crate::util::types::MethodKind| {
           m_name == name
             && crate::html::MethodKind::from(m_kind) == *method_kind
         };

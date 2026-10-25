@@ -1,5 +1,6 @@
 // Copyright 2018-2024 the Deno authors. All rights reserved. MIT license.
 
+use deno_ast::JSStrExt;
 use deno_ast::oxc::ast::ast::Expression;
 use deno_ast::oxc::ast::ast::TSInterfaceDeclaration;
 use deno_ast::oxc::ast::ast::TSSignature;
@@ -54,7 +55,7 @@ pub fn expr_to_name(expr: &Expression) -> String {
     }
     Expression::ComputedMemberExpression(_)
     | Expression::PrivateFieldExpression(_) => "[UNSUPPORTED]".to_string(),
-    Expression::StringLiteral(str_) => str_.value.to_string(),
+    Expression::StringLiteral(str_) => str_.value.to_string_lossy(),
     Expression::BooleanLiteral(bool_) => {
       if bool_.value { "true" } else { "false" }.to_string()
     }
@@ -85,14 +86,14 @@ pub fn expr_to_name(expr: &Expression) -> String {
 pub fn property_key_name(key: &deno_ast::oxc::ast::ast::PropertyKey) -> String {
   use deno_ast::oxc::ast::ast::PropertyKey;
   if let Some(name) = key.static_name() {
-    return name.to_string();
+    return name.as_js_str().to_string_lossy();
   }
   // For computed keys, resolve common expression patterns
   match key {
     PropertyKey::StaticIdentifier(ident) => ident.name.to_string(),
     // Computed keys that are identifiers (e.g., `[pc]`)
     PropertyKey::Identifier(ident) => ident.name.to_string(),
-    PropertyKey::StringLiteral(s) => s.value.to_string(),
+    PropertyKey::StringLiteral(s) => s.value.to_string_lossy(),
     PropertyKey::NumericLiteral(n) => n.value.to_string(),
     _ => "[UNSUPPORTED]".to_string(),
   }
@@ -200,9 +201,8 @@ pub fn get_doc_for_ts_interface_decl(
       TSSignature::TSIndexSignature(ts_index_sig) => {
         if let Some(js_doc) = js_doc_for_range(module_info, ts_index_sig.span) {
           // TSIndexSignature uses TSIndexSignatureName, not FormalParameter
-          let params = ts_index_sig
-            .parameters
-            .iter()
+          let params = [&ts_index_sig.parameter]
+            .into_iter()
             .map(|param| {
               let ts_type = Some(TsTypeDef::new(
                 module_info,

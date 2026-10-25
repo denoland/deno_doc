@@ -604,7 +604,7 @@ impl MethodsDiff {
 #[serde(rename_all = "camelCase")]
 pub struct MethodDiff {
   pub name: Box<str>,
-  pub kind: deno_ast::swc::ast::MethodKind,
+  pub kind: crate::util::types::MethodKind,
   #[serde(skip_serializing_if = "Option::is_none")]
   pub name_change: Option<Change<Box<str>>>,
   #[serde(skip_serializing_if = "Option::is_none")]

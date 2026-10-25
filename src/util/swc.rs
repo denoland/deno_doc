@@ -1,5 +1,6 @@
 // Copyright 2018-2024 the Deno authors. All rights reserved. MIT license.
 
+use deno_ast::JSStrExt;
 use deno_ast::SourceTextInfo;
 use deno_ast::oxc::ast::ast::Comment;
 use deno_ast::oxc::ast::ast::ModuleExportName;
@@ -140,7 +141,7 @@ pub fn module_export_name_value(
   match module_export_name {
     ModuleExportName::IdentifierName(ident) => ident.name.to_string(),
     ModuleExportName::IdentifierReference(ident) => ident.name.to_string(),
-    ModuleExportName::StringLiteral(str) => str.value.to_string(),
+    ModuleExportName::StringLiteral(str) => str.value.to_string_lossy(),
   }
 }
 

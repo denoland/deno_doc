@@ -1258,10 +1258,10 @@ impl DocNodeWithContext {
           // so they must not get drilldown pages or listing/search entries
           // either
           let is_private =
-            |accessibility: &Option<deno_ast::swc::ast::Accessibility>| {
+            |accessibility: &Option<crate::util::types::Accessibility>| {
               matches!(
                 accessibility,
-                Some(deno_ast::swc::ast::Accessibility::Private)
+                Some(crate::util::types::Accessibility::Private)
               )
             };
 

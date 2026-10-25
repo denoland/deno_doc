@@ -10,7 +10,7 @@ export namespace Real {
 export * as Middle from "./middle.ts";
 
 # output.txt
-Defined in file:///mod.ts:1:8
+Defined in file:///mod.ts:1:1
 
 namespace Middle
   re-export of middle
@@ -29,8 +29,8 @@ namespace Middle
           "location": {
             "filename": "file:///mod.ts",
             "line": 1,
-            "col": 7,
-            "byteIndex": 34
+            "col": 0,
+            "byteIndex": 27
           },
           "declarationKind": "export",
           "jsDoc": {

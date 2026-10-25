@@ -7,7 +7,6 @@ use crate::display::display_computed;
 use crate::display::display_method;
 use crate::display::display_optional;
 use crate::display::display_readonly;
-use crate::interface::expr_to_name;
 use crate::node::Symbol;
 use crate::params::ParamPatternDef;
 use crate::params::formal_params_to_param_defs;
@@ -19,6 +18,7 @@ use crate::util::swc::is_false;
 use crate::util::swc::js_doc_for_range;
 use crate::util::types::MethodKind;
 use crate::util::types::VarDeclKind;
+use deno_ast::JSStrExt;
 
 use crate::function::FunctionDef;
 use crate::js_doc::JsDoc;
@@ -106,7 +106,7 @@ impl TsTypeDef {
     match &other.literal {
       TSLiteral::NumericLiteral(num) => TsTypeDef::number_literal(num),
       TSLiteral::StringLiteral(str_) => {
-        TsTypeDef::string_value(str_.value.to_string())
+        TsTypeDef::string_value(str_.value.to_string_lossy())
       }
       TSLiteral::TemplateLiteral(tpl) => TsTypeDef::tpl_literal(
         tpl
@@ -357,7 +357,7 @@ impl TsTypeDef {
     module_info: &EsModuleInfo,
     other: &TSInterfaceHeritage,
   ) -> Self {
-    let type_name = expr_to_name(&other.expression);
+    let type_name = ts_type_name_to_name(&other.type_name);
 
     let type_params = if let Some(type_params_inst) = &other.type_arguments {
       let ts_type_defs = type_params_inst
@@ -371,7 +371,7 @@ impl TsTypeDef {
       None
     };
 
-    let resolution = expr_root_ident(&other.expression)
+    let resolution = ts_type_name_root_ident(&other.type_name)
       .and_then(|i| resolve_type_ref(module_info, i));
 
     TsTypeDef {
@@ -452,7 +452,7 @@ impl TsTypeDef {
           let name = ts_method_sig
             .key
             .static_name()
-            .map(|name| name.to_string())
+            .map(|name| name.as_js_str().to_string_lossy())
             .unwrap_or_else(|| "[UNSUPPORTED]".to_string());
           let location = get_location(module_info, ts_method_sig.span.start);
           let method_def = MethodDef {
@@ -474,7 +474,7 @@ impl TsTypeDef {
           let name = ts_prop_sig
             .key
             .static_name()
-            .map(|name| name.to_string())
+            .map(|name| name.as_js_str().to_string_lossy())
             .unwrap_or_else(|| "[UNSUPPORTED]".to_string());
 
           let ts_type = ts_prop_sig
@@ -527,9 +527,8 @@ impl TsTypeDef {
         TSSignature::TSIndexSignature(ts_index_sig) => {
           let js_doc = js_doc_for_range(module_info, ts_index_sig.span)
             .unwrap_or_default();
-          let params = ts_index_sig
-            .parameters
-            .iter()
+          let params = [&ts_index_sig.parameter]
+            .into_iter()
             .map(|param| {
               let ts_type = Some(TsTypeDef::new(
                 module_info,
@@ -650,7 +649,7 @@ impl TsTypeDef {
     };
 
     let import_type_def = TsImportTypeDef {
-      specifier: other.source.value.to_string(),
+      specifier: other.source.value.to_string_lossy(),
       qualifier: other
         .qualifier
         .as_ref()
@@ -860,7 +859,7 @@ fn ts_type_name_root_ident<'a>(
 fn ts_type_query_expr_name_to_name(expr_name: &TSTypeQueryExprName) -> String {
   match expr_name {
     TSTypeQueryExprName::TSImportType(import_type) => {
-      import_type.source.value.to_string()
+      import_type.source.value.to_string_lossy()
     }
     TSTypeQueryExprName::IdentifierReference(ident) => ident.name.to_string(),
     TSTypeQueryExprName::QualifiedName(qualified) => {
@@ -893,21 +892,6 @@ fn ts_type_predicate_name_to_this_or_ident(
     TSTypePredicateName::Identifier(ident) => ThisOrIdent::Identifier {
       name: ident.name.to_string(),
     },
-  }
-}
-
-fn expr_root_ident<'a>(
-  expr: &'a Expression<'a>,
-) -> Option<&'a IdentifierReference<'a>> {
-  match expr {
-    Expression::Identifier(ident) => Some(ident),
-    Expression::StaticMemberExpression(member_expr) => {
-      expr_root_ident(&member_expr.object)
-    }
-    Expression::ComputedMemberExpression(member_expr) => {
-      expr_root_ident(&member_expr.object)
-    }
-    _ => None,
   }
 }
 
@@ -982,10 +966,11 @@ fn type_param_declaring_info(
           TypeParamDeclaringKind::TypeAlias,
         )
       }
-      Statement::ExportNamedDeclaration(export) => {
-        export.declaration.as_ref().and_then(|decl| {
-          declaration_type_param_declaring_info(decl, type_param_span)
-        })
+      Statement::ExportDeclaration(export) => {
+        declaration_type_param_declaring_info(
+          &export.declaration,
+          type_param_span,
+        )
       }
       Statement::ExportDefaultDeclaration(export) => {
         export_default_type_param_declaring_info(export, type_param_span)
@@ -1924,7 +1909,7 @@ impl TsTypeDef {
   }
 
   pub fn string_literal(str_node: &StringLiteral) -> Self {
-    Self::string_value(str_node.value.to_string())
+    Self::string_value(str_node.value.to_string_lossy())
   }
 
   pub fn string_value(value: String) -> Self {
@@ -2266,7 +2251,8 @@ pub(crate) fn infer_ts_type_from_expr(
     | Expression::TaggedTemplateExpression(_)
     | Expression::ClassExpression(_)
     | Expression::YieldExpression(_)
-    | Expression::MetaProperty(_)
+    | Expression::ImportMeta(_)
+    | Expression::NewTarget(_)
     | Expression::JSXElement(_)
     | Expression::JSXFragment(_)
     | Expression::TSInstantiationExpression(_)
@@ -2534,7 +2520,7 @@ fn infer_ts_type_from_obj_inner(
           let name = prop
             .key
             .static_name()
-            .map(|name| name.to_string())
+            .map(|name| name.as_js_str().to_string_lossy())
             .unwrap_or_else(|| "[UNSUPPORTED]".to_string());
           properties.push(PropertyDef {
             name,
@@ -2675,11 +2661,11 @@ impl Display for TsTypeDef {
         write!(
           f,
           "{} {} {} ? {} : {}",
-          &*conditional.check_type,
+          *conditional.check_type,
           colors::magenta("extends"),
-          &*conditional.extends_type,
-          &*conditional.true_type,
-          &*conditional.false_type
+          *conditional.extends_type,
+          *conditional.true_type,
+          *conditional.false_type
         )
       }
       TsTypeDefKind::Infer(infer) => {
@@ -2705,14 +2691,14 @@ impl Display for TsTypeDef {
             ""
           }),
           SliceDisplayer::new(&fn_or_constructor.params, ", ", false),
-          &fn_or_constructor.ts_type,
+          fn_or_constructor.ts_type,
         )
       }
       TsTypeDefKind::IndexedAccess(indexed_access) => {
         write!(
           f,
           "{}[{}]",
-          &*indexed_access.obj_type, &*indexed_access.index_type
+          *indexed_access.obj_type, *indexed_access.index_type
         )
       }
       TsTypeDefKind::Intersection(intersection) => {
@@ -2823,7 +2809,7 @@ impl Display for TsTypeDef {
         )
       }
       TsTypeDefKind::TypeOperator(type_operator) => {
-        write!(f, "{} {}", type_operator.operator, &type_operator.ts_type)
+        write!(f, "{} {}", type_operator.operator, type_operator.ts_type)
       }
       TsTypeDefKind::TypeQuery(type_query) => {
         write!(f, "typeof {}", type_query)

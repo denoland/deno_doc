@@ -1,30 +1,30 @@
 // Copyright 2018-2024 the Deno authors. All rights reserved. MIT license.
 
+use deno_ast::JSStrExt;
 use deno_ast::oxc::ast::ast::BindingIdentifier;
 use deno_ast::oxc::ast::ast::BindingIdentifier as Ident;
 use deno_ast::oxc::ast::ast::BindingPattern;
+use deno_ast::oxc::ast::ast::Class;
 use deno_ast::oxc::ast::ast::ClassElement;
+use deno_ast::oxc::ast::ast::Declaration as OxcDeclaration;
+use deno_ast::oxc::ast::ast::ExportDeclaration;
+use deno_ast::oxc::ast::ast::ExportDefaultDeclaration;
+use deno_ast::oxc::ast::ast::ExportDefaultDeclarationKind;
+use deno_ast::oxc::ast::ast::Expression;
+use deno_ast::oxc::ast::ast::Function as FnDecl;
 use deno_ast::oxc::ast::ast::IdentifierReference;
+use deno_ast::oxc::ast::ast::ImportDeclarationSpecifier;
 use deno_ast::oxc::ast::ast::MethodDefinitionKind;
 use deno_ast::oxc::ast::ast::ModuleExportName;
 use deno_ast::oxc::ast::ast::PropertyKey;
-use deno_ast::oxc::ast::ast::TSInterfaceDeclaration;
-use deno_ast::oxc::ast::ast::TSSignature;
-use deno_ast::oxc::ast::ast::TSTypeName;
-use deno_ast::oxc::ast::ast::Class;
-use deno_ast::oxc::ast::ast::Declaration as OxcDeclaration;
-use deno_ast::oxc::ast::ast::ExportDefaultDeclaration;
-use deno_ast::oxc::ast::ast::ExportDefaultDeclarationKind;
-use deno_ast::oxc::ast::ast::ExportNamedDeclaration;
-use deno_ast::oxc::ast::ast::Expression;
-use deno_ast::oxc::ast::ast::Function as FnDecl;
-use deno_ast::oxc::ast::ast::ImportDeclarationSpecifier;
 use deno_ast::oxc::ast::ast::Statement;
 use deno_ast::oxc::ast::ast::TSEnumDeclaration as TsEnumDecl;
+use deno_ast::oxc::ast::ast::TSInterfaceDeclaration;
 use deno_ast::oxc::ast::ast::TSInterfaceDeclaration as TsInterfaceDecl;
-use deno_ast::oxc::ast::ast::TSModuleDeclaration as TsModuleDecl;
-use deno_ast::oxc::ast::ast::TSModuleDeclarationName;
+use deno_ast::oxc::ast::ast::TSNamespaceDeclaration as TsModuleDecl;
+use deno_ast::oxc::ast::ast::TSSignature;
 use deno_ast::oxc::ast::ast::TSTypeAliasDeclaration as TsTypeAliasDecl;
+use deno_ast::oxc::ast::ast::TSTypeName;
 use deno_ast::oxc::ast::ast::VariableDeclaration as VarDecl;
 use deno_ast::oxc::ast::ast::VariableDeclarator as VarDeclarator;
 use deno_ast::oxc::span::GetSpan;
@@ -53,7 +53,6 @@ use std::sync::Arc;
 use crate::Location;
 use crate::diagnostics::DiagnosticsCollector;
 use crate::diagnostics::DocDiagnostic;
-use crate::interface::expr_to_name;
 use crate::interface::property_key_name;
 use crate::js_doc::JsDoc;
 use crate::node::DeclarationDef;
@@ -62,11 +61,11 @@ use crate::node::Document;
 use crate::node::Import;
 use crate::node::NamespaceDef;
 use crate::node::ReferenceDef;
+use crate::ts_type::Id;
 use crate::ts_type::PropertyDef;
 use crate::ts_type::TsTypeDef;
 use crate::ts_type::TsTypeDefKind;
 use crate::ts_type::TsTypeLiteralDef;
-use crate::ts_type::Id;
 use crate::ts_type::binding_identifier_to_id;
 use crate::ts_type::identifier_reference_to_id;
 use crate::ts_type::infer_simple_ts_type_from_init;
@@ -840,7 +839,7 @@ impl<'a> DocParser<'a> {
           };
 
           let resolved_specifier =
-            self.resolve_dependency(src.as_ref(), referrer)?;
+            self.resolve_dependency(&src.to_str_lossy(), referrer)?;
 
           imports.push(Import {
             imported_name: imported_name.into_boxed_str(),
@@ -934,11 +933,7 @@ impl<'a> DocParser<'a> {
     // declared classes cannot have decorators, so we ignore that return
     let (mut class_def, _) =
       super::class::get_doc_for_class_decl(module_info, class_decl);
-    self.apply_heritage_member_docs(
-      module_info,
-      &class_decl.class,
-      &mut class_def,
-    );
+    self.apply_heritage_member_docs(module_info, class_decl, &mut class_def);
     let location = get_location(module_info, full_range.start);
     Some(Declaration::class(
       location,
@@ -1054,7 +1049,7 @@ impl<'a> DocParser<'a> {
         d.maybe_node().and_then(|n| match n {
           SymbolNodeRef::ExportDecl(export_decl, _) => {
             match &export_decl.declaration {
-              Some(OxcDeclaration::TSModuleDeclaration(n)) => Some(&**n),
+              OxcDeclaration::TSNamespaceDeclaration(n) => Some(&**n),
               _ => None,
             }
           }
@@ -1068,10 +1063,6 @@ impl<'a> DocParser<'a> {
       return None; // we already analyzed this module
     }
 
-    let _namespace_name = match &ts_module.id {
-      TSModuleDeclarationName::Identifier(ident) => ident.name.to_string(),
-      TSModuleDeclarationName::StringLiteral(str_) => str_.value.to_string(),
-    };
     let mut elements = Vec::new();
     let mut handled_symbols = HashSet::new();
 
@@ -1204,14 +1195,7 @@ impl<'a> DocParser<'a> {
               SymbolNodeRef::TsEnum(n) => Some(n.id.name.to_string()),
               SymbolNodeRef::TsInterface(n) => Some(n.id.name.to_string()),
               SymbolNodeRef::TsTypeAlias(n) => Some(n.id.name.to_string()),
-              SymbolNodeRef::TsNamespace(n) => match &n.id {
-                TSModuleDeclarationName::Identifier(ident) => {
-                  Some(ident.name.to_string())
-                }
-                TSModuleDeclarationName::StringLiteral(s) => {
-                  Some(s.value.to_string())
-                }
-              },
+              SymbolNodeRef::TsNamespace(n) => Some(n.id.name.to_string()),
               SymbolNodeRef::Var(_, _, ident) => Some(ident.name.to_string()),
               SymbolNodeRef::ExportDefaultDecl(_) => {
                 Some("default".to_string())
@@ -1423,7 +1407,7 @@ impl<'a> DocParser<'a> {
           .filter_map(|node| {
             let specifier = self
               .resolve_dependency(
-                &node.src.value.to_string_lossy(),
+                &node.source.value.to_string_lossy(),
                 module_info.specifier(),
               )
               .ok()?;
@@ -1963,26 +1947,9 @@ impl<'a> DocParser<'a> {
 
   fn get_declare_for_export_decl_declaration(
     &self,
-    export_decl: &ExportNamedDeclaration,
+    export_decl: &ExportDeclaration,
   ) -> bool {
-    match &export_decl.declaration {
-      Some(OxcDeclaration::ClassDeclaration(class_decl)) => class_decl.declare,
-      Some(OxcDeclaration::FunctionDeclaration(fn_decl)) => fn_decl.declare,
-      Some(OxcDeclaration::TSEnumDeclaration(ts_enum_decl)) => {
-        ts_enum_decl.declare
-      }
-      Some(OxcDeclaration::TSInterfaceDeclaration(ts_interface_decl)) => {
-        ts_interface_decl.declare
-      }
-      Some(OxcDeclaration::TSModuleDeclaration(ts_module_decl)) => {
-        ts_module_decl.declare
-      }
-      Some(OxcDeclaration::TSTypeAliasDeclaration(ts_type_alias_decl)) => {
-        ts_type_alias_decl.declare
-      }
-      Some(OxcDeclaration::VariableDeclaration(var_decl)) => var_decl.declare,
-      _ => false,
-    }
+    export_decl.declaration.declare()
   }
 
   fn resolve_dependency(
@@ -2075,13 +2042,12 @@ fn collect_shadowed_export_targets(
           else {
             continue;
           };
-          targets
-            .entry(export_name)
-            .or_default()
-            .push(ShadowedExportTarget::SwcId(identifier_reference_to_id(
+          targets.entry(export_name).or_default().push(
+            ShadowedExportTarget::SwcId(identifier_reference_to_id(
               module_info,
               orig,
-            )));
+            )),
+          );
         }
       }
       Statement::ExportFromDeclaration(named_export) => {
@@ -2133,8 +2099,9 @@ impl DocParser<'_> {
 
     match init {
       Expression::Identifier(init_ident) => {
-        let symbol = module_info
-          .symbol_from_swc(&identifier_reference_to_id(module_info, init_ident))?;
+        let symbol = module_info.symbol_from_swc(
+          &identifier_reference_to_id(module_info, init_ident),
+        )?;
         for decl in symbol.decls() {
           let Some(node) = decl.maybe_node() else {
             continue;
@@ -2200,8 +2167,9 @@ impl DocParser<'_> {
           return None;
         };
         let prop_name = member.property.name.as_str();
-        let symbol = module_info
-          .symbol_from_swc(&identifier_reference_to_id(module_info, obj_ident))?;
+        let symbol = module_info.symbol_from_swc(
+          &identifier_reference_to_id(module_info, obj_ident),
+        )?;
         for decl in symbol.decls() {
           let Some(node) = decl.maybe_node() else {
             continue;
@@ -2264,7 +2232,11 @@ fn decl_from_expr(
         .map(|id| id.name.to_string().into_boxed_str());
       let (mut class_def, decorator_js_doc) =
         crate::class::class_to_class_def(module_info, class_expr, def_name);
-      parser.apply_heritage_member_docs(module_info, class_expr, &mut class_def);
+      parser.apply_heritage_member_docs(
+        module_info,
+        class_expr,
+        &mut class_def,
+      );
       let js_doc = if js_doc.is_empty() {
         decorator_js_doc
       } else {

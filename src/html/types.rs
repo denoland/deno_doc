@@ -88,7 +88,7 @@ pub(crate) fn render_type_def(
         && let Some(href) = ctx
           .ctx
           .href_resolver
-          .resolve_global_symbol(&[keyword.to_owned()])
+          .resolve_global_symbol(std::slice::from_ref(keyword))
       {
         format!(
           r#"<a href="{}" class="link td-kw">{keyword}</a>"#,

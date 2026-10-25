@@ -287,10 +287,9 @@ pub fn class_to_class_def(
     }
   }
 
-  let extends: Option<Box<str>> = match &class.super_class {
-    Some(boxed) => {
-      let expr: &Expression = boxed;
-      walk_class_extends(expr).map(|s| s.into_boxed_str())
+  let extends: Option<Box<str>> = match &class.heritage {
+    Some(heritage) => {
+      walk_class_extends(&heritage.expression).map(|s| s.into_boxed_str())
     }
     None => None,
   };
@@ -417,7 +416,8 @@ pub fn class_to_class_def(
         if let Some(js_doc) = js_doc_for_range(module_info, ts_index_sig.span())
         {
           let mut params = vec![];
-          for param in &ts_index_sig.parameters {
+          {
+            let param = &ts_index_sig.parameter;
             let ts_type = Some(TsTypeDef::new(
               module_info,
               &param.type_annotation.type_annotation,
@@ -459,7 +459,10 @@ pub fn class_to_class_def(
 
   let super_type_params = maybe_type_param_instantiation_to_type_defs(
     module_info,
-    class.super_type_arguments.as_deref(),
+    class
+      .heritage
+      .as_ref()
+      .and_then(|heritage| heritage.type_arguments.as_deref()),
   );
 
   let decorators = decorators_to_defs(module_info, &class.decorators);
