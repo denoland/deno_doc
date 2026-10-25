@@ -111,6 +111,18 @@ impl SymbolGroupCtx {
           tags.insert(Tag::Permissions(permissions.into_iter().collect()));
         }
 
+        if let Some(since) = decls.iter().find_map(|node| {
+          node.js_doc.tags.iter().find_map(|tag| {
+            if let JsDocTag::Since { doc } = tag {
+              Tag::from_since(doc)
+            } else {
+              None
+            }
+          })
+        }) {
+          tags.insert(since);
+        }
+
         if symbol.is_internal(ctx.ctx) {
           tags.insert(Tag::Private);
         }
@@ -146,7 +158,7 @@ impl SymbolGroupCtx {
 
         let old_tags = if let Some(diff) = ctx.ctx.diff.as_ref().and_then(|d| {
           d.get_declaration_diff(
-            &symbol.origin.specifier,
+            &symbol.declared_origin().specifier,
             symbol.get_name(),
             *kind,
           )
@@ -165,6 +177,11 @@ impl SymbolGroupCtx {
                 JsDocTag::Experimental => {
                   old_tags.swap_remove(&Tag::Unstable);
                 }
+                JsDocTag::Since { doc } => {
+                  if let Some(since) = Tag::from_since(doc) {
+                    old_tags.swap_remove(&since);
+                  }
+                }
                 JsDocTag::Tags { tags: tag_values } => {
                   let new_perms: Vec<_> = tag_values
                     .iter()
@@ -182,6 +199,11 @@ impl SymbolGroupCtx {
               match removed {
                 JsDocTag::Experimental => {
                   old_tags.insert(Tag::Unstable);
+                }
+                JsDocTag::Since { doc } => {
+                  if let Some(since) = Tag::from_since(doc) {
+                    old_tags.insert(since);
+                  }
                 }
                 JsDocTag::Tags { tags: tag_values } => {
                   let removed_perms: Box<[Box<str>]> = tag_values
@@ -212,7 +234,7 @@ impl SymbolGroupCtx {
           .as_ref()
           .and_then(|d| {
             d.get_declaration_diff(
-              &symbol.origin.specifier,
+              &symbol.declared_origin().specifier,
               symbol.get_name(),
               *kind,
             )
@@ -330,7 +352,7 @@ impl DocBlockSubtitleCtx {
         let class_diff = ctx.ctx.diff.as_ref().and_then(|diff_index| {
           diff_index
             .get_def_diff(
-              &symbol.origin.specifier,
+              &symbol.declared_origin().specifier,
               symbol.get_name(),
               decl.def.to_kind(),
             )
@@ -370,7 +392,7 @@ impl DocBlockSubtitleCtx {
           .map(|ic| {
             ic.added
               .iter()
-              .map(|t| t.repr.to_string())
+              .map(|t| render_type_def(ctx, t))
               .collect::<Vec<_>>()
           })
           .filter(|v| !v.is_empty());
@@ -380,7 +402,7 @@ impl DocBlockSubtitleCtx {
           .map(|ic| {
             ic.removed
               .iter()
-              .map(|t| t.repr.to_string())
+              .map(|t| render_type_def(ctx, t))
               .collect::<Vec<_>>()
           })
           .filter(|v| !v.is_empty());
@@ -391,7 +413,7 @@ impl DocBlockSubtitleCtx {
             stpc
               .added
               .iter()
-              .map(|t| t.repr.to_string())
+              .map(|t| render_type_def(ctx, t))
               .collect::<Vec<_>>()
           })
           .filter(|v| !v.is_empty());
@@ -402,7 +424,7 @@ impl DocBlockSubtitleCtx {
             stpc
               .removed
               .iter()
-              .map(|t| t.repr.to_string())
+              .map(|t| render_type_def(ctx, t))
               .collect::<Vec<_>>()
           })
           .filter(|v| !v.is_empty());
@@ -422,19 +444,26 @@ impl DocBlockSubtitleCtx {
         let iface_diff = ctx.ctx.diff.as_ref().and_then(|diff_index| {
           diff_index
             .get_def_diff(
-              &symbol.origin.specifier,
+              &symbol.declared_origin().specifier,
               symbol.get_name(),
               decl.def.to_kind(),
             )
             .and_then(|d| d.as_interface())
         });
 
+        let current_type_params = interface_def
+          .type_params
+          .iter()
+          .map(|def| def.name.as_str())
+          .collect::<HashSet<&str>>();
+        let ctx = &ctx.with_current_type_params(current_type_params);
+
         let extends_added = iface_diff
           .and_then(|d| d.extends_change.as_ref())
           .map(|ec| {
             ec.added
               .iter()
-              .map(|t| t.repr.to_string())
+              .map(|t| render_type_def(ctx, t))
               .collect::<Vec<_>>()
           })
           .filter(|v| !v.is_empty());
@@ -444,7 +473,7 @@ impl DocBlockSubtitleCtx {
           .map(|ec| {
             ec.removed
               .iter()
-              .map(|t| t.repr.to_string())
+              .map(|t| render_type_def(ctx, t))
               .collect::<Vec<_>>()
           })
           .filter(|v| !v.is_empty());
@@ -455,13 +484,6 @@ impl DocBlockSubtitleCtx {
         if !has_extends && !has_diff {
           return None;
         }
-
-        let current_type_params = interface_def
-          .type_params
-          .iter()
-          .map(|def| def.name.as_str())
-          .collect::<HashSet<&str>>();
-        let ctx = &ctx.with_current_type_params(current_type_params);
 
         let extends = interface_def
           .extends
@@ -606,6 +628,8 @@ impl SymbolInnerCtx {
         ));
       }
 
+      sections.extend(render_event_tag_sections(ctx, &decl.js_doc.tags));
+
       if ctx.ctx.diff_only
         && !is_decl_added(symbol, decl.def.to_kind(), &ctx.ctx.diff)
         && !is_decl_removed(symbol, decl.def.to_kind(), &ctx.ctx.diff)
@@ -616,7 +640,7 @@ impl SymbolInnerCtx {
       let doc_change = ctx.ctx.diff.as_ref().and_then(|diff_index| {
         diff_index
           .get_declaration_diff(
-            &symbol.origin.specifier,
+            &symbol.declared_origin().specifier,
             symbol.get_name(),
             decl.def.to_kind(),
           )?
@@ -654,6 +678,31 @@ impl SymbolInnerCtx {
     }
 
     content_parts
+  }
+}
+
+/// Renders the type portion of a merged getter/setter accessor entry. A pair
+/// whose types agree (and lone getters/setters) renders like a plain property
+/// type; a pair with diverging types renders both as stacked, source-style
+/// `get`/`set` rows so neither type is hidden.
+pub(crate) fn render_accessor_type(
+  ctx: &RenderContext,
+  getter_type: Option<&crate::ts_type::TsTypeDef>,
+  setter_type: Option<&crate::ts_type::TsTypeDef>,
+) -> String {
+  match (getter_type, setter_type) {
+    (Some(getter_type), Some(setter_type)) if getter_type != setter_type => {
+      format!(
+        r#"<div class="ml-indent"><span class="td-op">get</span>{}</div><div class="ml-indent"><span class="td-op">set</span>{}</div>"#,
+        crate::html::types::render_type_def_colon(ctx, getter_type),
+        crate::html::types::render_type_def_colon(ctx, setter_type),
+      )
+    }
+    (getter_type, setter_type) => getter_type
+      .or(setter_type)
+      .map_or_else(String::new, |ts_type| {
+        crate::html::types::render_type_def_colon(ctx, ts_type)
+      }),
   }
 }
 
@@ -958,6 +1007,16 @@ pub(crate) fn render_type_def_sections(
       sections.push(index_signatures);
     }
 
+    if let Some(construct_signatures) = interface::render_construct_signatures(
+      ctx,
+      &ts_type_literal.constructors,
+      type_lit_diff
+        .as_ref()
+        .and_then(|d| d.constructor_changes.as_ref()),
+    ) {
+      sections.push(construct_signatures);
+    }
+
     if let Some(call_signatures) = interface::render_call_signatures(
       ctx,
       &ts_type_literal.call_signatures,
@@ -972,9 +1031,13 @@ pub(crate) fn render_type_def_sections(
       ctx,
       name,
       &ts_type_literal.properties,
+      &ts_type_literal.methods,
       type_lit_diff
         .as_ref()
         .and_then(|d| d.property_changes.as_ref()),
+      type_lit_diff
+        .as_ref()
+        .and_then(|d| d.method_changes.as_ref()),
     ) {
       sections.push(properties);
     }
@@ -1046,7 +1109,9 @@ pub(crate) fn render_type_def_sections(
           ctx,
           name,
           &[],
+          &[],
           diff.property_changes.as_ref(),
+          diff.method_changes.as_ref(),
         ) {
           sections.push(props);
         }
@@ -1074,6 +1139,72 @@ fn generate_see(ctx: &RenderContext, doc: &str) -> String {
   };
 
   crate::html::jsdoc::render_markdown(ctx, &doc, true)
+}
+
+/// Renders the `@event`, `@fires`/`@emits`, and `@listens` JSDoc tags of a
+/// symbol as labeled sections ("Events", "Fires", "Listens"), mirroring how
+/// `@see` is rendered. Each entry shows the event name followed by its optional
+/// description. Returns an empty vec when none of these tags are present, so no
+/// section is emitted for symbols that don't use them.
+pub(crate) fn render_event_tag_sections(
+  ctx: &RenderContext,
+  tags: &[crate::js_doc::JsDocTag],
+) -> Vec<SectionCtx> {
+  use crate::js_doc::JsDocTag;
+
+  fn collect(
+    ctx: &RenderContext,
+    tags: &[JsDocTag],
+    extract: impl FnMut(&JsDocTag) -> Option<(&str, Option<&str>)>,
+  ) -> Vec<String> {
+    tags
+      .iter()
+      .filter_map(extract)
+      .map(|(name, doc)| {
+        let text = match doc {
+          Some(doc) if !doc.trim().is_empty() => format!("`{name}` — {doc}"),
+          _ => format!("`{name}`"),
+        };
+        crate::html::jsdoc::render_markdown(ctx, &text, false)
+      })
+      .collect()
+  }
+
+  let mut sections = Vec::new();
+  for (title, entries) in [
+    (
+      "Events",
+      collect(ctx, tags, |tag| match tag {
+        JsDocTag::Event { name, doc } => Some((name.as_ref(), doc.as_deref())),
+        _ => None,
+      }),
+    ),
+    (
+      "Fires",
+      collect(ctx, tags, |tag| match tag {
+        JsDocTag::Fires { name, doc } => Some((name.as_ref(), doc.as_deref())),
+        _ => None,
+      }),
+    ),
+    (
+      "Listens",
+      collect(ctx, tags, |tag| match tag {
+        JsDocTag::Listens { name, doc } => {
+          Some((name.as_ref(), doc.as_deref()))
+        }
+        _ => None,
+      }),
+    ),
+  ] {
+    if !entries.is_empty() {
+      sections.push(SectionCtx::new(
+        ctx,
+        title,
+        SectionContentCtx::See(entries),
+      ));
+    }
+  }
+  sections
 }
 
 #[derive(Debug, Serialize, Deserialize)]

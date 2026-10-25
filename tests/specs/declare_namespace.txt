@@ -22,10 +22,10 @@ error[missing-jsdoc]: exported symbol is missing JSDoc documentation
 
 
 error[missing-jsdoc]: exported symbol is missing JSDoc documentation
- --> /mod.ts:7:7
+ --> /mod.ts:7:12
   | 
 7 |       enum Foo {
-  |       ^
+  |            ^
 
 # output.txt
 Defined in file:///mod.ts:1:1

@@ -151,6 +151,8 @@ Deno.test({
       },
     });
 
+    // `Rgb` is not exported, but `rgb24`/`bgRgb24` take it, so it gets a page
+    // and one per property. `Code`, which nothing public mentions, does not.
     assertEquals(Object.keys(files).length, 62);
   },
 });
@@ -178,6 +180,7 @@ Deno.test({
       },
     });
 
+    // same four extra pages as in generateHtml() above
     assertEquals(Object.keys(files).length, 55);
   },
 });

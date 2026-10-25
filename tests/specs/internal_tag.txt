@@ -36,10 +36,10 @@ export type Test = OtherPrivateType;
 
 # diagnostics
 error[missing-jsdoc]: exported symbol is missing JSDoc documentation
-  --> /mod.ts:34:1
+  --> /mod.ts:34:13
    | 
 34 | export type Test = OtherPrivateType;
-   | ^
+   |             ^
 
 # output.txt
 Defined in file:///mod.ts:6:1

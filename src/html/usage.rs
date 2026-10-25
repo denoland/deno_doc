@@ -10,19 +10,20 @@ use serde::Deserialize;
 use serde::Serialize;
 use std::borrow::Cow;
 
-#[cfg(target_arch = "wasm32")]
+#[cfg(all(target_arch = "wasm32", not(target_os = "emscripten")))]
 use std::cell::RefCell;
-#[cfg(target_arch = "wasm32")]
+#[cfg(all(target_arch = "wasm32", not(target_os = "emscripten")))]
 use std::ffi::c_void;
 
-#[cfg(target_arch = "wasm32")]
+#[cfg(all(target_arch = "wasm32", not(target_os = "emscripten")))]
 thread_local! {
   static RENDER_CONTEXT: RefCell<*const c_void> = const { RefCell::new(std::ptr::null()) };
   static DOC_NODE: RefCell<*const c_void> = const { RefCell::new(std::ptr::null()) };
 }
 
 lazy_static! {
-  static ref IDENTIFIER_RE: Regex = Regex::new(r"[^a-zA-Z$_]").unwrap();
+  static ref IDENTIFIER_RE: Regex =
+    Regex::new(r"^[0-9]|[^a-zA-Z0-9$_]").unwrap();
 }
 
 /// JavaScript/TypeScript reserved words that cannot be used as identifiers.
@@ -331,13 +332,13 @@ impl UsagesCtx {
       return None;
     }
 
-    #[cfg(not(target_arch = "wasm32"))]
+    #[cfg(any(not(target_arch = "wasm32"), target_os = "emscripten"))]
     let usage_to_md_closure =
       move |url: &str, custom_file_identifier: Option<&str>| {
         usage_to_md(ctx, symbol, url, custom_file_identifier)
       };
 
-    #[cfg(target_arch = "wasm32")]
+    #[cfg(all(target_arch = "wasm32", not(target_os = "emscripten")))]
     {
       let ctx_ptr = ctx as *const RenderContext as *const c_void;
       RENDER_CONTEXT.set(ctx_ptr);
@@ -347,7 +348,7 @@ impl UsagesCtx {
       DOC_NODE.set(node_ptr);
     }
 
-    #[cfg(target_arch = "wasm32")]
+    #[cfg(all(target_arch = "wasm32", not(target_os = "emscripten")))]
     let usage_to_md_closure =
       move |url: String, custom_file_identifier: Option<String>| {
         RENDER_CONTEXT.with(|ctx| {
@@ -383,11 +384,11 @@ impl UsagesCtx {
         })
       };
 
-    #[cfg(target_arch = "wasm32")]
+    #[cfg(all(target_arch = "wasm32", not(target_os = "emscripten")))]
     let usage_to_md_closure =
       wasm_bindgen::prelude::Closure::wrap(Box::new(usage_to_md_closure)
         as Box<dyn Fn(String, Option<String>) -> String>);
-    #[cfg(target_arch = "wasm32")]
+    #[cfg(all(target_arch = "wasm32", not(target_os = "emscripten")))]
     let usage_to_md_closure = &wasm_bindgen::JsCast::unchecked_ref::<
       js_sys::Function,
     >(usage_to_md_closure.as_ref());
@@ -395,7 +396,7 @@ impl UsagesCtx {
     let usages =
       usage_composer.compose(ctx.get_current_resolve(), &usage_to_md_closure);
 
-    #[cfg(target_arch = "wasm32")]
+    #[cfg(all(target_arch = "wasm32", not(target_os = "emscripten")))]
     {
       let render_ctx =
         RENDER_CONTEXT.replace(std::ptr::null()) as *const RenderContext;
@@ -488,5 +489,12 @@ mod tests {
     assert_eq!(IDENTIFIER_RE.replace_all("foo-bar", "_"), "foo_bar");
     assert_eq!(IDENTIFIER_RE.replace_all("@scope/pkg", "_"), "_scope_pkg");
     assert_eq!(IDENTIFIER_RE.replace_all("hello_world", "_"), "hello_world");
+    // digits are valid in identifiers, just not as the first character
+    assert_eq!(IDENTIFIER_RE.replace_all("bar123", "_"), "bar123");
+    assert_eq!(IDENTIFIER_RE.replace_all("@scope/pkg2", "_"), "_scope_pkg2");
+    assert_eq!(IDENTIFIER_RE.replace_all("123bar", "_"), "_23bar");
+    assert_eq!(IDENTIFIER_RE.replace_all("0", "_"), "_");
+    // `^` is not multi-line, so only the very first digit is replaced
+    assert_eq!(IDENTIFIER_RE.replace_all("1a\n2b", "_"), "_a_2b");
   }
 }

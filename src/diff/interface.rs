@@ -431,6 +431,7 @@ impl InterfaceMethodsDiff {
 #[serde(rename_all = "camelCase")]
 pub struct InterfaceMethodDiff {
   pub name: String,
+  pub kind: deno_ast::swc::ast::MethodKind,
   #[serde(skip_serializing_if = "Option::is_none")]
   pub name_change: Option<Change<String>>,
   #[serde(skip_serializing_if = "Option::is_none")]
@@ -450,8 +451,8 @@ impl InterfaceMethodDiff {
     let MethodDef {
       name: old_name,
       js_doc: old_js_doc,
-      kind: _,     // methods matched by kind in caller
-      location: _, // internal, not diffed
+      kind: old_kind, // methods matched by kind in caller
+      location: _,    // internal, not diffed
       params: old_params,
       computed: _, // not useful for diffing
       optional: old_optional,
@@ -496,6 +497,7 @@ impl InterfaceMethodDiff {
 
     Some(InterfaceMethodDiff {
       name: old_name.clone(),
+      kind: *old_kind,
       name_change: None,
       optional_change,
       params_change,
@@ -532,6 +534,7 @@ impl RenameCandidate for InterfaceMethodDiff {
   fn with_rename(diff: Option<Self>, old: &MethodDef, new: &MethodDef) -> Self {
     let mut d = diff.unwrap_or_else(|| InterfaceMethodDiff {
       name: new.name.clone(),
+      kind: new.kind,
       name_change: None,
       optional_change: None,
       params_change: None,

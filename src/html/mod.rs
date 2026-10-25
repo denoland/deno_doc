@@ -96,6 +96,13 @@ fn setup_hbs() -> Result<Handlebars<'static>, anyhow::Error> {
   handlebars_helper!(print: |a: Json| println!("{a:#?}"));
   reg.register_helper("print", Box::new(print));
 
+  // Escape a value for use in plain text contexts (such as `<title>`), where
+  // only `&`, `<` and `>` need escaping. The registry-wide escaper is the
+  // stricter `encode_safe`, which also escapes characters like `/` that are
+  // harmless in text content, turning e.g. `I/O` into `I&#x2F;O`.
+  handlebars_helper!(escape_text: |a: str| html_escape::encode_text(a).into_owned());
+  reg.register_helper("escape_text", Box::new(escape_text));
+
   reg.register_template_string(
     ToCCtx::TEMPLATE,
     include_str!("./templates/toc.hbs"),
@@ -279,6 +286,14 @@ pub struct GenerateOptions {
   pub head_inject: Option<HeadInject>,
   pub id_prefix: Option<String>,
   pub diff_only: bool,
+  /// Maximum number of symbol rows to render in a single module symbol
+  /// listing (the per-file overview; the "all symbols" page contains one
+  /// such listing per entrypoint). While a listing exceeds the limit, its
+  /// deepest level of namespace nesting is dropped whole — so the result
+  /// can undershoot the limit, but every namespace is either fully listed
+  /// or deferred to its own page, never partially listed. Top-level symbols
+  /// are always rendered. `None` renders everything.
+  pub symbol_listing_limit: Option<usize>,
 }
 
 #[non_exhaustive]
@@ -302,11 +317,17 @@ pub struct GenerateCtx {
   pub head_inject: Option<HeadInject>,
   pub id_prefix: Option<String>,
   pub diff_only: bool,
+  pub symbol_listing_limit: Option<usize>,
   /// Index from Location to (depth, node) for fast reference resolution.
   /// Built lazily on first access to avoid the cost when not needed.
   reference_index: std::sync::OnceLock<
     HashMap<crate::Location, Vec<(usize, DocNodeWithContext)>>,
   >,
+  /// Per-file sets of linkable symbols, used to verify that a symbol exists
+  /// in another documented file before linking to it. Built lazily on first
+  /// access.
+  linkable_symbols:
+    std::sync::OnceLock<HashMap<Arc<ShortPath>, util::NamespacedSymbols>>,
   /// Optional diff index for annotating rendered output with diff status.
   pub diff: Option<DiffIndex>,
 }
@@ -405,6 +426,7 @@ impl GenerateCtx {
 
             DocNodeWithContext {
               origin: short_path.clone(),
+              declared_origin: None,
               ns_qualifiers: Arc::new([]),
               inner: symbol,
               drilldown_name: None,
@@ -466,6 +488,7 @@ impl GenerateCtx {
           for node in removed {
             nodes.push(DocNodeWithContext {
               origin: short_path.clone(),
+              declared_origin: None,
               ns_qualifiers: Arc::new([]),
               inner: Arc::new(node.clone()),
               drilldown_name: None,
@@ -535,7 +558,9 @@ impl GenerateCtx {
       head_inject: options.head_inject,
       id_prefix: options.id_prefix,
       diff_only: options.diff_only,
+      symbol_listing_limit: options.symbol_listing_limit,
       reference_index: std::sync::OnceLock::new(),
+      linkable_symbols: std::sync::OnceLock::new(),
       diff,
     })
   }
@@ -595,6 +620,31 @@ impl GenerateCtx {
     }
 
     self.href_resolver.resolve_path(current, target)
+  }
+
+  /// Whether the given documented file contains a linkable symbol with the
+  /// given namespaced path.
+  pub(crate) fn file_has_linkable_symbol(
+    &self,
+    short_path: &ShortPath,
+    symbol: &[String],
+  ) -> bool {
+    let linkable_symbols = self.linkable_symbols.get_or_init(|| {
+      self
+        .doc_nodes
+        .iter()
+        .map(|(short_path, nodes)| {
+          (
+            short_path.clone(),
+            util::NamespacedSymbols::new(self, nodes),
+          )
+        })
+        .collect()
+    });
+
+    linkable_symbols
+      .get(short_path)
+      .is_some_and(|symbols| symbols.get(symbol).is_some())
   }
 
   fn get_reference_index(
@@ -679,10 +729,11 @@ impl GenerateCtx {
           fn handle_node(
             node: &mut DocNodeWithContext,
             ns_qualifiers: Vec<String>,
+            origin: &Arc<ShortPath>,
           ) {
             if let Some(children_rc) = &mut node.namespace_children {
               for node in Arc::make_mut(children_rc) {
-                handle_node(node, ns_qualifiers.clone());
+                handle_node(node, ns_qualifiers.clone(), origin);
               }
             }
 
@@ -690,9 +741,18 @@ impl GenerateCtx {
             new_ns_qualifiers.extend(node.ns_qualifiers.iter().cloned());
             node.ns_qualifiers = new_ns_qualifiers.into();
             node.qualified_name = std::sync::OnceLock::new();
+            // The symbol page for a namespace-qualified re-export is written
+            // under the module that documents the namespace, not the module
+            // the symbol was declared in, so hrefs must resolve against the
+            // former. Diff data stays keyed by the declaring module, which is
+            // preserved as `declared_origin`.
+            if node.declared_origin.is_none() {
+              node.declared_origin = Some(node.origin.clone());
+            }
+            node.origin = origin.clone();
           }
 
-          handle_node(&mut node, ns_qualifiers);
+          handle_node(&mut node, ns_qualifiers, &parent.origin);
 
           Cow::Owned(node)
         } else {
@@ -779,6 +839,7 @@ fn apply_namespace_diff_inner(
       for removed_node in &ns_diff.removed_elements {
         children.push(DocNodeWithContext {
           origin: short_path.clone(),
+          declared_origin: None,
           ns_qualifiers: subqualifier.clone(),
           inner: removed_node.clone(),
           drilldown_name: None,
@@ -941,6 +1002,12 @@ pub enum DrilldownKind {
 #[serde(rename_all = "camelCase")]
 pub struct DocNodeWithContext {
   pub origin: Arc<ShortPath>,
+  /// The module the symbol was declared in, when it differs from `origin`.
+  /// `origin` tracks the module whose docs are being generated (which is what
+  /// hrefs must resolve against), but for reference-resolved re-exports diff
+  /// data is keyed by the declaring module; see [`Self::declared_origin`].
+  #[serde(skip, default)]
+  declared_origin: Option<Arc<ShortPath>>,
   pub ns_qualifiers: Arc<[String]>,
   pub inner: Arc<Symbol>,
   pub drilldown_name: Option<Box<str>>,
@@ -958,6 +1025,13 @@ pub struct DocNodeWithContext {
 }
 
 impl DocNodeWithContext {
+  /// The module the symbol was declared in. This is the same as `origin`
+  /// except for reference-resolved re-exports, and is the module diff data is
+  /// keyed by.
+  pub fn declared_origin(&self) -> &Arc<ShortPath> {
+    self.declared_origin.as_ref().unwrap_or(&self.origin)
+  }
+
   /// Returns the `DocNodeKindCtx` entries for this symbol. For drilldown
   /// symbols (methods/properties) uses the `drilldown_kind`; otherwise
   /// derives from declarations.
@@ -977,6 +1051,7 @@ impl DocNodeWithContext {
   pub fn create_child(&self, doc_node: Arc<Symbol>) -> Self {
     DocNodeWithContext {
       origin: self.origin.clone(),
+      declared_origin: self.declared_origin.clone(),
       ns_qualifiers: self.ns_qualifiers.clone(),
       inner: doc_node,
       drilldown_name: None,
@@ -994,6 +1069,7 @@ impl DocNodeWithContext {
   ) -> Self {
     DocNodeWithContext {
       origin: parent.origin.clone(),
+      declared_origin: parent.declared_origin.clone(),
       ns_qualifiers: parent.ns_qualifiers.clone(),
       inner: doc_node,
       drilldown_name: None,
@@ -1126,19 +1202,39 @@ impl DocNodeWithContext {
     ns_qualifiers
   }
 
-  pub fn is_internal(&self, ctx: &GenerateCtx) -> bool {
-    (self
+  /// Whether the symbol is not exported from any entrypoint. The parser still
+  /// documents these when the public API refers to them (see
+  /// `SymbolVisibility`), because a signature mentioning such a type is
+  /// useless without one — but they are kept out of the listings, since a
+  /// reader cannot import them.
+  ///
+  /// In `.d.ts` modes everything is treated as exported, so nothing is
+  /// non-exported there.
+  pub fn is_non_exported(&self, ctx: &GenerateCtx) -> bool {
+    self
       .inner
       .declarations
       .iter()
       .any(|d| d.declaration_kind == crate::node::DeclarationKind::Private)
-      && !matches!(ctx.file_mode, FileMode::SingleDts | FileMode::Dts))
-      || self
-        .inner
-        .declarations
-        .iter()
-        .flat_map(|d| d.js_doc.tags.iter())
-        .any(|tag| tag == &JsDocTag::Internal)
+      && !matches!(ctx.file_mode, FileMode::SingleDts | FileMode::Dts)
+  }
+
+  /// Whether the author hid the symbol with `@internal`. Unlike merely
+  /// non-exported symbols, these are dropped everywhere: no listing entry, no
+  /// search entry, no page, and no link.
+  pub fn is_hidden(&self) -> bool {
+    self
+      .inner
+      .declarations
+      .iter()
+      .flat_map(|d| d.js_doc.tags.iter())
+      .any(|tag| tag == &JsDocTag::Internal)
+  }
+
+  /// Whether the symbol is kept out of the symbol listings and search: either
+  /// hidden outright, or not part of the importable API.
+  pub fn is_internal(&self, ctx: &GenerateCtx) -> bool {
+    self.is_non_exported(ctx) || self.is_hidden()
   }
 
   fn get_topmost_ancestor(&self) -> &DocNodeWithContext {
@@ -1157,28 +1253,51 @@ impl DocNodeWithContext {
     for decl in &self.inner.declarations {
       match &decl.def {
         DeclarationDef::Class(class_def) => {
-          symbols.extend(class_def.methods.iter().map(|method| {
-            Self::create_child_method_with_parent(
-              &parent_rc,
-              Symbol::function(
-                method.name.clone(),
-                false,
-                method.location.clone(),
-                declaration_kind,
-                method.js_doc.clone(),
-                method.function_def.clone(),
-              ),
-              method.is_static,
-              method.kind,
-            )
-          }));
-          symbols.extend(class_def.properties.iter().map(|property| {
-            Self::create_child_property_with_parent(
-              &parent_rc,
-              Symbol::from(property.clone()),
-              property.is_static,
-            )
-          }));
+          // private members are not rendered (see `partition_class_items`),
+          // so they must not get drilldown pages or listing/search entries
+          // either
+          let is_private =
+            |accessibility: &Option<deno_ast::swc::ast::Accessibility>| {
+              matches!(
+                accessibility,
+                Some(deno_ast::swc::ast::Accessibility::Private)
+              )
+            };
+
+          symbols.extend(
+            class_def
+              .methods
+              .iter()
+              .filter(|method| !is_private(&method.accessibility))
+              .map(|method| {
+                Self::create_child_method_with_parent(
+                  &parent_rc,
+                  Symbol::function(
+                    method.name.clone(),
+                    false,
+                    method.location.clone(),
+                    declaration_kind,
+                    method.js_doc.clone(),
+                    method.function_def.clone(),
+                  ),
+                  method.is_static,
+                  method.kind,
+                )
+              }),
+          );
+          symbols.extend(
+            class_def
+              .properties
+              .iter()
+              .filter(|property| !is_private(&property.accessibility))
+              .map(|property| {
+                Self::create_child_property_with_parent(
+                  &parent_rc,
+                  Symbol::from(property.clone()),
+                  property.is_static,
+                )
+              }),
+          );
         }
         DeclarationDef::Interface(interface_def) => {
           symbols.extend(interface_def.methods.iter().map(|method| {
@@ -1401,8 +1520,11 @@ pub fn generate(
               Some(short_path),
             );
 
-            let file_name =
-              format!("{}/~/{}.html", short_path.path, symbol_group_ctx.name);
+            let file_name = format!(
+              "{}/~/{}.html",
+              short_path.path,
+              util::sanitize_symbol_path_part(&symbol_group_ctx.name)
+            );
 
             let page_ctx = pages::SymbolPageCtx {
               html_head_ctx,
@@ -1426,8 +1548,11 @@ pub fn generate(
             let redirect =
               serde_json::json!({ "kind": "redirect", "path": href });
 
-            let file_name =
-              format!("{}/~/{}.html", short_path.path, current_symbol);
+            let file_name = format!(
+              "{}/~/{}.html",
+              short_path.path,
+              util::sanitize_symbol_path_part(&current_symbol)
+            );
 
             vec![(file_name, ctx.render("pages/redirect", &redirect))]
           }
@@ -1616,8 +1741,11 @@ where
               continue;
             }
 
-            let file_name =
-              format!("{}/~/{}.json", short_path.path, symbol_group_ctx.name);
+            let file_name = format!(
+              "{}/~/{}.json",
+              short_path.path,
+              util::sanitize_symbol_path_part(&symbol_group_ctx.name)
+            );
             if !emitted_keys.insert(file_name.clone()) {
               continue;
             }
@@ -1667,8 +1795,11 @@ where
               continue;
             }
 
-            let file_name =
-              format!("{}/~/{}.json", short_path.path, current_symbol);
+            let file_name = format!(
+              "{}/~/{}.json",
+              short_path.path,
+              util::sanitize_symbol_path_part(&current_symbol)
+            );
             if !emitted_keys.insert(file_name.clone()) {
               continue;
             }

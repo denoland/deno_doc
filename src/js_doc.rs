@@ -21,7 +21,7 @@ lazy_static! {
   /// @tag value
   static ref JS_DOC_TAG_WITH_VALUE_RE: Regex = Regex::new(r"(?s)^\s*@(category|group|see|example|tags|since|priority|summary|description)(?:\s+(.+))").unwrap();
   /// @tag name maybe_value
-  static ref JS_DOC_TAG_NAMED_WITH_MAYBE_VALUE_RE: Regex = Regex::new(r"(?s)^\s*@(callback|template|typeparam|typeParam)\s+([a-zA-Z_$]\S*)(?:\s+(?:-\s+)?(.+))?").unwrap();
+  static ref JS_DOC_TAG_NAMED_WITH_MAYBE_VALUE_RE: Regex = Regex::new(r"(?s)^\s*@(callback|template|typeparam|typeParam|event|fires|emits|listens)\s+([a-zA-Z_$]\S*)(?:\s+(?:-\s+)?(.+))?").unwrap();
   /// @tag {type} name maybe_value
   static ref JS_DOC_TAG_NAMED_TYPED_RE: Regex = Regex::new(r"(?s)^\s*@(prop(?:erty)?|typedef)\s+\{([^}]+)\}\s+([a-zA-Z_$]\S*)(?:\s+(?:-\s+)?(.+))?").unwrap();
   /// @tag {type} name maybe_value
@@ -32,9 +32,46 @@ lazy_static! {
   )
   .unwrap();
   /// @tag {maybe_type} maybe_value
-  static ref JS_DOC_TAG_WITH_MAYBE_TYPE_AND_MAYBE_VALUE_RE: Regex = Regex::new(r"(?s)^\s*@(returns?|throws|exception)(?:\s+\{([^}]+)\})?(?:\s+(.+))?").unwrap();
+  ///
+  /// The `{type}` is extracted separately (see [`split_jsdoc_type_and_doc`]) so
+  /// that nested braces are handled correctly; a `([^}]+)` capture would stop at
+  /// the first `}` and truncate a type like `{DOMException & { name: "x" }}`.
+  static ref JS_DOC_TAG_WITH_MAYBE_TYPE_AND_MAYBE_VALUE_RE: Regex = Regex::new(r"(?s)^\s*@(returns?|throws|exception)\b(.*)$").unwrap();
   /// @tag {maybe_type} value
   static ref JS_DOC_TAG_WITH_TYPE_AND_MAYBE_VALUE_RE: Regex = Regex::new(r"(?s)^\s*@(enum|extends|augments|this|type|default)\s+\{([^}]+)\}(?:\s+(.+))?").unwrap();
+}
+
+/// Splits the remainder of a JSDoc tag (everything after the tag name) into an
+/// optional leading `{type}` annotation and the remaining documentation text.
+///
+/// Unlike a `\{([^}]+)\}` regex capture, this honors braces nested inside the
+/// type, so `{DOMException & { name: "x" }} the rest` yields the type
+/// `DOMException & { name: "x" }` and the doc `the rest`.
+fn split_jsdoc_type_and_doc(rest: &str) -> (Option<&str>, Option<&str>) {
+  let trimmed = rest.trim_start();
+  if let Some(after_brace) = trimmed.strip_prefix('{') {
+    let mut depth = 1usize;
+    for (idx, ch) in after_brace.char_indices() {
+      match ch {
+        '{' => depth += 1,
+        '}' => {
+          depth -= 1;
+          if depth == 0 {
+            let ts_type = &after_brace[..idx];
+            let doc = after_brace[idx + 1..].trim_start();
+            return (
+              Some(ts_type),
+              if doc.is_empty() { None } else { Some(doc) },
+            );
+          }
+        }
+        _ => {}
+      }
+    }
+    // Unbalanced braces: fall through and treat the whole thing as doc text.
+  }
+  let doc = rest.trim_start();
+  (None, if doc.is_empty() { None } else { Some(doc) })
 }
 
 fn make_ts_type(type_str: &str, module_info: &EsModuleInfo) -> TsTypeDef {
@@ -254,6 +291,12 @@ pub enum JsDocTag {
     #[serde(skip_serializing_if = "Option::is_none", default)]
     doc: Option<Box<str>>,
   },
+  /// `@event name comment`
+  Event {
+    name: Box<str>,
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    doc: Option<Box<str>>,
+  },
   /// `@example comment`
   Example {
     #[serde(default)]
@@ -268,10 +311,22 @@ pub enum JsDocTag {
     #[serde(skip_serializing_if = "Option::is_none", default)]
     doc: Option<Box<str>>,
   },
+  /// `@fires name comment` or `@emits name comment`
+  Fires {
+    name: Box<str>,
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    doc: Option<Box<str>>,
+  },
   /// `@ignore`
   Ignore,
   /// `@internal`
   Internal,
+  /// `@listens name comment`
+  Listens {
+    name: Box<str>,
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    doc: Option<Box<str>>,
+  },
   /// `@module`
   /// `@module name`
   Module {
@@ -405,6 +460,9 @@ impl JsDocTag {
       match kind {
         "callback" => Self::Callback { name, doc },
         "template" | "typeparam" | "typeParam" => Self::Template { name, doc },
+        "event" => Self::Event { name, doc },
+        "fires" | "emits" => Self::Fires { name, doc },
+        "listens" => Self::Listens { name, doc },
         _ => unreachable!("kind unexpected: {}", kind),
       }
     } else if let Some(caps) =
@@ -509,8 +567,10 @@ impl JsDocTag {
       JS_DOC_TAG_WITH_MAYBE_TYPE_AND_MAYBE_VALUE_RE.captures(&value)
     {
       let kind = caps.get(1).unwrap().as_str();
-      let ts_type = caps.get(2).map(|m| make_ts_type(m.as_str(), module_info));
-      let doc = caps.get(3).map(|m| m.as_str().into());
+      let rest = caps.get(2).map(|m| m.as_str()).unwrap_or("");
+      let (type_str, doc) = split_jsdoc_type_and_doc(rest);
+      let ts_type = type_str.map(|t| make_ts_type(t, module_info));
+      let doc = doc.map(|d| d.into());
       match kind {
         "return" | "returns" => Self::Return { ts_type, doc },
         "throws" | "exception" => Self::Throws { ts_type, doc },
@@ -762,6 +822,70 @@ class Foo {}
             "kind": "template",
             "name": "T",
             "doc": "more docs\n\nnew paragraph",
+          }
+        ]
+      })
+    );
+    assert_eq!(
+      serde_json::to_value(parse_jsdoc(
+        "@event Hurl#snowball Fired when a snowball is thrown"
+      ))
+      .unwrap(),
+      serde_json::json!({
+        "tags": [
+          {
+            "kind": "event",
+            "name": "Hurl#snowball",
+            "doc": "Fired when a snowball is thrown",
+          }
+        ]
+      })
+    );
+    assert_eq!(
+      serde_json::to_value(parse_jsdoc("@event open")).unwrap(),
+      serde_json::json!({
+        "tags": [
+          {
+            "kind": "event",
+            "name": "open",
+          }
+        ]
+      })
+    );
+    assert_eq!(
+      serde_json::to_value(parse_jsdoc("@fires Hurl#snowball")).unwrap(),
+      serde_json::json!({
+        "tags": [
+          {
+            "kind": "fires",
+            "name": "Hurl#snowball",
+          }
+        ]
+      })
+    );
+    assert_eq!(
+      serde_json::to_value(parse_jsdoc(
+        "@emits open - when the connection opens"
+      ))
+      .unwrap(),
+      serde_json::json!({
+        "tags": [
+          {
+            "kind": "fires",
+            "name": "open",
+            "doc": "when the connection opens",
+          }
+        ]
+      })
+    );
+    assert_eq!(
+      serde_json::to_value(parse_jsdoc("@listens module:hurler~snowball"))
+        .unwrap(),
+      serde_json::json!({
+        "tags": [
+          {
+            "kind": "listens",
+            "name": "module:hurler~snowball",
           }
         ]
       })
@@ -1280,6 +1404,43 @@ const a = "a";
   }
 
   #[test]
+  fn test_split_jsdoc_type_and_doc() {
+    // Nested braces inside the type must not truncate it at the first `}`
+    // (regression test for `@throws {DOMException & { name: "x" }}`).
+    assert_eq!(
+      split_jsdoc_type_and_doc(
+        " {DOMException & { name: \"TimeoutError\" }} when it times out"
+      ),
+      (
+        Some("DOMException & { name: \"TimeoutError\" }"),
+        Some("when it times out")
+      )
+    );
+    // A type with no trailing doc.
+    assert_eq!(
+      split_jsdoc_type_and_doc(" {{ a: number; b: string }}"),
+      (Some("{ a: number; b: string }"), None)
+    );
+    // Simple type + doc still behaves as before.
+    assert_eq!(
+      split_jsdoc_type_and_doc(" {string} maybe doc"),
+      (Some("string"), Some("maybe doc"))
+    );
+    // No type at all.
+    assert_eq!(
+      split_jsdoc_type_and_doc(" just some docs"),
+      (None, Some("just some docs"))
+    );
+    // Unbalanced braces fall back to treating everything as doc.
+    assert_eq!(
+      split_jsdoc_type_and_doc(" {unterminated"),
+      (None, Some("{unterminated"))
+    );
+    // Empty remainder.
+    assert_eq!(split_jsdoc_type_and_doc(""), (None, None));
+  }
+
+  #[test]
   fn test_js_doc_from_str() {
     assert_eq!(
       serde_json::to_value(parse_jsdoc(
@@ -1564,6 +1725,40 @@ multi-line
       json!({
         "kind": "template",
         "name": "T",
+      })
+    );
+    assert_eq!(
+      serde_json::to_value(JsDocTag::Event {
+        name: "snowball".into(),
+        doc: Some("fired when a snowball is thrown".into()),
+      })
+      .unwrap(),
+      json!({
+        "kind": "event",
+        "name": "snowball",
+        "doc": "fired when a snowball is thrown",
+      })
+    );
+    assert_eq!(
+      serde_json::to_value(JsDocTag::Fires {
+        name: "Hurl#snowball".into(),
+        doc: None,
+      })
+      .unwrap(),
+      json!({
+        "kind": "fires",
+        "name": "Hurl#snowball",
+      })
+    );
+    assert_eq!(
+      serde_json::to_value(JsDocTag::Listens {
+        name: "module:hurler~snowball".into(),
+        doc: None,
+      })
+      .unwrap(),
+      json!({
+        "kind": "listens",
+        "name": "module:hurler~snowball",
       })
     );
     assert_eq!(

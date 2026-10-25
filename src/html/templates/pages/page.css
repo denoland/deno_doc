@@ -61,11 +61,13 @@ body {
   @apply -ml-4 pl-4;
 }
 
-#content, #topnav > div {
+#content,
+#topnav > div {
   @apply flex flex-row justify-between gap-6 gap-8 lg:gap-12;
 }
 
-.toc, #searchbar {
+.toc,
+#searchbar {
   @apply flex-shrink-0 min-w-[250px] max-w-[300px];
 }
 
